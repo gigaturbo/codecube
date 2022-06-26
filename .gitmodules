@@ -1,7 +1,6 @@
 [submodule "mods/codeblock"]
 	path = mods/codeblock
 	url = https://github.com/gigaturbo/codeblock.git
-	tag = v0.7.2
 [submodule "mods/vector3"]
 	path = mods/vector3
 	url = https://github.com/gigaturbo/vector3.git
