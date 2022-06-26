@@ -1,0 +1,13 @@
+{
+    "type": "GAME",
+    "title": "Codecube",
+    "name": "codecube",
+    "short_description": "A game to program in Minetest",
+    "dev_state": "BETA",
+    "tags": [
+        "education"
+    ],
+    "license": "GPL-3.0-only",
+    "repo": "https://github.com/gigaturbo/codecube.git",
+    "issue_tracker": "https://github.com/gigaturbo/codecube/issues"
+}

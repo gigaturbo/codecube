@@ -1,0 +1,20 @@
+{
+    "runtime.version": "Lua 5.1",
+    "diagnostics": {
+        "enable": true,
+        "globals": [
+            "minetest",
+            "worldedit",
+            "ItemStack",
+            "vector3",
+            "VoxelManip",
+            "VoxelArea",
+            "codeblock"
+        ]
+    },
+    "workspace": {
+        "ignoreDir": [
+            "mods/**"
+        ]
+    }
+}

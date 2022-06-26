@@ -1,3 +1,8 @@
+# Submodules
+mods/formspecs/**
+mods/vector3/**
+mods/codeblock/**
+
 # Compiled Lua sources
 luac.out
 
