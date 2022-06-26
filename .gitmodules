@@ -1,0 +1,15 @@
+[submodule "mods/codeblock"]
+	path = mods/codeblock
+	url = https://github.com/gigaturbo/codeblock.git
+[submodule "mods/vector3"]
+	path = mods/vector3
+	url = https://github.com/gigaturbo/vector3.git
+[submodule "mods/Minetest-WorldEdit"]
+	path = mods/Minetest-WorldEdit
+	url = https://github.com/Uberi/Minetest-WorldEdit.git
+[submodule "mods/formspecs"]
+	path = mods/formspecs
+	url = https://bitbucket.org/sorcerykid/formspecs.git
+[submodule "mods/ptime"]
+	path = mods/ptime
+	url = https://github.com/xenonca/ptime.git
