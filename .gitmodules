@@ -7,3 +7,6 @@
 [submodule "mods/formspecs"]
 	path = mods/formspecs
 	url = https://bitbucket.org/sorcerykid/formspecs.git
+[submodule "codeblock"]
+	path = codeblock
+	url = https://github.com/gigaturbo/codeblock.git
