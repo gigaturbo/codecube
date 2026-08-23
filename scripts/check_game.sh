@@ -91,15 +91,33 @@ for d in mods/*/; do
 done
 note "all hard dependencies present"
 
-echo "== first-party mods carry a licence =="
-for m in cc_day cc_mapgen cc_security; do
-    if ls "mods/$m" 2>/dev/null | grep -qiE '^(license|licence|copying)'; then
-        note "mods/$m licensed"
+echo "== every bundled mod's licence is accounted for =="
+# formspecs is a submodule of a repository we do not control, so a licence file
+# placed in it would be untracked and would vanish from a fresh clone. Its text
+# lives in THIRD-PARTY-LICENSES.md instead, and this check insists on that
+# rather than letting the gap pass silently.
+documented_elsewhere="formspecs"
+for d in mods/*/; do
+    m=${d%/}
+    m=${m#mods/}
+    if ls "$d" 2>/dev/null | grep -qiE '^(license|licence|copying)'; then
+        note "mods/$m carries its own licence"
+    elif [[ " $documented_elsewhere " == *" $m "* ]]; then
+        if [ -f THIRD-PARTY-LICENSES.md ] && grep -q "mods/$m" THIRD-PARTY-LICENSES.md; then
+            note "mods/$m licensed via THIRD-PARTY-LICENSES.md"
+        else
+            err "mods/$m has no licence file and is not covered by THIRD-PARTY-LICENSES.md"
+        fi
     else
         err "mods/$m has no licence file"
     fi
 done
 if [ -f LICENSE ]; then note "root LICENSE present"; else err "root LICENSE missing"; fi
+if [ -f THIRD-PARTY-LICENSES.md ]; then
+    note "THIRD-PARTY-LICENSES.md present"
+else
+    err "THIRD-PARTY-LICENSES.md missing"
+fi
 
 echo "== .cdb.json is up to date =="
 if [ -f scripts/gen_cdb_json.sh ]; then
