@@ -38,7 +38,14 @@ ignore = os.getenv("LUACHECK_STRICT") and {} or {
     --   for i, filename in ipairs(meta.tabs) do meta.active = i end
     -- in lib/formspecs.lua, which is a convoluted way to write #meta.tabs and is
     -- already called out under audit finding A1's editor rewrite.
-    "213"
+    "213",
+    -- 611/612/613/614: whitespace-only findings (blank lines with whitespace,
+    -- trailing whitespace in lines and comments). There are 61 across 16 files,
+    -- left behind by the existing lua-format style. That is a formatter's job,
+    -- not a linter's - consistent with max_line_length above - and stripping
+    -- them now would put a whitespace-only diff across every lib file right
+    -- before Phase 2 rewrites several of them. Fold into a formatter pass later.
+    "611", "612", "613", "614"
 }
 
 -- The engine namespace and the globals our dependencies publish.
@@ -125,6 +132,12 @@ files["mods/codeblock/lib/examples/**"] = {
     -- it just lands in the sandbox env rather than the real _G. Eight examples
     -- do this (menger, forest, recursion, plot2D, ...), often recursively.
     allow_defined_top = true,
-    -- Player programs legitimately use short throwaway names.
-    ignore = {"212", "213"}
+    -- 212/213: player programs legitimately use short throwaway names.
+    -- 431/432: menger.lua and mosely.lua declare an inner
+    --   local function recursion(size, x, y, z)
+    -- inside an outer function that also takes `size`. The shadowing is
+    -- deliberate and correct - the helper is called both with a subdivided size
+    -- and with the outer one - and `size` is the clearest name for a teaching
+    -- example, so renaming it to silence the warning would make it worse.
+    ignore = {"212", "213", "431", "432"}
 }
