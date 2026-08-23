@@ -85,6 +85,17 @@ files["mods/codeblock/tests/**"] = {
     read_globals = {"arg"}
 }
 
+files["mods/cc_security/**"] = {
+    -- 122: assigning to a field of the `minetest` global. This mod does
+    --   function minetest.handle_node_drops() end
+    --   function minetest.calculate_knockback() return 0 end
+    -- which clobbers any other mod's override and gets clobbered in turn.
+    -- luacheck is right, and this is already recorded as audit finding A8;
+    -- fixing it means capturing and chaining the previous value, which is a
+    -- behaviour change and belongs with that work, not with lint setup.
+    ignore = {"122"}
+}
+
 -- The shipped example programs are *player* code: they run inside the sandbox
 -- environment built by lib/sandbox.lua, not in a Luanti mod environment. Given
 -- their own std, luacheck will catch typo'd API names and stray globals in the
