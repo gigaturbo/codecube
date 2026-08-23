@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: luacheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # mods/codeblock, mods/vector3 and mods/formspecs are submodules;
+          # without them there is nothing to lint.
+          submodules: recursive
+
+      - uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.1"
+
+      - uses: leafo/gh-actions-luarocks@v4
+
+      - name: Install luacheck
+        run: luarocks install luacheck
+
+      - name: Lint first-party code
+        run: luacheck .
+
+  test:
+    name: preprocessor spec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: leafo/gh-actions-lua@v10
+        with:
+          # Luanti runs LuaJIT (Lua 5.1); match it so the specs exercise the
+          # same string library behaviour the mod actually sees.
+          luaVersion: "luajit-2.1.0-beta3"
+
+      - name: Run preprocessor spec
+        run: lua mods/codeblock/tests/preprocess_spec.lua
