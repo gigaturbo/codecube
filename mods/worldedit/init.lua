@@ -29,7 +29,12 @@ load_module(path .. "/manipulations.lua")
 load_module(path .. "/primitives.lua")
 load_module(path .. "/visualization.lua")
 load_module(path .. "/serialization.lua")
-load_module(path .. "/code.lua")
+-- code.lua removed from this fork: it provided worldedit.lua(code) and
+-- worldedit.luatransform(), which loadstring() arbitrary Lua in the global
+-- namespace. This fork has no chat commands, so nothing could reach them,
+-- but an unreachable arbitrary-execution primitive has no business sitting in
+-- a game whose whole purpose is running untrusted player Lua. Codeblock only
+-- uses worldedit.cube/sphere/dome/cylinder from primitives.lua.
 load_module(path .. "/compatibility.lua")
 load_module(path .. "/cuboid.lua")
 
