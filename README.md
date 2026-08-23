@@ -1,6 +1,7 @@
 Codecube
 =========================
 
+[![CI](https://github.com/gigaturbo/codecube/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gigaturbo/codecube/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/License-AGPLv3-blue.svg)
 [![ContentDB](https://content.minetest.net/packages/giga-turbo/codecube/shields/downloads/)](https://content.minetest.net/packages/giga-turbo/codecube/)
 
