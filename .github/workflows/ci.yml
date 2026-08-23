@@ -28,7 +28,10 @@ jobs:
 
       - name: Lint first-party code
         run: |
-          luacheck . --formatter plain --codes > luacheck.txt 2>&1 || true
+          # Explicit paths, not ".": gh-actions-luarocks installs a .luarocks
+          # tree into the workspace and "." would lint the toolchain itself.
+          luacheck mods/codeblock mods/cc_day mods/cc_mapgen mods/cc_security \
+            --formatter plain --codes > luacheck.txt 2>&1 || true
           cat luacheck.txt
           # Re-emit findings as inline annotations. Besides showing up on the
           # diff in a PR, annotations are readable through the public
@@ -44,6 +47,19 @@ jobs:
             echo "::error::luacheck did not report findings but failed: $(head -c 800 luacheck.txt | tr '\n' ' ')"
             exit 1
           fi
+
+      - name: Report what the baseline exemptions hide
+        # Informational only. Keeps the debt that .luacheckrc's ignore list
+        # covers visible instead of silently trusted, without gating the build.
+        continue-on-error: true
+        env:
+          LUACHECK_STRICT: "1"
+        run: |
+          luacheck mods/codeblock mods/cc_day mods/cc_mapgen mods/cc_security \
+            --formatter plain --codes > strict.txt 2>&1 || true
+          cat strict.txt
+          sed -nE 's#^([^:]+):([0-9]+):([0-9]+): (.*)$#::warning file=\1,line=\2::[exempted] \4#p' strict.txt
+          echo "exempted findings: $(grep -cE '^[^:]+:[0-9]+:[0-9]+: ' strict.txt || true)"
 
   test:
     name: preprocessor spec

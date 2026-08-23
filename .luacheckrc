@@ -13,10 +13,10 @@ codes = true
 -- Formatting is handled by the existing lua-format style; don't fight it.
 max_line_length = false
 
--- Documented baseline exemptions. Everything NOT listed here is a hard failure,
--- so new classes of defect still break the build. Each entry is a deliberate
--- decision with a reason, not a blanket silencer.
-ignore = {
+-- Baseline exemptions, disabled when LUACHECK_STRICT is set so CI can report
+-- what they hide without the build depending on it. Everything NOT listed here
+-- is a hard failure, so new classes of defect still break the build.
+ignore = os.getenv("LUACHECK_STRICT") and {} or {
     -- 412: "shadowing argument". The codebase's normalisation idiom is
     --   local n = (type(n) == 'number') and round0(n) or 1
     -- which deliberately shadows the parameter to coerce it in place. There are
@@ -51,12 +51,19 @@ read_globals = {
 globals = {"codeblock"}
 
 exclude_files = {
+    -- vendored upstream mods
     "mods/default/**",
     "mods/dye/**",
     "mods/wool/**",
     "mods/worldedit/**",
     "mods/formspecs/**",
-    "mods/vector3/**"
+    "mods/vector3/**",
+    -- Toolchain, not source. gh-actions-luarocks installs into .luarocks/
+    -- inside the workspace, and luacheck would otherwise lint luafilesystem's
+    -- own test suite and luarocks' generated config.
+    ".luarocks/**",
+    ".install/**",
+    ".lua/**"
 }
 
 files["mods/codeblock/tests/**"] = {
