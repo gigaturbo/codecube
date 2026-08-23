@@ -51,6 +51,9 @@ jobs:
       - name: Report what the baseline exemptions hide
         # Informational only. Keeps the debt that .luacheckrc's ignore list
         # covers visible instead of silently trusted, without gating the build.
+        # always(): this must still report when the blocking lint above fails,
+        # which is exactly when the extra detail is most useful.
+        if: always()
         continue-on-error: true
         env:
           LUACHECK_STRICT: "1"

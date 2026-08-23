@@ -13,6 +13,13 @@ codes = true
 -- Formatting is handled by the existing lua-format style; don't fight it.
 max_line_length = false
 
+-- Engine callbacks have signatures fixed by Luanti - on_step(self, dtime,
+-- moveresult), on_punch(self, puncher, time_from_last_punch, ...) - and must
+-- declare every parameter whether the body uses it or not. Reporting those as
+-- unused is noise: all 10 findings in the first clean CI run were exactly this,
+-- in lib/drone_entity.lua. Unused *locals* are still reported.
+unused_args = false
+
 -- Baseline exemptions, disabled when LUACHECK_STRICT is set so CI can report
 -- what they hide without the build depending on it. Everything NOT listed here
 -- is a hard failure, so new classes of defect still break the build.
