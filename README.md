@@ -12,7 +12,7 @@ This game is mainly based on the [CodeBlock](https://content.minetest.net/packag
 **License:** AGPLv3   
 **Credits:** inspired by [Gnancraft](http://gnancraft.net/), [ComputerCraft](http://www.computercraft.info/), [Visual Bots](https://content.minetest.net/packages/Nigel/vbots/), [TurtleMiner](https://content.minetest.net/packages/BirgitLachner/turtleminer/), [basic_robot](https://github.com/ac-minetest/basic_robot)
 
-![screenshot](https://raw.githubusercontent.com/gigaturbo/codecube/master/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/gigaturbo/codecube/main/screenshot.png)
 
 ## Quick start
 
