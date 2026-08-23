@@ -27,7 +27,7 @@ jobs:
         run: luarocks install luacheck
 
       - name: Lint first-party code
-        run: luacheck .
+        run: luacheck . --formatter plain --codes
 
   test:
     name: preprocessor spec
@@ -41,7 +41,10 @@ jobs:
         with:
           # Luanti runs LuaJIT (Lua 5.1); match it so the specs exercise the
           # same string library behaviour the mod actually sees.
-          luaVersion: "luajit-2.1.0-beta3"
+          # Must be "luajit-2.1", not "luajit-2.1.0-beta3": the action resolves
+          # anything after "luajit-" to a branch of luajit/luajit, and the beta
+          # branches no longer exist.
+          luaVersion: "luajit-2.1"
 
       - name: Run preprocessor spec
         run: lua mods/codeblock/tests/preprocess_spec.lua

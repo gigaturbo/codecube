@@ -13,6 +13,27 @@ codes = true
 -- Formatting is handled by the existing lua-format style; don't fight it.
 max_line_length = false
 
+-- Documented baseline exemptions. Everything NOT listed here is a hard failure,
+-- so new classes of defect still break the build. Each entry is a deliberate
+-- decision with a reason, not a blanket silencer.
+ignore = {
+    -- 412: "shadowing argument". The codebase's normalisation idiom is
+    --   local n = (type(n) == 'number') and round0(n) or 1
+    -- which deliberately shadows the parameter to coerce it in place. There are
+    -- 36 of these, 34 in lib/commands.lua alone. Consolidating them is audit
+    -- finding A3 (movement/placement de-duplication); until then, flagging every
+    -- one drowns out real findings.
+    "412",
+    -- 411/421/431: the same shadowing pattern applied to locals and upvalues,
+    -- from the same idiom. Revisit together with 412 under A3.
+    "411", "421", "431",
+    -- 213: unused loop variable, e.g.
+    --   for i, filename in ipairs(meta.tabs) do meta.active = i end
+    -- in lib/formspecs.lua, which is a convoluted way to write #meta.tabs and is
+    -- already called out under audit finding A1's editor rewrite.
+    "213"
+}
+
 -- The engine namespace and the globals our dependencies publish.
 read_globals = {
     -- Luanti / Minetest engine
@@ -76,12 +97,20 @@ stds.codeblock_sandbox = {
         -- math
         "floor", "ceil", "round", "round0", "deg", "rad", "exp", "log", "max",
         "min", "pow", "sqrt", "abs", "sin", "sinh", "asin", "cos", "cosh",
-        "acos", "tan", "tanh", "atan", "atan2", "pi", "e"
+        "acos", "tan", "tanh", "atan", "atan2", "pi", "e",
+        -- Examples pass a bare `_` to mean "use the default for this argument".
+        -- It is never assigned, so it reads as nil by design.
+        "_"
     }
 }
 
 files["mods/codeblock/lib/examples/**"] = {
     std = "codeblock_sandbox",
+    -- Player code runs under setfenv with its own environment table, so a
+    -- top-level `function foo()` is a normal, working way to declare a helper -
+    -- it just lands in the sandbox env rather than the real _G. Eight examples
+    -- do this (menger, forest, recursion, plot2D, ...), often recursively.
+    allow_defined_top = true,
     -- Player programs legitimately use short throwaway names.
     ignore = {"212", "213"}
 }
