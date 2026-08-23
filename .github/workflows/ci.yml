@@ -6,16 +6,31 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Integration-level CI for the Codecube game: does the game assemble, and is
+# its own code clean? Linting and unit-testing the codeblock mod is that mod's
+# own repository's job - see mods/codeblock/.github/workflows/ci.yml - so this
+# workflow does not duplicate it, and this repository's status does not turn red
+# because of a submodule's internals.
+
 jobs:
-  lint:
-    name: luacheck
+  integration:
+    name: game assembles
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          # mods/codeblock, mods/vector3 and mods/formspecs are submodules;
-          # without them there is nothing to lint.
+          # The checks below verify the submodules are populated, so they have
+          # to actually be fetched.
           submodules: recursive
+
+      - name: Check game structure
+        run: bash scripts/check_game.sh
+
+  lint:
+    name: luacheck (game mods)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
       - uses: leafo/gh-actions-lua@v10
         with:
@@ -26,60 +41,21 @@ jobs:
       - name: Install luacheck
         run: luarocks install luacheck
 
-      - name: Lint first-party code
+      - name: Lint the game's own mods
         run: |
           # Explicit paths, not ".": gh-actions-luarocks installs a .luarocks
           # tree into the workspace and "." would lint the toolchain itself.
-          luacheck mods/codeblock mods/cc_day mods/cc_mapgen mods/cc_security \
+          luacheck mods/cc_day mods/cc_mapgen mods/cc_security \
             --formatter plain --codes > luacheck.txt 2>&1 || true
           cat luacheck.txt
-          # Re-emit findings as inline annotations. Besides showing up on the
-          # diff in a PR, annotations are readable through the public
-          # check-runs API, which the raw job log is not.
+          # Re-emit findings as inline annotations: they show on the diff in a
+          # PR, and are readable through the public check-runs API, which the
+          # raw job log is not.
           sed -nE 's#^([^:]+):([0-9]+):([0-9]+): (.*)$#::error file=\1,line=\2::\4#p' luacheck.txt
           if grep -qE '^[^:]+:[0-9]+:[0-9]+: ' luacheck.txt; then
             exit 1
           fi
-          # No findings matched, yet luacheck may still have failed - a bad
-          # config, for instance. Surface the raw output so the cause is visible
-          # rather than silent.
           if grep -qiE 'error|cannot|could not|unknown' luacheck.txt; then
             echo "::error::luacheck did not report findings but failed: $(head -c 800 luacheck.txt | tr '\n' ' ')"
             exit 1
           fi
-
-      - name: Report what the baseline exemptions hide
-        # Informational only. Keeps the debt that .luacheckrc's ignore list
-        # covers visible instead of silently trusted, without gating the build.
-        # always(): this must still report when the blocking lint above fails,
-        # which is exactly when the extra detail is most useful.
-        if: always()
-        continue-on-error: true
-        env:
-          LUACHECK_STRICT: "1"
-        run: |
-          luacheck mods/codeblock mods/cc_day mods/cc_mapgen mods/cc_security \
-            --formatter plain --codes > strict.txt 2>&1 || true
-          cat strict.txt
-          sed -nE 's#^([^:]+):([0-9]+):([0-9]+): (.*)$#::warning file=\1,line=\2::[exempted] \4#p' strict.txt
-          echo "exempted findings: $(grep -cE '^[^:]+:[0-9]+:[0-9]+: ' strict.txt || true)"
-
-  test:
-    name: preprocessor spec
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - uses: leafo/gh-actions-lua@v10
-        with:
-          # Plain 5.1 rather than a luajit-* value: every LuaJIT variant fails
-          # to build in this action on ubuntu-latest, while "5.1" is known good
-          # (the lint job uses it). Luanti runs Lua 5.1 semantics either way,
-          # which is what these string-handling specs exercise. The specs also
-          # run in-engine under Luanti's real LuaJIT via codeblock_run_tests.
-          luaVersion: "5.1"
-
-      - name: Run preprocessor spec
-        run: lua mods/codeblock/tests/preprocess_spec.lua
