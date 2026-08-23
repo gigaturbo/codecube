@@ -27,7 +27,23 @@ jobs:
         run: luarocks install luacheck
 
       - name: Lint first-party code
-        run: luacheck . --formatter plain --codes
+        run: |
+          luacheck . --formatter plain --codes > luacheck.txt 2>&1 || true
+          cat luacheck.txt
+          # Re-emit findings as inline annotations. Besides showing up on the
+          # diff in a PR, annotations are readable through the public
+          # check-runs API, which the raw job log is not.
+          sed -nE 's#^([^:]+):([0-9]+):([0-9]+): (.*)$#::error file=\1,line=\2::\4#p' luacheck.txt
+          if grep -qE '^[^:]+:[0-9]+:[0-9]+: ' luacheck.txt; then
+            exit 1
+          fi
+          # No findings matched, yet luacheck may still have failed - a bad
+          # config, for instance. Surface the raw output so the cause is visible
+          # rather than silent.
+          if grep -qiE 'error|cannot|could not|unknown' luacheck.txt; then
+            echo "::error::luacheck did not report findings but failed: $(head -c 800 luacheck.txt | tr '\n' ' ')"
+            exit 1
+          fi
 
   test:
     name: preprocessor spec
@@ -39,12 +55,12 @@ jobs:
 
       - uses: leafo/gh-actions-lua@v10
         with:
-          # Luanti runs LuaJIT (Lua 5.1); match it so the specs exercise the
-          # same string library behaviour the mod actually sees.
-          # Must be "luajit-2.1", not "luajit-2.1.0-beta3": the action resolves
-          # anything after "luajit-" to a branch of luajit/luajit, and the beta
-          # branches no longer exist.
-          luaVersion: "luajit-2.1"
+          # Plain 5.1 rather than a luajit-* value: every LuaJIT variant fails
+          # to build in this action on ubuntu-latest, while "5.1" is known good
+          # (the lint job uses it). Luanti runs Lua 5.1 semantics either way,
+          # which is what these string-handling specs exercise. The specs also
+          # run in-engine under Luanti's real LuaJIT via codeblock_run_tests.
+          luaVersion: "5.1"
 
       - name: Run preprocessor spec
         run: lua mods/codeblock/tests/preprocess_spec.lua
