@@ -41,7 +41,7 @@ else
 fi
 
 echo "== submodules checked out =="
-for m in codeblock vector3 formspecs; do
+for m in codeblock vector3; do
     if [ -n "$(ls -A "mods/$m" 2>/dev/null)" ]; then
         note "mods/$m populated"
     else
@@ -92,11 +92,13 @@ done
 note "all hard dependencies present"
 
 echo "== every bundled mod's licence is accounted for =="
-# formspecs is a submodule of a repository we do not control, so a licence file
-# placed in it would be untracked and would vanish from a fresh clone. Its text
-# lives in THIRD-PARTY-LICENSES.md instead, and this check insists on that
-# rather than letting the gap pass silently.
-documented_elsewhere="formspecs"
+# A mod either carries its own licence file, or is named here and covered by
+# THIRD-PARTY-LICENSES.md. That second route exists for a submodule of a
+# repository we do not control, where a licence file we added would be untracked
+# and would vanish from a fresh clone. Nothing needs it at present: formspecs
+# was the only such case and was removed in v1.0.0. Kept as a mechanism, because
+# the next vendored submodule may need it.
+documented_elsewhere=""
 for d in mods/*/; do
     m=${d%/}
     m=${m#mods/}
