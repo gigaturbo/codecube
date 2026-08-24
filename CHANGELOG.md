@@ -6,7 +6,7 @@ for the full list.
 
 - [x] **BREAKING** relicensed to AGPL-3.0-only throughout; `codeblock` moved from GPL-3.0-only to match
 - [x] **BREAKING** removed `max_minetest_version`, which was pinned at 5.5 and hid the game on ContentDB
-- [x] Every bundled mod now carries a licence; `THIRD-PARTY-LICENSES.md` covers the one submodule that cannot
+- [x] Every bundled mod now carries its own licence, catalogued in `THIRD-PARTY-LICENSES.md`
 - [x] Added `title` and `author` metadata to the bundled mods
 - [x] Removed `code.lua` from the WorldEdit fork (arbitrary Lua execution in the global namespace)
 - [x] Added CI: `scripts/check_game.sh` verifies the game assembles; `codeblock` lints and tests itself
