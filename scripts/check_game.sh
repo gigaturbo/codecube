@@ -123,14 +123,23 @@ fi
 
 echo "== .cdb.json is up to date =="
 if [ -f scripts/gen_cdb_json.sh ]; then
-    cp .cdb.json /tmp/cdb_before.json 2>/dev/null || true
+    before=$(mktemp)
+    cp .cdb.json "$before"
     bash scripts/gen_cdb_json.sh
-    if diff -q /tmp/cdb_before.json .cdb.json >/dev/null 2>&1; then
+    # Compare with CRs stripped. Git may check out .cdb.json and
+    # scripts/gen_cdb_json.sh with different line endings, in which case
+    # regenerating produces a file that differs from the committed one by one
+    # byte per line and nothing else. That is not staleness. A fresh clone hit
+    # exactly this. gen_docs.lua normalises for the same reason.
+    if diff -q <(tr -d '\r' < "$before") <(tr -d '\r' < .cdb.json) >/dev/null 2>&1; then
         note ".cdb.json matches README"
     else
         err ".cdb.json is stale - run scripts/gen_cdb_json.sh and commit the result"
-        cp /tmp/cdb_before.json .cdb.json 2>/dev/null || true
     fi
+    # Restore whatever was committed, so running this check never dirties the
+    # tree - including its line endings.
+    cp "$before" .cdb.json
+    rm -f "$before"
 fi
 
 echo
