@@ -14,9 +14,10 @@ of them need the mod loaded — `integration_spec` drives the real command budge
 config. A headless server boots the game, the specs print, and the server is
 killed.
 
-Some specs also run standalone under Lua 5.1 in CI. That is not redundant: it is
-the only thing that catches behaviour differing between plain 5.1 and the LuaJIT
-the game runs. A bug in the `string.rep` separator was found exactly this way.
+Five of the eight also run standalone under Lua 5.1 in CI. That is not
+redundant: it is the only thing that catches behaviour differing between plain
+5.1 and the LuaJIT the game runs. A bug in the `string.rep` separator was found
+exactly this way.
 
 ## The one thing that must not be skipped
 
@@ -75,10 +76,11 @@ A healthy run prints one summary per spec:
   api_spec              30 passed   0 failed
   preprocess_spec       54 passed   0 failed   1 xfail (known defects)   0 xpass
   env_spec              21 passed   0 failed
+  shapes_spec           15 passed   0 failed
   strguard_spec         29 passed   0 failed
   forms_spec            35 passed   0 failed
   stepper_spec          17 passed   0 failed
-  integration_spec      41 passed   0 failed
+  integration_spec      37 passed   0 failed
 ```
 
 What each column means:

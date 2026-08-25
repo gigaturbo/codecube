@@ -39,7 +39,9 @@ luac.out
 *.x86_64
 *.hex
 
-# Generated project audit reports. Written by the project-status agent, kept out
+CLAUDE.md
+
+# Generated project audit reports. Written by the project-manager agent, kept out
 # of the repository on purpose: they are a working view of state, regenerated
 # from git and the source, and would otherwise churn in every diff.
 .audit/
