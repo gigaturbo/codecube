@@ -24,7 +24,7 @@ These files, and no others:
 | `CHANGELOG.md` (game) | What shipped, for someone upgrading. |
 | `mods/codeblock/CHANGELOG.md` | The same, for the mod. |
 | `mods/codeblock/TODO.md` | Intentions not yet findings. The author's quick list: one line per item, a finding id in parentheses where there is one, no prose. Description of the work goes in `ROADMAP.md`, reasoning in the audit. |
-| `CLAUDE.md` | How to work here. Untracked and local; still yours. |
+| `CLAUDE.md` | How to work here. Tracked, so an edit lands in a commit. |
 | `.claude/agents/*.md` | Including this one. |
 | `.claude/skills/*/SKILL.md` | Their descriptions decide when they get used. |
 
