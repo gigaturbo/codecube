@@ -76,11 +76,11 @@ A healthy run prints one summary per spec:
   api_spec              30 passed   0 failed
   preprocess_spec       54 passed   0 failed   1 xfail (known defects)   0 xpass
   env_spec              21 passed   0 failed
-  shapes_spec           15 passed   0 failed
+  shapes_spec           18 passed   0 failed
   strguard_spec         29 passed   0 failed
   forms_spec            35 passed   0 failed
-  stepper_spec          17 passed   0 failed
-  integration_spec      37 passed   0 failed
+  stepper_spec          24 passed   0 failed
+  integration_spec      48 passed   0 failed
 ```
 
 What each column means:

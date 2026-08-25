@@ -8,13 +8,14 @@ Target is **v1.0.0**, major because several changes break saved player programs.
 
 ## Now
 
-Commit the working tree, then start counting mapblocks. `place()` calls
-`core.load_area` on every single call and nothing anywhere counts how many
-distinct mapblocks a run pins in server memory (S5). The first move is small:
-skip the call when the target is the same mapblock as the last write, memoised
-per drone. It removes nearly every call in a compact build, and it creates the
-one place a distinct-mapblock count can live — which is what the per-codelevel
-ceiling needs, and what the budget display in milestone 7 will read.
+Commit and push milestone 5, then verify `place()` in a live world before
+starting milestone 6. All of milestone 5 sits uncommitted in `mods/codeblock`,
+so no CI run has seen it and neither `luacheck` nor `gen_docs.lua --check` has
+run on the new `max_mapblocks` row. After that, the one untested path: the specs
+run before a map exists, so `place()`'s mapblock memo and charge have no test at
+all (S5). Fly a drone at codelevel 4, build a spread-out `place()` loop, and
+watch `core.get_loaded_blocks()` and the server's RSS — that confirms no write is
+lost and finally gives the memory claim a number.
 
 ## Milestones
 
@@ -41,28 +42,27 @@ Last unmaintained dependency gone; documentation generated from the code.
 The drone builds at the speed the hardware allows, not one pinned to the tick
 rate; bulk shapes are one VoxelManip pass each.
 
-### 5. Limits that track real load — not started (0/3)
+### 5. Limits that track real load — done, uncommitted (4/4)
 
-Every limit should bound a resource the server actually spends. Today the
-ceilings count proxies (calls, commands, volume), the one real resource nobody
-bounds is resident mapblocks, and each drone gets its own step allowance rather
-than a share of one. Resource safety, not a feature.
+Every limit now bounds a resource the server actually spends. Written and green
+on the in-engine suite (259 assertions), but living in `mods/codeblock`'s working
+tree: no commit, no submodule bump, no CI, no lint.
 
-- Skip `load_area` when the target mapblock is the one the last write went to —
-  `floor(x/16)` per axis, memoised per drone. (S5)
-- Count distinct mapblocks per run at that same point, and add a per-codelevel
-  ceiling to `lib/config.lua`. New limit means a new row in `doc/api.md`'s
-  codelevel table; `gen_docs.lua --check` enforces it. (S5)
-- Check elapsed time inside `check_drone_yield`, so the step budget bounds work
-  rather than resumes. One resume covers up to 40 commands at codelevel 4 and
-  can overshoot 8 ms badly when those commands hit disk. (S5, A5's recorded
-  limitation)
-- Divide one server-wide step budget among active drones instead of giving each
-  its own. N drones currently cost N budgets per step. (S5, A5)
-- Split the default codelevel from the singleplayer default: level 4 is right
-  for singleplayer and wrong for an unknown player joining a server. (S6)
-- Add `settingtypes.txt` at the game root so an administrator can change any of
-  this without patching `lib/config.lua`. (C7)
+- [x] Skip `load_area` when the target mapblock is the one the last write went
+  to; memo dropped at every yield so it cannot outlive an unload. (S5)
+- [x] Charge mapblock loads against a new per-codelevel `max_mapblocks`, shapes
+  included via `shapes.build`'s return. (S5)
+- [x] Yield on a `drone.deadline` inside `check_drone_yield`, so the budget
+  bounds work rather than resumes. (S5, A5's recorded limitation)
+- [x] Divide one `server_step_budget_us` pool among running drones instead of
+  giving each its own. (S5, A5)
+- [x] Default codelevel 4 in singleplayer, 2 on a server. New players only. (S6)
+- [x] Add `settingtypes.txt` — in the mod, not the game root, so it works for a
+  standalone install too. (C7)
+- [x] Store `max_distance` in nodes as documented, squaring at the comparison.
+  Effective limit unchanged. (C13)
+- Left to do: commit, push, bump the submodule, then run the live-world `place()`
+  check. (S5)
 
 ### 6. Clear the way for features — not started (3/24)
 
@@ -100,8 +100,9 @@ across the seam A11 straightens.
 
 - Show each count beside its limit, live rather than only on completion, and the
   *binding* constraint as a percentage so a player learns which limit their
-  program actually spends. Counts not kept today: elapsed step time, distinct
-  mapblocks, peak heap. (`mods/codeblock/TODO.md`; audit S5's visible half)
+  program actually spends. Milestone 5 added `drone.mapblocks` and
+  `drone.deadline` to read; peak heap is still not kept.
+  (`mods/codeblock/TODO.md`; audit S5's visible half)
 
 ## What ships broken
 
@@ -110,8 +111,15 @@ across the seam A11 straightens.
 - `max_memory_kb` cannot stop one huge allocation, and a pathological Lua
   pattern can still burn CPU. (S2's residue)
 - `place()` writes one node per call; the four bulk shapes do not.
-- The step budget is checked between coroutine resumes, so one long call
-  overshoots it, and each drone has its own allowance.
+- The step budget is checked between drone commands, never inside one, so a
+  single long call — a large shape — still overshoots it.
+- `max_mapblocks` counts loads rather than distinct blocks, and bounds a whole
+  run rather than what is resident at any instant. It only works together with
+  the step budget, which bounds throughput.
+- A shape is charged after its pass, so one shape can overshoot the mapblock
+  ceiling by its own size (roughly a thousand blocks at codelevel 4).
+- `place()`'s mapblock memo and charge have no test: the specs run before a map
+  exists. Untested, not known broken.
 - Unknown whether mapgen can overwrite a node written into a never-generated
   area when a player later visits and it generates.
 
@@ -129,12 +137,19 @@ across the seam A11 straightens.
   pushes a table constructor passed to a call out to the paren column, which is
   worse, so alignment stays off and the tree drifts to the hanging indent one
   file at a time as files get saved. Accepted, not overlooked.
+- **`settingtypes.txt` at the game root.** Every setting is codeblock's, and
+  codeblock is its own ContentDB package; in the mod it works for a standalone
+  install and appears under Mods. (C7)
+- **Computing the codelevel limits instead of overriding literals.**
+  `gen_docs.lua` greps `lib/config.lua` for `max_* = {`, so a computed value
+  would silently disable the check that every limit is documented. (C7)
 - **Blockly web editor.** Wanted, out of scope for 1.0.0.
 - **Duplicating `codeblock`'s lint in this repository.** It has its own repo,
   CI and `.luacheckrc`; this one checks that the game *assembles*.
 
 ---
 
-2026-08-25 · codecube `2c4fedc` (main) · codeblock `f413758` (master), both at
-`origin`. Both working trees hold uncommitted work; milestones 5 to 7 have no
-code written for them.
+2026-08-25 · codecube `2e9098d` (main) · codeblock `3e143ea` (master). Both at
+`origin`, both green in CI. **Milestone 5 is written and uncommitted in
+`mods/codeblock` only** — neither sha above contains any of it. Milestones 6 and
+7 have no code.

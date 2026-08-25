@@ -8,6 +8,9 @@ for the full list.
 - [x] **BREAKING** removed `max_minetest_version`, which was pinned at 5.5 and hid the game on ContentDB
 - [x] **BREAKING** removed the bundled WorldEdit fork: `codeblock` now places its four shapes itself, so nothing needed it
 - [x] **BREAKING** removed the `formspecs` submodule; `codeblock` no longer depends on it
+- [x] **BREAKING** on a multiplayer server, a player joining for the first time now starts at codelevel 2 rather than 4. Singleplayer is unchanged at 4, and anyone who has already played keeps the level they have
+- [x] **BREAKING** programs are now limited in how much of the world they may load at once, so a program that builds across a very large area can stop where it used to finish
+- [x] Server owners can change every drone limit from the settings menu, under Mods → codeblock, instead of editing the mod's source
 - [x] Every bundled mod now carries its own licence, catalogued in `THIRD-PARTY-LICENSES.md`
 - [x] Added `title` and `author` metadata to the bundled mods
 - [x] Added CI: `scripts/check_game.sh` verifies the game assembles; `codeblock` lints and tests itself

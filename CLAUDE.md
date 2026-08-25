@@ -119,8 +119,10 @@ The pipeline spans several files and is the thing worth understanding first.
    `api.build`, `setfenv`s the chunk, returns a coroutine.
 4. **`lib/stepper.lua`** resumes that coroutine repeatedly each server step until
    a time budget is spent, so throughput follows spare headroom rather than the
-   tick rate. The budget is checked *between* resumes, so one long call
-   overshoots it.
+   tick rate. That budget is the smaller of the codelevel cap and an equal share
+   of one server-wide pool, so N drones do not cost N budgets. It is published as
+   `drone.deadline` and checked at every drone command as well as between
+   resumes, so what overshoots it is a single *call* — one large shape.
 5. **`lib/strguard.lua`** bounds `rep` and `gsub` on the shared string metatable
    for the span in which player code runs. Leaving `string` out of the
    environment is not enough: every Lua 5.1 string shares one metatable, so
@@ -147,10 +149,24 @@ bump.
 
 Almost every limit in `lib/config.lua` is a four-element array indexed by the
 player's codelevel (1–4): call and command ceilings, volume, distance, dimension,
-yield frequency, `step_budget_us`, `max_memory_kb`, `max_string_bytes`. Codelevel
-bounds resource use, so it is privileged — never let players set their own.
-Adding a limit means adding a row to the codelevel table in `doc/api.md`;
-`gen_docs.lua` enforces that, because a limit once shipped undocumented.
+yield frequency, `step_budget_us`, `max_memory_kb`, `max_string_bytes`,
+`max_mapblocks`. Codelevel bounds resource use, so it is privileged — never let
+players set their own. Adding a limit means adding a row to the codelevel table
+in `doc/api.md`; `gen_docs.lua` enforces that, because a limit once shipped
+undocumented.
+
+Every one of those tables is overridable from `mods/codeblock/settingtypes.txt`,
+as four comma-separated numbers, plus the two scalars `default_auth_level` and
+`server_step_budget_us`. Two constraints in `config.lua` exist for reasons that
+are not local to it, so check before changing either. The tables stay **plain
+literals** with the overrides applied in one loop afterwards, because
+`gen_docs.lua` greps this source for `max_%w+%s*=%s*{` — a computed value turns
+that documentation check off without failing. And every settings read is guarded
+with `rawget(_G, 'minetest')`, because `gen_docs.lua` dofiles `config.lua` under
+a bare interpreter with no engine global.
+
+`max_distance` is stored in nodes and squared at its one comparison in
+`check_distance`, not stored squared.
 
 ### Writing to the world
 
@@ -161,13 +177,23 @@ mapblock that is not in memory silently does nothing, which used to leave holes
 in builds far from spawn. Bulk shapes need no such call — `read_from_map` emerges
 the region itself.
 
-`place_block` currently makes that call on **every** `place()`, unconditionally.
-`load_area` does not trigger mapgen, so the cost per call is a resident MapBlock
-plus a disk read for a block not already in memory — but nothing counts or caps
-how many distinct mapblocks a run pins, and `max_memory_kb` cannot see them
-(`collectgarbage('count')` is the Lua heap; a MapBlock is C++ side). That is
-audit S5, open, and the reason it is worth knowing before touching this path is
-that the fix adds a counter here rather than only removing calls.
+`place_block` makes that call only when the drone crosses into a new mapblock,
+comparing `floor(x/16)` on three axes against the last write, and charges each
+load against `max_mapblocks`. Two things about that memo are load-bearing.
+`load_area` does not trigger mapgen, so what a load costs is a resident MapBlock
+plus a disk read — and `max_memory_kb` cannot see it (`collectgarbage('count')`
+is the Lua heap; a MapBlock is C++ side), which is why the count exists.
+And the memo is **per-resume, not per-run**: `check_drone_yield` clears
+`drone.bx/by/bz` before every yield, because the engine may unload a block while
+the drone is not running (`server_unload_unused_data_timeout`, 29s). Widening its
+lifetime brings back the silent lost write the `load_area` call was added to fix.
+
+Bulk shapes are charged too: `shapes.build` returns how many mapblocks its pass
+emerged, and every shape command wraps the call in `use_mapblocks`. Without that,
+`cube(1,1,1)` in a loop bypasses the ceiling exactly.
+
+Untested, as of audit S5's resolution: the specs run at mod load, before a map
+exists, so nothing exercises `place()` itself.
 
 ### Formspecs
 
@@ -239,7 +265,7 @@ as a retelling.
   (see `bounds` and `fillers` in `lib/shapes.lua`).
 - Split a file when it starts covering more than one topic. Nothing here measures
   cyclomatic complexity, so that is the practical signal; `lib/commands.lua` at
-  ~930 lines is the current outlier, not the model.
+  ~970 lines is the current outlier, not the model.
 - Modules are self-enclosed: they take a minimal set of inputs, produce their
   output, and know nothing about each other. Orchestration belongs to the caller.
   `lib/shapes.lua` knows nothing about drones; `lib/stepper.lua` takes its clock
