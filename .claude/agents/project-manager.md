@@ -52,7 +52,7 @@ produces something visible.
 Two repositories, which is the first thing any report must get right:
 
 - **`codecube`** — the game, branch `main`. Vendors `default`, `dye`, `wool` and
-  a reduced `worldedit` fork; contains first-party `cc_day`, `cc_mapgen`,
+  first-party `cc_day`, `cc_mapgen`,
   `cc_security`; carries `codeblock` and `vector3` as submodules.
 - **`codeblock`** — the mod that is the programming engine: sandbox, drone,
   editor, API. Branch `master`, its own ContentDB package, its own CI.

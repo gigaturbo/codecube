@@ -9,7 +9,6 @@ Each carries its licence text in its own directory.
 |-----|---------|-----------|------|
 | `codeblock` | AGPL-3.0-only | giga-turbo | `mods/codeblock/LICENSE` (submodule, carries its own) |
 | `vector3` | see file | ISs25u / giga-turbo | `mods/vector3/LICENSE` (submodule, carries its own) |
-| `worldedit` | AGPL-3.0 | 2012 sfan5, Anthony Zhang, Brett O'Donnell, ShadowNinja | `mods/worldedit/LICENSE` |
 | `default` | LGPL-2.1+ / CC BY-SA 3.0 | Minetest Game contributors | `mods/default/license.txt` |
 | `dye` | LGPL-2.1+ / CC BY-SA 3.0 | Minetest Game contributors | `mods/dye/license.txt` |
 | `wool` | LGPL-2.1+ / CC BY-SA 3.0 | Minetest Game contributors | `mods/wool/license.txt` |
@@ -17,10 +16,10 @@ Each carries its licence text in its own directory.
 
 ## Notes on the bundled copies
 
-`mods/worldedit` is a **reduced fork**. Its chat commands were already absent
-when it was vendored, and `code.lua` — which executed arbitrary Lua in the global
-namespace — has been removed. Only `common.lua` and `primitives.lua` are reachable
-from the game, supplying the four shape functions `codeblock` uses.
+`mods/worldedit` (a reduced WorldEdit fork, AGPL-3.0, 2012 sfan5, Anthony Zhang,
+Brett O'Donnell, ShadowNinja) was removed in v1.0.0. Only four shape functions
+were ever reachable from it; they are now `mods/codeblock/lib/shapes.lua`. Listed
+here so the history stays legible — nothing in the game bundles it any more.
 
 `mods/default`, `mods/dye` and `mods/wool` are copies from Minetest Game. Of
 `default`, only its node definitions are used: 108 of them, out of roughly 9,700
