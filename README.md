@@ -7,7 +7,9 @@ Codecube
 
 **Codecube allows to use `lua` code in Minetest to build anything you want**
 
-This game is mainly based on the [CodeBlock](https://content.minetest.net/packages/giga-turbo/codeblock/) mod for the programming interface. This game provides a flat world and a few other settings and limitations for a better programming experience.
+The programming itself — the drone, the in-game Lua editor, the sandbox and the API — is the [CodeBlock](https://content.minetest.net/packages/giga-turbo/codeblock/) mod, which Codecube bundles. What the game adds is a place to build: a flat, clean world, permanent daylight, build restrictions, and settings tuned so that writing code is the point.
+
+**For the Lua API, the drone commands, the block lists and the `codelevel` limits, read the [CodeBlock documentation](https://github.com/gigaturbo/codeblock/blob/master/doc/api.md#lua-api)** — it is the reference, and it is generated from the mod's own source. This page stays general.
 
 **License:** AGPLv3   
 **Credits:** inspired by [Gnancraft](http://gnancraft.net/), [ComputerCraft](http://www.computercraft.info/), [Visual Bots](https://content.minetest.net/packages/Nigel/vbots/), [TurtleMiner](https://content.minetest.net/packages/BirgitLachner/turtleminer/), [basic_robot](https://github.com/ac-minetest/basic_robot)

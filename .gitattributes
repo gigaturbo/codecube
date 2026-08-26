@@ -1,4 +1,26 @@
-scr			export-ignore
+# Keep the ContentDB release archive to what the game needs at runtime.
+# export-ignore is ContentDB's documented exclusion mechanism for Git-created
+# releases. The engine reads menu/*.png, mods/ and the .conf files; nothing
+# else here is of any use to a player.
+
+# Hidden files and directories, which covers .github, .claude, .audit and
+# .cdb.json. ContentDB reads .cdb.json from the repository, not from the
+# archive, so excluding it costs nothing.
+.*		export-ignore
+
+# Sources for the artwork that ships as PNG.
+scr		export-ignore
 *.xcf		export-ignore
 *.blend*	export-ignore
 *.svg		export-ignore
+
+# Development tooling and the project record.
+scripts		export-ignore
+CLAUDE.md	export-ignore
+ROADMAP.md	export-ignore
+TODO.md		export-ignore
+
+# README and ContentDB material, pulled from GitHub by absolute URL. The images
+# the main menu actually reads are in menu/.
+screenshot.png	export-ignore
+screenshot1.png	export-ignore

@@ -1,7 +1,7 @@
 ---
 name: run-tests
-description: Run the codeblock test suite in-engine, by booting Luanti headless with codeblock_run_tests enabled and reading the results. Handles enabling the setting, launching, parsing the output and — critically — removing the setting afterwards.
-when_to_use: After changing anything in mods/codeblock, before committing, when asked to run or verify the tests, or when checking whether the game still loads cleanly on the installed engine.
+description: Run the codeblock mod's test suite in-engine, by booting Luanti headless with codeblock_run_tests enabled and reading the results. It tests the mod but boots the codecube game (--gameid codecube) to do it, so it needs both checked out; it is not a test suite for the game. Handles enabling the setting, launching, parsing the output and — critically — removing the setting afterwards.
+when_to_use: After changing anything in mods/codeblock, before committing there, when asked to run or verify the mod's tests, or when checking whether the game still loads cleanly on the installed engine.
 argument-hint: "[--keep-world]"
 allowed-tools: Bash, Read, Glob, Grep
 ---
@@ -14,10 +14,14 @@ of them need the mod loaded — `integration_spec` drives the real command budge
 config. A headless server boots the game, the specs print, and the server is
 killed.
 
-Six of the nine also run standalone under Lua 5.1 in CI. That is not
-redundant: it is the only thing that catches behaviour differing between plain
-5.1 and the LuaJIT the game runs. A bug in the `string.rep` separator was found
-exactly this way.
+Six of the nine also run standalone under Lua 5.1 in **the mod's** CI. That is
+not redundant: it is the only thing that catches behaviour differing between
+plain 5.1 and the LuaJIT the game runs. A bug in the `string.rep` separator was
+found exactly this way.
+
+These are the mod's specs, and every one of them tests `codeblock`. The game
+appears only as the vehicle: `--gameid codecube` is what makes the mod load, so
+the two projects are separable everywhere except here.
 
 ## The one thing that must not be skipped
 
@@ -114,4 +118,5 @@ whole mod.
 `scripts/check_game.sh` in the game repo verifies the game *assembles* — that is
 a different question and is not run by this skill.
 `mods/codeblock/scripts/gen_docs.lua --check` verifies the API reference is
-current. Both run in CI.
+current. Each runs in its own repository's CI, and the two go red
+independently.

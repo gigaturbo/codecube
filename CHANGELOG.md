@@ -21,4 +21,8 @@ for the full list.
 - [x] Fixed `scripts/gen_cdb_json.sh` producing different output depending on line endings
 - [x] Repointed image URLs from `master` to `main`
 - [x] Verified against Luanti 5.17.0
+- [x] The bundled `codeblock` mod is now adopted as a tagged release rather than followed commit by commit; the game's documentation is brought up to date at the same time
+- [x] Reframed the documentation: the README presents the game, its features and its settings, and points at the `codeblock` package for the programming API and the detailed instructions. Added `ROADMAP.md` and `TODO.md` for the game itself
+- [x] The download from ContentDB now holds only what the game needs to run: 4.94 MB down to 2.75 MB. Hidden files and directories are excluded, which is what stops `.claude/` (993 kB), `.audit/` (104 kB) and `.github/` reaching players, along with the art sources, `scripts/` and the three record documents. `menu/*.png` is kept - it is what the main menu reads
 - [ ] Known: `default` supplies 108 node definitions out of ~9700 lines, and registers six always-on ABMs
+- [ ] Known: nothing in CI checks `.gitattributes`, so a file added to this repository ships inside the release archive unless a rule excludes it, and nothing fails locally when one does

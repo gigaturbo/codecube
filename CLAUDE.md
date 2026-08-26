@@ -16,15 +16,34 @@ Say plainly when something is unverified, skipped, or failed.
 
 Codecube is a Luanti (formerly Minetest) **game** in which the player programs a
 drone in Lua to build structures. It is not a mod, so it belongs in Luanti's
-`games/` directory, not `mods/`.
+`games/` directory, not `mods/`. What the game itself contributes is the setting
+and the fit: a flat world, permanent day, build restrictions, the settings a
+server owner wants, and a presentation that makes the mod pleasant to use.
 
-**Two repositories, one nested in the other.** `codecube` (this repo, branch
-`main`) bundles the `codeblock` mod (`mods/codeblock`, branch `master`), which
-holds essentially all the logic, as a submodule. A mod change is two commits, in
-this order:
+**Three repositories, two of them submodules of this one.**
+
+- `codecube` — this repo, branch `main`. The game.
+- `codeblock` — `mods/codeblock`, branch `master`. The mod that is the
+  programming engine: sandbox, drone, editor, API. **It is the main project**,
+  with its own ContentDB package, CI, tests, documentation and release path.
+  Read `mods/codeblock/CLAUDE.md` and `mods/codeblock/ROADMAP.md` for it; this
+  file does not repeat their content.
+- `vector3` — `mods/vector3`. A dependency of `codeblock`, by the same author.
+
+`.gitmodules` declares both submodules and `scripts/check_game.sh` verifies both
+are populated. Both working remotes are SSH; `.gitmodules` deliberately stays on
+HTTPS so anyone can clone the game without keys.
+
+**The submodule pointer follows releases, not commits.** `mods/codeblock` pins
+the `codeblock` release this game has adopted, not the tip of `master`. So an
+ordinary mod change is one commit, in `codeblock`, and nothing happens here. The
+pointer moves only when the game adopts a new release — and that is the same
+moment the game's own documentation is brought up to date with it.
+
+At adoption time, and only then, the old hazard applies:
 
 ```bash
-cd mods/codeblock && git commit && git push        # push FIRST
+cd mods/codeblock && git push origin master        # push FIRST
 cd ../.. && git add mods/codeblock && git commit   # then record the hash
 ```
 
@@ -32,224 +51,128 @@ Bumping before pushing records a hash nobody can fetch. It is invisible from a
 working tree that already has the object; only a fresh
 `git clone --recurse-submodules` catches it (`reference is not a tree`).
 
-Both working remotes are SSH. `.gitmodules` deliberately stays on HTTPS so
-anyone can clone the game without keys.
+A commit message is concise and declarative, in either repository: what the
+commit does, not an account of doing it. Name the features added and the bugs
+fixed, one short line each, and cite the finding ID where there is one — `A5:
+advance the drone for a time budget, not one resume per step`. No narration, no
+restating the diff.
 
-A commit message is concise and declarative: what the commit does, not an
-account of doing it. Name the features added and the bugs fixed, one short line
-each, and cite the finding ID where there is one — `A5: advance the drone for a
-time budget, not one resume per step`. No narration, no restating the diff.
+## What is in `mods/`
+
+- `codeblock`, `vector3` — the two submodules. Not edited from here.
+- `cc_day`, `cc_mapgen`, `cc_security` — the game's own mods, one Lua file each:
+  permanent daylight, a flat clean mapgen, and the build restrictions. This is
+  the game's code, and the only Lua this repository lints.
+- `default`, `dye`, `wool` — vendored from Minetest Game for their nodes.
+  Third-party, deliberately not linted and not ours to restyle.
 
 ## The project record
 
-Five documents say where the project stands. The `project-manager` agent owns
-all of them; edit one by hand only for something that agent cannot know.
+**Each project keeps its own record, audit included.** The `project-manager`
+agent owns twelve documents in total — four per repository plus the `.claude/`
+definitions — and edits to any of them by hand should be reserved for something
+that agent cannot know.
 
-- `ROADMAP.md` — tracked, and the one to read first. What is left to do, fix or
-  change, in order, with milestones. The short version of the audit, meant for
-  picking the work back up.
-- `.audit/audit.html` — gitignored. Every finding with its ID, severity, state
-  and, once fixed, how. The long version, and the reasoning `ROADMAP.md` leaves
-  out.
-- `CHANGELOG.md` and `mods/codeblock/CHANGELOG.md` — what shipped, per repo.
-- `mods/codeblock/TODO.md` — intentions that are not findings. A quick overview
-  of what is wanted, one line per item and a finding id where there is one; the
-  description of the work belongs in `ROADMAP.md`, and the reasoning in the
-  audit.
+The game's four, all in this directory:
 
-The same agent keeps this file, the agent definitions in `.claude/agents/` and
-the skill descriptions in `.claude/skills/` current, because those go stale the
-same way and nothing else checks them.
+- `ROADMAP.md` — the game's own mods, its packaging and presentation, and which
+  `codeblock` release it has adopted.
+- `TODO.md` — intentions that are not findings. One line per item and a finding
+  id where there is one; the description of the work belongs in `ROADMAP.md`, and
+  the reasoning in the audit.
+- `CHANGELOG.md` — what shipped, for people who *play* the game. It names the
+  `codeblock` release adopted and links to the mod's changelog rather than
+  repeating it.
+- `.audit/audit.html` — gitignored (see the last line of `.gitignore`). The
+  game's findings, each with its severity, state and, once fixed, how. Its
+  milestones are lettered **`G1`–`G5`**, deliberately not "Phase N".
+
+The mod's four are the same shape, in `mods/codeblock/`, and
+`mods/codeblock/ROADMAP.md` is **the one to read first** — the mod is the main
+project. `mods/codeblock/CLAUDE.md` describes them; this file does not.
+
+Two things about the split are worth knowing from here:
+
+- **Finding ids are shared across both audits.** A `B`, `S`, `C` or `A` number is
+  allocated once, so it never means two things, and it is never renumbered — old
+  commit messages cite them. A gap in one audit's sequence is a finding that
+  lives in the other.
+- **Phase numbers belong to the mod** (`Phase 0`–`Phase 8`) and are quoted in
+  commit messages. The game letters its milestones instead so the two schemes
+  cannot be confused.
+
+The same agent keeps this file, `mods/codeblock/CLAUDE.md`, the agent definitions
+in `.claude/agents/` and the skill descriptions in `.claude/skills/` current,
+because those go stale the same way and nothing else checks them. There is one
+`.claude/` directory, and it stays here: it is the tree that gets opened, and
+`run-tests` needs the game to boot at all.
+
+Two of the skills there will never surface on their own — they carry
+`disable-model-invocation: true`, deliberately, because a release is not
+something to start by accident. Ask for them by name:
+**`release-codeblock`** (bump the mod, regenerate `doc/api.md` and its
+`.cdb.json`, tag on `master`, upload) and **`release-codecube`** (adopt a
+CodeBlock release, move the pointer, update this game's documentation, run
+`check_game.sh`, tag on `main`, upload). The `release-check` agent gates both and
+must be told which project it is gating.
 
 ## Commands
 
-The test suite runs **inside Luanti**. Use the `run-tests` skill — it owns the
-procedure. The one thing to know without reading it: enabling the suite writes
-`codeblock_run_tests = true` into the player's real config, and it must be
-removed afterwards or every ordinary launch runs the tests.
-
-Six specs also run standalone under a Lua 5.1 interpreter, which is how CI runs
-them and the only way to catch behaviour differing between plain 5.1 and the
-LuaJIT the game uses:
+These are the game's own checks, and they are what **this repository's** CI runs
+— `game assembles` and `luacheck (game mods)`:
 
 ```bash
-cd mods/codeblock
-lua tests/api_spec.lua    # also preprocess_spec, env_spec, shapes_spec, strguard_spec, limits_spec
+bash scripts/check_game.sh    # the game assembles: metadata, submodules, deps, .cdb.json
+luacheck mods/cc_day mods/cc_mapgen mods/cc_security --formatter plain --codes
+bash scripts/gen_cdb_json.sh  # regenerate after a README edit; check_game.sh diffs it
 ```
 
-`forms_spec`, `stepper_spec` and `integration_spec` are in-engine only — they
-need `codeblock.forms`, the real command budget and `codeblock.commands`. Faking
-those would mean testing the fake. Running a single spec in-engine means editing
-the `dofile` list in `mods/codeblock/init.lua`.
+Linting and testing the mod belongs to `codeblock`'s own CI, and neither
+workflow duplicates the other — both say so in their headers. The consequence to
+keep in mind: **the two go red independently.** A mod change turns `codeblock`'s
+CI red and leaves this repository green, because nothing here re-runs the mod's
+checks; a broken submodule pointer or a stale `.cdb.json` turns this one red and
+leaves the mod's green. Check the repository you changed.
 
-Other checks, all also run by CI:
-
-```bash
-bash scripts/check_game.sh                              # game assembles (repo root)
-cd mods/codeblock && luacheck . --formatter plain --codes
-cd mods/codeblock && lua scripts/gen_docs.lua --check    # doc/api.md matches the code
-bash scripts/gen_cdb_json.sh                            # regenerate after a README edit
-```
-
-`LUACHECK_STRICT=1` reports what the baseline exemptions hide.
-
-Reading a result: `failed` must be 0, and so must `xpass`. An `xfail` that now
-passes either means a defect was fixed and the test should be promoted, or the
-code path stopped running and the assertion passes vacuously. The second has
-happened here.
+The mod's commands — the test suite, `luacheck`, `gen_docs.lua --check` — are in
+`mods/codeblock/CLAUDE.md`. The one thing to know from here: the test suite runs
+**inside Luanti** and boots *this game*, so testing the mod needs the game
+present. Use the `run-tests` skill; it owns the procedure.
 
 ## Architecture
 
-### Running a player's program
-
-The pipeline spans several files and is the thing worth understanding first.
-
-1. **`lib/preprocess.lua`** instruments the source over a token stream, inserting
-   `_G.use_call()` after every `do`, every `repeat`, every function parameter
-   list, and before every `goto`. That is what makes loops and calls pay into a
-   budget, so a runaway program stops instead of freezing the server. Free of any
-   Luanti dependency so it can be tested standalone. It also reports forbidden
-   identifiers — a message-quality feature, *not* the security boundary.
-2. **`lib/env.lua`** builds the environment. `snapshot` gives each run its own
-   copy of the API's tables — copies, not read-only proxies, because Lua 5.1 has
-   no `__pairs` or `__len` and a proxy would break `pairs(blocks)` for player
-   code. `new_env` makes API names unassignable, which is what stops a program
-   reaching the injected counter.
-3. **`lib/sandbox.lua`** pairs every name with an implementation, calls
-   `api.build`, `setfenv`s the chunk, returns a coroutine.
-4. **`lib/stepper.lua`** resumes that coroutine repeatedly each server step until
-   a time budget is spent, so throughput follows spare headroom rather than the
-   tick rate. That budget is the smaller of the codelevel cap and an equal share
-   of one server-wide pool, so N drones do not cost N budgets. It is published as
-   `drone.deadline` and checked at every drone command and every slab of a shape
-   as well as between resumes, so what overshoots it is one slab. The step also
-   charges the time it spent against `max_runtime_s` — the bound on a program
-   that never finishes — and skips a drone that is asleep (`drone.wake_at`).
-5. **`lib/limits.lua`** holds the run's budget: every ceiling converted once into
-   the unit it is checked in, with its counter beside it. `charge` for what is
-   spent (nodes, runtime) and stops the run; `hold` for the map footprint, which
-   decays over the engine's unload window and makes the drone *wait* rather than
-   fail. Dependency-free, so it is tested standalone.
-6. **`lib/strguard.lua`** bounds `rep` and `gsub` on the shared string metatable
-   for the span in which player code runs. Leaving `string` out of the
-   environment is not enough: every Lua 5.1 string shares one metatable, so
-   `("x"):rep(1e9)` is reachable from any literal.
-
-The security boundary is the environment table plus the read-only API surface,
-not the forbidden-name list.
-
-### The API has one source
-
-`lib/api.lua` is pure data and the single description of everything a program can
-call. Three things derive from it: the sandbox environment, the in-game help
-panel (`api.to_hypertext`), and `doc/api.md` (`api.to_markdown`). `api.build`
-raises if description and implementations disagree **in either direction**, so
-the mod refuses to load rather than ship a reference that lies, and
-`gen_docs.lua --check` fails CI if the committed Markdown has drifted.
-
-Changing a player-facing name means editing `lib/api.lua`, the `impls` table in
-`lib/sandbox.lua`, and regenerating `doc/api.md`. Such a change breaks saved
-player programs, which are data the game cannot migrate — that is a major version
-bump.
-
-### Per-codelevel limits
-
-Seven limits in `lib/config.lua` are four-element arrays indexed by the player's
-codelevel (1–4): `pace_ms`, `step_budget_us`, `max_runtime_s`,
-`max_nodes_written`, `map_memory_mb`, `heap_mb`, `max_string_mb`. Each stands for
-a resource the server spends; counts of calls, commands, volume, distance and
-dimension were proxies and are gone. Codelevel bounds resource use, so it is
-privileged — never let players set their own. Adding a limit means adding a row
-to the codelevel table in `doc/api.md`; `gen_docs.lua` enforces that, because a
-limit once shipped undocumented.
-
-Every one of those tables can be overridden from the settings menu or
-`minetest.conf`, as four comma-separated numbers, plus the scalars
-`default_auth_level` and `server_step_budget_us`.
-`mods/codeblock/settingtypes.txt` only *draws* that menu — the engine does not
-read it for defaults, so it is a hand-kept mirror of the literals here and its
-own header says so. `map_window_s` is not a codeblock setting at all: it is read
-from the engine's `server_unload_unused_data_timeout`, because the map footprint
-decays over exactly that window. Two constraints in `config.lua` exist for
-reasons that are not local to it, so check before changing either. The tables
-stay **plain literals** with the overrides applied in one loop afterwards,
-because `gen_docs.lua` greps this source for a name assigned a table whose first
-element is a number — a computed value turns that documentation check off without
-failing. And every settings read is guarded with `rawget(_G, 'minetest')`,
-because `gen_docs.lua` dofiles `config.lua` under a bare interpreter with no
-engine global.
-
-`config.lua` keeps the units a player and an administrator read — seconds,
-megabytes, milliseconds. `limits.new` converts them once, and nothing else does
-the arithmetic. A retired setting name still in someone's `minetest.conf` warns
-at load and names its replacement, from the `replaced` table.
-
-### Writing to the world
-
-`lib/shapes.lua` owns the four bulk shapes (cube, sphere, dome, cylinder) through
-`shapes.build(spec)`, in mapblock-aligned slabs of `SLICE_BLOCKS` — one VoxelManip
-pass each, with `spec.charge` called before every pass and free to yield. A pass
-cannot be interrupted, so the slab size *is* the longest stall the mod can cause;
-that is what lets a shape be any size at all. Every filler clips itself to the
-area it is handed rather than to a range passed in, which keeps the clip equal to
-the extent the data array covers.
-
-Single-node `place()` lives in `lib/commands.lua` and must call `core.load_area`
-first: `set_node` into a mapblock that is not in memory silently does nothing,
-which used to leave holes in builds far from spawn. Bulk shapes need no such
-call — `read_from_map` emerges the region itself.
-
-`place_block` makes that call only when the drone crosses into a new mapblock,
-comparing `floor(x/16)` on three axes against the last write, and takes footprint
-for each crossing. Two things about that memo are load-bearing. `load_area` does
-not trigger mapgen, so what a load costs is a resident MapBlock plus a disk read —
-and `heap_mb` cannot see it (`collectgarbage('count')` is the Lua heap; a MapBlock
-is C++ side), which is why `map_memory_mb` exists. And the memo is **per-resume,
-not per-run**: `release` clears `drone.bx/by/bz` before every yield, and it is the
-only yield in the file for exactly that reason. Widening its lifetime brings back
-the silent lost write the `load_area` call was added to fix.
-
-Bulk shapes are charged too, per slab, through the `slabs(drone)` callback.
-Without it, `cube(1,1,1)` in a loop bypasses the ceiling exactly.
-
-Untested by the specs: they run at mod load, before a map exists, so nothing
-exercises `place()` itself. What was checked by hand in a running world (S5):
-the memo, the per-crossing charge and the per-resume reset all behave, a mapblock
-costs 16.3 kB resident, and the engine serves about 1700 loads a second.
-
-### Formspecs
-
-`lib/forms.lua` is a per-player form session on `core.show_formspec`: state that
-survives a redraw, field routing, cleanup on leave, one form per player.
-`lib/formspecs.lua` builds the editor itself. Handlers are
-`handler(meta, player, fields)`, where `meta` is the same table across redraws.
-
-### `drone.lua` vs `drone_entity.lua`
-
-These do not divide by responsibility, and the drone record has no single owner
-(audit A11, tracked in `mods/codeblock/TODO.md`). Expect to re-derive the
-invariant when touching either.
+The game is thin on purpose. `cc_mapgen` makes the world flat and clean,
+`cc_day` holds it at noon, `cc_security` restricts what a player may break or
+place; each is a single Lua file. Everything else a player does — the sandbox,
+the drone, the editor, the API and its limits — is `codeblock`, and its
+architecture is documented in `mods/codeblock/CLAUDE.md`. Read that before
+touching anything under `mods/codeblock`.
 
 ## Environment notes
 
-- `minetest` is a permanent alias for `core` and is **not** deprecated.
-- Lua 5.1 / LuaJIT: `loadstring`, `setfenv`, `math.pow`, `math.atan2` all exist;
-  `0` is truthy; you cannot yield across `pcall`.
+The Luanti and Lua 5.1 notes are in `mods/codeblock/CLAUDE.md` and hold for the
+game's own mods too. What follows is about this tree.
+
 - `min_minetest_version` / `max_minetest_version` are read by ContentDB, not
   enforced by the engine. Never set a `max_` — it hides a working package.
+  `check_game.sh` fails `game.conf` for having one.
+- **`.gitattributes` decides what reaches a player, and no CI checks it** — in
+  either repository. ContentDB builds a release with `git archive`, so a file
+  added to the tree ships unless an `export-ignore` rule excludes it, and nothing
+  local fails when one does. Both files were rewritten to say what the archive is
+  *for*; add to them when adding anything a player has no use for. `.cdb.json`
+  and the `.conf` files are read from the repository rather than the archive, so
+  excluding them costs nothing.
 - Files are a mix of LF and CRLF. Edit with tools that preserve line endings; a
   whole-file rewrite produces a diff of every line.
-- `.editorconfig` in both repositories describes the tree's existing Lua style
-  (`[*.lua]` only) so the installed formatter — EmmyLuaCodeStyle, inside the
+- `.editorconfig` in this repository and in `codeblock` describes that tree's
+  existing Lua style (`[*.lua]` only) so the installed formatter — EmmyLuaCodeStyle, inside the
   `sumneko.lua` extension — stops reformatting whole files on save. It is not
   lua-format, which is what the style originally came from, and its defaults
   differ. If a diff turns out to be whitespace-only, that is the cause.
 - The Bash tool mangles backslashes in heredocs, which has silently corrupted Lua
   patterns twice. Use the edit tools, or a Python script, for anything containing
   a backslash.
-- Mod security blocks writes into a mod's own directory, so
-  `codeblock_gen_docs=true` writes `api.md` into the world directory to be copied
-  over by hand.
 
 ## Editing style
 
