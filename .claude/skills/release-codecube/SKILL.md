@@ -13,8 +13,12 @@ The game bundles the CodeBlock mod as a submodule. **The pointer names an
 adopted release, not the tip of `master`** — moving it is the first step of a
 game release and a decision in its own right, not routine maintenance.
 
-Do not start until `release-check codecube` reports ready, or you have done its
-checks yourself. This skill is the procedure; that agent is the gate.
+Do not start until `release-check` reports ready, or you have done its checks
+yourself. This skill is the procedure; that agent is the gate.
+
+`mods/codeblock` is a *pinned dependency*, not a working copy. The mod is
+developed in its own sibling checkout; the only thing done to it from here is
+`git checkout <tag>` at step 2. Never commit to it from this tree.
 
 ## 1. Choose the CodeBlock release to adopt
 
@@ -62,8 +66,8 @@ releases rather than following commits.
   the README and `check_game.sh` diffs it; a stale one fails CI.
 - `ROADMAP.md` and `TODO.md` **at the game root** — strike what this release
   closed, or ask `project-manager` to. The reasoning is in this game's own audit,
-  `.audit/audit.html`, whose milestones are lettered `G1`–`G5`; the mod's record
-  lives in `mods/codeblock/` and is not edited from here.
+  `.audit/audit.html`, whose milestones are lettered `G1`–`G5`. The mod keeps its
+  own record in its own repository and it is never edited from here.
 - `.gitattributes` — confirm nothing added since the last release will ship in
   the archive. Nothing in CI checks it, and hidden directories are excluded only
   because a rule says so.
