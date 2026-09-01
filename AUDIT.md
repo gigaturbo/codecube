@@ -32,14 +32,14 @@ nothing dropped.
 
 ## Where it stands
 
-16 findings, this game's own. **8 resolved, 8 open, none won't-fix.** No open
-finding is critical or high: four medium (`S8`, `A7`, `A8`, `A13`) and four low
-(`B19`, `B24`, `B47`, `B48`). Three close together — `A13` takes `B19` and `B24`
-with it — and `A7`, `B47` and `A8` are a few lines each, so the open list is
-shorter work than its count suggests. `S8` is the one that needs a decision
-rather than an edit.
+16 findings, this game's own. **10 resolved, 6 open, none won't-fix.** No open
+finding is critical or high: three medium (`A7`, `A8`, `A13`) and three low
+(`B19`, `B24`, `B48`). Three close together — `A13` takes `B19` and `B24`
+with it — and `A7` and `A8` are a few lines each, so the open list is
+shorter work than its count suggests. `S8` and `B47` are fixed but unverified in
+a world, which is a state this game has no automated way out of.
 
-**Three of the eight arrived on 2026-09-01, from the first hour anyone has spent
+**Three of the sixteen arrived on 2026-09-01, from the first hour anyone has spent
 playing this game against `PLAYTEST.md`** — `B47`, `B48` and `S8`. None was
 visible from reading the three `cc_*` files, which between them are 21 lines; two
 of the three are in how those lines meet a vendored node or the client. That is
@@ -48,8 +48,8 @@ an assertion.
 
 | Category | Count | Open |
 |---|---|---|
-| B bugs | 5 | `B19`, `B24` (close with `A13`), `B47`, `B48` |
-| S sandbox and security | 1 | `S8` |
+| B bugs | 5 | `B19`, `B24` (close with `A13`), `B48` |
+| S sandbox and security | 1 | — |
 | C compliance and packaging | 6 | — |
 | A architecture and performance | 4 | `A7`, `A8`, `A13` |
 
@@ -60,9 +60,12 @@ a working-tree change at the last revision and has since landed in `8d18e8b`.
 the only finding here to arrive from reading a published rule rather than from a
 defect.
 
-## Open findings, in full
+## Findings in full
 
-### S8 · medium · open — a bookshelf's formspec reaches around the blanked inventory
+The three open ones, plus the two fixed on 2026-09-01 that no world has confirmed
+yet. A finding leaves this section once a `PLAYTEST.md` check has passed on it.
+
+### S8 · medium · resolved, unverified in a world — a bookshelf's formspec reaches around the blanked inventory
 
 `mods/cc_security/init.lua` · `mods/default/nodes.lua:2483`
 
@@ -88,14 +91,27 @@ what the palette references *keeps* `bookshelf`, since the palette names it.
 are **not** in the palette, so those two do go away with `A13` — bookshelf is the
 one that has to be handled here.
 
-The narrow fix is to deny node-inventory interaction in the same
-`on_mods_loaded` walk that sets `diggable = false`, by overriding
-`allow_metadata_inventory_put`, `_take` and `_move` to return 0. That leaves the
-formspec openable but inert. Clearing the metadata `formspec` string would close
-it more completely but has to happen per placed node rather than per definition,
-which is a different shape of fix. Note that `del_fields` on `override_item`
-arrived in 5.9.0 and `game.conf` declares `min_minetest_version = 5.4`, so
-removing a callback outright is not available.
+**Fixed narrowly, by the author's choice of four options on 2026-09-01.** The
+same `on_mods_loaded` walk that sets `diggable = false` now also overrides
+`allow_metadata_inventory_put`, `_take` and `_move` to return 0 on every
+registered node. Nothing moves into or out of any node inventory, so the
+bookshelf is inert. It still *opens* — the formspec is a metadata string on the
+placed node, not a field of the definition, so nothing reachable from here
+removes it — and the panel still shows the player their own inventory, which is
+the residue this fix accepts. `PLAYTEST.md` `R6` is the check; it has not run.
+
+The three rejected options, so they are not re-derived. **Clearing the metadata
+`formspec`** closes it completely but has to happen per placed node, via an
+`on_construct` wrapper plus an LBM for worlds that already have one — more code
+and more to get wrong for a panel that is now inert. **Dropping `bookshelf` from
+the palette** closes it at the source and lets `A13` delete the node, but the
+work is the mod's and it breaks any saved program that names the block.
+**Leaving it documented** was the cheapest and loses a boundary the game
+advertises.
+
+Note for any wider fix: `del_fields` on `override_item` arrived in 5.9.0 and
+`game.conf` declares `min_minetest_version = 5.4`, so removing a callback
+outright is not available.
 
 ### A13 · medium · open — `default` is 9,744 lines to supply 108 node definitions, and the rest still runs
 
@@ -145,7 +161,7 @@ with `last_mod` so the outcome is deterministic rather than alphabetical.
 Separately: the mod overrides **every registered node** at `on_mods_loaded` to
 set `diggable = false` — a large table walk to express one rule.
 
-### B47 · low · open — the sunrise texture is still drawn, so part of the sun shows
+### B47 · low · resolved, unverified in a world — the sunrise texture is still drawn, so part of the sun shows
 
 `mods/cc_day/init.lua`
 
@@ -217,7 +233,7 @@ the warnings are not mistaken for something a recent change broke.
 
 ## B — bugs
 
-5 findings, 1 resolved. `B19`, `B24`, `B47` and `B48` are open and in full
+5 findings, 2 resolved. `B19`, `B24`, `B47` and `B48` are in full
 above. The other
 B-findings are the mod's.
 
@@ -236,7 +252,7 @@ B-findings are the mod's.
 
 ## S — sandbox and security
 
-1 finding, 0 resolved. `S8` is open and in full above — the first `S` on the
+1 finding, 1 resolved but unverified. `S8` is in full above — the first `S` on the
 game's side; `S1`–`S7` are the mod's, and they are about the Lua sandbox, which
 is the mod's boundary to hold. This one is about the *player's* boundary, which
 is the game's.
@@ -414,7 +430,8 @@ diggable, no item drops, there is no knockback, and the drone still builds with
 every node undiggable. `B47`, `B48` and `S8` came out of the same hour. The
 engine version was not recorded, which it should have been.
 
-**Still not checked:** `L3` and `R5`, which are gated on `A7` and `A8` and cannot
+**Still not checked:** `R6`, new with the `S8` fix; `L1` again, for `B47`; `L3`
+and `R5`, which are gated on `A7` and `A8` and cannot
 run until those land; `P3` (the boot log), `P4` (the main menu), `P5` (the
 ContentDB page, which needs a release), and the boot half of `P1`. `L2`'s
 second-player half was not exercised either — singleplayer only, so a per-player
@@ -430,9 +447,10 @@ several revisions while its prose was already correct.
 
 ---
 
-Revised 2026-09-01, twice: at `8b27f2f` for the packaging checks, then at
-`7f649d8` plus the `cc_day` fix in the working tree, after the first playtest.
-Describes codecube `7f649d8` (main) and codeblock `2647228` (master), the release
-commit this game has adopted. `S8`, `B47` and `B48` are the new findings; ids
-were allocated against the mod's audit in the sibling checkout, which stands at
-`B46`, `S7`, `A16`, `C19` and `F8`.
+Revised 2026-09-01, three times: at `8b27f2f` for the packaging checks, at
+`7f649d8` for the first playtest, and again for the `B47` and `S8` fixes it
+produced. Describes codecube `3ce1eed` (main) plus those two fixes, and codeblock
+`2647228` (master), the release commit this game has adopted. `S8`, `B47` and
+`B48` are the new findings; ids were allocated against the mod's audit in the
+sibling checkout, which stands at `B46`, `S7`, `A16`, `C19` and `F8` — the game's
+`C20` is the highest `C`.

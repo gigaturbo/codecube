@@ -26,7 +26,8 @@ for the full list.
 - [x] The ContentDB page is now written for someone reading it on ContentDB, rather than being `README.md` verbatim. The README's badges, licence line and repository links were noise on a page the reader is already on, and its nine images - five of them tool icons used inline in the instructions - are not visible at all to anyone browsing from inside Luanti, which is where the instructions were most needed
 - [x] The download from ContentDB now holds only what the game needs to run: 3.29 MB down to 1.93 MB. Hidden files and directories are excluded, which is what stops `.claude/` (993 kB), `.reports/` and `.github/` reaching players, along with the art sources, `scripts/` and the record documents. `menu/*.png` is kept - it is what the main menu reads
 - [x] Fixed the sun showing at dawn and dusk: the sky hid the sun itself but not the sunrise glow drawn behind it
-- [ ] Known: right-clicking a bookshelf opens its formspec, and that formspec shows your own inventory - which the game otherwise keeps closed. Nothing can dig the bookshelf afterwards, so anything put inside is only recoverable by opening that same bookshelf again
+- [x] Fixed items being movable into a bookshelf, which could never then be dug open again. No node inventory accepts anything now
+- [ ] Known: right-clicking a bookshelf still opens a panel showing your own inventory, which the game otherwise keeps closed. Nothing can be moved in or out of it
 - [ ] Known: punching wool plays the breaking animation, then the block stays. Nothing is breakable; the animation is the client guessing ahead of the server
 - [ ] Known: `default` supplies 108 node definitions out of ~9700 lines, and registers six always-on ABMs
 - [ ] Known: nothing in CI checks `.gitattributes`, so a file added to this repository ships inside the release archive unless a rule excludes it, and nothing fails locally when one does

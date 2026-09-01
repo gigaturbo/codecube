@@ -21,7 +21,7 @@ Two numbering conventions, so a commit message always resolves:
   milestone is the game's share of a mod phase, it says which.
 - **Finding ids are shared** with the mod's audit — a `B`, `S`, `C` or `A` number
   is allocated once across both, so it never means two things and is never
-  renumbered. The thirteen below are the game's; the rest are the mod's, as is
+  renumbered. The sixteen below are the game's; the rest are the mod's, as is
   the `F` feature series.
 
 Target is **v1.0.0**, major because several changes break saved player programs.
@@ -31,9 +31,13 @@ Target is **v1.0.0**, major because several changes break saved player programs.
 Nothing here is blocking. The game is current with CodeBlock `2647228`, both CI
 workflows are green on that pair of commits, and **the next step for the project
 as a whole is on the mod side** — Phase 7, the drone seam (A11). This file does
-not compete with that. The game's own next item is G3: trim vendored `default`
-(A13) — 9,744 lines for 108 node definitions, and it closes B19 and B24 for
-free. It moves no submodule pointer, so it can run in parallel.
+not compete with that.
+
+The game's own next step is **an hour in a world, not an hour of code**: `B47`
+and `S8` are fixed and unconfirmed, and re-running `L1` and the new `R6` is what
+closes them. After that, G3 — trim vendored `default` (A13), 9,744 lines for 108
+node definitions, closing B19 and B24 for free. It moves no submodule pointer, so
+it can run in parallel with anything the mod is doing.
 
 **The game has been played against `PLAYTEST.md`, once, on 2026-09-01**, and
 that is the change since the last revision. `W1`–`W3`, `L2` and `R1`–`R4` pass,
@@ -97,17 +101,18 @@ Carry only the nodes the palette references.
 - Check the palette first: the block list is the mod's and naming a node that no
   longer exists breaks saved player programs. (A13)
 
-### G4. Make the game's own mods behave — started (1/5)
+### G4. Make the game's own mods behave — started (2/5)
 
-The first playtest, on 2026-09-01, added three of these five. They are all small
-except the decision in `S8`, and between them they are what stands between the
-game's restrictions as written and the restrictions as played.
+The first playtest, on 2026-09-01, added three of these five, and two are already
+fixed. Between them they are what stands between the game's restrictions as
+written and the restrictions as played. Nothing here is large, and `B47` and
+`S8` need a world to confirm them rather than more code.
 
 - [x] `cc_day`: hide the sunrise texture too — `set_sun{visible = false}` leaves
   it drawn, and part of the sun shows at dawn. (B47)
-- Close the bookshelf: a node formspec reaches around the blanked player
-  inventory, and the palette exposes `bookshelf`, so a program can place one.
-  Needs a decision on how wide the fix should be. (S8)
+- [x] Closed the bookshelf: a node formspec reaches around the blanked player
+  inventory, and the palette exposes `bookshelf`, so a program can place one. No
+  node inventory accepts anything now; the panel still opens, inert. (S8)
 - Drop `cc_day`'s duplicate of a block `codeblock` already runs, marked
   "TEMP fix". It is also what may be undoing B47, so it now blocks a check
   rather than only being untidy. (A7)
@@ -141,9 +146,10 @@ findings: nothing here is defective, it has not happened yet.
   unless a rule excludes it, and nothing local fails when one does. `PLAYTEST.md`
   `P2` is the only thing that would catch it; it passed at `8b27f2f` and has to
   be re-run every time a tracked file is added. (C15)
-- **A bookshelf shows the player their inventory**, around the blanked inventory
-  formspec, and the drone can place one. Nothing can dig it afterwards, so a tool
-  moved into it is recoverable only by finding that bookshelf again. (S8)
+- **A bookshelf still opens and still shows the player their own inventory**,
+  around the blanked inventory formspec. Nothing can be moved into or out of it
+  now, but the panel is there, and the formspec is metadata on the placed node
+  rather than a field `cc_security` can override away. (S8)
 - Part of the sun is visible at dawn and dusk. Fixed in `cc_day`, but the mod's
   duplicate may be undoing it, which is unverified until `A7` lands. (B47)
 - Wool cracks under a punch that will not break it. (B48)
@@ -180,8 +186,8 @@ findings: nothing here is defective, it has not happened yet.
 
 ---
 
-2026-09-01 · codecube `8b27f2f` (main) · codeblock `2647228` (master), the
-commit this game has adopted. The record split, the three agents and C20 are all
-committed now; the tree is clean and nothing is waiting to be pushed except these
-same commits. `check_game.sh` and luacheck pass, and `P1`'s clone half and `P2`
-were run for the first time.
+2026-09-01 · codecube `3ce1eed` (main) plus the `B47` and `S8` fixes · codeblock
+`2647228` (master), the commit this game has adopted. The record split, the three
+agents and C20 are all committed; `check_game.sh` and luacheck pass. The game was
+played for the first time this day, which is where `B47`, `B48` and `S8` came
+from. Nothing has been pushed yet.

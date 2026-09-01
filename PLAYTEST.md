@@ -217,6 +217,24 @@ Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — the drone plac
 removes normally with every node undiggable. The restriction and the game's point
 coexist, which was the thing worth confirming.
 
+### R6 · A bookshelf opens nothing you can use [S8]
+
+Have a program place a `bookshelf`, then right-click it. Try to drag one of the
+two drone tools from the inventory panel into the bookshelf's own slots, and try
+to drag it back out. Then leave the world, rejoin, and open the same bookshelf.
+
+**Pass:** the formspec still opens — that part is in node metadata and
+`cc_security` cannot reach it — but no item moves in either direction, and the
+bookshelf is empty after the rejoin. The three `allow_metadata_inventory_*`
+callbacks are overridden to return 0 on every registered node, so the denial is
+not specific to bookshelf; a chest or furnace would behave the same if one
+existed.
+
+**Also confirm the drone still builds** — the same override pass touches every
+node, and `R4` is what says the restriction has not been widened into the game.
+
+Result: unchecked
+
 ### R5 · The two callbacks behave, and the load order is deterministic [A8]
 
 **Run this only after `A8` is fixed.** `A8` replaces two direct assignments to

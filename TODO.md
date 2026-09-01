@@ -17,7 +17,7 @@ renumbered; milestones here are lettered G1-G5, not the mod's phase numbers.
 - [x] run the W, L and R groups of PLAYTEST.md once - found B47, B48 and S8
 - [ ] trim vendored default down to the nodes the game actually uses (audit A13)
 - [x] cc_day: hide the sunrise texture, not only the sun (audit B47) - fixed, unverified until A7
-- [ ] cc_security: close the bookshelf formspec, which shows the player inventory (audit S8)
+- [x] cc_security: deny every node inventory, closing the bookshelf hole (audit S8) - fixed, unverified
 - [ ] cc_day: drop the duplicate of a block codeblock already runs (audit A7)
 - [ ] cc_security: chain the two engine callbacks instead of assigning over them (audit A8)
 - [ ] wool cracks under a punch it will not break - client-side dig prediction (audit B48)
