@@ -8,9 +8,10 @@ CodeBlock is the main project — read
 the game itself owns: its own mods, its settings and presentation, its
 packaging, and which CodeBlock release it has adopted.
 
-The reasoning behind every item lives in **this game's own audit**,
-`.audit/audit.html` (gitignored, generated locally). The mod's audit is separate
-and is the main one: `mods/codeblock/.audit/audit.html`.
+The reasoning behind every item lives in **this game's own audit**, `AUDIT.md`,
+and the manual checks are in `PLAYTEST.md`; `.reports/*.html` are gitignored
+renderings of both and of this file. The mod's audit is separate and is the main
+one: `mods/codeblock/AUDIT.md`.
 
 Two numbering conventions, so a commit message always resolves:
 
@@ -20,7 +21,8 @@ Two numbering conventions, so a commit message always resolves:
   milestone is the game's share of a mod phase, it says which.
 - **Finding ids are shared** with the mod's audit — a `B`, `S`, `C` or `A` number
   is allocated once across both, so it never means two things and is never
-  renumbered. The twelve below are the game's; the rest are the mod's.
+  renumbered. The thirteen below are the game's; the rest are the mod's, as is
+  the `F` feature series.
 
 Target is **v1.0.0**, major because several changes break saved player programs.
 
@@ -33,13 +35,22 @@ not compete with that. The game's own next item is G3: trim vendored `default`
 (A13) — 9,744 lines for 108 node definitions, and it closes B19 and B24 for
 free. It moves no submodule pointer, so it can run in parallel.
 
+Two things about the record, since they change what "green" means here. The
+game's findings are now tracked Markdown (`AUDIT.md`) rather than a gitignored
+HTML file, and `PLAYTEST.md` is new. **Nothing in `PLAYTEST.md` has been run.**
+The game has no test suite and no automated check reaches its behaviour, so every
+claim about what `cc_day`, `cc_mapgen` and `cc_security` do in a world rests on
+reading three short files. Running the `W`, `L` and `R` groups once costs an hour
+and is the cheapest evidence available anywhere in this repository.
+
 ## Milestones
 
-### G1. Ship an honest, installable package — done (5/5)
+### G1. Ship an honest, installable package — done (6/6)
 
-No version ceiling, licensing settled across everything the game bundles, and a
-release archive containing only what a player needs. Mostly the game's share of
-the mod's Phase 1; C15 landed much later and sits here as the same subject.
+No version ceiling, licensing settled across everything the game bundles, a
+release archive containing only what a player needs, and a ContentDB page written
+for its own reader. Mostly the game's share of the mod's Phase 1; C15 and C20
+landed much later and sit here as the same subject.
 
 - [x] Removed `max_minetest_version` from `game.conf`; `check_game.sh` now fails
   on a reinstated one. (C1 is the mod's counterpart)
@@ -47,9 +58,14 @@ the mod's Phase 1; C15 landed much later and sits here as the same subject.
 - [x] Catalogued every bundled mod's licence in `THIRD-PARTY-LICENSES.md`,
   unified on AGPL-3.0-only, and gave `cc_day`, `cc_mapgen` and `cc_security`
   their own. (C3, C4, C5)
-- [x] Stopped the release archive shipping `.claude/` (993 kB), `.audit/`
-  (104 kB), `.github/`, `scripts/` and the art sources to players: 4.94 MB down
-  to 2.75 MB. `menu/*.png` is kept, since that is what the main menu reads. (C15)
+- [x] Stopped the release archive shipping `.claude/` (993 kB), the audit,
+  `.github/`, `scripts/` and the art sources to players: 4.94 MB down to 2.75 MB.
+  `menu/*.png` is kept, since that is what the main menu reads. (C15)
+- [x] Stopped the ContentDB long description being `README.md` verbatim, which
+  broke six of ContentDB's own page rules at once — including nine images, five
+  of them tool icons used *inline in the instructions*, invisible to anyone
+  browsing in-game. `CONTENTDB.md` is now the source and the generator's header
+  carries the rules. (C20; the mod's counterpart is C19)
 
 ### G2. Check the game, not the mod — done (2/2)
 
@@ -90,10 +106,12 @@ findings: nothing here is defective, it has not happened yet.
   `master`.
 - Update this game's documentation in the same commit: `README.md`, the
   changelog, and anything in them that names a mod behaviour that changed.
-- Regenerate `.cdb.json` after any `README.md` edit — `check_game.sh` diffs it,
-  and a stale one turns this repository's CI red.
-- Run `check_game.sh`, verify a fresh `git clone --recurse-submodules`, tag on
-  `main`, upload to ContentDB. The `release-codecube` skill owns the procedure.
+- Regenerate `.cdb.json` after any `CONTENTDB.md` edit — `check_game.sh` diffs
+  it, and a stale one turns this repository's CI red. Editing `README.md` no
+  longer affects it (C20).
+- Run `check_game.sh`, verify a fresh `git clone --recurse-submodules` (`P1`),
+  list the release archive (`P2`), tag on `main`, upload to ContentDB, then read
+  the page in-game (`P5`). The `release-codecube` skill owns the procedure.
 
 ## What ships broken
 
@@ -101,7 +119,11 @@ findings: nothing here is defective, it has not happened yet.
   always-on ABMs. (A13)
 - `.gitattributes` decides what reaches a player and **no CI checks it**, here or
   in the mod. A file added to this repository ships in the ContentDB archive
-  unless a rule excludes it, and nothing local fails when one does. (C15)
+  unless a rule excludes it, and nothing local fails when one does. `PLAYTEST.md`
+  `P2` is the only thing that would catch it, and it has not been run. (C15)
+- **No behaviour of this game has ever been verified in a running world.** There
+  is no test suite, `check_game.sh` only checks that the game assembles, and
+  every check in `PLAYTEST.md` is `unchecked`.
 - Everything in the mod's "what ships broken" list ships in the game too, since
   the game is how most players meet it.
 
@@ -123,6 +145,12 @@ findings: nothing here is defective, it has not happened yet.
   are in the game's own mods. (C6 is the mod's finding, 54 sites)
 - **Reusing the mod's phase numbers.** They are quoted in commit messages;
   lettered milestones here cannot be mistaken for them.
+- **Keeping any agent guidance outside the repository.** Decided 2026-09-01, with
+  the three-agent split — `project-manager` for the record, `code-expert` for the
+  game's own code, `test-agent` for the gates and the evidence, each reading a
+  skill in `.claude/skills/`. The `references` documentation is copied into the
+  repository for the same reason, so a fresh clone carries it. Nothing an agent
+  needs to know lives in a machine-local store.
 
 ---
 

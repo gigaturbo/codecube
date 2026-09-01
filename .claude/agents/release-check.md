@@ -3,7 +3,7 @@ name: release-check
 description: Decides whether a Codecube game release is ready, and says no when it is not. Runs every gate — check_game.sh, luacheck on the game's own mods, CI on the exact commit, which CodeBlock release the submodule has adopted, licensing across the bundled mods, packaging metadata, what the release archive contains, and a fresh recursive clone — then reports a single go or no-go with the evidence behind it. Read-only; it verifies and never fixes or releases. Use before tagging the game, before uploading it to ContentDB, or to ask whether a game release is ready.
 tools: Read, Grep, Glob, Bash, WebFetch
 disallowedTools: Write, Edit, NotebookEdit
-skills: references
+skills: run-checks, references
 effort: high
 color: green
 ---
@@ -84,8 +84,19 @@ every result — someone fixing one thing wants to know what else is waiting.
   clean. It runs under WSL here:
   `wsl bash -lc 'cd /mnt/c/... && luacheck ...'`.
 - `bash scripts/check_game.sh` passes; confirm the tree is clean afterwards.
-- The game has no test suite of its own. Say that plainly rather than reporting a
-  test gate as passed.
+- The game has no test suite of its own, and nothing automated here reaches its
+  behaviour. Say that plainly rather than reporting a test gate as passed.
+- **`PLAYTEST.md`** is the only evidence that exists about behaviour. Read the
+  `Result:` lines and report the count: how many `pass`, and at which commit and
+  engine version. A pass recorded against a commit older than the one being
+  released is **stale, not green** — say so with both hashes. `unchecked` is
+  evidence of nothing.
+
+  This does not block on its own. It is not the agent's place to insist the
+  author play the game before a release, and no release so far has had a single
+  result line. But a release that ships with the `W`, `L` and `R` groups entirely
+  unrun is shipping three mods whose behaviour has never been observed, and the
+  report must say that rather than let a green `check_game.sh` imply otherwise.
 
 ### 3. CI is green
 
@@ -115,9 +126,14 @@ every result — someone fixing one thing wants to know what else is waiting.
   settings, how to play — and redirects to CodeBlock's package or repository for
   the API and detailed instructions. It must not have grown its own copy of the
   API reference. Check the image URLs name a branch that exists (`main`).
-- **ContentDB** — `.cdb.json`, generated from the README by
+- **ContentDB** — `.cdb.json`, generated from **`CONTENTDB.md`** by
   `scripts/gen_cdb_json.sh`. `check_game.sh` verifies it is current, so gate 2
-  covers this; confirm it did.
+  covers this; confirm it did. It is deliberately **not** the README (C20): read
+  `CONTENTDB.md` against ContentDB's rules, which are in the generator's header —
+  no title heading, no badges, no screenshots, no licence line, no link to the
+  repository or to the package's own page, and no instruction that depends on an
+  image, since images are not visible inside Luanti. A README edit no longer
+  makes `.cdb.json` stale, so do not report it as one.
 - **Changelog** — there is an entry for this version, it leads with anything
   breaking, and it **names the `codeblock` release adopted and links to that
   project's changelog** rather than repeating it.
@@ -135,9 +151,11 @@ every result — someone fixing one thing wants to know what else is waiting.
   git archive --format=tar HEAD | tar -t | awk -F/ '{print $1}' | sort -u
   ```
 
-  Nothing a player has no use for: `.claude/`, `.audit/`, `.github/`, `scripts/`,
-  art sources, the project record. A new directory is the thing that slips
-  through. Note that `git archive` does not include submodule contents at all, so
+  Nothing a player has no use for: `.claude/`, `.reports/`, `.github/`,
+  `scripts/`, art sources, and none of `CLAUDE.md`, `ROADMAP.md`, `TODO.md`,
+  `AUDIT.md`, `PLAYTEST.md` or `CONTENTDB.md`. `menu/` **must** be present — the
+  main menu reads it. A newly added tracked document is the thing that slips
+  through: each of the record documents needed its own `export-ignore` line. Note that `git archive` does not include submodule contents at all, so
   what a ContentDB user gets for `mods/codeblock` comes from ContentDB's own
   dependency resolution, not from this archive — confirm `game.conf` and the
   ContentDB package declare that dependency.

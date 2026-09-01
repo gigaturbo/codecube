@@ -63,28 +63,62 @@ has the object; only a fresh `git clone --recurse-submodules` catches it
 
 ## The record
 
-Four documents, all in this directory, plus the `.claude/` definitions:
+Six tracked documents, all in this directory, plus the `.claude/` definitions and
+the HTML renderings:
 
 - `ROADMAP.md` — the game's own mods, its packaging and presentation, and which
-  CodeBlock release it has adopted.
+  CodeBlock release it has adopted. Its milestones are lettered **`G1`–`G5`**,
+  deliberately not "Phase N" — that is the mod's scheme and appears in its commit
+  messages, and the two must stay distinguishable.
 - `TODO.md` — intentions that are not findings. One line per item and a finding
   id where there is one; the description of the work belongs in `ROADMAP.md`, and
   the reasoning in the audit.
+- `AUDIT.md` — the game's findings, each with its severity, state and, once
+  fixed, how. **Findings only**: no roadmap, no milestones.
+- `PLAYTEST.md` — the manual checks nothing else here reaches, each with what to
+  do in a running world and a result line. The game has no test suite, so this is
+  its only route to verifying behaviour. Groups are lettered `W`, `L`, `R`, `P`,
+  chosen not to collide with a finding id or a `G` milestone.
 - `CHANGELOG.md` — what shipped, for people who *play* the game. It names the
   CodeBlock release adopted and links to that project's changelog rather than
   repeating it.
-- `.audit/audit.html` — gitignored (see the last line of `.gitignore`). The game's
-  findings, each with its severity, state and, once fixed, how. Its milestones are
-  lettered **`G1`–`G5`**, deliberately not "Phase N" — that is the mod's scheme
-  and appears in its commit messages, and the two must stay distinguishable.
+- `CONTENTDB.md` — the ContentDB long description. **Not the README**: write this
+  file, never `.cdb.json`, and read the rules in the header of
+  `scripts/gen_cdb_json.sh` before adding to it. (C20)
+- `.reports/*.html` — gitignored browsable renderings of `ROADMAP.md`, `AUDIT.md`
+  and `PLAYTEST.md`. Presentation only: they hold no fact the Markdown does not,
+  so a deleted `.reports/` costs nothing.
+
+`AUDIT.md`, `PLAYTEST.md` and `CONTENTDB.md` each carry their own `export-ignore`
+line in `.gitattributes`, so none of them ships to a player.
 
 Finding ids — `B` bugs, `S` sandbox and security, `C` compliance and packaging,
 `A` architecture — are **never renumbered**, because commit messages cite them. A
 gap in a sequence is a finding held by the mod's own audit, from when the two
-projects shared one record.
+projects shared one record. The mod's `F` feature series is its own.
 
-The `project-manager` agent owns all four and the `.claude/` definitions beside
-them; edit one by hand only for something that agent cannot know.
+The `project-manager` agent owns all six, plus `README.md` and this file, the
+renderings, and the `.claude/` definitions beside them; edit one by hand only for
+something that agent cannot know.
+
+## The agents and the skills
+
+Three agents divide the work by what each can be trusted with, and each reads its
+own skill first. Their definitions are the long form; this is only the map.
+
+| Agent | Owns | Reads |
+|---|---|---|
+| `project-manager` | the record above, `README.md`, `CONTENTDB.md` and the `.cdb.json` generator over it, `.reports/`, and the `.claude/` definitions | `build-feature` |
+| `code-expert` | `mods/cc_day`, `mods/cc_mapgen`, `mods/cc_security`, `scripts/`, `game.conf`, `minetest.conf`, and the packaging and lint configuration | `code-standards`, `references` |
+| `test-agent` | the two gates, the CI lookup, `PLAYTEST.md`'s result lines, and the evidence side of `AUDIT.md` | `run-checks`, `references` |
+
+Two rules make the split work: **call the agent rather than doing its work**, and
+**never two of them on one file in a turn** — `AUDIT.md` and `PLAYTEST.md` are
+the two that can happen to.
+
+The `build-feature` skill holds the order any piece of work follows, and its
+step 0 is the one this project needs most: deciding whether the work is the
+game's at all, or the mod's.
 
 The `release-codecube` skill carries `disable-model-invocation: true`
 deliberately, because a release is not something to start by accident. Ask for it
@@ -98,11 +132,14 @@ These are the game's own checks, and they are what this repository's CI runs —
 ```bash
 bash scripts/check_game.sh    # the game assembles: metadata, submodules, deps, .cdb.json
 luacheck mods/cc_day mods/cc_mapgen mods/cc_security --formatter plain --codes
-bash scripts/gen_cdb_json.sh  # regenerate after a README edit; check_game.sh diffs it
+bash scripts/gen_cdb_json.sh  # regenerate after a CONTENTDB.md edit; check_game.sh diffs it
 ```
 
-The game has **no test suite of its own**. Say so plainly rather than reporting a
-test gate as passed.
+The game has **no test suite of its own**, and no automated check reaches its
+behaviour at all — `check_game.sh` verifies that the game *assembles*. Say so
+plainly rather than reporting a test gate as passed. What behaviour evidence
+exists is whatever has been run out of `PLAYTEST.md`, and at present that is
+nothing.
 
 Linting and testing the mod belongs to its own repository and CI, and neither
 workflow duplicates the other. The consequence: **the two go red
