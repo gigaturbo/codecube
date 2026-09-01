@@ -42,10 +42,10 @@ Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
 ## Where it stands
 
 **The game's behaviour has been checked in a world on 2026-09-01, over two
-rounds.** Ten of the seventeen checks have been run. `W1`–`W3`, `L1`, `L2` and
-`R1`–`R4` pass; `R6` is partial; `P2` passes and `P1` passes in half. `L3` and
-`R5` are gated on `A7` and `A8` and cannot run yet; `P3`, `P4`, `P5` and the boot
-half of `P1` are simply not done.
+rounds.** Twelve of the seventeen have been run and ten of them pass: `W1`–`W3`,
+`L1`, `L2`, `R1`–`R4` and `P2`. `R6` and `P1` are partial. `L3` and `R5` are
+gated on `A7` and `A8` and cannot run yet; `P3`, `P4`, `P5` and the boot half of
+`P1` are simply not done.
 
 **Four findings came out of it**, which is the argument for having run it at all:
 `B47` (the sunrise texture is still drawn — now fixed and re-checked by `L1`),

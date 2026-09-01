@@ -159,8 +159,8 @@ findings: nothing here is defective, it has not happened yet.
   on the placed node, not a field `cc_security` can override away. (S8)
 - Wool cracks under a punch that will not break it. (B48)
 - The game still has no test suite, and nothing automated reaches its behaviour.
-  What is proven is what `PLAYTEST.md` records as run — ten of seventeen checks,
-  in two rounds on 2026-09-01 — and no more than that.
+  What is proven is what `PLAYTEST.md` records as run — twelve of seventeen
+  checks in two rounds on 2026-09-01, ten of them passing — and no more.
 - Everything in the mod's "what ships broken" list ships in the game too, since
   the game is how most players meet it.
 
