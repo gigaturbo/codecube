@@ -198,4 +198,5 @@ findings: nothing here is defective, it has not happened yet.
 this game has adopted. The record split, the three agents, C20 and both playtest
 fixes are committed; `check_game.sh` and luacheck pass. The game was played for
 the first time this day, over three rounds — that is where `B47`, `B48` and `S8`
-came from, and what closed two of them. Nothing has been pushed yet.
+came from, and what closed two of them. All of it is pushed to `origin/main` as of
+2026-09-02; CI on `6e18c4b` has not been read from here.
