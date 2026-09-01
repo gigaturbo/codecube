@@ -42,20 +42,33 @@ Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
 ## Where it stands
 
 **The game's behaviour has been checked in a world on 2026-09-01, over three
-rounds.** Twelve of the seventeen have been run and eleven pass: `W1`–`W3`, `L1`,
+rounds.** Twelve of the eighteen have been run and eleven pass: `W1`–`W3`, `L1`,
 `L2`, `R1`–`R4`, `R6` and `P2`. `P1` is partial — its clone half only. `L3` and
-`R5` are gated on `A7` and `A8` and cannot run yet; `P3`, `P4` and `P5` are
+`R5` are gated on `A7` and `A8` and cannot run yet; `R7` is new and is the one
+that decides whether `B49`'s fix works at all; `P3`, `P4` and `P5` are
 simply not done, and `P5` needs a release first.
 
-**Every restriction the game claims is now evidence rather than reading.**
-Nothing is diggable, no item drops, there is no knockback, no inventory is
-reachable, and the drone still builds through all of it. `cc_mapgen` is proven
-the same way: flat and clean at spawn, far out into unemerged map, and in a world
-created with other flags. `cc_day` holds the light and the sky at every hour.
+**Every restriction that was checked on 2026-09-01 is evidence rather than
+reading.** Nothing is diggable, no item drops, there is no knockback, no
+inventory is reachable, and the drone still builds through all of it.
+`cc_mapgen` is proven the same way: flat and clean at spawn, far out into
+unemerged map, and in a world created with other flags. `cc_day` holds the light
+and the sky at every hour.
+
+**`R7` is the exception, and it is a big one.** The game now also claims the
+world never changes on its own, and nothing has confirmed it — the fix behind it
+rests on undocumented behaviour, so `R7` is what decides whether it works.
 
 **Three findings came out of those rounds** — `B47`, `B48` and `S8` — none of
 them visible from reading the three `cc_*` files, which are 21 lines between
 them. Two are closed and re-checked; `B48` is cosmetic and open.
+
+**`B49` came the other way, and is worth noting for that.** It was found by
+reading `mods/default` while scoping `A13`, not by playing — three rounds in a
+world walked past dirt spreading grass and a roofed grass floor reverting,
+because nobody had thought to wait five minutes and look again. Playing finds
+what reading misses; this one went the other way, and `R7` exists so it does not
+have to go a third way.
 
 **`R6` is the case for re-running a check against its own fix.** The first `S8`
 fix stopped items going into the bookshelf and left the real hazard standing: the
@@ -175,9 +188,12 @@ Result: unchecked
 
 ## R · Restrictions
 
-`mods/cc_security/init.lua`: a blank inventory formspec per player, a pass over
-every registered node setting `diggable = false`, and two engine globals
-overwritten (`A8`).
+`mods/cc_security/init.lua`, and it is the whole of what a player may and may not
+do: a blank inventory formspec per player, a guard denying every player-initiated
+inventory action (`S8`), a pass over every registered node setting
+`diggable = false`, denying its three inventory callbacks and stopping its timer
+(`S8`, `B49`), every ABM action replaced with a no-op (`B49`), and two engine
+globals overwritten (`A8`).
 
 ### R1 · Nothing is diggable
 
@@ -274,6 +290,39 @@ not reach, because their inventory is deactivated. That reopened `S8` and
 `register_allow_player_inventory_action` was the second half of the fix. **This
 is the check that earned its re-run**: the first fix would have been recorded as
 complete on the strength of the half that worked.
+
+### R7 · The world does not change on its own [B49]
+
+**This is the check the fix depends on, not a formality.** Neutralising an ABM by
+replacing its `action` is not documented behaviour — Luanti has no API to
+unregister one — so nothing but this says whether it works.
+
+Have a program build three things, then leave them alone for **at least five
+minutes** of running server and look again. The ABMs run on 6- and 8-second
+intervals with a 1-in-50 chance, so a glance after thirty seconds proves nothing;
+if you want it faster, build many of each.
+
+1. A patch of `dirt` with `dirt_with_grass` next to it, and another `dirt` with a
+   `grass_3` on top.
+2. A floor of `dirt_with_grass` with an opaque roof — `stone` will do — one node
+   above part of it.
+3. A `sapling`, in the open.
+
+**Pass:** nothing has changed. The `dirt` is still `dirt`, the roofed
+`dirt_with_grass` is still grass, and the sapling is still a sapling.
+
+**On the code before `B49`, all three change**, which is what makes this a real
+check rather than an assertion: 1 turns to grass, 2 reverts to plain `dirt` —
+destroying what the program placed — and 3 becomes a tree that may overwrite
+blocks above it. If any of the three still changes, the `action` replacement does
+not take effect and the fallback is deleting the two ABMs from
+`mods/default/functions.lua` directly.
+
+**Also confirm a sapling has not simply frozen the server**: the timer stopper
+returns `false`, and **`0` is truthy in Lua 5.1** — had it returned `0`, every
+node timer in the world would restart forever instead of stopping.
+
+Result: unchecked
 
 ### R5 · The two callbacks behave, and the load order is deterministic [A8]
 

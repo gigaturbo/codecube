@@ -21,7 +21,7 @@ Two numbering conventions, so a commit message always resolves:
   milestone is the game's share of a mod phase, it says which.
 - **Finding ids are shared** with the mod's audit — a `B`, `S`, `C` or `A` number
   is allocated once across both, so it never means two things and is never
-  renumbered. The sixteen below are the game's; the rest are the mod's, as is
+  renumbered. The seventeen below are the game's; the rest are the mod's, as is
   the `F` feature series.
 
 Target is **v1.0.0**, major because several changes break saved player programs.
@@ -33,17 +33,22 @@ workflows are green on that pair of commits, and **the next step for the project
 as a whole is on the mod side** — Phase 7, the drone seam (A11). This file does
 not compete with that.
 
-The game's own next item is **G3: trim vendored `default`** (A13) — 9,744 lines
-for 108 node definitions, closing B19 and B24 for free, and the largest single
-reduction available anywhere in the project. It moves no submodule pointer, so it
-can run in parallel with anything the mod is doing. Check the palette first.
+The game's own next step is **one check in a world**: `R7`, against the `B49` fix
+just committed. The fix stops the world changing on its own, and the half of it
+that neutralises `default`'s ABMs rests on undocumented behaviour — so `R7` is
+not a formality, it is what says whether the fix works at all.
+
+**G3 turned out smaller than it looked.** Scoping the trim produced `B49` and
+then deferred `A13` itself: `codeblock` is expected to take the blocks it needs,
+at which point the vendored `default` is deleted rather than trimmed. The
+grounds are under *deliberately not doing*.
 
 **The game was played against `PLAYTEST.md` for the first time on 2026-09-01**,
-in three rounds, and that is the change since the last revision. Eleven of the
-seventeen checks pass and one is partial. **Every restriction the game claims is
-now evidence rather than reading**: nothing diggable, no drops, no knockback, no
-inventory reachable, and the drone building through all of it. `cc_mapgen` and
-`cc_day` are proven the same way.
+in three rounds. Eleven of the eighteen checks pass and one is partial. **Every
+restriction checked that day is evidence rather than reading**: nothing diggable,
+no drops, no knockback, no inventory reachable, and the drone building through
+all of it. `cc_mapgen` and `cc_day` are proven the same way. `R7`, added since,
+is the one claim still resting on reading.
 
 **Two hours produced three findings** — B47, B48 and S8 — none of which was
 visible from reading the three `cc_*` files, 21 lines between them. Two are
@@ -57,9 +62,9 @@ drone tool *out* of the hotbar through the same panel, into a row they cannot
 reopen. Marking R6 pass on the strength of that fix would have shipped it. A fix
 is not evidence; the check is, and it costs minutes.
 
-What is still unproven: `L3` and `R5` gated on A7 and A8, `P3`–`P5` and the boot
-half of `P1`. The game still has no test suite, nothing automated reaches its
-behaviour, and nothing here will.
+What is still unproven: `R7` above all, then `L3` and `R5` gated on A7 and A8,
+`P3`–`P5` and the boot half of `P1`. The game still has no test suite, nothing
+automated reaches its behaviour, and nothing here will.
 
 ## Milestones
 
@@ -100,14 +105,28 @@ mod's Phase 3, which also deleted the two vendored dependencies from here.
   the mod's; this repository's copy is diffed by `check_game.sh`)
 - [x] Added `cc_mapgen` (flat clean world) and `cc_day` (permanent noon).
 
-### G3. Trim what the game vendors — not started (0/3)
+### G3. Trim what the game vendors — deferred, and one part done instead (1/2)
 
-Carry only the nodes the palette references.
+Scoped on 2026-09-02 and the scoping is what changed it. Reading `default`
+against the palette turned up a behaviour defect nobody had looked for, and made
+the case for the trim itself weaker rather than stronger.
 
-- Trim vendored `default`: 9,744 lines for 108 node definitions, and six
-  always-on ABMs still run. Closes B19 and B24 for free. (A13)
-- Check the palette first: the block list is the mod's and naming a node that no
-  longer exists breaks saved player programs. (A13)
+- [x] Stop the world changing on its own. Two of `default`'s six ABMs act on
+  palette nodes: `dirt` beside any `dirt_with_*` becomes that node, and any
+  `spreading_dirt_type` reverts to plain `dirt` under an opaque roof — so roofing
+  a grass floor destroys the grass. Ten saplings grow trees over what a program
+  built. Fixed in `cc_security`, which is where the game's rules live, and
+  **unverified**: the ABM half rests on undocumented behaviour, so `R7` decides
+  it. (B49)
+- **Deferred: trimming vendored `default` itself.** (A13) The reasoning is under
+  *deliberately not doing*, below. Nothing a player meets is waiting on it — the
+  saving is size and boot noise, and `B19`'s five boot errors and `B24`'s two
+  warnings stay until it happens or `default` goes.
+
+The counting was corrected while scoping: the palette is **122 nodes — 106 from
+`default`, 15 from `wool`, plus `air`** — not the 124 and 108 the audit recorded.
+All 106 are in `nodes.lua`, so the removable set is whole files, not a curation
+within one.
 
 ### G4. Make the game's own mods behave — started (2/5)
 
@@ -149,8 +168,9 @@ findings: nothing here is defective, it has not happened yet.
 
 ## What ships broken
 
-- `default` supplies 108 node definitions out of ~9,700 lines and registers six
-  always-on ABMs. (A13)
+- `default` supplies 106 node definitions out of ~9,700 lines, and registers six
+  ABMs, 3 LBMs and 101 craft recipes that nothing can reach. Deferred, not
+  pending. (A13)
 - `.gitattributes` decides what reaches a player and **no CI checks it**, here or
   in the mod. A file added to this repository ships in the ContentDB archive
   unless a rule excludes it, and nothing local fails when one does. `PLAYTEST.md`
@@ -161,13 +181,34 @@ findings: nothing here is defective, it has not happened yet.
   it, but the panel is there: the formspec is metadata on the placed node, not a
   field `cc_security` can override away. (S8)
 - Wool cracks under a punch that will not break it. (B48)
+- **Unverified: that the world no longer changes on its own.** The fix for B49 is
+  committed, and the half that neutralises `default`'s ABMs works by undocumented
+  means — until `R7` runs, whether it takes effect is unknown. If it does not,
+  dirt still spreads grass and a roofed grass floor still reverts to plain dirt,
+  destroying what a program placed.
 - The game still has no test suite, and nothing automated reaches its behaviour.
-  What is proven is what `PLAYTEST.md` records as run — twelve of seventeen
-  checks in three rounds on 2026-09-01, eleven of them passing — and no more.
+  What is proven is what `PLAYTEST.md` records as run — twelve of eighteen checks
+  in three rounds on 2026-09-01, eleven of them passing — and no more.
 - Everything in the mod's "what ships broken" list ships in the game too, since
   the game is how most players meet it.
 
 ## Deliberately not doing
+
+- **Trimming vendored `default` down to the palette.** Decided 2026-09-02 by the
+  author, and the ground is the one that settles it: **CodeBlock is expected to
+  integrate the blocks it needs**, and at that point the game's `default` is not
+  trimmed but deleted. Doing the trim first means hand-curating 9,744 lines of
+  third-party code against a contract owned by the other repository, and then
+  mirroring every palette change the mod makes — exactly the coupling this
+  project refuses everywhere else, and for a saving that is size and boot noise
+  rather than behaviour. `A13` stays open as a description of what is carried,
+  not as work waiting to be done.
+
+  **What would change it:** CodeBlock deciding *not* to take the blocks, or a
+  release approaching with the boot log still opening on five red `NodeResolver`
+  errors. `mapgen.lua` is the one piece that is safe to cut regardless — 2,492
+  lines, the sole source of `B19`, and dead whoever owns the palette, since
+  `cc_mapgen` disables every decoration, ore and biome it registers.
 
 - **`settingtypes.txt` at the game root.** Every drone setting is CodeBlock's,
   and CodeBlock is its own ContentDB package; in the mod it works for a
@@ -194,9 +235,10 @@ findings: nothing here is defective, it has not happened yet.
 
 ---
 
-2026-09-01 · codecube `c042364` (main) · codeblock `2647228` (master), the commit
-this game has adopted. The record split, the three agents, C20 and both playtest
-fixes are committed; `check_game.sh` and luacheck pass. The game was played for
-the first time this day, over three rounds — that is where `B47`, `B48` and `S8`
-came from, and what closed two of them. All of it is pushed to `origin/main` as of
-2026-09-02; CI on `6e18c4b` has not been read from here.
+2026-09-02 · codecube `c042364` (main) plus the `B49` fix · codeblock `2647228`
+(master), the commit this game has adopted. `check_game.sh` and luacheck pass.
+The game was played for the first time on 2026-09-01, over three rounds — that is
+where `B47`, `B48` and `S8` came from, and what closed two of them. `B49` came
+the day after, from reading `default` while scoping G3, and is the one fix here
+that no world has confirmed. Everything through `35fa2a1` is at `origin/main`;
+CI has not been read from here.

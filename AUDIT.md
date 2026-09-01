@@ -32,14 +32,18 @@ nothing dropped.
 
 ## Where it stands
 
-16 findings, this game's own. **10 resolved, 6 open, none won't-fix.** No open
+17 findings, this game's own. **11 resolved, 6 open, none won't-fix.** No open
 finding is critical or high: three medium (`A7`, `A8`, `A13`) and three low
-(`B19`, `B24`, `B48`). Three close together — `A13` takes `B19` and `B24` with
-it — and `A7` and `A8` are a few lines each, so the open list is shorter work
-than its count suggests. **Nothing resolved is now unverified.** `S8` and `B47`
-were both fixed and both confirmed in a world on 2026-09-01, by `R6` and `L1`.
+(`B19`, `B24`, `B48`). `A13` is **deferred rather than pending** — the trim it
+describes is waiting on a decision in `codeblock`, not on work here — and it
+carries `B19` and `B24` with it, so three of the six open findings are one
+deferred item. `A7` and `A8` are a few lines each.
 
-**Three of the sixteen arrived that same day, from the first hours anyone has
+**`B49` is resolved and unverified**, which is the state to watch: its fix rests
+on undocumented behaviour and `R7` is what decides whether it works. `S8` and
+`B47` were fixed and confirmed in a world on 2026-09-01, by `R6` and `L1`.
+
+**Three of the seventeen arrived that same day, from the first hours anyone has
 spent playing this game against `PLAYTEST.md`** — `B47`, `B48` and `S8`. None was
 visible from reading the three `cc_*` files, which between them are 21 lines; two
 of the three are in how those lines meet a vendored node or the client. That is
@@ -55,10 +59,10 @@ from the code. **A fix is not evidence** — the check is, and it costs minutes.
 
 | Category | Count | Open |
 |---|---|---|
-| B bugs | 5 | `B19`, `B24` (close with `A13`), `B48` |
+| B bugs | 6 | `B19`, `B24` (both with `A13`), `B48` — `B49` resolved, `R7` pending |
 | S sandbox and security | 1 | — `S8` resolved, `R6` passes |
 | C compliance and packaging | 6 | — |
-| A architecture and performance | 4 | `A7`, `A8`, `A13` |
+| A architecture and performance | 4 | `A7`, `A8`, `A13` (deferred) |
 
 The game is current with `codeblock` `2647228`, adopted at `33bdae8`; both are at
 `origin` and both CI workflows were green on those exact shas. `C15` was open as
@@ -69,31 +73,53 @@ defect.
 
 ## Findings in full
 
-The six open findings. A finding leaves this section once a `PLAYTEST.md` check
-has passed on it, which is where `S8` and `B47` went on 2026-09-01 — both are
-still in full, under `S` and `B` respectively, because their reasoning is
-load-bearing.
+The six open findings, plus `B49`, whose fix no world has confirmed. A finding
+leaves this section once a `PLAYTEST.md` check has passed on it — which is where
+`S8` and `B47` went on 2026-09-01, both still in full under `S` and `B`
+respectively, because their reasoning is load-bearing.
 
-### A13 · medium · open — `default` is 9,744 lines to supply 108 node definitions, and the rest still runs
+### A13 · medium · open, deferred — `default` is 9,744 lines to supply 106 node definitions, and the rest still runs
 
 `mods/default`
 
-The palette references 124 nodes: 108 from `default`, 15 from `wool`, plus `air`.
-Nothing else in `default` is reachable — digging is disabled for every node, the
-inventory formspec is blanked, `handle_node_drops` is stubbed, mapgen is flat
-with no decorations, ores or biomes, and creative is on. So `mapgen.lua` (2,492
-lines), `trees`, `crafting`, `furnace`, `chests`, `tools`, `craftitems`,
-`item_entity` and `torch` register and do nothing — roughly 6,800 lines.
+The palette references **122** nodes: 106 from `default`, 15 from `wool`, plus
+`air`. Nothing else in `default` is reachable — digging is disabled for every
+node, the inventory formspec is blanked, `handle_node_drops` is stubbed, mapgen
+is flat with no decorations, ores or biomes, and creative is on. So
+`mapgen.lua` (2,492 lines), `trees`, `crafting`, `furnace`, `chests`, `tools`,
+`craftitems`, `item_entity` and `torch` register and do nothing — roughly 6,800
+lines. It also installs 3 LBMs and 101 craft recipes.
 
-Not only dead weight: it installs **6 ABMs, 3 LBMs and 101 craft recipes**, and
-those ABMs are evaluated against every loaded mapblock for the life of the
-server. The largest single reduction available anywhere in the project, and it
-removes a permanent background CPU cost. Closes `B19` and `B24` for free.
+**Corrected 2026-09-02: 106 and 122, not the 108 and 124 first recorded.** Counted
+this time rather than estimated, by extracting every `default:`/`wool:` string
+from `codeblock/lib/config.lua` at the adopted commit and sorting it unique. The
+shape of the finding is unchanged.
+
+**All 106 are in `nodes.lua`**, which needs only `functions.lua` for its sound
+helpers and `init.lua` for two more. Twelve of the 106 have no literal
+`register_node` call because they are registered in loops — the grass, dry grass,
+fern and marram grass series. So the removable set is whole files, and no
+palette node is entangled with one.
+
+**The ABMs are not part of this finding any more.** They were cited here as a
+background CPU cost; `B49` establishes that two of them were rewriting players'
+builds, and closes that in `cc_security`. They live in `functions.lua`, which this
+trim keeps, so trimming would never have removed them — the two findings are
+independent and `B49` is the one that mattered.
 
 **One thing to check before cutting, since the palette is the contract.** The
 block list a player's program uses is `codeblock`'s, in its config; the nodes
 come from here. Removing a node the palette names breaks saved player programs,
 which is the game's own reason to care about the mod's major version.
+
+**Deferred on 2026-09-02, by the author, and the reason is the good one.**
+`codeblock` is expected to integrate the blocks it needs, at which point the
+game's vendored `default` is not trimmed but deleted. Doing the trim now means
+hand-curating 9,744 lines of third-party code against a contract owned by the
+other repository, and then mirroring every palette change the mod makes — the
+coupling this project avoids everywhere else. The saving is size and boot noise,
+not behaviour, so nothing a player meets is waiting on it. See `ROADMAP.md` under
+*deliberately not doing* for what would change that.
 
 ### A7 · medium · open — `cc_day` duplicates a block `codeblock` already runs, marked "TEMP fix"
 
@@ -121,6 +147,54 @@ with `last_mod` so the outcome is deterministic rather than alphabetical.
 
 Separately: the mod overrides **every registered node** at `on_mods_loaded` to
 set `diggable = false` — a large table walk to express one rule.
+
+### B49 · medium · resolved, unverified in a world — the world rewrites what a program built
+
+`mods/default/functions.lua` · `mods/cc_security/init.lua`
+
+`default` registers six ABMs, and they run in this game. Two of them act on
+nodes the palette can place, so they reach a player's build:
+
+- **Grass spread** turns `default:dirt` into whatever `dirt_with_*` is within one
+  node of it, or into `dirt_with_grass` if any `group:grass` node sits on top. It
+  requires light 13 or more above, **which permanent noon always satisfies** —
+  `cc_day` makes the one condition that would otherwise gate it unsatisfiable to
+  fail.
+- **Grass covered** reverts *any* of the five `spreading_dirt_type` nodes to plain
+  `default:dirt` the moment an opaque node covers it. All five are in the
+  palette. So a program that lays a `dirt_with_grass` floor and roofs part of it
+  loses the grass under the roof, minutes later, with nothing said.
+
+The second is destructive: it removes what the program wrote rather than adding
+to it. Saplings are the same defect by another route — the palette has ten of
+them, and `nodes.lua` gives each an `on_timer` that grows a tree the program
+never asked for, over blocks it may have placed.
+
+**This contradicts the game's own page, in as many words.** `CONTENTDB.md` tells
+players *"Every block that appears was placed by a program, so the world always
+shows what your code did and nothing else."* That was not true. The other four
+ABMs — lava cooling, papyrus, cactus, moss — cannot fire, because no lava, water,
+papyrus or sand is in the palette; they were only cost.
+
+**Fixed in `cc_security`, not in `default`.** The rule belongs to the game and is
+written where the game's other rules are: every node's `on_timer` is replaced,
+and every ABM's `action` is replaced with a no-op. Two things about the shape:
+
+- **`0` is truthy in Lua 5.1**, so a timer stopper must return `false`. Reusing
+  the `deny` helper that returns 0 would have restarted every timer forever
+  instead of stopping it — the opposite of the intent, and silent.
+- **Luanti has no API to unregister an ABM.** `core.registered_abms` is listed in
+  the reference as a table, but only `core.registered_privileges` is documented
+  as modifiable in place, which reads as a deliberate distinction. The table is
+  therefore not cleared — the engine registers each ABM by position, and emptying
+  it would leave those registrations pointing at nothing. Replacing each `action`
+  keeps the shape.
+
+**Unverified, and the mechanism is the reason.** Neutralising an ABM by mutating
+its `action` is not documented behaviour, so `PLAYTEST.md` `R7` is not a formality
+here: it is the only thing that can say whether the fix works at all. If it fails,
+the fallback is deleting the two ABMs from `functions.lua` — a vendored edit,
+which is why it was not the first choice.
 
 ### B48 · low · open — wool plays the dig animation before the server refuses
 
@@ -509,12 +583,13 @@ several revisions while its prose was already correct.
 
 ---
 
-Revised 2026-09-01, five times in one day: at `8b27f2f` for the packaging checks;
+Revised 2026-09-02 while scoping G3, which produced `B49` and deferred `A13`.
+Before that, 2026-09-01, five times in one day: at `8b27f2f` for the packaging checks;
 at `7f649d8` for the first playtest; again for the `B47` and `S8` fixes it
 produced; again after re-running `L1` and `R6` against those fixes, which closed
 `B47` and reopened `S8`; and again at `c042364`, when `R6` and `R4` closed `S8`
-for good. Describes codecube `c042364` (main) and codeblock `2647228` (master),
-the release commit this game has adopted. `S8`, `B47` and `B48` are the new
-findings; ids were allocated against the mod's audit in the sibling checkout,
-which stands at `B46`, `S7`, `A16`, `C19` and `F8` — the game's `C20` is the
-highest `C`.
+for good. Describes codecube `c042364` plus the `B49` fix, and codeblock
+`2647228` (master), the release commit this game has adopted. `S8`, `B47`, `B48`
+and `B49` are the new findings; ids were allocated against the mod's audit in the
+sibling checkout, which stands at `B46`, `S7`, `A16`, `C19` and `F8` — the game's
+`C20` is the highest `C`.

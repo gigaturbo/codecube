@@ -1,8 +1,13 @@
--- What a player may do to the world, and to their own inventory. Everything a
--- player sees is placed by a program: nothing is diggable, nothing drops, no
--- inventory accepts anything, and there is no knockback.
+-- What a player may do to the world, and what the world may do on its own.
+-- Everything a player sees was placed by a program: nothing is diggable,
+-- nothing drops, no inventory accepts anything, there is no knockback, and
+-- nothing grows, spreads or decays by itself.
 
 local function deny() return 0 end
+
+-- A node timer must be stopped with `false`, not with `deny` above: **`0` is
+-- truthy in Lua 5.1**, and a truthy return restarts the timer. (B49)
+local function never() return false end
 
 minetest.register_on_joinplayer(function(player)
     player:set_inventory_formspec("")
@@ -17,19 +22,32 @@ end)
 -- the two tools from Lua. (S8)
 minetest.register_allow_player_inventory_action(deny)
 
--- Nothing is diggable, and no node inventory accepts anything. That second rule
--- is the node's side of the same boundary the callback above holds for the
--- player, and either one closes the bookshelf by itself. Neither stops the
--- formspec opening: it lives in node metadata, not in the definition, so
--- nothing reachable from here removes it. (S8)
+-- Nothing is diggable, no node inventory accepts anything, and no node timer
+-- ever fires. The inventory rule is the node's side of the boundary the callback
+-- above holds for the player, and either one closes the bookshelf by itself;
+-- neither stops the formspec opening, since it lives in node metadata rather
+-- than in the definition. (S8) The timer rule is what stops a sapling a program
+-- placed from becoming a tree the program never wrote. (B49)
+--
+-- No ABM runs either. `default` registers six, and two of them rewrite a build:
+-- `dirt` beside any `dirt_with_*` becomes that node, and any `spreading_dirt_type`
+-- reverts to plain `dirt` as soon as something opaque covers it -- so roofing a
+-- grass floor quietly destroys the grass. Luanti has no API to unregister an ABM,
+-- so each action is replaced with a no-op instead. The table is deliberately not
+-- cleared: the engine registers each ABM by position, and emptying it would leave
+-- those registrations pointing at nothing. (B49)
 minetest.register_on_mods_loaded(function()
     for name in pairs(minetest.registered_nodes) do
         minetest.override_item(name, {
             diggable = false,
+            on_timer = never,
             allow_metadata_inventory_put = deny,
             allow_metadata_inventory_take = deny,
             allow_metadata_inventory_move = deny
         })
+    end
+    for _, abm in ipairs(minetest.registered_abms) do
+        abm.action = function() end
     end
 end)
 
