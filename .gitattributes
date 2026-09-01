@@ -3,7 +3,7 @@
 # releases. The engine reads menu/*.png, mods/ and the .conf files; nothing
 # else here is of any use to a player.
 
-# Hidden files and directories, which covers .github, .claude, .audit and
+# Hidden files and directories, which covers .github, .claude, .reports and
 # .cdb.json. ContentDB reads .cdb.json from the repository, not from the
 # archive, so excluding it costs nothing.
 .*		export-ignore
@@ -14,11 +14,19 @@ scr		export-ignore
 *.blend*	export-ignore
 *.svg		export-ignore
 
-# Development tooling and the project record.
+# Development tooling and the project record. A tracked document added here needs
+# its own line: nothing in CI checks this file, so it ships otherwise. (C15)
 scripts		export-ignore
 CLAUDE.md	export-ignore
 ROADMAP.md	export-ignore
 TODO.md		export-ignore
+AUDIT.md	export-ignore
+PLAYTEST.md	export-ignore
+
+# The ContentDB page copy. ContentDB reads it through .cdb.json, which it takes
+# from the repository rather than the archive, so shipping it to a player would
+# only be a second README they have no use for. (C20)
+CONTENTDB.md	export-ignore
 
 # README and ContentDB material, pulled from GitHub by absolute URL. The images
 # the main menu actually reads are in menu/.

@@ -132,7 +132,7 @@ if [ -f scripts/gen_cdb_json.sh ]; then
     # byte per line and nothing else. That is not staleness. A fresh clone hit
     # exactly this. gen_docs.lua normalises for the same reason.
     if diff -q <(tr -d '\r' < "$before") <(tr -d '\r' < .cdb.json) >/dev/null 2>&1; then
-        note ".cdb.json matches README"
+        note ".cdb.json matches CONTENTDB.md"
     else
         err ".cdb.json is stale - run scripts/gen_cdb_json.sh and commit the result"
     fi
