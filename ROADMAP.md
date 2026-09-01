@@ -37,11 +37,13 @@ free. It moves no submodule pointer, so it can run in parallel.
 
 Two things about the record, since they change what "green" means here. The
 game's findings are now tracked Markdown (`AUDIT.md`) rather than a gitignored
-HTML file, and `PLAYTEST.md` is new. **Nothing in `PLAYTEST.md` has been run.**
-The game has no test suite and no automated check reaches its behaviour, so every
-claim about what `cc_day`, `cc_mapgen` and `cc_security` do in a world rests on
-reading three short files. Running the `W`, `L` and `R` groups once costs an hour
-and is the cheapest evidence available anywhere in this repository.
+HTML file, and `PLAYTEST.md` is new. Two of its eleven checks have been run —
+`P2` and the clone half of `P1`, the two a shell can do without Luanti — and
+**neither reaches the game's behaviour.** The game has no test suite and no
+automated check touches what it does, so every claim about `cc_day`, `cc_mapgen`
+and `cc_security` in a world still rests on reading three short files. Running
+the `W`, `L` and `R` groups once costs an hour and is the cheapest evidence
+available anywhere in this repository.
 
 ## Milestones
 
@@ -59,7 +61,8 @@ landed much later and sit here as the same subject.
   unified on AGPL-3.0-only, and gave `cc_day`, `cc_mapgen` and `cc_security`
   their own. (C3, C4, C5)
 - [x] Stopped the release archive shipping `.claude/` (993 kB), the audit,
-  `.github/`, `scripts/` and the art sources to players: 4.94 MB down to 2.75 MB.
+  `.github/`, `scripts/` and the art sources to players: **3.29 MB down to
+  1.93 MB zipped**, by `git archive --format=zip`, verified by `P2`.
   `menu/*.png` is kept, since that is what the main menu reads. (C15)
 - [x] Stopped the ContentDB long description being `README.md` verbatim, which
   broke six of ContentDB's own page rules at once — including nine images, five
@@ -120,10 +123,11 @@ findings: nothing here is defective, it has not happened yet.
 - `.gitattributes` decides what reaches a player and **no CI checks it**, here or
   in the mod. A file added to this repository ships in the ContentDB archive
   unless a rule excludes it, and nothing local fails when one does. `PLAYTEST.md`
-  `P2` is the only thing that would catch it, and it has not been run. (C15)
+  `P2` is the only thing that would catch it; it passed at `8b27f2f` and has to
+  be re-run every time a tracked file is added. (C15)
 - **No behaviour of this game has ever been verified in a running world.** There
   is no test suite, `check_game.sh` only checks that the game assembles, and
-  every check in `PLAYTEST.md` is `unchecked`.
+  every check in `PLAYTEST.md`'s `W`, `L` and `R` groups is `unchecked`.
 - Everything in the mod's "what ships broken" list ships in the game too, since
   the game is how most players meet it.
 
@@ -154,7 +158,8 @@ findings: nothing here is defective, it has not happened yet.
 
 ---
 
-2026-08-26 · codecube `33bdae8` (main) · codeblock `2647228` (master), the
-commit this game has adopted. Both at `origin`, both green in CI. Uncommitted in
-the working tree as this was written: the `.gitattributes` rewrite (C15), the
-regenerated `.cdb.json` files, and these record files.
+2026-09-01 · codecube `8b27f2f` (main) · codeblock `2647228` (master), the
+commit this game has adopted. The record split, the three agents and C20 are all
+committed now; the tree is clean and nothing is waiting to be pushed except these
+same commits. `check_game.sh` and luacheck pass, and `P1`'s clone half and `P2`
+were run for the first time.

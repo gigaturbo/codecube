@@ -48,8 +48,9 @@ are a few lines each.
 The game is current with `codeblock` `2647228`, adopted at `33bdae8`; both are at
 `origin` and both CI workflows were green on those exact shas. `C15` was open as
 a working-tree change at the last revision and has since landed in `8d18e8b`.
-`C20` is new, and filed and fixed in the same change — the only finding here to
-arrive from reading a published rule rather than from a defect.
+`C20` is new — filed and fixed in the same change, committed in `9ad884c`, and
+the only finding here to arrive from reading a published rule rather than from a
+defect.
 
 ## Open findings, in full
 
@@ -139,9 +140,9 @@ B-findings are the mod's.
 
 ## C — compliance and packaging
 
-6 findings, all 6 resolved — `C20` in the working tree rather than in a commit.
+6 findings, all 6 resolved.
 
-- **C20 · medium · resolved, in the working tree** — the ContentDB long
+- **C20 · medium · resolved in `9ad884c`** — the ContentDB long
   description was `README.md` verbatim: `scripts/gen_cdb_json.sh` embedded the
   file whole into `long_description`, and ContentDB's own guidance says most of
   what a good README contains does not belong there. The two documents have
@@ -231,10 +232,12 @@ B-findings are the mod's.
   `CLAUDE.md`, `ROADMAP.md` and `TODO.md` are excluded by name. `menu/*.png` is
   deliberately kept: it is what the main menu reads. Excluding `.cdb.json` costs
   nothing because ContentDB reads it from the repository rather than from the
-  archive, and the file's own header now says so. Measured by the author: **4.94 MB
-  down to 2.75 MB**. First finding allocated after the audit split; its
-  counterpart in the mod's audit is `C10`, the same subject in
-  `mods/codeblock/.gitattributes`.
+  archive, and the file's own header now says so. Measured with `git archive
+  --format=zip` at `8d18e8b^` and at `8b27f2f`: **3.29 MB down to 1.93 MB
+  zipped**, 523 files down to 488. An earlier measurement by another route
+  recorded 4.94 MB down to 2.75 MB — see the evidence section. First finding
+  allocated after the audit split; its counterpart in the mod's audit is `C10`,
+  the same subject in `mods/codeblock/.gitattributes`.
 
   **Keep — the standing hazard, which is the part that outlives the fix.**
   `.gitattributes` decides what reaches a player, and **nothing in either CI
@@ -272,23 +275,39 @@ B-findings are the mod's.
 
 ## Verified, committed, claimed
 
-**Verified:** `scripts/check_game.sh` passes; the `.claude/` size quoted in `C15`
-(993 kB, measured here); `C20`'s counts, read out of `README.md` — nine images,
-four `dp.png`, one `ds.png`, two links to the game's own ContentDB page.
+**Verified:** `scripts/check_game.sh` passes, in this tree and inside a fresh
+clone; luacheck is silent on the three `cc_*` mods; the `.claude/` size quoted in
+`C15` (993 kB, measured here); `C20`'s counts, read out of `README.md` — nine
+images, four `dp.png`, one `ds.png`, two links to the game's own ContentDB page.
 
-**Committed, unproven:** the `.gitattributes` rewrite (`C15`) landed in `8d18e8b`,
-but no archive has been built here to confirm the rules from the outside.
+**Verified from the outside, at `8b27f2f`:** `.gitattributes` excludes what it
+intends to. `P2` built the archive and listed it — 488 entries, nothing hidden,
+no art source, no `scripts/`, none of the six record documents, and all three
+`menu/*.png` present. That closes the half of `C15` that reading could not
+settle. `P1`'s clone half passed with it: a fresh `git clone
+--recurse-submodules` populates `codeblock` `2647228` and `vector3` `16621648`
+from the HTTPS remotes in `.gitmodules`, so neither pointer names a commit
+nobody can fetch.
 
-**In the working tree, not committed:** the `CONTENTDB.md` split for `C20`, with
-`.cdb.json` regenerated and `check_game.sh` passing on it. It has not been seen
-rendered on ContentDB, in a browser or in-game — that is `P5`.
+**Corrected by that run — the sizes.** By `git archive --format=zip`, the pair
+is **3.29 MB → 1.93 MB zipped** (4.32 MB → 2.26 MB uncompressed, 523 files down
+to 488), measured at `8d18e8b^` and at `8b27f2f`. Neither half matches the
+4.94 MB → 2.75 MB in `C15` and the changelog, so that pair was measured by some
+other route — most likely `du` on the unpacked tree, where cluster rounding over
+~450 small files accounts for the gap. The reduction is real and slightly larger
+than claimed; the absolute figures were not reproducible, and the method now
+travels with the numbers so the next measurement is comparable.
 
-**Claimed, on the author's measurement:** the archive sizes, 4.94 MB → 2.75 MB.
+**Committed, unproven:** `CONTENTDB.md` and the generator change for `C20`
+landed in `9ad884c`, `.cdb.json` regenerated and `check_game.sh` passing on it.
+It has not been seen rendered on ContentDB, in a browser or in-game — that is
+`P5`, and `P5` can only run after a release.
 
-**Not checked:** whether `.gitattributes` excludes exactly what is intended,
-which one `git archive --format=zip HEAD` and a listing would settle. Nothing in
-`PLAYTEST.md` has been run — the checks are written, not performed, and the game
-has no test suite that could stand in for them.
+**Not checked — and it is the whole of the game's behaviour.** Every check in
+`PLAYTEST.md`'s `W`, `L` and `R` groups is `unchecked`, as are `P3`, `P4`, `P5`
+and the boot half of `P1`. Nothing has ever confirmed in a running world that
+`cc_mapgen` flattens it, that `cc_day` holds it at noon, or that `cc_security`
+restricts anything, and the game has no test suite that could stand in.
 
 ## Corrections kept rather than edited away
 
@@ -300,5 +319,5 @@ several revisions while its prose was already correct.
 
 ---
 
-Revised 2026-08-30. Describes codecube `54a2b7e` (main) plus the working tree,
+Revised 2026-09-01. Describes codecube `8b27f2f` (main), a clean tree,
 and codeblock `2647228` (master), the release commit this game has adopted.

@@ -41,10 +41,15 @@ Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
 
 ## Where it stands
 
-**Nothing has been run.** Every check below is `unchecked`. The whole of the
-game's behaviour is committed-but-unproven, which is the honest state and should
-be reported as such rather than as passing. `P2` and `P5` are the two that would
-close the parts of `C15` and `C20` that reading cannot settle.
+**Two of the eleven have been run, and neither is a behaviour check.** `P2`
+passes and `P1` passes in half, both at `8b27f2f` on 2026-09-01 — they are the
+two that a shell can perform without Luanti, which is exactly why they went
+first. `P2` closes the half of `C15` that reading could not settle.
+
+**No behaviour of this game has been checked in a world.** Every check in `W`,
+`L` and `R` is `unchecked`, as are `P3`, `P4` and `P5` and the boot half of `P1`.
+The game's behaviour is committed-but-unproven and should be reported as such
+rather than as passing.
 
 ---
 
@@ -207,7 +212,12 @@ pointer naming a commit nobody can fetch — `reference is not a tree` — which
 invisible from a working tree that already has the object. It is also the gate
 the `release-codecube` skill runs before a tag.
 
-Result: unchecked
+Result: partial — `8b27f2f` · 2026-09-01 — the clone half only. A fresh
+`git clone --recurse-submodules` populated both submodules from the HTTPS remotes
+in `.gitmodules`: `codeblock` `2647228` (`v0.4.0-98-g2647228`) and `vector3`
+`16621648` (`v1.5`), so neither pointer names a commit nobody can fetch, and
+`check_game.sh` passes inside the clone. **Not booted in Luanti** — the half that
+says it is playable is still unchecked.
 
 ### P2 · The release archive holds only what a player needs [C15]
 
@@ -224,7 +234,19 @@ either CI checks it**, so a file added to the repository ships unless a rule
 excludes it, and nothing fails locally when one does. Run this whenever a tracked
 file is added, not only at a release.
 
-Result: unchecked
+Result: pass — `8b27f2f` · 2026-09-01 — 488 entries, **1.93 MB zipped**
+(2.26 MB uncompressed). Nothing hidden, no art source, no `scripts/`, and none of
+the six record documents; `menu/background.png`, `menu/header.png` and
+`menu/icon.png` are all present. Root holds only `CHANGELOG.md`, `LICENSE`,
+`README.md`, `THIRD-PARTY-LICENSES.md`, `game.conf` and `minetest.conf`.
+`mods/codeblock` and `mods/vector3` are **empty directory entries** — `git
+archive` does not descend into submodules, and ContentDB resolves both as
+dependencies rather than reading them from here. **The 2.75 MB above does not
+reproduce by this method.** Measured both ends with `git archive --format=zip`:
+`8d18e8b^` gives 3.29 MB zipped / 4.32 MB in 523 files, `8b27f2f` gives 1.93 MB /
+2.26 MB in 488. The reduction is real and slightly larger than recorded; the
+absolute pair in `C15` was measured some other way. **Quote the method with the
+number** so the next run is comparable.
 
 ### P3 · The boot log is clean [B19, B24]
 
@@ -276,4 +298,6 @@ Result: unchecked
 
 ---
 
-Written 2026-08-30 at `54a2b7e` plus the working tree. No check has been run.
+Written 2026-08-30 at `54a2b7e`. Revised 2026-09-01 at `8b27f2f`, when `P2` and
+half of `P1` were run — the two that need no running world. Nothing in `W`, `L`
+or `R` has been run.
