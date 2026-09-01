@@ -82,7 +82,7 @@ any other decoration; no ore visible in the ground when a drone digs into it; no
 cave mouths, no dungeon, no water, no biome transition — the ground node and its
 colour never change.
 
-Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — flat and clean at
+Result: pass — `7f649d8` · engine 5.17.0 · 2026-09-01 — flat and clean at
 spawn and for a few hundred nodes out.
 
 ### W2 · The mapgen flags survive a world that was created with others
@@ -95,22 +95,30 @@ argument of the one call `cc_mapgen` makes, and this is the only thing that
 argument is for. Without it a world remembers the flags it was created with and
 the game's setting is read once and never again.
 
-Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — a world re-entered
+Result: pass — `7f649d8` · engine 5.17.0 · 2026-09-01 — a world re-entered
 with caves and decorations written into its `map_meta.txt` is still flat and
 clean. `override_meta = true` does what the one call needs it to.
 
 ### W3 · The world is flat far from spawn, and far from where anyone has been
 
-Fly, or teleport, several thousand nodes from spawn into unemerged map, and
-watch the ground generate ahead.
+Teleport several thousand nodes from spawn into unemerged map, and watch the
+ground generate ahead.
 
 **Pass:** the same flat clean ground, generated live. This distinguishes a
 setting that applied at world creation from one that applies to every chunk the
 engine emerges, and only the second is what the game promises.
 
-Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — ground generated live
+**Use `/teleport`, not flight.** `default_privs` dropped `fly` and `noclip` on
+2026-09-02, so the method this check passed by is no longer available to a
+default player — grant the priv or teleport. The distance is also worth
+re-reading against `mapgen_limit`, now 4096: "several thousand nodes" should
+still land inside the world, but it is closer to the edge than it was at 2000.
+
+Result: pass — `7f649d8` · engine 5.17.0 · 2026-09-01 — ground generated live
 several thousand nodes out is the same flat clean ground. The setting applies to
-every emerged chunk, not only to world creation.
+every emerged chunk, not only to world creation. **Passed by flying**, before
+`fly` left `default_privs`; the finding it establishes is unaffected, but a
+re-run takes the route above.
 
 ---
 
@@ -127,7 +135,7 @@ no clouds. `override_day_night_ratio(1)` is what pins the light level, and the
 other four calls remove the objects — they are separate effects and a partial
 result should say which of the two failed.
 
-Result: pass — `b9bf82b` · engine unrecorded · 2026-09-01 — full daylight at
+Result: pass — `b9bf82b` · engine 5.17.0 · 2026-09-01 — full daylight at
 every hour, and no sun, moon, stars or clouds at any time of day. No sunrise or
 sunset glow either, which is what this re-run was for.
 
@@ -147,7 +155,7 @@ these are per-player settings, not world settings — a rejoin is the path that
 matters, and a second player is what would catch a setting applied to whoever
 joined first.
 
-Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — survives a rejoin.
+Result: pass — `7f649d8` · engine 5.17.0 · 2026-09-01 — survives a rejoin.
 The second-player half was not exercised: singleplayer only.
 
 ### L3 · Permanent noon still holds once the duplicate is removed [A7]
@@ -181,7 +189,7 @@ block types including one from `wool` and one from `default`.
 by another mod, or by a future `default` trim — would not be covered; try a block
 type the drone can place but you have not seen before.
 
-Result: pass, with two things it turned up — `7f649d8` · engine unrecorded ·
+Result: pass, with two things it turned up — `7f649d8` · engine 5.17.0 ·
 2026-09-01 — nothing breaks, anywhere, on any node tried. The rule holds. But:
 
 - **Wool plays the breakage animation and then the block stays.** The world's own
@@ -203,7 +211,7 @@ node is destroyed another way, check that nothing appears as a dropped item.
 **Pass:** the inventory formspec is blank, and no item entity ever exists in the
 world. `handle_node_drops` is stubbed to do nothing.
 
-Result: pass, but the check is too narrow — `7f649d8` · engine unrecorded ·
+Result: pass, but the check is too narrow — `7f649d8` · engine 5.17.0 ·
 2026-09-01 — the inventory key opens nothing and no item entity was seen. What
 this does **not** establish is that no inventory is reachable: `R1` found that a
 bookshelf's own formspec shows the player's `main` list (`S8`). Read this pass as
@@ -215,7 +223,7 @@ Take a hit — from another player, or anything that would push you.
 
 **Pass:** you are not moved. `calculate_knockback` returns 0.
 
-Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — no knockback.
+Result: pass — `7f649d8` · engine 5.17.0 · 2026-09-01 — no knockback.
 
 ### R4 · The drone can still build [R1 must not have broken it]
 
@@ -226,7 +234,7 @@ of the node for a *player's* tool; the drone writes the map directly and must be
 unaffected. This is the check that a restriction has not been made so broad it
 disables the point of the game.
 
-Result: pass — `c042364` · engine unrecorded · 2026-09-01 — the drone places and
+Result: pass — `c042364` · engine 5.17.0 · 2026-09-01 — the drone places and
 removes normally with every node undiggable, and still does with the `S8` guard
 denying every player-initiated inventory action. That second run was the point:
 the guard is deliberately total, and this is what would have caught the editor or
@@ -255,7 +263,7 @@ player's own inventory even when nothing can be moved into the bookshelf itself.
 Drag a drone tool from the hotbar into one of the rows below it. Nothing should
 move. That is the half the first fix missed.
 
-Result: pass — `c042364` · engine unrecorded · 2026-09-01 — both halves. The
+Result: pass — `c042364` · engine 5.17.0 · 2026-09-01 — both halves. The
 bookshelf takes nothing, and a drone tool can no longer be dragged out of the
 hotbar through the panel. `S8` is closed.
 
@@ -384,5 +392,5 @@ Result: unchecked
 Written 2026-08-30 at `54a2b7e`. Revised 2026-09-01 across three rounds: `P2` and
 half of `P1` at `8b27f2f`; the `W`, `L` and `R` groups at `7f649d8`; then `L1`
 and `R6` at `b9bf82b` against the fixes those produced, and `R6` and `R4` again
-at `c042364`. All played by the author in a world. The engine version was not
-recorded for any of them and should be, next time.
+at `c042364`. All played by the author in a world on Luanti 5.17.0 — recovered
+from the engine's own debug log afterwards, not noted at the time.

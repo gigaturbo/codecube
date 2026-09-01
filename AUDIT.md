@@ -470,7 +470,8 @@ world by the author: `W1`–`W3`, `L2` and `R1`–`R4` pass, `L1` is partial. So
 in a world created with other flags — the light level is pinned, nothing is
 diggable, no item drops, there is no knockback, and the drone still builds with
 every node undiggable. `B47`, `B48` and `S8` came out of the same hour. The
-engine version was not recorded, which it should have been.
+engine version was Luanti 5.17.0, read from the install path in the engine's own
+debug log rather than noted at the time.
 
 **Re-run at `b9bf82b`, same day.** `L1` passes: no sun, moon, stars, clouds or
 sunrise glow at any hour, so `B47` is closed and the `A7` prerequisite it
@@ -490,8 +491,13 @@ the boot half of `P1`. `L2`'s second-player half was not exercised either —
 singleplayer only, so a per-player setting applied to whoever joined first would
 not have been caught.
 
-**Not recorded, and it should have been:** the engine version, for any of the
-three rounds.
+**Recovered rather than recorded:** the engine version. It was not noted at the
+time, and was read afterwards out of the engine's own `debug.txt` — a single
+install, `AppData/Local/luanti/5.17.0`, running every session from 22:13 to
+23:40 on 2026-09-01. The same log confirms the three rounds fall either side of
+`3ce1eed`, `b9bf82b` and `c042364`, which is what makes the commit on each result
+line checkable. **Note it at the time next time**: this only worked because one
+version is installed and the log had not rotated.
 
 ## Corrections kept rather than edited away
 
