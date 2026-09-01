@@ -41,27 +41,29 @@ Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
 
 ## Where it stands
 
-**The game's behaviour has been checked in a world on 2026-09-01, over two
-rounds.** Twelve of the seventeen have been run and ten of them pass: `W1`–`W3`,
-`L1`, `L2`, `R1`–`R4` and `P2`. `R6` and `P1` are partial. `L3` and `R5` are
-gated on `A7` and `A8` and cannot run yet; `P3`, `P4`, `P5` and the boot half of
-`P1` are simply not done.
+**The game's behaviour has been checked in a world on 2026-09-01, over three
+rounds.** Twelve of the seventeen have been run and eleven pass: `W1`–`W3`, `L1`,
+`L2`, `R1`–`R4`, `R6` and `P2`. `P1` is partial — its clone half only. `L3` and
+`R5` are gated on `A7` and `A8` and cannot run yet; `P3`, `P4` and `P5` are
+simply not done, and `P5` needs a release first.
 
-**Four findings came out of it**, which is the argument for having run it at all:
-`B47` (the sunrise texture is still drawn — now fixed and re-checked by `L1`),
-`B48` (wool plays a dig animation the server then refuses) and `S8` (a
-bookshelf's formspec reaches around the blanked inventory) — and then `S8` again,
-because the first fix for it was too narrow and `R6` caught that too. None of the
-four was visible from reading the three files.
+**Every restriction the game claims is now evidence rather than reading.**
+Nothing is diggable, no item drops, there is no knockback, no inventory is
+reachable, and the drone still builds through all of it. `cc_mapgen` is proven
+the same way: flat and clean at spawn, far out into unemerged map, and in a world
+created with other flags. `cc_day` holds the light and the sky at every hour.
 
-**`R6` is the case for re-running a check after its fix.** The first `S8` fix
-stopped items going into the bookshelf and left the real hazard standing: the
+**Three findings came out of those rounds** — `B47`, `B48` and `S8` — none of
+them visible from reading the three `cc_*` files, which are 21 lines between
+them. Two are closed and re-checked; `B48` is cosmetic and open.
+
+**`R6` is the case for re-running a check against its own fix.** The first `S8`
+fix stopped items going into the bookshelf and left the real hazard standing: the
 same panel is a way into the player's own inventory, and a drone tool dragged out
-of the hotbar there lands in a row the player can no longer open. A check that
-had been marked pass on the strength of the fix would have hidden that.
-
-`cc_mapgen` is the one part of the game that is properly proven: all three of its
-checks passed, including the two that reading could not settle.
+of the hotbar there lands in a row the player can no longer open. Marking `R6`
+pass on the strength of that fix would have shipped it. The same applies to `R4`,
+re-run beside `R6` because the second fix denies every player inventory action
+and `R4` is what would catch that being too broad.
 
 ---
 
@@ -224,9 +226,12 @@ of the node for a *player's* tool; the drone writes the map directly and must be
 unaffected. This is the check that a restriction has not been made so broad it
 disables the point of the game.
 
-Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — the drone places and
-removes normally with every node undiggable. The restriction and the game's point
-coexist, which was the thing worth confirming.
+Result: pass — `c042364` · engine unrecorded · 2026-09-01 — the drone places and
+removes normally with every node undiggable, and still does with the `S8` guard
+denying every player-initiated inventory action. That second run was the point:
+the guard is deliberately total, and this is what would have caught the editor or
+a tool depending on an inventory move. Also passed at `7f649d8`, before the
+guard.
 
 ### R6 · A bookshelf opens nothing you can use [S8]
 
@@ -250,14 +255,17 @@ player's own inventory even when nothing can be moved into the bookshelf itself.
 Drag a drone tool from the hotbar into one of the rows below it. Nothing should
 move. That is the half the first fix missed.
 
-Result: partial — `b9bf82b` · engine unrecorded · 2026-09-01 — the bookshelf half
-passes: **a drone tool cannot be put into the bookshelf.** The player half
-failed. Opening the bookshelf gives access to the player's own inventory, and a
-drone tool **can be dragged out of the hotbar** into a row below — and the
-player then cannot reach it again, because their inventory is deactivated. The
-tool is not lost for good, since reopening any bookshelf shows the same rows, but
-nothing tells the player that. `S8` reopened and widened;
-`register_allow_player_inventory_action` is the second half of the fix. Re-run.
+Result: pass — `c042364` · engine unrecorded · 2026-09-01 — both halves. The
+bookshelf takes nothing, and a drone tool can no longer be dragged out of the
+hotbar through the panel. `S8` is closed.
+
+Previously partial at `b9bf82b`: the bookshelf half passed and **the player half
+failed** — opening the bookshelf gave access to the player's own inventory, and a
+drone tool could be dragged out of the hotbar into a row the player then could
+not reach, because their inventory is deactivated. That reopened `S8` and
+`register_allow_player_inventory_action` was the second half of the fix. **This
+is the check that earned its re-run**: the first fix would have been recorded as
+complete on the strength of the half that worked.
 
 ### R5 · The two callbacks behave, and the load order is deterministic [A8]
 
@@ -373,6 +381,8 @@ Result: unchecked
 
 ---
 
-Written 2026-08-30 at `54a2b7e`. Revised 2026-09-01: `P2` and half of `P1` at
-`8b27f2f`, then the `W`, `L` and `R` groups at `7f649d8`, played by the author in
-a world. The engine version was not recorded and should be, next time.
+Written 2026-08-30 at `54a2b7e`. Revised 2026-09-01 across three rounds: `P2` and
+half of `P1` at `8b27f2f`; the `W`, `L` and `R` groups at `7f649d8`; then `L1`
+and `R6` at `b9bf82b` against the fixes those produced, and `R6` and `R4` again
+at `c042364`. All played by the author in a world. The engine version was not
+recorded for any of them and should be, next time.

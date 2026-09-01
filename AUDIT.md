@@ -18,8 +18,8 @@ performance. They were allocated once across this audit and the mod's, so a
 number never means two things and **a gap here is a finding that lives in the
 mod's audit**, not one dropped. Every id below kept the number it had in the
 shared audit; `C15` is the first allocated after the split, `C20` the second.
-The `S` series was all the mod's until `S8` was filed here on 2026-09-01; the
-`F` feature series is the mod's own.
+The `S` series was all the mod's until `S8` was filed, fixed and confirmed here
+on 2026-09-01; the `F` feature series is the mod's own.
 
 States: **resolved**, **open**, **won't fix** (the defect is real, the decision
 is not to fix it), **withdrawn** (no longer applies — none is). Severities:
@@ -34,30 +34,29 @@ nothing dropped.
 
 16 findings, this game's own. **10 resolved, 6 open, none won't-fix.** No open
 finding is critical or high: three medium (`A7`, `A8`, `A13`) and three low
-(`B19`, `B24`, `B48`). Three close together — `A13` takes `B19` and `B24`
-with it — and `A7` and `A8` are a few lines each, so the open list is
-shorter work than its count suggests. `B47` is fixed and `L1` confirms it. `S8`
-has been fixed twice — the second time after `R6` caught the first fix leaving
-the real hazard standing — and that second fix is unverified in a world, a state
-this game has no automated way out of.
+(`B19`, `B24`, `B48`). Three close together — `A13` takes `B19` and `B24` with
+it — and `A7` and `A8` are a few lines each, so the open list is shorter work
+than its count suggests. **Nothing resolved is now unverified.** `S8` and `B47`
+were both fixed and both confirmed in a world on 2026-09-01, by `R6` and `L1`.
 
-**Three of the sixteen arrived on 2026-09-01, from the first two hours anyone has
+**Three of the sixteen arrived that same day, from the first hours anyone has
 spent playing this game against `PLAYTEST.md`** — `B47`, `B48` and `S8`. None was
 visible from reading the three `cc_*` files, which between them are 21 lines; two
 of the three are in how those lines meet a vendored node or the client. That is
 the argument for the `W`, `L` and `R` groups, and it is now evidence rather than
 an assertion.
 
-**The same two hours also argue for re-running a check against its own fix.**
+**Re-running a check against its own fix is the other thing that day established.**
 `L1` re-run cleared a blocker that had been predicted for `B47` and did not
 exist. `R6` re-run found that the first `S8` fix had closed the wrong half, and
-would have been marked pass on the strength of the fix alone. Neither outcome was
-available from the code.
+would have been marked pass on the strength of the fix alone; a second re-run,
+with `R4` beside it, is what closed it properly. Neither outcome was available
+from the code. **A fix is not evidence** — the check is, and it costs minutes.
 
 | Category | Count | Open |
 |---|---|---|
 | B bugs | 5 | `B19`, `B24` (close with `A13`), `B48` |
-| S sandbox and security | 1 | — |
+| S sandbox and security | 1 | — `S8` resolved, `R6` passes |
 | C compliance and packaging | 6 | — |
 | A architecture and performance | 4 | `A7`, `A8`, `A13` |
 
@@ -70,81 +69,10 @@ defect.
 
 ## Findings in full
 
-The three open ones, plus `S8`, whose second fix no world has confirmed, and
-`B47`, kept here for one revision because the reasoning that closed it is worth
-reading beside them. A finding leaves this section once a `PLAYTEST.md` check has
-passed on it.
-
-### S8 · medium · resolved twice, second fix unverified — a bookshelf's formspec reaches around the blanked inventory
-
-`mods/cc_security/init.lua` · `mods/default/nodes.lua:2483`
-
-`cc_security` blanks the player's inventory formspec, and `PLAYTEST.md` `R2`
-confirms the inventory key opens nothing. But `default:bookshelf` carries a node
-formspec of its own, set into node metadata by its `on_construct`, and that
-formspec contains `list[current_player;main;0,2.85;8,1;]` and a second `main`
-list below it. Right-clicking the bookshelf therefore displays the player's real
-main inventory — the two drone tools included — with a `listring` to the
-bookshelf's own `books` list, so items can be moved into it.
-
-**Reachable in ordinary play, and that is what makes it a finding rather than a
-curiosity.** The palette exposes `bookshelf` (`mods/codeblock/lib/config.lua:285`
-at the adopted commit), so any program can place one. Nothing can then dig it —
-that is the rest of `cc_security` working correctly — so a tool moved in comes
-back only if the player finds that bookshelf again. Found by `R1` on 2026-09-01;
-reading the three `cc_*` files could not have shown it, because the defect is in
-the interaction between the blanked formspec and a vendored node's own.
-
-**`A13` does not close this one, unlike `B19` and `B24`.** Trimming `default` to
-what the palette references *keeps* `bookshelf`, since the palette names it.
-`chest` and `furnace` carry the same `list[current_player;main;…]` pattern and
-are **not** in the palette, so those two do go away with `A13` — bookshelf is the
-one that has to be handled here.
-
-**Fixed in two passes on 2026-09-01, and the first was too narrow.** The
-`on_mods_loaded` walk that sets `diggable = false` also overrides
-`allow_metadata_inventory_put`, `_take` and `_move` to return 0 on every
-registered node, chosen from four options. That stopped items reaching the
-bookshelf, and `R6` confirmed it — while failing on the half it had left open.
-
-**The hazard was never the bookshelf's inventory. It was the player's.** The
-formspec's `list[current_player;main]` is a way *into the player's own
-inventory*, so the tools could be dragged out of the hotbar into a row below it —
-and with the inventory formspec blanked, the player then has no way to open that
-row. `R6` found a player who had just put both drone tools out of reach.
-Recoverable, since reopening any bookshelf shows the same rows, but nothing in
-the game says so, and a player who does not think of it has lost the game's only
-two tools.
-
-Closed by `minetest.register_allow_player_inventory_action` returning 0: the
-player may not move an item anywhere, within their inventory or across it. It
-governs only actions the player initiates, so `codeblock` still hands out the two
-tools from Lua. The node-side overrides are kept alongside it — they are the same
-boundary from the other side, and either closes the bookshelf alone.
-
-**Keep — why the narrow fix looked complete, which is the trap worth remembering.**
-The reasoning stopped at the node: deny the node inventory, nothing can be put in
-it, done. But a formspec is not only a view of the node it belongs to, and this
-one names two inventories. The question to ask of any formspec reached through a
-restriction is *which inventories does it name*, not *what is it a formspec for*.
-`R6` is written to test both halves now.
-
-The panel still opens, and that residue is accepted: the formspec is a metadata
-string on the placed node, not a field of the definition, so nothing reachable
-from `cc_security` removes it. It now shows a set of rows nothing can move.
-
-The three rejected options, so they are not re-derived. **Clearing the metadata
-`formspec`** closes it completely but has to happen per placed node, via an
-`on_construct` wrapper plus an LBM for worlds that already have one — more code
-and more to get wrong for a panel that is now inert. **Dropping `bookshelf` from
-the palette** closes it at the source and lets `A13` delete the node, but the
-work is the mod's and it breaks any saved program that names the block.
-**Leaving it documented** was the cheapest and loses a boundary the game
-advertises.
-
-Note for any wider fix: `del_fields` on `override_item` arrived in 5.9.0 and
-`game.conf` declares `min_minetest_version = 5.4`, so removing a callback
-outright is not available.
+The six open findings. A finding leaves this section once a `PLAYTEST.md` check
+has passed on it, which is where `S8` and `B47` went on 2026-09-01 — both are
+still in full, under `S` and `B` respectively, because their reasoning is
+load-bearing.
 
 ### A13 · medium · open — `default` is 9,744 lines to supply 108 node definitions, and the rest still runs
 
@@ -194,37 +122,6 @@ with `last_mod` so the outcome is deterministic rather than alphabetical.
 Separately: the mod overrides **every registered node** at `on_mods_loaded` to
 set `diggable = false` — a large table walk to express one rule.
 
-### B47 · low · resolved, `L1` passes — the sunrise texture is still drawn, so part of the sun shows
-
-`mods/cc_day/init.lua`
-
-`player:set_sun({visible = false})` hides the sun disc and nothing else. The
-sunrise and sunset glow is a separate field of the same table,
-`sunrise_visible`, which defaults to true — so at dawn and dusk part of the sun
-is still painted on a sky the game promises has none. Seen at `/time 5000` by
-`PLAYTEST.md` `L1` on 2026-09-01.
-
-The light half of the promise is intact: `override_day_night_ratio(1)` pins the
-level and it does not vary. This is the objects half, and it is one field:
-`set_sun{visible = false, sunrise_visible = false}`. `L1` passes on it.
-
-**Keep — a blocker that was predicted and did not exist, and how that was
-settled.** This was filed with a warning that the one-field fix might not hold:
-`codeblock` registers the same five calls in its own `on_joinplayer` (the
-duplicate `A7` removes), including a bare `set_sun{visible = false}`. The
-reference lists every `set_sun` field as optional with a stated default, and says
-that passing *no* arguments resets the sun entirely — which reads as though an
-omitted field might take its default rather than keep its current value. If so,
-the mod's bare call would put `sunrise_visible` back and `A7` would be a
-prerequisite.
-
-**It is not.** `L1` re-run at `b9bf82b` passes with the duplicate still in place.
-Either `set_sun` merges with the current parameters or `cc_day`'s callback runs
-second; the outcome does not distinguish them and it does not need to, because
-removing a call cannot reintroduce the texture either way. The reusable part is
-the method: the ambiguity was written down as unverified rather than resolved by
-reading the reference a second time, and one re-run settled it in a minute.
-
 ### B48 · low · open — wool plays the dig animation before the server refuses
 
 `mods/cc_security/init.lua` · `mods/wool/init.lua`
@@ -270,9 +167,41 @@ the warnings are not mistaken for something a recent change broke.
 
 ## B — bugs
 
-5 findings, 2 resolved. `B19`, `B24`, `B47` and `B48` are in full
-above. The other
-B-findings are the mod's.
+5 findings, 2 resolved. `B19`, `B24` and `B48` are open and in full above; `B47`
+is closed and kept here in full, because the prediction it got wrong is the
+reusable part.
+
+### B47 · low · resolved, `L1` passes — the sunrise texture is still drawn, so part of the sun shows
+
+`mods/cc_day/init.lua`
+
+`player:set_sun({visible = false})` hides the sun disc and nothing else. The
+sunrise and sunset glow is a separate field of the same table,
+`sunrise_visible`, which defaults to true — so at dawn and dusk part of the sun
+is still painted on a sky the game promises has none. Seen at `/time 5000` by
+`PLAYTEST.md` `L1` on 2026-09-01.
+
+The light half of the promise is intact: `override_day_night_ratio(1)` pins the
+level and it does not vary. This is the objects half, and it is one field:
+`set_sun{visible = false, sunrise_visible = false}`. `L1` passes on it.
+
+**Keep — a blocker that was predicted and did not exist, and how that was
+settled.** This was filed with a warning that the one-field fix might not hold:
+`codeblock` registers the same five calls in its own `on_joinplayer` (the
+duplicate `A7` removes), including a bare `set_sun{visible = false}`. The
+reference lists every `set_sun` field as optional with a stated default, and says
+that passing *no* arguments resets the sun entirely — which reads as though an
+omitted field might take its default rather than keep its current value. If so,
+the mod's bare call would put `sunrise_visible` back and `A7` would be a
+prerequisite.
+
+**It is not.** `L1` re-run at `b9bf82b` passes with the duplicate still in place.
+Either `set_sun` merges with the current parameters or `cc_day`'s callback runs
+second; the outcome does not distinguish them and it does not need to, because
+removing a call cannot reintroduce the texture either way. The reusable part is
+the method: the ambiguity was written down as unverified rather than resolved by
+reading the reference a second time, and one re-run settled it in a minute.
+
 
 - **B20 · low · resolved** — every deprecation warning in the boot came from
   `mods/formspecs/init.lua:110, 117`: two `TileDef.image` warnings plus a
@@ -289,11 +218,86 @@ B-findings are the mod's.
 
 ## S — sandbox and security
 
-1 finding, resolved twice and unverified since the second. `S8` is in full above
-— the first `S` on the
-game's side; `S1`–`S7` are the mod's, and they are about the Lua sandbox, which
-is the mod's boundary to hold. This one is about the *player's* boundary, which
-is the game's.
+1 finding, resolved and confirmed by `R6`. The first `S` on the game's side:
+`S1`–`S7` are the mod's and are about the Lua sandbox, which is the mod's
+boundary to hold. This one is about the *player's* boundary, which is the game's,
+and it is kept in full because it took two fixes and the first was wrong.
+
+### S8 · medium · resolved, `R6` passes — a bookshelf's formspec reaches around the blanked inventory
+
+`mods/cc_security/init.lua` · `mods/default/nodes.lua:2483`
+
+`cc_security` blanks the player's inventory formspec, and `PLAYTEST.md` `R2`
+confirms the inventory key opens nothing. But `default:bookshelf` carries a node
+formspec of its own, set into node metadata by its `on_construct`, and that
+formspec contains `list[current_player;main;0,2.85;8,1;]` and a second `main`
+list below it. Right-clicking the bookshelf therefore displays the player's real
+main inventory — the two drone tools included — with a `listring` to the
+bookshelf's own `books` list, so items can be moved into it.
+
+**Reachable in ordinary play, and that is what makes it a finding rather than a
+curiosity.** The palette exposes `bookshelf` (`mods/codeblock/lib/config.lua:285`
+at the adopted commit), so any program can place one. Nothing can then dig it —
+that is the rest of `cc_security` working correctly — so a tool moved in comes
+back only if the player finds that bookshelf again. Found by `R1` on 2026-09-01;
+reading the three `cc_*` files could not have shown it, because the defect is in
+the interaction between the blanked formspec and a vendored node's own.
+
+**`A13` does not close this one, unlike `B19` and `B24`.** Trimming `default` to
+what the palette references *keeps* `bookshelf`, since the palette names it.
+`chest` and `furnace` carry the same `list[current_player;main;…]` pattern and
+are **not** in the palette, so those two do go away with `A13` — bookshelf is the
+one that has to be handled here.
+
+**Fixed in two passes on 2026-09-01, and the first was too narrow.** The
+`on_mods_loaded` walk that sets `diggable = false` also overrides
+`allow_metadata_inventory_put`, `_take` and `_move` to return 0 on every
+registered node, chosen from four options. That stopped items reaching the
+bookshelf, and `R6` confirmed it — while failing on the half it had left open.
+
+**The hazard was never the bookshelf's inventory. It was the player's.** The
+formspec's `list[current_player;main]` is a way *into the player's own
+inventory*, so the tools could be dragged out of the hotbar into a row below it —
+and with the inventory formspec blanked, the player then has no way to open that
+row. `R6` found a player who had just put both drone tools out of reach.
+Recoverable, since reopening any bookshelf shows the same rows, but nothing in
+the game says so, and a player who does not think of it has lost the game's only
+two tools.
+
+Closed by `minetest.register_allow_player_inventory_action` returning 0: the
+player may not move an item anywhere, within their inventory or across it. It
+governs only actions the player initiates, so `codeblock` still hands out the two
+tools from Lua. The node-side overrides are kept alongside it — they are the same
+boundary from the other side, and either closes the bookshelf alone.
+
+**`R6` passes on it at `c042364`, and `R4` was re-run beside it.** That pairing
+was deliberate: the guard denies *every* player-initiated inventory action, which
+is broad enough to break the editor or a tool that moved an item, and `R4` is
+what says the drone still builds through it. Both pass.
+
+**Keep — why the narrow fix looked complete, which is the trap worth remembering.**
+The reasoning stopped at the node: deny the node inventory, nothing can be put in
+it, done. But a formspec is not only a view of the node it belongs to, and this
+one names two inventories. The question to ask of any formspec reached through a
+restriction is *which inventories does it name*, not *what is it a formspec for*.
+`R6` is written to test both halves now.
+
+The panel still opens, and that residue is accepted: the formspec is a metadata
+string on the placed node, not a field of the definition, so nothing reachable
+from `cc_security` removes it. It now shows a set of rows nothing can move.
+
+The three rejected options, so they are not re-derived. **Clearing the metadata
+`formspec`** closes it completely but has to happen per placed node, via an
+`on_construct` wrapper plus an LBM for worlds that already have one — more code
+and more to get wrong for a panel that is now inert. **Dropping `bookshelf` from
+the palette** closes it at the source and lets `A13` delete the node, but the
+work is the mod's and it breaks any saved program that names the block.
+**Leaving it documented** was the cheapest and loses a boundary the game
+advertises.
+
+Note for any wider fix: `del_fields` on `override_item` arrived in 5.9.0 and
+`game.conf` declares `min_minetest_version = 5.4`, so removing a callback
+outright is not available.
 
 ## C — compliance and packaging
 
@@ -470,18 +474,24 @@ engine version was not recorded, which it should have been.
 
 **Re-run at `b9bf82b`, same day.** `L1` passes: no sun, moon, stars, clouds or
 sunrise glow at any hour, so `B47` is closed and the `A7` prerequisite it
-predicted was imaginary. `R6` is partial — the bookshelf refuses items, and the
+predicted was imaginary. `R6` was partial — the bookshelf refused items, and the
 player could still move their own tools out of reach through it, which reopened
 `S8`.
 
-**Still not checked:** `R6` again, against the second `S8` fix — the only thing
-now standing between that fix and evidence. Then `L3` and `R5`, gated on `A7` and
-`A8`; `P3` (the boot log), `P4` (the main menu), `P5` (the ContentDB page, which
-needs a release), and the boot half of `P1`. `L2`'s second-player half was not
-exercised either — singleplayer only, so a per-player setting applied to whoever
-joined first would not have been caught.
+**Re-run again at `c042364`, and this is where the restrictions stopped being an
+assertion.** `R6` passes on both halves and `R4` passes beside it, so `S8` is
+closed with the guard proven not to be too broad. Every restriction the game
+claims is now checked: nothing diggable, no drops, no knockback, no inventory
+reachable, and the drone building through all of it.
 
-**Not recorded, and it should have been:** the engine version for either round.
+**Still not checked:** `L3` and `R5`, gated on `A7` and `A8`; `P3` (the boot
+log), `P4` (the main menu), `P5` (the ContentDB page, which needs a release), and
+the boot half of `P1`. `L2`'s second-player half was not exercised either —
+singleplayer only, so a per-player setting applied to whoever joined first would
+not have been caught.
+
+**Not recorded, and it should have been:** the engine version, for any of the
+three rounds.
 
 ## Corrections kept rather than edited away
 
@@ -493,11 +503,12 @@ several revisions while its prose was already correct.
 
 ---
 
-Revised 2026-09-01, four times in one day: at `8b27f2f` for the packaging checks,
-at `7f649d8` for the first playtest, again for the `B47` and `S8` fixes it
-produced, and again after re-running `L1` and `R6` against those fixes — which
-closed `B47` and reopened `S8`. Describes codecube `b9bf82b` (main) plus the
-second `S8` fix, and codeblock `2647228` (master), the release commit this game
-has adopted. `S8`, `B47` and `B48` are the new findings; ids were allocated
-against the mod's audit in the sibling checkout, which stands at `B46`, `S7`,
-`A16`, `C19` and `F8` — the game's `C20` is the highest `C`.
+Revised 2026-09-01, five times in one day: at `8b27f2f` for the packaging checks;
+at `7f649d8` for the first playtest; again for the `B47` and `S8` fixes it
+produced; again after re-running `L1` and `R6` against those fixes, which closed
+`B47` and reopened `S8`; and again at `c042364`, when `R6` and `R4` closed `S8`
+for good. Describes codecube `c042364` (main) and codeblock `2647228` (master),
+the release commit this game has adopted. `S8`, `B47` and `B48` are the new
+findings; ids were allocated against the mod's audit in the sibling checkout,
+which stands at `B46`, `S7`, `A16`, `C19` and `F8` — the game's `C20` is the
+highest `C`.
