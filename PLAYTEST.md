@@ -41,20 +41,27 @@ Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
 
 ## Where it stands
 
-**The game's behaviour has been checked in a world, once, on 2026-09-01.** Nine
-of the sixteen checks have been run. `W1`–`W3`, `L2`, `R1`–`R4` pass and `L1` is
-partial; `P2` passes and `P1` passes in half. Two checks — `L3` and `R5` — are
-gated on `A7` and `A8` and cannot run yet; `P3`, `P4`, `P5` and the boot half of
-`P1` are simply not done.
+**The game's behaviour has been checked in a world on 2026-09-01, over two
+rounds.** Ten of the seventeen checks have been run. `W1`–`W3`, `L1`, `L2` and
+`R1`–`R4` pass; `R6` is partial; `P2` passes and `P1` passes in half. `L3` and
+`R5` are gated on `A7` and `A8` and cannot run yet; `P3`, `P4`, `P5` and the boot
+half of `P1` are simply not done.
 
-**Three findings came out of that hour**, which is the argument for having run
-it: `B47` (the sunrise texture is still drawn), `B48` (wool plays a dig animation
-the server then refuses) and `S8` (a bookshelf's formspec reaches around the
-blanked inventory). None was visible from reading the three files, and `S8` is a
-hole in the restriction boundary the game exists to hold.
+**Four findings came out of it**, which is the argument for having run it at all:
+`B47` (the sunrise texture is still drawn — now fixed and re-checked by `L1`),
+`B48` (wool plays a dig animation the server then refuses) and `S8` (a
+bookshelf's formspec reaches around the blanked inventory) — and then `S8` again,
+because the first fix for it was too narrow and `R6` caught that too. None of the
+four was visible from reading the three files.
 
-`cc_mapgen` is now the one part of the game that is properly proven: all three of
-its checks passed, including the two that reading could not settle.
+**`R6` is the case for re-running a check after its fix.** The first `S8` fix
+stopped items going into the bookshelf and left the real hazard standing: the
+same panel is a way into the player's own inventory, and a drone tool dragged out
+of the hotbar there lands in a row the player can no longer open. A check that
+had been marked pass on the strength of the fix would have hidden that.
+
+`cc_mapgen` is the one part of the game that is properly proven: all three of its
+checks passed, including the two that reading could not settle.
 
 ---
 
@@ -118,11 +125,15 @@ no clouds. `override_day_night_ratio(1)` is what pins the light level, and the
 other four calls remove the objects — they are separate effects and a partial
 result should say which of the two failed.
 
-Result: partial — `7f649d8` · engine unrecorded · 2026-09-01 — the light half
-passes: the same full daylight at every hour, no stars, no moon, no clouds. The
-objects half does not. **At `/time 5000` part of the sun is visible** — the
-sunrise texture, which `set_sun{visible = false}` does not cover. Filed as
-`B47`; `sunrise_visible = false` is the missing field. Re-run once that lands.
+Result: pass — `b9bf82b` · engine unrecorded · 2026-09-01 — full daylight at
+every hour, and no sun, moon, stars or clouds at any time of day. No sunrise or
+sunset glow either, which is what this re-run was for.
+
+Previously partial at `7f649d8`: **part of the sun was visible at `/time 5000`**
+— the sunrise texture, which `set_sun{visible = false}` leaves alone. `B47`.
+Adding `sunrise_visible = false` to `cc_day` was enough on its own, which also
+answered the open question in that finding: `codeblock`'s duplicate bare
+`set_sun` does **not** put the field back, so `A7` was never a prerequisite.
 
 ### L2 · It survives a rejoin, and it applies to a second player
 
@@ -233,7 +244,20 @@ existed.
 **Also confirm the drone still builds** — the same override pass touches every
 node, and `R4` is what says the restriction has not been widened into the game.
 
-Result: unchecked
+**And confirm you cannot rearrange your own hotbar from inside that panel.** The
+bookshelf's formspec shows `list[current_player;main]`, so it is a way into the
+player's own inventory even when nothing can be moved into the bookshelf itself.
+Drag a drone tool from the hotbar into one of the rows below it. Nothing should
+move. That is the half the first fix missed.
+
+Result: partial — `b9bf82b` · engine unrecorded · 2026-09-01 — the bookshelf half
+passes: **a drone tool cannot be put into the bookshelf.** The player half
+failed. Opening the bookshelf gives access to the player's own inventory, and a
+drone tool **can be dragged out of the hotbar** into a row below — and the
+player then cannot reach it again, because their inventory is deactivated. The
+tool is not lost for good, since reopening any bookshelf shows the same rows, but
+nothing tells the player that. `S8` reopened and widened;
+`register_allow_player_inventory_action` is the second half of the fix. Re-run.
 
 ### R5 · The two callbacks behave, and the load order is deterministic [A8]
 

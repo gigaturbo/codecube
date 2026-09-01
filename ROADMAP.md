@@ -33,25 +33,30 @@ workflows are green on that pair of commits, and **the next step for the project
 as a whole is on the mod side** — Phase 7, the drone seam (A11). This file does
 not compete with that.
 
-The game's own next step is **an hour in a world, not an hour of code**: `B47`
-and `S8` are fixed and unconfirmed, and re-running `L1` and the new `R6` is what
-closes them. After that, G3 — trim vendored `default` (A13), 9,744 lines for 108
-node definitions, closing B19 and B24 for free. It moves no submodule pointer, so
-it can run in parallel with anything the mod is doing.
+The game's own next step is **one check in a world**: `R6`, against the second
+`S8` fix. That is all that stands between the restriction boundary and evidence
+that it holds. After that, G3 — trim vendored `default` (A13), 9,744 lines for
+108 node definitions, closing B19 and B24 for free. It moves no submodule
+pointer, so it can run in parallel with anything the mod is doing.
 
-**The game has been played against `PLAYTEST.md`, once, on 2026-09-01**, and
-that is the change since the last revision. `W1`–`W3`, `L2` and `R1`–`R4` pass,
-`L1` is partial; `P2` and half of `P1` were run from a shell. `cc_mapgen` is
-properly proven and the restrictions hold. **It cost an hour and produced three
-findings** — `B47`, `B48` and `S8` — none of which was visible from reading the
-three `cc_*` files. `S8` is a hole in the restriction boundary: a bookshelf's own
-formspec shows the player's inventory, around the blanked one. So the cheapest
-evidence in this repository was also, this time, the most productive, and the
-argument for it is now a measurement rather than a claim.
+**The game was played against `PLAYTEST.md` for the first time on 2026-09-01**,
+in two rounds, and that is the change since the last revision. `W1`–`W3`, `L1`,
+`L2` and `R1`–`R4` pass; `R6` is partial; `P2` and half of `P1` were run from a
+shell. `cc_mapgen` is properly proven. **Two hours produced three findings** —
+`B47`, `B48` and `S8` — none of which was visible from reading the three `cc_*`
+files, which are 21 lines between them.
 
-What is still unproven: `L3` and `R5` are gated on `A7` and `A8`, `P3`–`P5` and
-the boot half of `P1` are simply not done, and the game still has no test suite
-— nothing automated reaches its behaviour, and nothing here will.
+**And the second round is the part worth keeping.** Re-running `L1` against the
+`B47` fix cleared a blocker the audit had predicted and that turned out not to
+exist. Re-running `R6` against the first `S8` fix found that the fix had closed
+the wrong half: items could no longer be put into a bookshelf, but a player could
+still drag a drone tool out of the hotbar through the same panel, into a row they
+cannot reopen. Marking `R6` pass on the strength of the fix would have shipped
+that.
+
+What is still unproven: `R6` against the second fix, `L3` and `R5` gated on `A7`
+and `A8`, `P3`–`P5` and the boot half of `P1`. The game still has no test suite,
+nothing automated reaches its behaviour, and nothing here will.
 
 ## Milestones
 
@@ -103,19 +108,21 @@ Carry only the nodes the palette references.
 
 ### G4. Make the game's own mods behave — started (2/5)
 
-The first playtest, on 2026-09-01, added three of these five, and two are already
+The first playtest, on 2026-09-01, added three of these five, and two are
 fixed. Between them they are what stands between the game's restrictions as
-written and the restrictions as played. Nothing here is large, and `B47` and
-`S8` need a world to confirm them rather than more code.
+written and the restrictions as played. Nothing here is large, and `S8` needs a
+world to confirm it rather than more code.
 
 - [x] `cc_day`: hide the sunrise texture too — `set_sun{visible = false}` leaves
-  it drawn, and part of the sun shows at dawn. (B47)
-- [x] Closed the bookshelf: a node formspec reaches around the blanked player
-  inventory, and the palette exposes `bookshelf`, so a program can place one. No
-  node inventory accepts anything now; the panel still opens, inert. (S8)
+  it drawn, and part of the sun shows at dawn. `L1` passes on it. (B47)
+- [x] Closed the bookshelf, twice: a node formspec reaches around the blanked
+  player inventory, and the palette exposes `bookshelf`. The first fix stopped
+  items reaching the bookshelf; `R6` then found the real hazard was the other
+  way, a tool dragged out of the hotbar into a row the player cannot reopen. The
+  player may now move nothing at all. Unverified. (S8)
 - Drop `cc_day`'s duplicate of a block `codeblock` already runs, marked
-  "TEMP fix". It is also what may be undoing B47, so it now blocks a check
-  rather than only being untidy. (A7)
+  "TEMP fix". Purely untidiness after all: `L1` passes with the duplicate still
+  in place, so it was never blocking B47. (A7)
 - Stop `cc_security` clobbering two engine callbacks by direct assignment;
   capture and chain instead. (A8)
 - Stop wool cracking under a punch it will not break — the client predicts the
@@ -147,15 +154,13 @@ findings: nothing here is defective, it has not happened yet.
   `P2` is the only thing that would catch it; it passed at `8b27f2f` and has to
   be re-run every time a tracked file is added. (C15)
 - **A bookshelf still opens and still shows the player their own inventory**,
-  around the blanked inventory formspec. Nothing can be moved into or out of it
-  now, but the panel is there, and the formspec is metadata on the placed node
-  rather than a field `cc_security` can override away. (S8)
-- Part of the sun is visible at dawn and dusk. Fixed in `cc_day`, but the mod's
-  duplicate may be undoing it, which is unverified until `A7` lands. (B47)
+  around the blanked inventory formspec. Nothing can be moved at all now, in it
+  or in the player's own rows, but the panel is there: the formspec is metadata
+  on the placed node, not a field `cc_security` can override away. (S8)
 - Wool cracks under a punch that will not break it. (B48)
 - The game still has no test suite, and nothing automated reaches its behaviour.
-  What is proven is what `PLAYTEST.md` records as run — nine of sixteen checks,
-  once, on 2026-09-01 — and no more than that.
+  What is proven is what `PLAYTEST.md` records as run — ten of seventeen checks,
+  in two rounds on 2026-09-01 — and no more than that.
 - Everything in the mod's "what ships broken" list ships in the game too, since
   the game is how most players meet it.
 
@@ -186,7 +191,7 @@ findings: nothing here is defective, it has not happened yet.
 
 ---
 
-2026-09-01 · codecube `3ce1eed` (main) plus the `B47` and `S8` fixes · codeblock
+2026-09-01 · codecube `b9bf82b` (main) plus the second `S8` fix · codeblock
 `2647228` (master), the commit this game has adopted. The record split, the three
 agents and C20 are all committed; `check_game.sh` and luacheck pass. The game was
 played for the first time this day, which is where `B47`, `B48` and `S8` came
