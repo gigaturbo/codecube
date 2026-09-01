@@ -35,15 +35,19 @@ not compete with that. The game's own next item is G3: trim vendored `default`
 (A13) — 9,744 lines for 108 node definitions, and it closes B19 and B24 for
 free. It moves no submodule pointer, so it can run in parallel.
 
-Two things about the record, since they change what "green" means here. The
-game's findings are now tracked Markdown (`AUDIT.md`) rather than a gitignored
-HTML file, and `PLAYTEST.md` is new. Two of its eleven checks have been run —
-`P2` and the clone half of `P1`, the two a shell can do without Luanti — and
-**neither reaches the game's behaviour.** The game has no test suite and no
-automated check touches what it does, so every claim about `cc_day`, `cc_mapgen`
-and `cc_security` in a world still rests on reading three short files. Running
-the `W`, `L` and `R` groups once costs an hour and is the cheapest evidence
-available anywhere in this repository.
+**The game has been played against `PLAYTEST.md`, once, on 2026-09-01**, and
+that is the change since the last revision. `W1`–`W3`, `L2` and `R1`–`R4` pass,
+`L1` is partial; `P2` and half of `P1` were run from a shell. `cc_mapgen` is
+properly proven and the restrictions hold. **It cost an hour and produced three
+findings** — `B47`, `B48` and `S8` — none of which was visible from reading the
+three `cc_*` files. `S8` is a hole in the restriction boundary: a bookshelf's own
+formspec shows the player's inventory, around the blanked one. So the cheapest
+evidence in this repository was also, this time, the most productive, and the
+argument for it is now a measurement rather than a claim.
+
+What is still unproven: `L3` and `R5` are gated on `A7` and `A8`, `P3`–`P5` and
+the boot half of `P1` are simply not done, and the game still has no test suite
+— nothing automated reaches its behaviour, and nothing here will.
 
 ## Milestones
 
@@ -93,12 +97,24 @@ Carry only the nodes the palette references.
 - Check the palette first: the block list is the mod's and naming a node that no
   longer exists breaks saved player programs. (A13)
 
-### G4. Make the game's own mods behave — not started (0/2)
+### G4. Make the game's own mods behave — started (1/5)
 
+The first playtest, on 2026-09-01, added three of these five. They are all small
+except the decision in `S8`, and between them they are what stands between the
+game's restrictions as written and the restrictions as played.
+
+- [x] `cc_day`: hide the sunrise texture too — `set_sun{visible = false}` leaves
+  it drawn, and part of the sun shows at dawn. (B47)
+- Close the bookshelf: a node formspec reaches around the blanked player
+  inventory, and the palette exposes `bookshelf`, so a program can place one.
+  Needs a decision on how wide the fix should be. (S8)
 - Drop `cc_day`'s duplicate of a block `codeblock` already runs, marked
-  "TEMP fix". (A7)
+  "TEMP fix". It is also what may be undoing B47, so it now blocks a check
+  rather than only being untidy. (A7)
 - Stop `cc_security` clobbering two engine callbacks by direct assignment;
   capture and chain instead. (A8)
+- Stop wool cracking under a punch it will not break — the client predicts the
+  dig from the node's groups and the server then refuses. Cosmetic. (B48)
 
 ### G5. Adopt CodeBlock 1.0.0 and ship — not started
 
@@ -125,9 +141,15 @@ findings: nothing here is defective, it has not happened yet.
   unless a rule excludes it, and nothing local fails when one does. `PLAYTEST.md`
   `P2` is the only thing that would catch it; it passed at `8b27f2f` and has to
   be re-run every time a tracked file is added. (C15)
-- **No behaviour of this game has ever been verified in a running world.** There
-  is no test suite, `check_game.sh` only checks that the game assembles, and
-  every check in `PLAYTEST.md`'s `W`, `L` and `R` groups is `unchecked`.
+- **A bookshelf shows the player their inventory**, around the blanked inventory
+  formspec, and the drone can place one. Nothing can dig it afterwards, so a tool
+  moved into it is recoverable only by finding that bookshelf again. (S8)
+- Part of the sun is visible at dawn and dusk. Fixed in `cc_day`, but the mod's
+  duplicate may be undoing it, which is unverified until `A7` lands. (B47)
+- Wool cracks under a punch that will not break it. (B48)
+- The game still has no test suite, and nothing automated reaches its behaviour.
+  What is proven is what `PLAYTEST.md` records as run — nine of sixteen checks,
+  once, on 2026-09-01 — and no more than that.
 - Everything in the mod's "what ships broken" list ships in the game too, since
   the game is how most players meet it.
 

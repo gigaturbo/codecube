@@ -41,15 +41,20 @@ Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
 
 ## Where it stands
 
-**Two of the eleven have been run, and neither is a behaviour check.** `P2`
-passes and `P1` passes in half, both at `8b27f2f` on 2026-09-01 — they are the
-two that a shell can perform without Luanti, which is exactly why they went
-first. `P2` closes the half of `C15` that reading could not settle.
+**The game's behaviour has been checked in a world, once, on 2026-09-01.** Nine
+of the sixteen checks have been run. `W1`–`W3`, `L2`, `R1`–`R4` pass and `L1` is
+partial; `P2` passes and `P1` passes in half. Two checks — `L3` and `R5` — are
+gated on `A7` and `A8` and cannot run yet; `P3`, `P4`, `P5` and the boot half of
+`P1` are simply not done.
 
-**No behaviour of this game has been checked in a world.** Every check in `W`,
-`L` and `R` is `unchecked`, as are `P3`, `P4` and `P5` and the boot half of `P1`.
-The game's behaviour is committed-but-unproven and should be reported as such
-rather than as passing.
+**Three findings came out of that hour**, which is the argument for having run
+it: `B47` (the sunrise texture is still drawn), `B48` (wool plays a dig animation
+the server then refuses) and `S8` (a bookshelf's formspec reaches around the
+blanked inventory). None was visible from reading the three files, and `S8` is a
+hole in the restriction boundary the game exists to hold.
+
+`cc_mapgen` is now the one part of the game that is properly proven: all three of
+its checks passed, including the two that reading could not settle.
 
 ---
 
@@ -68,7 +73,8 @@ any other decoration; no ore visible in the ground when a drone digs into it; no
 cave mouths, no dungeon, no water, no biome transition — the ground node and its
 colour never change.
 
-Result: unchecked
+Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — flat and clean at
+spawn and for a few hundred nodes out.
 
 ### W2 · The mapgen flags survive a world that was created with others
 
@@ -80,7 +86,9 @@ argument of the one call `cc_mapgen` makes, and this is the only thing that
 argument is for. Without it a world remembers the flags it was created with and
 the game's setting is read once and never again.
 
-Result: unchecked
+Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — a world re-entered
+with caves and decorations written into its `map_meta.txt` is still flat and
+clean. `override_meta = true` does what the one call needs it to.
 
 ### W3 · The world is flat far from spawn, and far from where anyone has been
 
@@ -91,7 +99,9 @@ watch the ground generate ahead.
 setting that applied at world creation from one that applies to every chunk the
 engine emerges, and only the second is what the game promises.
 
-Result: unchecked
+Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — ground generated live
+several thousand nodes out is the same flat clean ground. The setting applies to
+every emerged chunk, not only to world creation.
 
 ---
 
@@ -108,7 +118,11 @@ no clouds. `override_day_night_ratio(1)` is what pins the light level, and the
 other four calls remove the objects — they are separate effects and a partial
 result should say which of the two failed.
 
-Result: unchecked
+Result: partial — `7f649d8` · engine unrecorded · 2026-09-01 — the light half
+passes: the same full daylight at every hour, no stars, no moon, no clouds. The
+objects half does not. **At `/time 5000` part of the sun is visible** — the
+sunrise texture, which `set_sun{visible = false}` does not cover. Filed as
+`B47`; `sunrise_visible = false` is the missing field. Re-run once that lands.
 
 ### L2 · It survives a rejoin, and it applies to a second player
 
@@ -120,7 +134,8 @@ these are per-player settings, not world settings — a rejoin is the path that
 matters, and a second player is what would catch a setting applied to whoever
 joined first.
 
-Result: unchecked
+Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — survives a rejoin.
+The second-player half was not exercised: singleplayer only.
 
 ### L3 · Permanent noon still holds once the duplicate is removed [A7]
 
@@ -153,7 +168,19 @@ block types including one from `wool` and one from `default`.
 by another mod, or by a future `default` trim — would not be covered; try a block
 type the drone can place but you have not seen before.
 
-Result: unchecked
+Result: pass, with two things it turned up — `7f649d8` · engine unrecorded ·
+2026-09-01 — nothing breaks, anywhere, on any node tried. The rule holds. But:
+
+- **Wool plays the breakage animation and then the block stays.** The world's own
+  ground does not. Cosmetic, and filed as `B48`: `diggable = false` is enforced
+  by the server, and the client predicts a dig from the node's groups, so a node
+  the client thinks a hand can break cracks before the server refuses. Wool is
+  `oddly_breakable_by_hand = 3` and the ground is `cracky`, never hand-diggable,
+  which is exactly why only one of them shows it.
+- **A bookshelf opens.** `default:bookshelf` carries a node formspec, and it
+  contains `list[current_player;main;…]`, so it reaches around the blanked
+  inventory formspec that `R2` checks. Filed as `S8` — the palette exposes
+  `bookshelf`, so this is reachable in ordinary play.
 
 ### R2 · The inventory is empty and no item ever drops
 
@@ -163,7 +190,11 @@ node is destroyed another way, check that nothing appears as a dropped item.
 **Pass:** the inventory formspec is blank, and no item entity ever exists in the
 world. `handle_node_drops` is stubbed to do nothing.
 
-Result: unchecked
+Result: pass, but the check is too narrow — `7f649d8` · engine unrecorded ·
+2026-09-01 — the inventory key opens nothing and no item entity was seen. What
+this does **not** establish is that no inventory is reachable: `R1` found that a
+bookshelf's own formspec shows the player's `main` list (`S8`). Read this pass as
+"the inventory formspec is blank", not "the player has no inventory".
 
 ### R3 · No knockback
 
@@ -171,7 +202,7 @@ Take a hit — from another player, or anything that would push you.
 
 **Pass:** you are not moved. `calculate_knockback` returns 0.
 
-Result: unchecked
+Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — no knockback.
 
 ### R4 · The drone can still build [R1 must not have broken it]
 
@@ -182,7 +213,9 @@ of the node for a *player's* tool; the drone writes the map directly and must be
 unaffected. This is the check that a restriction has not been made so broad it
 disables the point of the game.
 
-Result: unchecked
+Result: pass — `7f649d8` · engine unrecorded · 2026-09-01 — the drone places and
+removes normally with every node undiggable. The restriction and the game's point
+coexist, which was the thing worth confirming.
 
 ### R5 · The two callbacks behave, and the load order is deterministic [A8]
 
@@ -298,6 +331,6 @@ Result: unchecked
 
 ---
 
-Written 2026-08-30 at `54a2b7e`. Revised 2026-09-01 at `8b27f2f`, when `P2` and
-half of `P1` were run — the two that need no running world. Nothing in `W`, `L`
-or `R` has been run.
+Written 2026-08-30 at `54a2b7e`. Revised 2026-09-01: `P2` and half of `P1` at
+`8b27f2f`, then the `W`, `L` and `R` groups at `7f649d8`, played by the author in
+a world. The engine version was not recorded and should be, next time.

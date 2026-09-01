@@ -14,10 +14,13 @@ renumbered; milestones here are lettered G1-G5, not the mod's phase numbers.
 - [x] CI that checks the game assembles, without duplicating the mod's (audit A14)
 - [x] keep the release archive to what a player needs - no .claude/, .reports/ or art sources (audit C15)
 - [x] write the ContentDB page for its own reader instead of shipping README.md as it (audit C20)
-- [ ] run the W, L and R groups of PLAYTEST.md once - nothing in this game has ever been checked in a world
+- [x] run the W, L and R groups of PLAYTEST.md once - found B47, B48 and S8
 - [ ] trim vendored default down to the nodes the game actually uses (audit A13)
+- [x] cc_day: hide the sunrise texture, not only the sun (audit B47) - fixed, unverified until A7
+- [ ] cc_security: close the bookshelf formspec, which shows the player inventory (audit S8)
 - [ ] cc_day: drop the duplicate of a block codeblock already runs (audit A7)
 - [ ] cc_security: chain the two engine callbacks instead of assigning over them (audit A8)
+- [ ] wool cracks under a punch it will not break - client-side dig prediction (audit B48)
 - [ ] adopt a tagged CodeBlock release and update the game's documentation with it
 - [ ] fog distance
 

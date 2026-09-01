@@ -18,7 +18,7 @@ performance. They were allocated once across this audit and the mod's, so a
 number never means two things and **a gap here is a finding that lives in the
 mod's audit**, not one dropped. Every id below kept the number it had in the
 shared audit; `C15` is the first allocated after the split, `C20` the second.
-There are no `S` findings on the game's side — all seven are the mod's — and the
+The `S` series was all the mod's until `S8` was filed here on 2026-09-01; the
 `F` feature series is the mod's own.
 
 States: **resolved**, **open**, **won't fix** (the defect is real, the decision
@@ -32,16 +32,24 @@ nothing dropped.
 
 ## Where it stands
 
-13 findings, this game's own. **8 resolved, 5 open, none won't-fix.** No open
-finding is critical or high: three medium (`A7`, `A8`, `A13`) and two low
-(`B19`, `B24`). Three of the five close together — `A13` takes `B19` and `B24`
-with it — so the open list is shorter than its count suggests, and `A7` and `A8`
-are a few lines each.
+16 findings, this game's own. **8 resolved, 8 open, none won't-fix.** No open
+finding is critical or high: four medium (`S8`, `A7`, `A8`, `A13`) and four low
+(`B19`, `B24`, `B47`, `B48`). Three close together — `A13` takes `B19` and `B24`
+with it — and `A7`, `B47` and `A8` are a few lines each, so the open list is
+shorter work than its count suggests. `S8` is the one that needs a decision
+rather than an edit.
+
+**Three of the eight arrived on 2026-09-01, from the first hour anyone has spent
+playing this game against `PLAYTEST.md`** — `B47`, `B48` and `S8`. None was
+visible from reading the three `cc_*` files, which between them are 21 lines; two
+of the three are in how those lines meet a vendored node or the client. That is
+the argument for the `W`, `L` and `R` groups, and it is now evidence rather than
+an assertion.
 
 | Category | Count | Open |
 |---|---|---|
-| B bugs | 3 | `B19`, `B24` (both low, both close with `A13`) |
-| S sandbox and security | 0 | — |
+| B bugs | 5 | `B19`, `B24` (close with `A13`), `B47`, `B48` |
+| S sandbox and security | 1 | `S8` |
 | C compliance and packaging | 6 | — |
 | A architecture and performance | 4 | `A7`, `A8`, `A13` |
 
@@ -53,6 +61,41 @@ the only finding here to arrive from reading a published rule rather than from a
 defect.
 
 ## Open findings, in full
+
+### S8 · medium · open — a bookshelf's formspec reaches around the blanked inventory
+
+`mods/cc_security/init.lua` · `mods/default/nodes.lua:2483`
+
+`cc_security` blanks the player's inventory formspec, and `PLAYTEST.md` `R2`
+confirms the inventory key opens nothing. But `default:bookshelf` carries a node
+formspec of its own, set into node metadata by its `on_construct`, and that
+formspec contains `list[current_player;main;0,2.85;8,1;]` and a second `main`
+list below it. Right-clicking the bookshelf therefore displays the player's real
+main inventory — the two drone tools included — with a `listring` to the
+bookshelf's own `books` list, so items can be moved into it.
+
+**Reachable in ordinary play, and that is what makes it a finding rather than a
+curiosity.** The palette exposes `bookshelf` (`mods/codeblock/lib/config.lua:285`
+at the adopted commit), so any program can place one. Nothing can then dig it —
+that is the rest of `cc_security` working correctly — so a tool moved in comes
+back only if the player finds that bookshelf again. Found by `R1` on 2026-09-01;
+reading the three `cc_*` files could not have shown it, because the defect is in
+the interaction between the blanked formspec and a vendored node's own.
+
+**`A13` does not close this one, unlike `B19` and `B24`.** Trimming `default` to
+what the palette references *keeps* `bookshelf`, since the palette names it.
+`chest` and `furnace` carry the same `list[current_player;main;…]` pattern and
+are **not** in the palette, so those two do go away with `A13` — bookshelf is the
+one that has to be handled here.
+
+The narrow fix is to deny node-inventory interaction in the same
+`on_mods_loaded` walk that sets `diggable = false`, by overriding
+`allow_metadata_inventory_put`, `_take` and `_move` to return 0. That leaves the
+formspec openable but inert. Clearing the metadata `formspec` string would close
+it more completely but has to happen per placed node rather than per definition,
+which is a different shape of fix. Note that `del_fields` on `override_item`
+arrived in 5.9.0 and `game.conf` declares `min_minetest_version = 5.4`, so
+removing a callback outright is not available.
 
 ### A13 · medium · open — `default` is 9,744 lines to supply 108 node definitions, and the rest still runs
 
@@ -102,6 +145,58 @@ with `last_mod` so the outcome is deterministic rather than alphabetical.
 Separately: the mod overrides **every registered node** at `on_mods_loaded` to
 set `diggable = false` — a large table walk to express one rule.
 
+### B47 · low · open — the sunrise texture is still drawn, so part of the sun shows
+
+`mods/cc_day/init.lua`
+
+`player:set_sun({visible = false})` hides the sun disc and nothing else. The
+sunrise and sunset glow is a separate field of the same table,
+`sunrise_visible`, which defaults to true — so at dawn and dusk part of the sun
+is still painted on a sky the game promises has none. Seen at `/time 5000` by
+`PLAYTEST.md` `L1` on 2026-09-01.
+
+The light half of the promise is intact: `override_day_night_ratio(1)` pins the
+level and it does not vary. This is the objects half, and it is one field:
+`set_sun{visible = false, sunrise_visible = false}`.
+
+**The one-field fix may not be enough on its own, and that ties this to `A7`.**
+`codeblock` registers the same five calls in its own `on_joinplayer` (the
+duplicate `A7` removes), including a bare `set_sun{visible = false}`. The
+reference lists every `set_sun` field as *optional* with a stated default and
+notes that passing no arguments resets the sun entirely, which reads as though an
+omitted field takes its default rather than keeping its current value. If that is
+right, whichever callback runs second wins, `cc_day` sorts before `codeblock`, and
+the mod's bare call puts `sunrise_visible` back to `true` — so the fix would do
+nothing until `A7` lands. **Not verified**: the reference is ambiguous between
+reset-to-default and merge-with-current, and reading it twice will not settle it.
+The field was added to `cc_day` anyway, since it is required either way; re-running
+`L1` is the experiment, and a still-visible sunrise is the evidence for reset.
+
+### B48 · low · open — wool plays the dig animation before the server refuses
+
+`mods/cc_security/init.lua` · `mods/wool/init.lua`
+
+`diggable = false` is enforced by the server. The client predicts a dig from the
+node's groups and its own tool capabilities, so for a node it believes a hand can
+break, it plays the cracking animation and only then finds the block still there.
+The world's ground never does this and wool always does, which is the evidence
+for the mechanism: wool is `oddly_breakable_by_hand = 3`, and `default:stone` and
+its neighbours are `cracky`, never hand-diggable, so the client never predicts
+them. Seen by `PLAYTEST.md` `R1` on 2026-09-01.
+
+Cosmetic — nothing breaks — but it teaches a player that digging half-works,
+which is the opposite of what the restriction is for.
+
+**Not verified: whether the client is told at all.** The mechanism above is
+inferred from which nodes show it, not from reading the engine. `override_item`
+runs at `on_mods_loaded`, and whether a `diggable` changed there reaches the
+client's copy of the node definition is the open question; if it does, the client
+is ignoring the field and the fix has to come from the groups instead. Stripping
+the dig groups in the same override would stop the prediction at its source, but
+groups carry other meanings — `flammable`, `falling_node`, and whatever the
+palette or `codeblock` reads — so that is a change to make deliberately, not as a
+tidy-up.
+
 ### B19 · low · open — five `NodeResolver` errors on every world load
 
 `mods/default/schematics/*_log.mts`
@@ -122,7 +217,8 @@ the warnings are not mistaken for something a recent change broke.
 
 ## B — bugs
 
-3 findings, 1 resolved. `B19` and `B24` are open and in full above. The other
+5 findings, 1 resolved. `B19`, `B24`, `B47` and `B48` are open and in full
+above. The other
 B-findings are the mod's.
 
 - **B20 · low · resolved** — every deprecation warning in the boot came from
@@ -137,6 +233,13 @@ B-findings are the mod's.
   **Luanti deduplicates deprecation warnings by message**, and formspecs' two
   identical ones were consuming the quota. Worth remembering as a general trap
   when reading a boot log. Those two became `B24`.
+
+## S — sandbox and security
+
+1 finding, 0 resolved. `S8` is open and in full above — the first `S` on the
+game's side; `S1`–`S7` are the mod's, and they are about the Lua sandbox, which
+is the mod's boundary to hold. This one is about the *player's* boundary, which
+is the game's.
 
 ## C — compliance and packaging
 
@@ -303,11 +406,19 @@ landed in `9ad884c`, `.cdb.json` regenerated and `check_game.sh` passing on it.
 It has not been seen rendered on ContentDB, in a browser or in-game — that is
 `P5`, and `P5` can only run after a release.
 
-**Not checked — and it is the whole of the game's behaviour.** Every check in
-`PLAYTEST.md`'s `W`, `L` and `R` groups is `unchecked`, as are `P3`, `P4`, `P5`
-and the boot half of `P1`. Nothing has ever confirmed in a running world that
-`cc_mapgen` flattens it, that `cc_day` holds it at noon, or that `cc_security`
-restricts anything, and the game has no test suite that could stand in.
+**Played, at `7f649d8` on 2026-09-01.** The `W`, `L` and `R` groups were run in a
+world by the author: `W1`–`W3`, `L2` and `R1`–`R4` pass, `L1` is partial. So
+`cc_mapgen` is proven — flat and clean at spawn, far out into unemerged map, and
+in a world created with other flags — the light level is pinned, nothing is
+diggable, no item drops, there is no knockback, and the drone still builds with
+every node undiggable. `B47`, `B48` and `S8` came out of the same hour. The
+engine version was not recorded, which it should have been.
+
+**Still not checked:** `L3` and `R5`, which are gated on `A7` and `A8` and cannot
+run until those land; `P3` (the boot log), `P4` (the main menu), `P5` (the
+ContentDB page, which needs a release), and the boot half of `P1`. `L2`'s
+second-player half was not exercised either — singleplayer only, so a per-player
+setting applied to whoever joined first would not have been caught.
 
 ## Corrections kept rather than edited away
 
@@ -319,5 +430,9 @@ several revisions while its prose was already correct.
 
 ---
 
-Revised 2026-09-01. Describes codecube `8b27f2f` (main), a clean tree,
-and codeblock `2647228` (master), the release commit this game has adopted.
+Revised 2026-09-01, twice: at `8b27f2f` for the packaging checks, then at
+`7f649d8` plus the `cc_day` fix in the working tree, after the first playtest.
+Describes codecube `7f649d8` (main) and codeblock `2647228` (master), the release
+commit this game has adopted. `S8`, `B47` and `B48` are the new findings; ids
+were allocated against the mod's audit in the sibling checkout, which stands at
+`B46`, `S7`, `A16`, `C19` and `F8`.
