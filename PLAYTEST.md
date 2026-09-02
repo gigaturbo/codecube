@@ -202,7 +202,9 @@ do: a blank inventory formspec per player, a guard denying every player-initiate
 inventory action (`S8`), a pass over every registered node setting
 `diggable = false`, denying its three inventory callbacks and stopping its timer
 (`S8`, `B49`), every ABM action replaced with a no-op (`B49`), and two engine
-globals overwritten (`A8`).
+globals replaced — drops chained with an empty list, knockback returning 0, with
+`last_mod = cc_security` in `game.conf` keeping this mod the one that replaces
+them (`A8`).
 
 ### R1 · Nothing is diggable
 
@@ -234,7 +236,8 @@ Open the inventory. Then, with digging somehow permitted or in a world where a
 node is destroyed another way, check that nothing appears as a dropped item.
 
 **Pass:** the inventory formspec is blank, and no item entity ever exists in the
-world. `handle_node_drops` is stubbed to do nothing.
+world. `handle_node_drops` is replaced with one that passes an empty drop list to
+whatever it captured, so nothing is ever handed out. (`A8`)
 
 Result: pass, but the check is too narrow — `7f649d8` · engine 5.17.0 ·
 2026-09-01 — the inventory key opens nothing and no item entity was seen. What
@@ -339,15 +342,66 @@ replacement takes effect, so the fallback of deleting the two ABMs from
 
 ### R5 · The two callbacks behave, and the load order is deterministic [A8]
 
-**Run this only after `A8` is fixed.** `A8` replaces two direct assignments to
-`minetest.handle_node_drops` and `minetest.calculate_knockback` with capture and
-chain, plus a `last_mod` declaration.
+**`A8` is fixed and this is what says whether the fix works.** `cc_security` now
+captures `minetest.handle_node_drops` and calls it with an **empty drop list**
+rather than replacing it outright, and `game.conf` declares
+`last_mod = cc_security` so nothing loads after it. `calculate_knockback` is still
+a plain replacement, deliberately: it is a pure calculation with no previous
+behaviour worth keeping.
 
 **Pass:** R2 and R3 both still pass, and they still pass with another mod
-installed that assigns the same two globals. The defect is that the current code
-discards whatever another mod installed and is discarded in turn by any later mod
-that does the same, with the winner decided alphabetically; a second mod is the
-only way to observe either half.
+installed that assigns the same two globals. A second mod is the only way to
+observe either half — that this mod no longer discards what another installed,
+and that another can no longer discard this one.
+
+**Write the second mod for the occasion, as a worldmod** — put it in
+`worlds/<world>/worldmods/zz_probe/`, not in this repository: `check_game.sh`
+requires every mod under `mods/` to declare itself and carry a licence, and a
+probe is not something to ship. `mod.conf` needs only `name = zz_probe`.
+Name it late in the alphabet **on purpose**: before the `last_mod` declaration
+that is what would have won.
+
+```lua
+local previous = minetest.handle_node_drops
+function minetest.handle_node_drops(pos, drops, digger)
+    minetest.log("action", "probe: handed " .. #drops .. " drops")
+    return previous(pos, drops, digger)
+end
+
+function minetest.calculate_knockback() return 5 end
+
+minetest.register_chatcommand("probe", {
+    func = function(name)
+        local player = minetest.get_player_by_name(name)
+        minetest.handle_node_drops(player:get_pos(), {"default:stone"}, player)
+        return true, "called"
+    end
+})
+```
+
+The chat command exists because `handle_node_drops` is otherwise unreachable in
+this game: `diggable = false` means no player dig ever calls it, which is why
+`R2` had to be run "with digging somehow permitted or in a world where a node is
+destroyed another way". `/probe` calls it directly and settles the question in
+one line.
+
+**Three things to see:**
+
+1. `/probe` drops nothing. No `default:stone` entity appears — `cc_security`
+   passed an empty list on.
+2. R3 still passes: no knockback, though the probe asks for 5.
+3. The log says `probe: handed 0 drops`. Not `1`, which would mean `cc_security`
+   ran first and the probe overrode it; and not *absent*, which would mean
+   `cc_security` replaced the probe outright instead of chaining to it. **That
+   one line is the whole of the evidence for both halves**, and nothing else here
+   would notice its going missing.
+
+**If the probe wins instead** — an item drops, or you are knocked back —
+`last_mod` is not doing what the 5.17.0 reference says. It is a `game.conf` key,
+not a `mod.conf` one, and this game had never set one before, so this is the
+assumption most worth breaking early. The fallback is `depends` in
+`cc_security/mod.conf`, which orders it against named mods only and cannot order
+it against a mod nobody has heard of.
 
 Result: unchecked
 

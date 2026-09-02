@@ -20,7 +20,7 @@ renumbered; milestones here are lettered G1-G5, not the mod's phase numbers.
 - [x] cc_day: hide the sunrise texture, not only the sun (audit B47) - L1 passes
 - [x] cc_security: deny every node inventory and every player inventory move, closing the bookshelf hole (audit S8) - fixed twice, R6 and R4 pass
 - [ ] cc_day: drop the duplicate of a block codeblock already runs (audit A7) - upstream edit, closes at adoption
-- [ ] cc_security: chain the two engine callbacks instead of assigning over them (audit A8)
+- [x] cc_security: chain the two engine callbacks instead of assigning over them (audit A8) - R5 unverified
 - [ ] wool cracks under a punch it will not break - client-side dig prediction (audit B48)
 - [ ] adopt a tagged CodeBlock release and update the game's documentation with it
 - [ ] fog distance

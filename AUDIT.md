@@ -37,8 +37,9 @@ finding is critical or high: three medium (`A7`, `A8`, `A13`) and three low
 (`B19`, `B24`, `B48`). `A13` is **deferred rather than pending** — the trim it
 describes is waiting on a decision in `codeblock`, not on work here — and it
 carries `B19` and `B24` with it, so three of the six open findings are one
-deferred item. `A8` is a few lines; `A7` is written upstream in `codeblock` and
-closes here at adoption.
+deferred item. `A7` is written upstream in `codeblock` and closes here at
+adoption; `A8`'s callback half is fixed and waiting on `R5`, and its table walk is
+what keeps it open.
 
 **`B49` is resolved and confirmed.** Its fix rests on undocumented behaviour —
 replacing an ABM's `action`, because Luanti cannot unregister one — so `R7` was
@@ -64,7 +65,7 @@ from the code. **A fix is not evidence** — the check is, and it costs minutes.
 | B bugs | 6 | `B19`, `B24` (both with `A13`), `B48` — `B49` resolved, `R7` passes |
 | S sandbox and security | 1 | — `S8` resolved, `R6` passes |
 | C compliance and packaging | 6 | — |
-| A architecture and performance | 4 | `A7` (upstream), `A8`, `A13` (deferred) |
+| A architecture and performance | 4 | `A7` (upstream), `A8` (half fixed, `R5` pending), `A13` (deferred) |
 
 The game is current with `codeblock` `2647228`, adopted at `33bdae8`; both are at
 `origin` and both CI workflows were green on those exact shas. `C15` was open as
@@ -152,24 +153,58 @@ reintroduce the texture whichever way `set_sun` treats an omitted field. Recorde
 here only so the next reader does not re-derive it from the claim that the two
 calls match.
 
-### A8 · medium · open — `cc_security` clobbers two engine callbacks by direct assignment
+### A8 · medium · open — the callback half is fixed and unverified; the table walk is untouched
 
-`mods/cc_security/init.lua`
+`mods/cc_security/init.lua` · `game.conf` · `.luacheckrc`
 
 `function minetest.handle_node_drops() end` and
-`function minetest.calculate_knockback() return 0 end` overwrite the globals
+`function minetest.calculate_knockback() return 0 end` overwrote the globals
 outright, discarding whatever another mod installed and being discarded in turn
-by any later mod that does the same. Capture and chain, and declare load order so
-the outcome is deterministic rather than alphabetical.
+by any later mod that did the same, with the winner decided alphabetically.
 
 **`last_mod` is a `game.conf` key, not a `mod.conf` one** — checked against the
 5.17.0 reference on 2026-09-02, where `mod.conf` has only `depends` and
-`optional_depends`. So the declaration goes in this game's `game.conf`, which sets
-none today, and **only one mod can be last**: spending it on `cc_security` is a
-choice about the whole game, not a line in a mod.
+`optional_depends`. So the declaration goes in this game's `game.conf`, which set
+none before, and **only one mod can be last**: spending it on `cc_security` is a
+choice about the whole game, not a line in a mod. It is the right mod to spend it
+on — it is the only one here whose job is to have the last word.
 
-Separately: the mod overrides **every registered node** at `on_mods_loaded` to
-set `diggable = false` — a large table walk to express one rule.
+**Fixed in two halves, and only one of them is a chain.**
+
+- **Drops are chained, with an empty list.** `previous_drops(pos, {}, digger)`
+  keeps whatever the captured handler did besides handing out items — logging,
+  statistics, a sound — while handing out nothing. Chaining with the real list
+  would drop items and break the game's central promise, so the empty list is the
+  whole trick.
+- **Knockback is not chained, deliberately.** The reference suggests caching and
+  calling the old function "to allow multiple mods to change knockback
+  behaviour"; that is advice for a mod *modifying* knockback. This one abolishes
+  it, the function is a pure calculation, and calling the captured value could
+  only cost time before its result was thrown away. `return 0` is the honest
+  shape, and `last_mod` is the whole of what protects it.
+
+**A chain cannot make the guarantee on its own, which is why both halves exist.**
+A captured handler that invents items rather than reading its `drops` argument
+would still drop them. Nothing stops that; being last is what keeps such a mod
+from being the one in charge in the first place.
+
+**`.luacheckrc` still ignores `122` for this file, and the reason has changed.**
+Replacing the two globals is the point of the lines, so the assignment stays;
+what the warning was really pointing at — the replacement being discarded by
+whatever loads next — is what `last_mod` fixes. The old rationale said the fix
+"belongs with that work"; that work is this.
+
+**Unverified, and `R5` is not a formality.** `last_mod` had never been set in this
+game, and nothing here proves the engine honours it — no gate reaches behaviour.
+`R5` now carries a worldmod probe written for the purpose, and its log line is the
+only thing that distinguishes a working chain from a silent replacement.
+
+**The other half of this finding is untouched, and is why it stays open.** The
+mod overrides **every registered node** at `on_mods_loaded` to set
+`diggable = false` — a large table walk to express one rule. It has to run there
+to see every mod's registrations (moving it earlier silently covers fewer nodes
+and nothing fails), and Luanti offers no global switch for it, so there may be
+nothing better than the walk. Deciding that is what remains.
 
 ### B49 · medium · resolved, `R7` passes — the world rewrites what a program built
 
@@ -585,11 +620,11 @@ closed with the guard proven not to be too broad. Every restriction the game
 claims is now checked: nothing diggable, no drops, no knockback, no inventory
 reachable, and the drone building through all of it.
 
-**Still not checked:** `L3` and `R5`, gated on `A7` and `A8`; `P3` (the boot
-log), `P4` (the main menu), `P5` (the ContentDB page, which needs a release), and
-the boot half of `P1`. `L2`'s second-player half was not exercised either —
-singleplayer only, so a per-player setting applied to whoever joined first would
-not have been caught.
+**Still not checked:** `R5`, which is what `A8`'s fix now waits on, and `L3`,
+gated on `A7` landing upstream; `P3` (the boot log), `P4` (the main menu), `P5`
+(the ContentDB page, which needs a release), and the boot half of `P1`. `L2`'s
+second-player half was not exercised either — singleplayer only, so a per-player
+setting applied to whoever joined first would not have been caught.
 
 **Recovered rather than recorded:** the engine version. It was not noted at the
 time, and was read afterwards out of the engine's own `debug.txt` — a single
@@ -609,17 +644,18 @@ several revisions while its prose was already correct.
 
 ---
 
-Revised 2026-09-02 three times: while scoping G3, which produced `B49` and
-deferred `A13`; at `377d1f9`, when `R7` confirmed the `B49` fix in a world; and
-again when `A7` was routed upstream — the duplicate is removed in `codeblock`, so
-nothing is written here and the finding closes at adoption. The same pass
+Revised 2026-09-02 four times: while scoping G3, which produced `B49` and
+deferred `A13`; at `377d1f9`, when `R7` confirmed the `B49` fix in a world; again
+when `A7` was routed upstream — the duplicate is removed in `codeblock`, so
+nothing is written here and the finding closes at adoption, and the same pass
 corrected `A7`'s "identical arguments" and `A8`'s `last_mod`, which is a
-`game.conf` key and not a `mod.conf` one.
+`game.conf` key and not a `mod.conf` one; and again at `6f7d118`, when `A8`'s
+callback half was fixed and `R5` rewritten around a worldmod probe.
 Before that, 2026-09-01, five times in one day: at `8b27f2f` for the packaging checks;
 at `7f649d8` for the first playtest; again for the `B47` and `S8` fixes it
 produced; again after re-running `L1` and `R6` against those fixes, which closed
 `B47` and reopened `S8`; and again at `c042364`, when `R6` and `R4` closed `S8`
-for good. Describes codecube `377d1f9` (main) and codeblock
+for good. Describes codecube `6f7d118` (main) and codeblock
 `2647228` (master), the release commit this game has adopted. `S8`, `B47`, `B48`
 and `B49` are the new findings; ids were allocated against the mod's audit in the
 sibling checkout, which stands at `B46`, `S7`, `A16`, `C19` and `F8` — the game's

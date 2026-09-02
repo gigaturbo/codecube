@@ -33,11 +33,12 @@ workflows are green on that pair of commits, and **the next step for the project
 as a whole is on the mod side** — Phase 7, the drone seam (A11). This file does
 not compete with that.
 
-The game's own next step is **`A8`** — the only one of G4's three that is written
-here. `A7`'s edit turned out to be upstream: `codeblock` removes the duplicate,
-`cc_day` is the copy that survives, and this repository's half is adopting the
-release and running `L3`. `B48`'s wool crack is cosmetic. `A8` is also what
-unblocks `PLAYTEST.md`'s `R5`.
+The game's own next step is **`R5` in a world** — `A8`'s callback half is written
+and nothing here proves it works, because `last_mod` had never been set in this
+game and no gate reaches behaviour. `R5` carries the worldmod probe to run it
+with. After that, `B48`'s wool crack is cosmetic and `A7`'s edit is upstream:
+`codeblock` removes the duplicate, `cc_day` is the copy that survives, and this
+repository's half is adopting the release and running `L3`.
 
 **G3 turned out smaller than it looked.** Scoping the trim produced `B49` and
 then deferred `A13` itself: `codeblock` is expected to take the blocks it needs,
@@ -63,9 +64,10 @@ drone tool *out* of the hotbar through the same panel, into a row they cannot
 reopen. Marking R6 pass on the strength of that fix would have shipped it. A fix
 is not evidence; the check is, and it costs minutes.
 
-What is still unproven: `L3` and `R5`, gated on A7 (whose edit is upstream) and
-A8, then `P3`–`P5` and the boot half of `P1`. The game still has no test suite,
-nothing automated reaches its behaviour, and nothing here will.
+What is still unproven: `R5`, which is what `A8`'s fix now waits on, and `L3`,
+gated on `A7` landing upstream; then `P3`–`P5` and the boot half of `P1`. The
+game still has no test suite, nothing automated reaches its behaviour, and
+nothing here will.
 
 ## Milestones
 
@@ -129,12 +131,13 @@ The counting was corrected while scoping: the palette is **122 nodes — 106 fro
 All 106 are in `nodes.lua`, so the removable set is whole files, not a curation
 within one.
 
-### G4. Make the game's own mods behave — started (2/5)
+### G4. Make the game's own mods behave — started (3/5)
 
-The first playtest, on 2026-09-01, added three of these five, and two are fixed
-and checked. Between them they are what stands between the game's restrictions as
-written and the restrictions as played. Nothing left here is large, and none of
-it is blocking.
+The first playtest, on 2026-09-01, added three of these five. Two are fixed and
+checked; `A8` is fixed and **unchecked**, which is a different thing and `R5` is
+what settles it. Between them they are what stands between the game's
+restrictions as written and the restrictions as played. Nothing left here is
+large, and none of it is blocking.
 
 - [x] `cc_day`: hide the sunrise texture too — `set_sun{visible = false}` leaves
   it drawn, and part of the sun shows at dawn. `L1` passes on it. (B47)
@@ -148,8 +151,14 @@ it is blocking.
   copy that survives, and nothing in this repository changes; the game's half is
   adopting the release and running `L3`. Purely untidiness in any case: `L1`
   passes with the duplicate still in place, so it was never blocking B47. (A7)
-- Stop `cc_security` clobbering two engine callbacks by direct assignment;
-  capture and chain instead. (A8)
+- [x] Stop `cc_security` clobbering two engine callbacks by direct assignment.
+  Drops now chain to the captured handler with an **empty list**, so another
+  mod's bookkeeping survives while nothing is handed out; knockback stays a plain
+  `return 0`, because it is a pure calculation with no previous behaviour worth
+  keeping. `last_mod = cc_security` in `game.conf` is what stops a later mod
+  taking either away. **Unverified** — `R5` decides it, and `last_mod` had never
+  been set in this game. The finding stays open for its other half, the
+  every-node table walk. (A8)
 - Stop wool cracking under a punch it will not break — the client predicts the
   dig from the node's groups and the server then refuses. Cosmetic. (B48)
 
@@ -184,6 +193,11 @@ findings: nothing here is defective, it has not happened yet.
   it, but the panel is there: the formspec is metadata on the placed node, not a
   field `cc_security` can override away. (S8)
 - Wool cracks under a punch that will not break it. (B48)
+- **Unverified: that `last_mod` is honoured at all.** `A8`'s fix rests on
+  `game.conf`'s `last_mod = cc_security`, which this game had never set before,
+  and no gate here reaches behaviour. If the engine ignores it, a mod loading
+  after `cc_security` takes the no-drops and no-knockback rules away with nothing
+  failing. `R5` is what would catch it. (A8)
 - The game still has no test suite, and nothing automated reaches its behaviour.
   What is proven is what `PLAYTEST.md` records as run — thirteen of eighteen
   checks, twelve of them passing — and no more.
@@ -233,10 +247,11 @@ findings: nothing here is defective, it has not happened yet.
 
 ---
 
-2026-09-02 · codecube `d16f9bb` (main) · codeblock `2647228`
+2026-09-02 · codecube `6f7d118` (main) · codeblock `2647228`
 (master), the commit this game has adopted. `check_game.sh` and luacheck pass.
 The game was played for the first time on 2026-09-01, over three rounds — that is
 where `B47`, `B48` and `S8` came from, and what closed two of them. `B49` came
 the day after, from reading `default` while scoping G3, and `R7` confirmed its
 fix in a world the same day. Everything through `35fa2a1` is at `origin/main`
-and `d16f9bb` and `377d1f9` are not pushed; CI has not been read from here.
+and `d16f9bb`, `377d1f9` and `6f7d118` are not pushed; CI has not been read from
+here.

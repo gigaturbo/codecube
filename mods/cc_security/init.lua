@@ -51,6 +51,19 @@ minetest.register_on_mods_loaded(function()
     end
 end)
 
-function minetest.handle_node_drops() end
+-- Both of these replace an engine function by assignment, which holds only
+-- because `last_mod = cc_security` in game.conf loads this mod after every other
+-- one. Without that the winner is alphabetical, and a mod loading later would
+-- take the restriction away with nothing failing. (A8)
+--
+-- Drops are chained with an empty list rather than discarded, so whatever the
+-- previous handler did besides handing out items still runs. Knockback is not
+-- chained: it is a pure calculation whose result this game replaces outright, so
+-- there is no previous behaviour left to keep.
+local previous_drops = minetest.handle_node_drops
+
+function minetest.handle_node_drops(pos, drops, digger)
+    return previous_drops(pos, {}, digger)
+end
 
 function minetest.calculate_knockback() return 0 end

@@ -50,12 +50,11 @@ exclude_files = {
 }
 
 files["mods/cc_security/**"] = {
-    -- 122: assigning to a field of the `minetest` global. This mod does
-    --   function minetest.handle_node_drops() end
-    --   function minetest.calculate_knockback() return 0 end
-    -- which clobbers any other mod's override and gets clobbered in turn.
-    -- luacheck is right, and this is recorded as audit finding A8; fixing it
-    -- means capturing and chaining the previous value, which is a behaviour
-    -- change and belongs with that work, not with lint setup.
+    -- 122: assigning to a field of the `minetest` global. Replacing
+    -- handle_node_drops and calculate_knockback is the whole point of those two
+    -- lines, so the code stays and the check is off for this file. What luacheck
+    -- was really pointing at -- that the replacement is discarded by whatever
+    -- loads next -- is fixed instead by `last_mod = cc_security` in game.conf,
+    -- and the drop handler now chains the value it captured. (A8)
     ignore = {"122"}
 }
