@@ -480,18 +480,23 @@ number** so the next run is comparable.
 
 Watch the log while a world loads, from a cold start.
 
-**Pass, once `A13` lands:** no `NodeResolver` errors and no deprecation warnings.
+**Pass: nothing.** No `NodeResolver` errors, no deprecation warnings, nothing red
+or yellow at all. This became a real check on 2026-09-02, when `B19` and `B24`
+were fixed directly rather than left to `A13`; before that it could only ask you
+to count seven known messages and hope no eighth was hiding among them.
 
-**On current code, expect and confirm exactly these:** five `NodeResolver` errors
-from four `default` log schematics embedding `flowers:mushroom_brown` and
-`flowers:mushroom_red` with no `flowers` mod vendored (`B19`), and two
-`TileDef.image` deprecation warnings, from `default`'s furnace and from
-`cc_security`'s `override_item` pass re-processing it (`B24`). Anything else in
-the log is new and worth a finding.
+**The seven that should now be gone**, so a re-appearance is recognisable: five
+`NodeResolver` errors from four `default` log schematics embedding
+`flowers:mushroom_brown` and `flowers:mushroom_red` (`B19`, now aliased to `air`
+in `cc_mapgen`), and two `TileDef.image` deprecation warnings from `default`'s
+furnace and from `cc_security`'s `override_item` pass re-processing it (`B24`,
+now `name =`). **If either is back, `default` has been re-vendored** and took the
+fix with it — `B24`'s especially, since it is one word inside a third-party file.
 
 **Luanti deduplicates deprecation warnings by message**, so a count here is a
-count of distinct messages, not of occurrences — that is what hid these two
-behind the `formspecs` warnings until `B20` removed them.
+count of distinct messages, not of occurrences — that is what hid the two
+`TileDef.image` warnings behind the `formspecs` warnings until `B20` removed
+them. A single occurrence of anything new is therefore worth a finding.
 
 Result: unchecked
 

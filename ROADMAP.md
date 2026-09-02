@@ -124,9 +124,10 @@ the case for the trim itself weaker rather than stronger.
   confirmed by `R7`: the ABM half rests on undocumented behaviour, so a world was
   the only thing that could say it takes effect. (B49)
 - **Deferred: trimming vendored `default` itself.** (A13) The reasoning is under
-  *deliberately not doing*, below. Nothing a player meets is waiting on it — the
-  saving is size and boot noise, and `B19`'s five boot errors and `B24`'s two
-  warnings stay until it happens or `default` goes.
+  *deliberately not doing*, below. Nothing a player meets is waiting on it, and
+  it no longer carries anything either: `B19`'s five boot errors and `B24`'s two
+  warnings were closed directly on 2026-09-02 rather than left to wait for it.
+  What is left is size and boot time.
 
 The counting was corrected while scoping: the palette is **122 nodes — 106 from
 `default`, 15 from `wool`, plus `air`** — not the 124 and 108 the audit recorded.
@@ -222,9 +223,9 @@ findings: nothing here is defective, it has not happened yet.
   not as work waiting to be done.
 
   **What would change it:** CodeBlock deciding *not* to take the blocks, or a
-  release approaching with the boot log still opening on five red `NodeResolver`
-  errors. `mapgen.lua` is the one piece that is safe to cut regardless — 2,492
-  lines, the sole source of `B19`, and dead whoever owns the palette, since
+  release approaching with some new reason to cut it; the five red `NodeResolver`
+  errors that used to argue for it are fixed. `mapgen.lua` is still the one piece
+  safe to cut regardless — 2,492 lines, dead whoever owns the palette, since
   `cc_mapgen` disables every decoration, ore and biome it registers.
 
 - **`settingtypes.txt` at the game root.** Every drone setting is CodeBlock's,

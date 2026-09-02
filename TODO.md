@@ -22,6 +22,8 @@ renumbered; milestones here are lettered G1-G5, not the mod's phase numbers.
 - [ ] cc_day: drop the duplicate of a block codeblock already runs (audit A7) - upstream edit, closes at adoption
 - [x] cc_security: chain the two engine callbacks instead of assigning over them (audit A8) - R5 unverified
 - [ ] wool cracks under a punch it will not break - client-side dig prediction (audit B48)
+- [x] cc_mapgen: alias the two flowers nodes default's log schematics name, so the boot log has no NodeResolver errors (audit B19) - P3 unverified
+- [x] default: rename the furnace's deprecated TileDef image field to name (audit B24) - P3 unverified
 - [ ] adopt a tagged CodeBlock release and update the game's documentation with it
 - [ ] fog distance
 

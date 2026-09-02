@@ -32,13 +32,14 @@ nothing dropped.
 
 ## Where it stands
 
-17 findings, this game's own. **11 resolved, 6 open, none won't-fix.** No open
-finding is critical or high: three medium (`A7`, `A8`, `A13`) and three low
-(`B19`, `B24`, `B48`). `A13` is **deferred rather than pending** — the trim it
-describes is waiting on a decision in `codeblock`, not on work here — and it
-carries `B19` and `B24` with it, so three of the six open findings are one
-deferred item. `A7` is written upstream in `codeblock` and closes here at
-adoption; `A8`'s callback half is fixed and waiting on `R5`, and its table walk is
+17 findings, this game's own. **13 resolved, 4 open, none won't-fix.** No open
+finding is critical or high: two medium (`A7`, `A8`) plus `A13`, and one low
+(`B48`). `A13` is **deferred rather than pending** — the trim it describes is
+waiting on a decision in `codeblock`, not on work here. It no longer carries
+`B19` and `B24`: both were closed directly on 2026-09-02, which was the point of
+looking at them, since "resolved for free by `A13`" had kept two boot-log defects
+invisible behind a deferred item. `A7` is written upstream in `codeblock` and
+closes here at adoption; `A8`'s drop chain is confirmed and its table walk is
 what keeps it open.
 
 **`B49` is resolved and confirmed.** Its fix rests on undocumented behaviour —
@@ -62,7 +63,7 @@ from the code. **A fix is not evidence** — the check is, and it costs minutes.
 
 | Category | Count | Open |
 |---|---|---|
-| B bugs | 6 | `B19`, `B24` (both with `A13`), `B48` — `B49` resolved, `R7` passes |
+| B bugs | 6 | `B48` — `B19`, `B24` and `B49` resolved, `P3` and `R7` are their checks |
 | S sandbox and security | 1 | — `S8` resolved, `R6` passes |
 | C compliance and packaging | 6 | — |
 | A architecture and performance | 4 | `A7` (upstream), `A8` (drop chain confirmed, table walk open), `A13` (deferred) |
@@ -76,7 +77,7 @@ defect.
 
 ## Findings in full
 
-The six open findings, plus the closed ones whose reasoning is load-bearing
+The four open findings, plus the closed ones whose reasoning is load-bearing
 enough to be undone by accident. A finding stops being pending once a
 `PLAYTEST.md` check has passed on it — `S8` and `B47` on 2026-09-01, `B49` on
 2026-09-02 — and each stays here in full for that reason.
@@ -311,28 +312,52 @@ groups carry other meanings — `flammable`, `falling_node`, and whatever the
 palette or `codeblock` reads — so that is a change to make deliberately, not as a
 tidy-up.
 
-### B19 · low · open — five `NodeResolver` errors on every world load
+### B19 · low · resolved, unverified in a world — five `NodeResolver` errors on every world load
 
-`mods/default/schematics/*_log.mts`
+`mods/default/schematics/*_log.mts` · `mods/cc_mapgen/init.lua`
 
 Four log schematics embed `flowers:mushroom_brown` and `flowers:mushroom_red`,
 and no `flowers` mod is vendored. Harmless — `cc_mapgen` disables decorations —
-but every boot log opens with red errors that are not real problems, which trains
-you to ignore the log. Resolved for free by `A13`.
+but every boot log opened with red errors that are not real problems, which
+trains you to ignore the log.
 
-### B24 · low · open — vendored `default` uses a deprecated tile field, and `cc_security` re-triggers it
+**Fixed with two aliases, not by touching the schematics.** `cc_mapgen` now
+registers `flowers:mushroom_brown` and `flowers:mushroom_red` as aliases of
+`air`, which gives the resolver something to resolve. The alternative was editing
+four vendored binary `.mts` files, or deleting the `register_decoration` calls in
+`default/mapgen.lua` — both larger, both undone the moment `default` is
+re-vendored. Two lines in the game's own mod survive `A13` either way, and cost
+nothing if `default` goes.
 
-`mods/default/furnace.lua` · `mods/cc_security/init.lua`
+**No longer waiting on `A13`.** This was recorded as "resolved for free by `A13`",
+which made it invisible behind a deferred item. It is not free and it is not
+`A13`'s: an alias costs two lines and closes it now. `P3` is what confirms the
+log is clean.
+
+### B24 · low · resolved, unverified in a world — vendored `default` used a deprecated tile field, and `cc_security` re-triggered it
+
+`mods/default/furnace.lua:354` · `mods/cc_security/init.lua`
 
 Two `TileDef.image` warnings per load: `default`'s own node definition, and
 `cc_security`'s `override_item` pass re-processing it against its own call site.
-Cosmetic, and it lands in code `A13` proposes trimming anyway. Recorded mainly so
-the warnings are not mistaken for something a recent change broke.
+
+**Fixed by renaming the field, one word in one line.** The 5.17.0 reference lists
+`image` under *"deprecated, yet still supported field names: `image` (name)"*, so
+`name` is the same field by its current spelling and the definition is unchanged.
+`default:furnace_active`'s animated front tile was the only `image =` in the whole
+of `default`. Both warnings go with it: `cc_security` re-processed the same
+definition, so there was never a second cause to fix.
+
+**This is an edit to a vendored mod, which is normally out of bounds.** It is one
+token, it fixes a real deprecation rather than restyling, and re-vendoring
+`default` would silently bring the warning back — so if that happens, look here
+first. `P3` is what confirms the log is clean.
 
 ## B — bugs
 
-5 findings, 2 resolved. `B19`, `B24` and `B48` are open and in full above; `B47`
-is closed and kept here in full, because the prediction it got wrong is the
+5 findings, 4 resolved. `B48` is the only one open. `B19`, `B24` and `B47` are
+closed and kept in full above — the first two because a re-vendored `default`
+would bring both back, and `B47` because the prediction it got wrong is the
 reusable part.
 
 ### B47 · low · resolved, `L1` passes — the sunrise texture is still drawn, so part of the sun shows
