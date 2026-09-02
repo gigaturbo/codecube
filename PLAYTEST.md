@@ -234,18 +234,43 @@ Result: pass, with two things it turned up — `7f649d8` · engine 5.17.0 ·
 
 ### R2 · The inventory is empty and no item ever drops
 
-Open the inventory. Then, with digging somehow permitted or in a world where a
-node is destroyed another way, check that nothing appears as a dropped item.
+Two halves, and only the first can be checked by playing normally. Open the
+inventory: it should be blank.
 
-**Pass:** the inventory formspec is blank, and no item entity ever exists in the
-world. `handle_node_drops` is replaced with one that passes an empty drop list to
-whatever it captured, so nothing is ever handed out. (`A8`)
+**The drop half is not reachable from inside a running game, and that is the
+point of it.** Checked against the 5.17.0 reference on 2026-09-02:
 
-Result: pass, but the check is too narrow — `7f649d8` · engine 5.17.0 ·
-2026-09-01 — the inventory key opens nothing and no item entity was seen. What
-this does **not** establish is that no inventory is reachable: `R1` found that a
-bookshelf's own formspec shows the player's `main` list (`S8`). Read this pass as
-"the inventory formspec is blank", not "the player has no inventory".
+- No built-in chat command digs a node. `/give` and `/giveme` put an item in an
+  inventory, which is a different path; nothing exposes `core.dig_node` to chat.
+- **Privileges do not help.** `diggable = false` is a node property, not a
+  permission — the reference says *"if false, can never be dug"* — so `node_dig`
+  refuses before drops are ever computed, however privileged the player.
+- **The drone does not reach it either.** `codeblock` writes the map with
+  `set_node` and `VoxelManip` (`lib/commands.lua`, `lib/shapes.lua`), neither of
+  which computes drops. So `R4` does not exercise this.
+
+So `handle_node_drops` is unreachable while `diggable = false` holds on every
+node — it is the fallback for the one gap `R1` names: **the override pass runs at
+`on_mods_loaded` over `registered_nodes`, so a node registered later is not
+covered**, and then the drop guard is all that is left.
+
+**To check it, reproduce that gap.** Comment out the `diggable = false` line in
+`mods/cc_security/init.lua`'s `override_item` call, restart the server, and dig a
+node by hand. Revert the line afterwards. This is not cheating the check: an
+uncovered node is exactly the situation the guard exists for, and it is the only
+way to put the real `handle_node_drops` on a real dig.
+
+**Pass:** the inventory formspec is blank; digging with the line commented out
+removes the node and **no item appears** — none on the ground, none in the
+inventory. `handle_node_drops` passes an empty list to whatever it captured, so
+nothing is ever handed out. (`A8`)
+
+Result: pass on the inventory half only — `7f649d8` · engine 5.17.0 · 2026-09-01
+— the inventory key opens nothing and no item entity was seen. **The drop half
+was never exercised**: nothing was dug, because nothing could be. Two things this
+does not establish. That no inventory is reachable — `R1` found a bookshelf's own
+formspec shows the player's `main` list (`S8`). And that `handle_node_drops`
+hands out nothing — that needs the method above, and is what `R5` now turns on.
 
 ### R3 · No knockback
 
@@ -263,6 +288,10 @@ Run `stairs.lua`. Then run a program that places, and one that removes, blocks.
 of the node for a *player's* tool; the drone writes the map directly and must be
 unaffected. This is the check that a restriction has not been made so broad it
 disables the point of the game.
+
+Result: pass — `6f2409e` · engine 5.17.0 · 2026-09-02 — re-run after `A8` changed
+`cc_security`. The drone still places and removes normally, so chaining the drop
+handler and declaring `last_mod` have not narrowed the game.
 
 Result: pass — `c042364` · engine 5.17.0 · 2026-09-01 — the drone places and
 removes normally with every node undiggable, and still does with the `S8` guard
@@ -292,6 +321,10 @@ bookshelf's formspec shows `list[current_player;main]`, so it is a way into the
 player's own inventory even when nothing can be moved into the bookshelf itself.
 Drag a drone tool from the hotbar into one of the rows below it. Nothing should
 move. That is the half the first fix missed.
+
+Result: pass — `6f2409e` · engine 5.17.0 · 2026-09-02 — re-run after `A8` changed
+`cc_security`. Both halves still hold: the bookshelf takes nothing and no drone
+tool leaves the hotbar through the panel.
 
 Result: pass — `c042364` · engine 5.17.0 · 2026-09-01 — both halves. The
 bookshelf takes nothing, and a drone tool can no longer be dragged out of the
@@ -354,7 +387,10 @@ should behave exactly like the old. What is worth confirming is that it does:
 been run, and a `nil` there would error on the one path that is meant to be
 silent.
 
-Re-run `R2` and `R3` on current code. No second mod, nothing to install.
+Re-run `R3`, and run `R2` **by its drop method** — comment out `diggable = false`
+in `mods/cc_security/init.lua`, restart, dig a node by hand, revert the line.
+That is the only way to put a real dig through the chain; no second mod, nothing
+to install. Without it R5 proves nothing that `R3` does not already prove.
 
 **Pass:** both still pass. No item entity ever appears, and nothing pushes you.
 
