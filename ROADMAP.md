@@ -33,10 +33,11 @@ workflows are green on that pair of commits, and **the next step for the project
 as a whole is on the mod side** — Phase 7, the drone seam (A11). This file does
 not compete with that.
 
-The game's own next step is **what is left of G4**, three small items: `A7`'s
-duplicate of a block `codeblock` already runs, `A8`'s two engine callbacks
-assigned over rather than chained, and `B48`'s cosmetic wool crack. `A7` and `A8`
-are also what unblock `PLAYTEST.md`'s `L3` and `R5`.
+The game's own next step is **`A8`** — the only one of G4's three that is written
+here. `A7`'s edit turned out to be upstream: `codeblock` removes the duplicate,
+`cc_day` is the copy that survives, and this repository's half is adopting the
+release and running `L3`. `B48`'s wool crack is cosmetic. `A8` is also what
+unblocks `PLAYTEST.md`'s `R5`.
 
 **G3 turned out smaller than it looked.** Scoping the trim produced `B49` and
 then deferred `A13` itself: `codeblock` is expected to take the blocks it needs,
@@ -62,9 +63,9 @@ drone tool *out* of the hotbar through the same panel, into a row they cannot
 reopen. Marking R6 pass on the strength of that fix would have shipped it. A fix
 is not evidence; the check is, and it costs minutes.
 
-What is still unproven: `L3` and `R5`, gated on A7 and A8, then `P3`–`P5` and the
-boot half of `P1`. The game still has no test suite, nothing automated reaches
-its behaviour, and nothing here will.
+What is still unproven: `L3` and `R5`, gated on A7 (whose edit is upstream) and
+A8, then `P3`–`P5` and the boot half of `P1`. The game still has no test suite,
+nothing automated reaches its behaviour, and nothing here will.
 
 ## Milestones
 
@@ -143,8 +144,10 @@ it is blocking.
   way, a tool dragged out of the hotbar into a row the player cannot reopen. The
   player may now move nothing at all, and `R6` and `R4` both pass on it. (S8)
 - Drop `cc_day`'s duplicate of a block `codeblock` already runs, marked
-  "TEMP fix". Purely untidiness after all: `L1` passes with the duplicate still
-  in place, so it was never blocking B47. (A7)
+  "TEMP fix". **The edit is upstream** — `codeblock` removes it, `cc_day` is the
+  copy that survives, and nothing in this repository changes; the game's half is
+  adopting the release and running `L3`. Purely untidiness in any case: `L1`
+  passes with the duplicate still in place, so it was never blocking B47. (A7)
 - Stop `cc_security` clobbering two engine callbacks by direct assignment;
   capture and chain instead. (A8)
 - Stop wool cracking under a punch it will not break — the client predicts the
@@ -236,4 +239,4 @@ The game was played for the first time on 2026-09-01, over three rounds — that
 where `B47`, `B48` and `S8` came from, and what closed two of them. `B49` came
 the day after, from reading `default` while scoping G3, and `R7` confirmed its
 fix in a world the same day. Everything through `35fa2a1` is at `origin/main`
-and `d16f9bb` is not pushed; CI has not been read from here.
+and `d16f9bb` and `377d1f9` are not pushed; CI has not been read from here.

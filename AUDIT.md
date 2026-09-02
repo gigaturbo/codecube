@@ -37,7 +37,8 @@ finding is critical or high: three medium (`A7`, `A8`, `A13`) and three low
 (`B19`, `B24`, `B48`). `A13` is **deferred rather than pending** — the trim it
 describes is waiting on a decision in `codeblock`, not on work here — and it
 carries `B19` and `B24` with it, so three of the six open findings are one
-deferred item. `A7` and `A8` are a few lines each.
+deferred item. `A8` is a few lines; `A7` is written upstream in `codeblock` and
+closes here at adoption.
 
 **`B49` is resolved and confirmed.** Its fix rests on undocumented behaviour —
 replacing an ABM's `action`, because Luanti cannot unregister one — so `R7` was
@@ -63,7 +64,7 @@ from the code. **A fix is not evidence** — the check is, and it costs minutes.
 | B bugs | 6 | `B19`, `B24` (both with `A13`), `B48` — `B49` resolved, `R7` passes |
 | S sandbox and security | 1 | — `S8` resolved, `R6` passes |
 | C compliance and packaging | 6 | — |
-| A architecture and performance | 4 | `A7`, `A8`, `A13` (deferred) |
+| A architecture and performance | 4 | `A7` (upstream), `A8`, `A13` (deferred) |
 
 The game is current with `codeblock` `2647228`, adopted at `33bdae8`; both are at
 `origin` and both CI workflows were green on those exact shas. `C15` was open as
@@ -122,19 +123,34 @@ coupling this project avoids everywhere else. The saving is size and boot noise,
 not behaviour, so nothing a player meets is waiting on it. See `ROADMAP.md` under
 *deliberately not doing* for what would change that.
 
-### A7 · medium · open — `cc_day` duplicates a block `codeblock` already runs, marked "TEMP fix"
+### A7 · medium · open, and the edit is upstream — `cc_day` duplicates a block `codeblock` already runs, marked "TEMP fix"
 
-`mods/cc_day/init.lua` · `codeblock lib/register.lua`
+`mods/cc_day/init.lua` · `codeblock lib/register.lua:178`
 
-Both register an `on_joinplayer` calling the same five sky methods with identical
-arguments; the copy inside `codeblock` is annotated `-- TODO: TEMP fix`. Sky
-presentation is the game's job, not the programming mod's — and removing it also
-stops `codeblock` imposing permanent daylight on any other game that installs it.
+Both register an `on_joinplayer` calling the same five sky methods; the copy
+inside `codeblock` is annotated `-- TODO: TEMP fix`. Sky presentation is the
+game's job, not the programming mod's — and removing it also stops `codeblock`
+imposing permanent daylight on any other game that installs it.
 
 **Routed here, and it is the one genuinely two-sided item.** The duplicate to
 delete is in `codeblock`, but the decision and the behaviour that must survive it
 are the game's: `cc_day` is what should own permanent noon. Kept in this audit as
 one finding rather than split in two; the mod's roadmap does not list it.
+
+**Nothing is written in this repository for it.** `codeblock` removes the block
+upstream, so `cc_day` is already what this side should look like — it is the copy
+that survives, and no `cc_*` file changes. The game's half is adopting the release
+that carries the removal and then running `L3`, which is why this finding stays
+open here after the upstream edit lands and closes only at adoption.
+
+**Corrected 2026-09-02: "identical arguments" above was wrong.** `codeblock` calls
+a bare `set_sun{visible = false}`; `cc_day` calls
+`set_sun{visible = false, sunrise_visible = false}` — the `B47` fix. The
+difference does not make the removal urgent, and `B47`'s **Keep** is where that is
+settled: `L1` passes with the duplicate still in place, and removing a call cannot
+reintroduce the texture whichever way `set_sun` treats an omitted field. Recorded
+here only so the next reader does not re-derive it from the claim that the two
+calls match.
 
 ### A8 · medium · open — `cc_security` clobbers two engine callbacks by direct assignment
 
@@ -143,8 +159,14 @@ one finding rather than split in two; the mod's roadmap does not list it.
 `function minetest.handle_node_drops() end` and
 `function minetest.calculate_knockback() return 0 end` overwrite the globals
 outright, discarding whatever another mod installed and being discarded in turn
-by any later mod that does the same. Capture and chain, and declare load order
-with `last_mod` so the outcome is deterministic rather than alphabetical.
+by any later mod that does the same. Capture and chain, and declare load order so
+the outcome is deterministic rather than alphabetical.
+
+**`last_mod` is a `game.conf` key, not a `mod.conf` one** — checked against the
+5.17.0 reference on 2026-09-02, where `mod.conf` has only `depends` and
+`optional_depends`. So the declaration goes in this game's `game.conf`, which sets
+none today, and **only one mod can be last**: spending it on `cc_security` is a
+choice about the whole game, not a line in a mod.
 
 Separately: the mod overrides **every registered node** at `on_mods_loaded` to
 set `diggable = false` — a large table walk to express one rule.
@@ -587,13 +609,17 @@ several revisions while its prose was already correct.
 
 ---
 
-Revised 2026-09-02 twice: while scoping G3, which produced `B49` and deferred
-`A13`; and again at `d16f9bb`, when `R7` confirmed the `B49` fix in a world.
+Revised 2026-09-02 three times: while scoping G3, which produced `B49` and
+deferred `A13`; at `377d1f9`, when `R7` confirmed the `B49` fix in a world; and
+again when `A7` was routed upstream — the duplicate is removed in `codeblock`, so
+nothing is written here and the finding closes at adoption. The same pass
+corrected `A7`'s "identical arguments" and `A8`'s `last_mod`, which is a
+`game.conf` key and not a `mod.conf` one.
 Before that, 2026-09-01, five times in one day: at `8b27f2f` for the packaging checks;
 at `7f649d8` for the first playtest; again for the `B47` and `S8` fixes it
 produced; again after re-running `L1` and `R6` against those fixes, which closed
 `B47` and reopened `S8`; and again at `c042364`, when `R6` and `R4` closed `S8`
-for good. Describes codecube `d16f9bb` (main) and codeblock
+for good. Describes codecube `377d1f9` (main) and codeblock
 `2647228` (master), the release commit this game has adopted. `S8`, `B47`, `B48`
 and `B49` are the new findings; ids were allocated against the mod's audit in the
 sibling checkout, which stands at `B46`, `S7`, `A16`, `C19` and `F8` — the game's

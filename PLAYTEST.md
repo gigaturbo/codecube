@@ -175,14 +175,21 @@ The second-player half was not exercised: singleplayer only.
 
 ### L3 · Permanent noon still holds once the duplicate is removed [A7]
 
-**Run this only after `A7` is fixed.** `codeblock` currently registers its own
-`on_joinplayer` calling the same five methods with the same arguments, annotated
-`-- TODO: TEMP fix`. `A7` removes that copy, leaving `cc_day` as the only thing
-setting the sky.
+**Run this only once the game has adopted a `codeblock` release with the block
+removed** — the edit is upstream, not here, so nothing in this repository will
+show that it has landed. `codeblock` currently registers its own `on_joinplayer`
+calling the same five methods, annotated `-- TODO: TEMP fix`. `A7` removes that
+copy, leaving `cc_day` as the only thing setting the sky.
 
 **Pass:** L1 and L2 both still pass with the mod's copy gone. This is the check
 that says which of the two was doing the work, and until it runs, `cc_day` being
 sufficient on its own is an assumption.
+
+**Look at dawn and dusk in particular.** The two copies were never identical:
+`codeblock`'s is a bare `set_sun{visible = false}` and `cc_day`'s adds
+`sunrise_visible = false`. `L1` already passes with both in place, so this is not
+expected to regress — it is the one field that distinguishes them, and the one
+worth confirming by eye.
 
 Result: unchecked
 
