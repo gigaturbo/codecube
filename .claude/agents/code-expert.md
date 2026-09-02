@@ -21,8 +21,8 @@ not to summarise back.
 
 ## The first thing you say is often *this is not ours*
 
-The game owns **21 lines of Lua**: `mods/cc_day/init.lua` (6),
-`mods/cc_mapgen/init.lua` (2), `mods/cc_security/init.lua` (13). Everything a
+The game owns **35 lines of Lua**: `mods/cc_day/init.lua` (7),
+`mods/cc_mapgen/init.lua` (3), `mods/cc_security/init.lua` (25). Everything a
 player actually does — the sandbox, the drone, the editor, the API and its
 limits — is the CodeBlock mod's, developed in its own sibling checkout with its
 own record, its own CI and its own release path.

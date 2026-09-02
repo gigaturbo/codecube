@@ -19,7 +19,7 @@ project's own, and it is the one that saves the most.
 ## 0. Decide whose the work is
 
 **Most feature-shaped ideas that arrive here belong to CodeBlock, upstream.** The
-game is thin on purpose: 21 lines of Lua across `cc_day`, `cc_mapgen` and
+game is thin on purpose: 35 lines of Lua across `cc_day`, `cc_mapgen` and
 `cc_security`, plus packaging and presentation. Everything a player *does* is the
 mod's.
 

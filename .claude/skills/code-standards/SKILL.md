@@ -1,6 +1,6 @@
 ---
 name: code-standards
-description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is 21 lines of Lua across three mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
+description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is 35 lines of Lua across three mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
 when_to_use: Before editing mods/cc_day, mods/cc_mapgen, mods/cc_security, scripts/, game.conf, minetest.conf, .luacheckrc or .gitattributes; when auditing the game's own code; when deciding whether a change belongs to the game or to the mod; and whenever you are about to state that an engine function exists or behaves in a particular way.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 ---
@@ -17,13 +17,15 @@ behaviours that have already cost findings.
 
 ## The first question is always *whose is this*
 
-The game owns **21 lines of Lua**, in three files:
+The game owns **35 lines of Lua**, in three files — counted as lines that are
+neither blank nor a comment, which is how the numbers below can be re-derived
+rather than trusted:
 
 | Mod | Lines | What it does |
 |---|---|---|
-| `cc_day` | 6 | Holds the world at noon, no sky objects |
-| `cc_mapgen` | 2 | Sets `mg_flags` so a new world is flat and clean |
-| `cc_security` | 13 | Nothing diggable, no drops, no knockback, no inventory form |
+| `cc_day` | 7 | Holds the world at noon, no sky objects |
+| `cc_mapgen` | 3 | Sets `mg_flags` so a new world is flat and clean |
+| `cc_security` | 25 | Nothing diggable, no drops, no knockback, no inventory form, nothing growing or spreading |
 
 Everything a player *does* — the sandbox, the drone, the editor, the API and its
 limits — is CodeBlock's, upstream, in its own repository. So a feature-shaped
@@ -49,22 +51,28 @@ load-bearing.
 Five questions for any change to it, or to `minetest.conf` and `game.conf`:
 
 1. **Can a player dig, place or drop a node without the drone?** The three
-   guards are the `diggable = false` override on every registered node, an empty
-   `handle_node_drops`, and an empty inventory formspec. Removing any one is a
-   change to what the game *is*.
-2. **Does it override an engine function by assignment?** `cc_security` does
-   `function minetest.handle_node_drops() end`, which clobbers any other mod's
-   override and is clobbered in turn by whatever loads after it. That is
-   **finding `A8`**, `luacheck` code `122` is ignored for that file because of
-   it, and the fix is to capture the previous value and chain — a behaviour
-   change, not a lint fix.
+   guards are the `diggable = false` override on every registered node, a
+   `handle_node_drops` that hands out nothing, and an empty inventory formspec.
+   Removing any one is a change to what the game *is*.
+2. **Does it override an engine function by assignment?** `cc_security` replaces
+   `handle_node_drops` and `calculate_knockback`. Both are **finding `A8`**, and
+   `luacheck` code `122` is ignored for that file because of them. The callback
+   half is fixed: drops chain to the captured handler with an **empty list**, so
+   another mod's bookkeeping survives while nothing is handed out, and
+   `last_mod = cc_security` in `game.conf` is what stops a mod loading later
+   taking either rule away. Knockback is deliberately *not* chained — a pure
+   calculation whose result the game replaces outright. **`last_mod` is a
+   `game.conf` key, not a `mod.conf` one**, and only one mod can be last, so
+   spending it is a whole-game decision. None of this is verified: `R5` is what
+   would say the engine honours `last_mod` at all.
 3. **Does it depend on load order?** The node override runs in
    `register_on_mods_loaded` because it has to see every mod's registrations. A
    guard moved earlier silently covers fewer nodes, and nothing fails.
 4. **Does it grant a privilege?** `default_privs` in `minetest.conf` is
-   `interact, shout, fast, fly, noclip`. Every entry there is a decision about
-   what an unknown player on someone's server can do, and it is the author's,
-   not yours.
+   `interact, shout, fast` — `fly` and `noclip` were dropped on 2026-09-02, which
+   is why `PLAYTEST.md`'s `W3` tells you to teleport rather than fly. Every entry
+   there is a decision about what an unknown player on someone's server can do,
+   and it is the author's, not yours.
 5. **Does CodeBlock already do it?** `cc_day` duplicates a block the mod already
    runs (**finding `A7`**). Two mods setting the same thing is not twice as safe;
    it is one of them being wrong later and nobody noticing which.
@@ -97,7 +105,7 @@ get here.
 `default`, `dye` and `wool` come from Minetest Game and exist for their node
 definitions. They are excluded from `.luacheckrc` deliberately and are **not to
 be restyled, linted or refactored**. The one sanctioned change is **`A13`**:
-trimming `default` down to the nodes the game actually uses — 9,744 lines for 108
+trimming `default` down to the nodes the game actually uses — 9,744 lines for 106
 node definitions — and that is a *deletion* job. It closes `B19` and `B24` with
 it. Deleting a node the palette tables in the mod's config name would break the
 drone, so check the names before removing anything.

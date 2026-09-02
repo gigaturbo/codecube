@@ -89,8 +89,10 @@ and `R4` is what would catch that being too broad.
 
 ### W1 · A new world is flat and clean at spawn
 
-Create a new world with default settings and enter it. Look around, and fly a few
-hundred nodes in one direction.
+Create a new world with default settings and enter it. Look around, and move a
+few hundred nodes in one direction — `/teleport` rather than flight, since
+`default_privs` dropped `fly` on 2026-09-02. The pass below was recorded before
+that, by flying.
 
 **Pass:** flat ground to the horizon at one level. No trees, grass, flowers or
 any other decoration; no ore visible in the ground when a drone digs into it; no
