@@ -342,68 +342,32 @@ grass, the sapling stayed a sapling, and the server kept running. The `action`
 replacement takes effect, so the fallback of deleting the two ABMs from
 `mods/default/functions.lua` is not needed.
 
-### R5 · The two callbacks behave, and the load order is deterministic [A8]
+### R5 · The chained drop handler still hands out nothing [A8]
 
-**`A8` is fixed and this is what says whether the fix works.** `cc_security` now
-captures `minetest.handle_node_drops` and calls it with an **empty drop list**
-rather than replacing it outright, and `game.conf` declares
-`last_mod = cc_security` so nothing loads after it. `calculate_knockback` is still
-a plain replacement, deliberately: it is a pure calculation with no previous
-behaviour worth keeping.
+**A regression check, not a composition one.** `A8` replaced
+`function minetest.handle_node_drops() end` with a call to the handler it
+captured, given an empty drop list. **Nothing else in this game assigns either
+global** — `grep -rn "handle_node_drops\|calculate_knockback" mods/` finds only
+`cc_security` — so the captured value is the engine default and the new code
+should behave exactly like the old. What is worth confirming is that it does:
+`previous_drops` being non-nil is read from the 5.17.0 reference and has never
+been run, and a `nil` there would error on the one path that is meant to be
+silent.
 
-**Pass:** R2 and R3 both still pass, and they still pass with another mod
-installed that assigns the same two globals. A second mod is the only way to
-observe either half — that this mod no longer discards what another installed,
-and that another can no longer discard this one.
+Re-run `R2` and `R3` on current code. No second mod, nothing to install.
 
-**Write the second mod for the occasion, as a worldmod** — put it in
-`worlds/<world>/worldmods/zz_probe/`, not in this repository: `check_game.sh`
-requires every mod under `mods/` to declare itself and carry a licence, and a
-probe is not something to ship. `mod.conf` needs only `name = zz_probe`.
-Name it late in the alphabet **on purpose**: before the `last_mod` declaration
-that is what would have won.
+**Pass:** both still pass. No item entity ever appears, and nothing pushes you.
 
-```lua
-local previous = minetest.handle_node_drops
-function minetest.handle_node_drops(pos, drops, digger)
-    minetest.log("action", "probe: handed " .. #drops .. " drops")
-    return previous(pos, drops, digger)
-end
-
-function minetest.calculate_knockback() return 5 end
-
-minetest.register_chatcommand("probe", {
-    func = function(name)
-        local player = minetest.get_player_by_name(name)
-        minetest.handle_node_drops(player:get_pos(), {"default:stone"}, player)
-        return true, "called"
-    end
-})
-```
-
-The chat command exists because `handle_node_drops` is otherwise unreachable in
-this game: `diggable = false` means no player dig ever calls it, which is why
-`R2` had to be run "with digging somehow permitted or in a world where a node is
-destroyed another way". `/probe` calls it directly and settles the question in
-one line.
-
-**Three things to see:**
-
-1. `/probe` drops nothing. No `default:stone` entity appears — `cc_security`
-   passed an empty list on.
-2. R3 still passes: no knockback, though the probe asks for 5.
-3. The log says `probe: handed 0 drops`. Not `1`, which would mean `cc_security`
-   ran first and the probe overrode it; and not *absent*, which would mean
-   `cc_security` replaced the probe outright instead of chaining to it. **That
-   one line is the whole of the evidence for both halves**, and nothing else here
-   would notice its going missing.
-
-**If the probe wins instead** — an item drops, or you are knocked back —
-`last_mod` is not doing what the 5.17.0 reference says. It is a `game.conf` key,
-not a `mod.conf` one, and this game had never set one before, so this is the
-assumption most worth breaking early. The fallback is `depends` in
-`cc_security/mod.conf`, which orders it against named mods only and cannot order
-it against a mod nobody has heard of.
+**What this deliberately does not check, and why.** `A8`'s other half — that
+`last_mod = cc_security` makes this mod's assignment the one that survives —
+needs a second mod installed that assigns the same globals, and none ships here.
+Building one for the occasion would be testing a composition this game does not
+have. The scenario it defends is a server owner adding a worldmod to a Codecube
+server from ContentDB, and even then the game's promise is held by
+`diggable = false`: the drop handler matters only once something has already
+re-enabled digging, at which point the owner has deliberately changed the game.
+**Untested by choice, recorded so it does not read as an omission.** Decided by
+the author on 2026-09-02.
 
 Result: unchecked
 

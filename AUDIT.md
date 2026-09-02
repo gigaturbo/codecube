@@ -194,10 +194,25 @@ what the warning was really pointing at — the replacement being discarded by
 whatever loads next — is what `last_mod` fixes. The old rationale said the fix
 "belongs with that work"; that work is this.
 
-**Unverified, and `R5` is not a formality.** `last_mod` had never been set in this
-game, and nothing here proves the engine honours it — no gate reaches behaviour.
-`R5` now carries a worldmod probe written for the purpose, and its log line is the
-only thing that distinguishes a working chain from a silent replacement.
+**Nothing in this game competes for either global, so the fix is defensive.**
+`grep -rn "handle_node_drops\|calculate_knockback" mods/` finds only
+`cc_security` — not `default`, not `codeblock`, not `wool`. Both halves of the
+defect are therefore unobservable in the game as it ships: the captured handler
+is the engine default, and `last_mod` orders this mod against nothing. Behaviour
+today is identical to the two lines it replaced. The code is kept because it is
+cheap and correct if a mod is ever added, but **`last_mod` is not free** — only
+one mod in a game can be last, and this spends that slot.
+
+**What `R5` checks, and what it deliberately does not.** `R5` is now a
+regression check: re-run `R2` and `R3` on current code, because `previous_drops`
+being non-nil comes from the reference and has never been run. The composition
+half — that `last_mod` makes this mod's assignment the surviving one — needs a
+second mod that assigns the same globals, and building one would be testing a
+composition this game does not have. **Untested by choice**, decided by the
+author on 2026-09-02, and recorded here so it does not later read as an
+oversight. The scenario it defends is a server owner adding a worldmod to a
+Codecube server, and even then `diggable = false` is what holds the promise: the
+drop handler matters only after something has re-enabled digging.
 
 **The other half of this finding is untouched, and is why it stays open.** The
 mod overrides **every registered node** at `on_mods_loaded` to set
@@ -650,7 +665,9 @@ when `A7` was routed upstream — the duplicate is removed in `codeblock`, so
 nothing is written here and the finding closes at adoption, and the same pass
 corrected `A7`'s "identical arguments" and `A8`'s `last_mod`, which is a
 `game.conf` key and not a `mod.conf` one; and again at `6f7d118`, when `A8`'s
-callback half was fixed and `R5` rewritten around a worldmod probe.
+callback half was fixed, and once more when `R5` was cut back to a regression
+check — nothing in the game competes for those globals, so the composition half
+is untested by the author's decision.
 Before that, 2026-09-01, five times in one day: at `8b27f2f` for the packaging checks;
 at `7f649d8` for the first playtest; again for the `B47` and `S8` fixes it
 produced; again after re-running `L1` and `R6` against those fixes, which closed

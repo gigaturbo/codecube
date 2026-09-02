@@ -33,12 +33,13 @@ workflows are green on that pair of commits, and **the next step for the project
 as a whole is on the mod side** — Phase 7, the drone seam (A11). This file does
 not compete with that.
 
-The game's own next step is **`R5` in a world** — `A8`'s callback half is written
-and nothing here proves it works, because `last_mod` had never been set in this
-game and no gate reaches behaviour. `R5` carries the worldmod probe to run it
-with. After that, `B48`'s wool crack is cosmetic and `A7`'s edit is upstream:
-`codeblock` removes the duplicate, `cc_day` is the copy that survives, and this
-repository's half is adopting the release and running `L3`.
+The game's own next step is **`R5`**, which is two minutes: re-run `R2` and `R3`
+on current code. `A8`'s chain should behave exactly like the two lines it
+replaced — nothing else in the game assigns either global — and what has never
+been run is the chain call itself. After that, `B48`'s wool crack is cosmetic and
+`A7`'s edit is upstream: `codeblock` removes the duplicate, `cc_day` is the copy
+that survives, and this repository's half is adopting the release and running
+`L3`.
 
 **G3 turned out smaller than it looked.** Scoping the trim produced `B49` and
 then deferred `A13` itself: `codeblock` is expected to take the blocks it needs,
@@ -64,10 +65,10 @@ drone tool *out* of the hotbar through the same panel, into a row they cannot
 reopen. Marking R6 pass on the strength of that fix would have shipped it. A fix
 is not evidence; the check is, and it costs minutes.
 
-What is still unproven: `R5`, which is what `A8`'s fix now waits on, and `L3`,
-gated on `A7` landing upstream; then `P3`–`P5` and the boot half of `P1`. The
-game still has no test suite, nothing automated reaches its behaviour, and
-nothing here will.
+What is still unproven: `R5`, a two-minute regression re-run of `R2` and `R3`
+against `A8`'s chain, and `L3`, gated on `A7` landing upstream; then `P3`–`P5`
+and the boot half of `P1`. The game still has no test suite, nothing automated
+reaches its behaviour, and nothing here will.
 
 ## Milestones
 
@@ -156,9 +157,11 @@ large, and none of it is blocking.
   mod's bookkeeping survives while nothing is handed out; knockback stays a plain
   `return 0`, because it is a pure calculation with no previous behaviour worth
   keeping. `last_mod = cc_security` in `game.conf` is what stops a later mod
-  taking either away. **Unverified** — `R5` decides it, and `last_mod` had never
-  been set in this game. The finding stays open for its other half, the
-  every-node table walk. (A8)
+  taking either away. **Both are defensive** — nothing in the game competes for
+  either global, so behaviour is unchanged from the two lines they replaced. `R5`
+  re-runs `R2` and `R3` to confirm that; the load-order half is untested by
+  choice. The finding stays open for its other half, the every-node table walk.
+  (A8)
 - Stop wool cracking under a punch it will not break — the client predicts the
   dig from the node's groups and the server then refuses. Cosmetic. (B48)
 
@@ -193,11 +196,12 @@ findings: nothing here is defective, it has not happened yet.
   it, but the panel is there: the formspec is metadata on the placed node, not a
   field `cc_security` can override away. (S8)
 - Wool cracks under a punch that will not break it. (B48)
-- **Unverified: that `last_mod` is honoured at all.** `A8`'s fix rests on
-  `game.conf`'s `last_mod = cc_security`, which this game had never set before,
-  and no gate here reaches behaviour. If the engine ignores it, a mod loading
-  after `cc_security` takes the no-drops and no-knockback rules away with nothing
-  failing. `R5` is what would catch it. (A8)
+- **Untested by choice: that `last_mod` is honoured at all.** `A8`'s load-order
+  half rests on `game.conf`'s `last_mod = cc_security`, and nothing here proves
+  the engine reads it. Confirming it needs a second mod assigning the same
+  globals, and none ships — so the author decided on 2026-09-02 not to build one.
+  It defends a server owner adding a worldmod, and even then `diggable = false`
+  is what holds the promise. Recorded so it does not read as an oversight. (A8)
 - The game still has no test suite, and nothing automated reaches its behaviour.
   What is proven is what `PLAYTEST.md` records as run — thirteen of eighteen
   checks, twelve of them passing — and no more.

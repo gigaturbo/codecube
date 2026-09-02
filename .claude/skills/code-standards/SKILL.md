@@ -63,8 +63,12 @@ Five questions for any change to it, or to `minetest.conf` and `game.conf`:
    taking either rule away. Knockback is deliberately *not* chained — a pure
    calculation whose result the game replaces outright. **`last_mod` is a
    `game.conf` key, not a `mod.conf` one**, and only one mod can be last, so
-   spending it is a whole-game decision. None of this is verified: `R5` is what
-   would say the engine honours `last_mod` at all.
+   spending it is a whole-game decision — already spent, on this.
+   **Nothing in the game competes for either global**, so both are defensive and
+   behave exactly like the two lines they replaced; the author decided on
+   2026-09-02 not to build a second mod to prove the load order, and `R5` checks
+   only that the chain did not break `R2` and `R3`. Do not re-argue that without
+   reading `A8` first.
 3. **Does it depend on load order?** The node override runs in
    `register_on_mods_loaded` because it has to see every mod's registrations. A
    guard moved earlier silently covers fewer nodes, and nothing fails.
