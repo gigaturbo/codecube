@@ -39,9 +39,10 @@ describes is waiting on a decision in `codeblock`, not on work here — and it
 carries `B19` and `B24` with it, so three of the six open findings are one
 deferred item. `A7` and `A8` are a few lines each.
 
-**`B49` is resolved and unverified**, which is the state to watch: its fix rests
-on undocumented behaviour and `R7` is what decides whether it works. `S8` and
-`B47` were fixed and confirmed in a world on 2026-09-01, by `R6` and `L1`.
+**`B49` is resolved and confirmed.** Its fix rests on undocumented behaviour —
+replacing an ABM's `action`, because Luanti cannot unregister one — so `R7` was
+the only thing that could say whether it works, and it passed on 2026-09-02.
+`S8` and `B47` were fixed and confirmed the day before, by `R6` and `L1`.
 
 **Three of the seventeen arrived that same day, from the first hours anyone has
 spent playing this game against `PLAYTEST.md`** — `B47`, `B48` and `S8`. None was
@@ -59,7 +60,7 @@ from the code. **A fix is not evidence** — the check is, and it costs minutes.
 
 | Category | Count | Open |
 |---|---|---|
-| B bugs | 6 | `B19`, `B24` (both with `A13`), `B48` — `B49` resolved, `R7` pending |
+| B bugs | 6 | `B19`, `B24` (both with `A13`), `B48` — `B49` resolved, `R7` passes |
 | S sandbox and security | 1 | — `S8` resolved, `R6` passes |
 | C compliance and packaging | 6 | — |
 | A architecture and performance | 4 | `A7`, `A8`, `A13` (deferred) |
@@ -73,10 +74,10 @@ defect.
 
 ## Findings in full
 
-The six open findings, plus `B49`, whose fix no world has confirmed. A finding
-leaves this section once a `PLAYTEST.md` check has passed on it — which is where
-`S8` and `B47` went on 2026-09-01, both still in full under `S` and `B`
-respectively, because their reasoning is load-bearing.
+The six open findings, plus the closed ones whose reasoning is load-bearing
+enough to be undone by accident. A finding stops being pending once a
+`PLAYTEST.md` check has passed on it — `S8` and `B47` on 2026-09-01, `B49` on
+2026-09-02 — and each stays here in full for that reason.
 
 ### A13 · medium · open, deferred — `default` is 9,744 lines to supply 106 node definitions, and the rest still runs
 
@@ -148,7 +149,7 @@ with `last_mod` so the outcome is deterministic rather than alphabetical.
 Separately: the mod overrides **every registered node** at `on_mods_loaded` to
 set `diggable = false` — a large table walk to express one rule.
 
-### B49 · medium · resolved, unverified in a world — the world rewrites what a program built
+### B49 · medium · resolved, `R7` passes — the world rewrites what a program built
 
 `mods/default/functions.lua` · `mods/cc_security/init.lua`
 
@@ -190,11 +191,14 @@ and every ABM's `action` is replaced with a no-op. Two things about the shape:
   it would leave those registrations pointing at nothing. Replacing each `action`
   keeps the shape.
 
-**Unverified, and the mechanism is the reason.** Neutralising an ABM by mutating
-its `action` is not documented behaviour, so `PLAYTEST.md` `R7` is not a formality
-here: it is the only thing that can say whether the fix works at all. If it fails,
-the fallback is deleting the two ABMs from `functions.lua` — a vendored edit,
-which is why it was not the first choice.
+**Keep — the fix rests on undocumented behaviour, and only a world could say so.**
+Neutralising an ABM by mutating its `action` is not documented; `PLAYTEST.md`
+`R7` was therefore not a formality but the only thing that could confirm the fix
+at all, and it passed on 2026-09-02 — a built `dirt` patch, a roofed
+`dirt_with_grass` floor and a sapling all unchanged after five minutes, with the
+server still running. The fallback, had it failed, was deleting the two ABMs from
+`functions.lua` — a vendored edit, which is why it was not the first choice. Undo
+either half of this and nothing here fails a gate; only `R7` would catch it.
 
 ### B48 · low · open — wool plays the dig animation before the server refuses
 
@@ -583,12 +587,13 @@ several revisions while its prose was already correct.
 
 ---
 
-Revised 2026-09-02 while scoping G3, which produced `B49` and deferred `A13`.
+Revised 2026-09-02 twice: while scoping G3, which produced `B49` and deferred
+`A13`; and again at `d16f9bb`, when `R7` confirmed the `B49` fix in a world.
 Before that, 2026-09-01, five times in one day: at `8b27f2f` for the packaging checks;
 at `7f649d8` for the first playtest; again for the `B47` and `S8` fixes it
 produced; again after re-running `L1` and `R6` against those fixes, which closed
 `B47` and reopened `S8`; and again at `c042364`, when `R6` and `R4` closed `S8`
-for good. Describes codecube `c042364` plus the `B49` fix, and codeblock
+for good. Describes codecube `d16f9bb` (main) and codeblock
 `2647228` (master), the release commit this game has adopted. `S8`, `B47`, `B48`
 and `B49` are the new findings; ids were allocated against the mod's audit in the
 sibling checkout, which stands at `B46`, `S7`, `A16`, `C19` and `F8` — the game's

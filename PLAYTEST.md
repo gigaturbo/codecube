@@ -41,12 +41,12 @@ Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
 
 ## Where it stands
 
-**The game's behaviour has been checked in a world on 2026-09-01, over three
-rounds.** Twelve of the eighteen have been run and eleven pass: `W1`–`W3`, `L1`,
-`L2`, `R1`–`R4`, `R6` and `P2`. `P1` is partial — its clone half only. `L3` and
-`R5` are gated on `A7` and `A8` and cannot run yet; `R7` is new and is the one
-that decides whether `B49`'s fix works at all; `P3`, `P4` and `P5` are
-simply not done, and `P5` needs a release first.
+**The game's behaviour has been checked in a world on 2026-09-01 over three
+rounds, and again on 2026-09-02.** Thirteen of the eighteen have been run and
+twelve pass: `W1`–`W3`, `L1`, `L2`, `R1`–`R4`, `R6`, `R7` and `P2`. `P1` is
+partial — its clone half only. `L3` and `R5` are gated on `A7` and `A8` and
+cannot run yet; `P3`, `P4` and `P5` are simply not done, and `P5` needs a
+release first.
 
 **Every restriction that was checked on 2026-09-01 is evidence rather than
 reading.** Nothing is diggable, no item drops, there is no knockback, no
@@ -55,9 +55,11 @@ inventory is reachable, and the drone still builds through all of it.
 unemerged map, and in a world created with other flags. `cc_day` holds the light
 and the sky at every hour.
 
-**`R7` is the exception, and it is a big one.** The game now also claims the
-world never changes on its own, and nothing has confirmed it — the fix behind it
-rests on undocumented behaviour, so `R7` is what decides whether it works.
+**`R7` is the one that earned the most.** The game also claims the world never
+changes on its own, and the fix behind that claim rests on undocumented
+behaviour — replacing an ABM's `action`, because Luanti cannot unregister one.
+Nothing but `R7` could say whether it works, and on 2026-09-02 it did: nothing
+moved in five minutes.
 
 **Three findings came out of those rounds** — `B47`, `B48` and `S8` — none of
 them visible from reading the three `cc_*` files, which are 21 lines between
@@ -67,8 +69,8 @@ them. Two are closed and re-checked; `B48` is cosmetic and open.
 reading `mods/default` while scoping `A13`, not by playing — three rounds in a
 world walked past dirt spreading grass and a roofed grass floor reverting,
 because nobody had thought to wait five minutes and look again. Playing finds
-what reading misses; this one went the other way, and `R7` exists so it does not
-have to go a third way.
+what reading misses; this one went the other way, and `R7` put it back in front
+of a world.
 
 **`R6` is the case for re-running a check against its own fix.** The first `S8`
 fix stopped items going into the bookshelf and left the real hazard standing: the
@@ -322,7 +324,11 @@ not take effect and the fallback is deleting the two ABMs from
 returns `false`, and **`0` is truthy in Lua 5.1** — had it returned `0`, every
 node timer in the world would restart forever instead of stopping.
 
-Result: unchecked
+Result: pass — `d16f9bb` · engine 5.17.0 · 2026-09-02 — nothing changed after
+five minutes: the `dirt` stayed `dirt`, the roofed `dirt_with_grass` stayed
+grass, the sapling stayed a sapling, and the server kept running. The `action`
+replacement takes effect, so the fallback of deleting the two ABMs from
+`mods/default/functions.lua` is not needed.
 
 ### R5 · The two callbacks behave, and the load order is deterministic [A8]
 

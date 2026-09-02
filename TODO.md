@@ -15,7 +15,7 @@ renumbered; milestones here are lettered G1-G5, not the mod's phase numbers.
 - [x] keep the release archive to what a player needs - no .claude/, .reports/ or art sources (audit C15)
 - [x] write the ContentDB page for its own reader instead of shipping README.md as it (audit C20)
 - [x] run the W, L and R groups of PLAYTEST.md once - found B47, B48 and S8
-- [x] stop the world changing on its own - ABMs rewriting builds, saplings growing (audit B49) - R7 unverified
+- [x] stop the world changing on its own - ABMs rewriting builds, saplings growing (audit B49) - R7 passes
 - [~] trim vendored default down to the nodes the game actually uses (audit A13) - deferred, codeblock will take the blocks
 - [x] cc_day: hide the sunrise texture, not only the sun (audit B47) - L1 passes
 - [x] cc_security: deny every node inventory and every player inventory move, closing the bookshelf hole (audit S8) - fixed twice, R6 and R4 pass

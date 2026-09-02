@@ -33,22 +33,22 @@ workflows are green on that pair of commits, and **the next step for the project
 as a whole is on the mod side** — Phase 7, the drone seam (A11). This file does
 not compete with that.
 
-The game's own next step is **one check in a world**: `R7`, against the `B49` fix
-just committed. The fix stops the world changing on its own, and the half of it
-that neutralises `default`'s ABMs rests on undocumented behaviour — so `R7` is
-not a formality, it is what says whether the fix works at all.
+The game's own next step is **what is left of G4**, three small items: `A7`'s
+duplicate of a block `codeblock` already runs, `A8`'s two engine callbacks
+assigned over rather than chained, and `B48`'s cosmetic wool crack. `A7` and `A8`
+are also what unblock `PLAYTEST.md`'s `L3` and `R5`.
 
 **G3 turned out smaller than it looked.** Scoping the trim produced `B49` and
 then deferred `A13` itself: `codeblock` is expected to take the blocks it needs,
 at which point the vendored `default` is deleted rather than trimmed. The
 grounds are under *deliberately not doing*.
 
-**The game was played against `PLAYTEST.md` for the first time on 2026-09-01**,
-in three rounds. Eleven of the eighteen checks pass and one is partial. **Every
-restriction checked that day is evidence rather than reading**: nothing diggable,
+**The game was played against `PLAYTEST.md` on 2026-09-01 in three rounds, and
+again on 2026-09-02.** Twelve of the eighteen checks pass and one is partial.
+**Every restriction checked is evidence rather than reading**: nothing diggable,
 no drops, no knockback, no inventory reachable, and the drone building through
-all of it. `cc_mapgen` and `cc_day` are proven the same way. `R7`, added since,
-is the one claim still resting on reading.
+all of it. `cc_mapgen` and `cc_day` are proven the same way, and `R7` has now
+confirmed that the world does not change on its own either.
 
 **Two hours produced three findings** — B47, B48 and S8 — none of which was
 visible from reading the three `cc_*` files, 21 lines between them. Two are
@@ -62,9 +62,9 @@ drone tool *out* of the hotbar through the same panel, into a row they cannot
 reopen. Marking R6 pass on the strength of that fix would have shipped it. A fix
 is not evidence; the check is, and it costs minutes.
 
-What is still unproven: `R7` above all, then `L3` and `R5` gated on A7 and A8,
-`P3`–`P5` and the boot half of `P1`. The game still has no test suite, nothing
-automated reaches its behaviour, and nothing here will.
+What is still unproven: `L3` and `R5`, gated on A7 and A8, then `P3`–`P5` and the
+boot half of `P1`. The game still has no test suite, nothing automated reaches
+its behaviour, and nothing here will.
 
 ## Milestones
 
@@ -116,8 +116,8 @@ the case for the trim itself weaker rather than stronger.
   `spreading_dirt_type` reverts to plain `dirt` under an opaque roof — so roofing
   a grass floor destroys the grass. Ten saplings grow trees over what a program
   built. Fixed in `cc_security`, which is where the game's rules live, and
-  **unverified**: the ABM half rests on undocumented behaviour, so `R7` decides
-  it. (B49)
+  confirmed by `R7`: the ABM half rests on undocumented behaviour, so a world was
+  the only thing that could say it takes effect. (B49)
 - **Deferred: trimming vendored `default` itself.** (A13) The reasoning is under
   *deliberately not doing*, below. Nothing a player meets is waiting on it — the
   saving is size and boot noise, and `B19`'s five boot errors and `B24`'s two
@@ -181,14 +181,9 @@ findings: nothing here is defective, it has not happened yet.
   it, but the panel is there: the formspec is metadata on the placed node, not a
   field `cc_security` can override away. (S8)
 - Wool cracks under a punch that will not break it. (B48)
-- **Unverified: that the world no longer changes on its own.** The fix for B49 is
-  committed, and the half that neutralises `default`'s ABMs works by undocumented
-  means — until `R7` runs, whether it takes effect is unknown. If it does not,
-  dirt still spreads grass and a roofed grass floor still reverts to plain dirt,
-  destroying what a program placed.
 - The game still has no test suite, and nothing automated reaches its behaviour.
-  What is proven is what `PLAYTEST.md` records as run — twelve of eighteen checks
-  in three rounds on 2026-09-01, eleven of them passing — and no more.
+  What is proven is what `PLAYTEST.md` records as run — thirteen of eighteen
+  checks, twelve of them passing — and no more.
 - Everything in the mod's "what ships broken" list ships in the game too, since
   the game is how most players meet it.
 
@@ -235,10 +230,10 @@ findings: nothing here is defective, it has not happened yet.
 
 ---
 
-2026-09-02 · codecube `c042364` (main) plus the `B49` fix · codeblock `2647228`
+2026-09-02 · codecube `d16f9bb` (main) · codeblock `2647228`
 (master), the commit this game has adopted. `check_game.sh` and luacheck pass.
 The game was played for the first time on 2026-09-01, over three rounds — that is
 where `B47`, `B48` and `S8` came from, and what closed two of them. `B49` came
-the day after, from reading `default` while scoping G3, and is the one fix here
-that no world has confirmed. Everything through `35fa2a1` is at `origin/main`;
-CI has not been read from here.
+the day after, from reading `default` while scoping G3, and `R7` confirmed its
+fix in a world the same day. Everything through `35fa2a1` is at `origin/main`
+and `d16f9bb` is not pushed; CI has not been read from here.
