@@ -33,13 +33,14 @@ workflows are green on that pair of commits, and **the next step for the project
 as a whole is on the mod side** — Phase 7, the drone seam (A11). This file does
 not compete with that.
 
-The game's own next step is **`R5`**, which is two minutes: re-run `R2` and `R3`
-on current code. `A8`'s chain should behave exactly like the two lines it
-replaced — nothing else in the game assigns either global — and what has never
-been run is the chain call itself. After that, `B48`'s wool crack is cosmetic and
-`A7`'s edit is upstream: `codeblock` removes the duplicate, `cc_day` is the copy
-that survives, and this repository's half is adopting the release and running
-`L3`.
+The game's own next step is **`P3` and `P4`**, the two that nothing gates: `P3`
+reads a cold boot log, and on current code its pass is confirming *exactly* five
+`NodeResolver` errors and two `TileDef.image` warnings, anything else being a new
+finding; `P4` checks the main menu shows the game's name, artwork and icon. Fold
+in `P1`'s boot half and `R3`, which is the thirty seconds that closes `R5`. After
+that, `B48`'s wool crack is cosmetic and `A7`'s edit is upstream: `codeblock`
+removes the duplicate, `cc_day` is the copy that survives, and this repository's
+half is adopting the release and running `L3`.
 
 **G3 turned out smaller than it looked.** Scoping the trim produced `B49` and
 then deferred `A13` itself: `codeblock` is expected to take the blocks it needs,
@@ -65,10 +66,10 @@ drone tool *out* of the hotbar through the same panel, into a row they cannot
 reopen. Marking R6 pass on the strength of that fix would have shipped it. A fix
 is not evidence; the check is, and it costs minutes.
 
-What is still unproven: `R5`, a two-minute regression re-run of `R2` and `R3`
-against `A8`'s chain, and `L3`, gated on `A7` landing upstream; then `P3`–`P5`
-and the boot half of `P1`. The game still has no test suite, nothing automated
-reaches its behaviour, and nothing here will.
+What is still unproven: `R3` beside `R5`, thirty seconds and all that keeps `R5`
+partial, and `L3`, gated on `A7` landing upstream; then `P3`–`P5` and the boot
+half of `P1`. The game still has no test suite, nothing automated reaches its
+behaviour, and nothing here will.
 
 ## Milestones
 
@@ -134,9 +135,9 @@ within one.
 
 ### G4. Make the game's own mods behave — started (3/5)
 
-The first playtest, on 2026-09-01, added three of these five. Two are fixed and
-checked; `A8` is fixed and **unchecked**, which is a different thing and `R5` is
-what settles it. Between them they are what stands between the game's
+The first playtest, on 2026-09-01, added three of these five. All three are now
+fixed, and `A8`'s chain was confirmed in a world on 2026-09-02 by the first dig
+this project has run. Between them they are what stands between the game's
 restrictions as written and the restrictions as played. Nothing left here is
 large, and none of it is blocking.
 
@@ -157,11 +158,11 @@ large, and none of it is blocking.
   mod's bookkeeping survives while nothing is handed out; knockback stays a plain
   `return 0`, because it is a pure calculation with no previous behaviour worth
   keeping. `last_mod = cc_security` in `game.conf` is what stops a later mod
-  taking either away. **Both are defensive** — nothing in the game competes for
-  either global, so behaviour is unchanged from the two lines they replaced. `R5`
-  re-runs `R2` and `R3` to confirm that; the load-order half is untested by
-  choice. The finding stays open for its other half, the every-node table walk.
-  (A8)
+  taking either away. **The chain is confirmed in a world** — `R2`'s drop method
+  on 2026-09-02, the first dig this project has ever performed — and the
+  load-order half is untested by choice, since nothing in the game competes for
+  either global. The finding stays open for its other half, the every-node table
+  walk. (A8)
 - Stop wool cracking under a punch it will not break — the client predicts the
   dig from the node's groups and the server then refuses. Cosmetic. (B48)
 
@@ -203,8 +204,8 @@ findings: nothing here is defective, it has not happened yet.
   It defends a server owner adding a worldmod, and even then `diggable = false`
   is what holds the promise. Recorded so it does not read as an oversight. (A8)
 - The game still has no test suite, and nothing automated reaches its behaviour.
-  What is proven is what `PLAYTEST.md` records as run — thirteen of eighteen
-  checks, twelve of them passing — and no more.
+  What is proven is what `PLAYTEST.md` records as run — fourteen of eighteen
+  checks, twelve passing and two partial — and no more.
 - Everything in the mod's "what ships broken" list ships in the game too, since
   the game is how most players meet it.
 
@@ -251,11 +252,10 @@ findings: nothing here is defective, it has not happened yet.
 
 ---
 
-2026-09-02 · codecube `6f7d118` (main) · codeblock `2647228`
+2026-09-02 · codecube `7dc764f` (main) · codeblock `2647228`
 (master), the commit this game has adopted. `check_game.sh` and luacheck pass.
-The game was played for the first time on 2026-09-01, over three rounds — that is
-where `B47`, `B48` and `S8` came from, and what closed two of them. `B49` came
-the day after, from reading `default` while scoping G3, and `R7` confirmed its
-fix in a world the same day. Everything through `35fa2a1` is at `origin/main`
-and `d16f9bb`, `377d1f9` and `6f7d118` are not pushed; CI has not been read from
-here.
+The game was played on 2026-09-01 over three rounds and again on 2026-09-02 —
+that is where `B47`, `B48` and `S8` came from, what closed two of them, and where
+`B49` and `A8`'s chain were confirmed. Everything through `35fa2a1` is at
+`origin/main` and seven commits after it are not pushed; CI has not been read
+from here.

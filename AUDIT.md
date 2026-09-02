@@ -65,7 +65,7 @@ from the code. **A fix is not evidence** — the check is, and it costs minutes.
 | B bugs | 6 | `B19`, `B24` (both with `A13`), `B48` — `B49` resolved, `R7` passes |
 | S sandbox and security | 1 | — `S8` resolved, `R6` passes |
 | C compliance and packaging | 6 | — |
-| A architecture and performance | 4 | `A7` (upstream), `A8` (half fixed, `R5` pending), `A13` (deferred) |
+| A architecture and performance | 4 | `A7` (upstream), `A8` (drop chain confirmed, table walk open), `A13` (deferred) |
 
 The game is current with `codeblock` `2647228`, adopted at `33bdae8`; both are at
 `origin` and both CI workflows were green on those exact shas. `C15` was open as
@@ -152,7 +152,7 @@ settled: `L1` passes with the duplicate still in place, and removing a call cann
 reintroduce the texture whichever way `set_sun` treats an omitted field. Recorded
 here only so the next reader does not re-derive it from the claim that the two
 calls match.
-
+### A8 · medium · open — the drop chain is confirmed; `last_mod` is untested by choice and the table walk untouched
 ### A8 · medium · open — the callback half is fixed and unverified; the table walk is untouched
 
 `mods/cc_security/init.lua` · `game.conf` · `.luacheckrc`
@@ -203,16 +203,30 @@ today is identical to the two lines it replaced. The code is kept because it is
 cheap and correct if a mod is ever added, but **`last_mod` is not free** — only
 one mod in a game can be last, and this spends that slot.
 
-**What `R5` checks, and what it deliberately does not.** `R5` is now a
-regression check: re-run `R2` and `R3` on current code, because `previous_drops`
-being non-nil comes from the reference and has never been run. The composition
-half — that `last_mod` makes this mod's assignment the surviving one — needs a
-second mod that assigns the same globals, and building one would be testing a
-composition this game does not have. **Untested by choice**, decided by the
-author on 2026-09-02, and recorded here so it does not later read as an
-oversight. The scenario it defends is a server owner adding a worldmod to a
+**The chain is confirmed in a world, on 2026-09-02.** `R2` was run by its drop
+method — `diggable = false` commented out, server restarted, a node dug by hand,
+the line reverted — and nothing dropped, on the ground or into the inventory. So
+`previous_drops` is not `nil`, the chain fires, and the empty list reaches the
+captured handler. That was the one thing this change could have broken silently,
+and it is now evidence rather than a reading of the reference. `R5` is *partial*
+only because `R3` was not re-run beside it; `calculate_knockback` is byte-identical
+to before, so that half is low risk rather than open.
+
+**What is still untested, by choice.** The composition half — that `last_mod`
+makes this mod's assignment the surviving one — needs a second mod that assigns
+the same globals, and building one would be testing a composition this game does
+not have. Decided by the author on 2026-09-02, recorded so it does not later read
+as an oversight. The scenario it defends is a server owner adding a worldmod to a
 Codecube server, and even then `diggable = false` is what holds the promise: the
 drop handler matters only after something has re-enabled digging.
+
+**`R2`'s drop half had never run before this, in the whole project.** It was
+recorded as passing from the first playtest on the strength of the inventory
+panel alone, because the check said "with digging somehow permitted" and nothing
+in a running game permits it — no chat command digs, `diggable` is a node
+property rather than a privilege, and the drone writes with `set_node` and
+`VoxelManip`, which never compute drops. A check that cannot be run reads exactly
+like one that passed.
 
 **The other half of this finding is untouched, and is why it stays open.** The
 mod overrides **every registered node** at `on_mods_loaded` to set
@@ -635,11 +649,11 @@ closed with the guard proven not to be too broad. Every restriction the game
 claims is now checked: nothing diggable, no drops, no knockback, no inventory
 reachable, and the drone building through all of it.
 
-**Still not checked:** `R5`, which is what `A8`'s fix now waits on, and `L3`,
-gated on `A7` landing upstream; `P3` (the boot log), `P4` (the main menu), `P5`
-(the ContentDB page, which needs a release), and the boot half of `P1`. `L2`'s
-second-player half was not exercised either — singleplayer only, so a per-player
-setting applied to whoever joined first would not have been caught.
+**Still not checked:** `R3` beside `R5`, which is all that keeps `R5` partial;
+`L3`, gated on `A7` landing upstream; `P3` (the boot log), `P4` (the main menu),
+`P5` (the ContentDB page, which needs a release), and the boot half of `P1`.
+`L2`'s second-player half was not exercised either — singleplayer only, so a
+per-player setting applied to whoever joined first would not have been caught.
 
 **Recovered rather than recorded:** the engine version. It was not noted at the
 time, and was read afterwards out of the engine's own `debug.txt` — a single
@@ -659,20 +673,21 @@ several revisions while its prose was already correct.
 
 ---
 
-Revised 2026-09-02 four times: while scoping G3, which produced `B49` and
+Revised 2026-09-02 five times: while scoping G3, which produced `B49` and
 deferred `A13`; at `377d1f9`, when `R7` confirmed the `B49` fix in a world; again
 when `A7` was routed upstream — the duplicate is removed in `codeblock`, so
 nothing is written here and the finding closes at adoption, and the same pass
 corrected `A7`'s "identical arguments" and `A8`'s `last_mod`, which is a
-`game.conf` key and not a `mod.conf` one; and again at `6f7d118`, when `A8`'s
+`game.conf` key and not a `mod.conf` one; again at `6f7d118`, when `A8`'s
 callback half was fixed, and once more when `R5` was cut back to a regression
 check — nothing in the game competes for those globals, so the composition half
-is untested by the author's decision.
+is untested by the author's decision; and finally at `7dc764f`, when `R2`'s drop
+half ran for the first time and confirmed the chain.
 Before that, 2026-09-01, five times in one day: at `8b27f2f` for the packaging checks;
 at `7f649d8` for the first playtest; again for the `B47` and `S8` fixes it
 produced; again after re-running `L1` and `R6` against those fixes, which closed
 `B47` and reopened `S8`; and again at `c042364`, when `R6` and `R4` closed `S8`
-for good. Describes codecube `6f7d118` (main) and codeblock
+for good. Describes codecube `7dc764f` (main) and codeblock
 `2647228` (master), the release commit this game has adopted. `S8`, `B47`, `B48`
 and `B49` are the new findings; ids were allocated against the mod's audit in the
 sibling checkout, which stands at `B46`, `S7`, `A16`, `C19` and `F8` — the game's

@@ -42,11 +42,19 @@ Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
 ## Where it stands
 
 **The game's behaviour has been checked in a world on 2026-09-01 over three
-rounds, and again on 2026-09-02.** Thirteen of the eighteen have been run and
-twelve pass: `W1`–`W3`, `L1`, `L2`, `R1`–`R4`, `R6`, `R7` and `P2`. `P1` is
-partial — its clone half only. `L3` and `R5` are gated on `A7` and `A8` and
-cannot run yet; `P3`, `P4` and `P5` are simply not done, and `P5` needs a
-release first.
+rounds, and again on 2026-09-02.** Fourteen of the eighteen have been run and
+twelve pass: `W1`–`W3`, `L1`, `L2`, `R1`–`R4`, `R6`, `R7` and `P2`. Two are
+partial: `P1`, its clone half only, and `R5`, whose drop half passed and whose
+`R3` re-run has not been done. `L3` waits on `A7` landing upstream in
+`codeblock`; `P3`, `P4` and `P5` are simply not done, and `P5` needs a release
+first.
+
+**`R2`'s drop half ran on 2026-09-02, for the first time in this project.** It
+had been recorded as passing since the first playtest on the strength of the
+inventory panel alone — nothing had ever been dug, because `diggable = false`
+makes it impossible, and the check said only "with digging somehow permitted".
+Commenting that line out for one run is what finally exercised
+`handle_node_drops`, and it is the method the check now carries.
 
 **Every restriction that was checked on 2026-09-01 is evidence rather than
 reading.** Nothing is diggable, no item drops, there is no knockback, no
@@ -265,12 +273,18 @@ removes the node and **no item appears** — none on the ground, none in the
 inventory. `handle_node_drops` passes an empty list to whatever it captured, so
 nothing is ever handed out. (`A8`)
 
-Result: pass on the inventory half only — `7f649d8` · engine 5.17.0 · 2026-09-01
-— the inventory key opens nothing and no item entity was seen. **The drop half
-was never exercised**: nothing was dug, because nothing could be. Two things this
-does not establish. That no inventory is reachable — `R1` found a bookshelf's own
-formspec shows the player's `main` list (`S8`). And that `handle_node_drops`
-hands out nothing — that needs the method above, and is what `R5` now turns on.
+Result: pass, both halves — `7dc764f` · engine 5.17.0 · 2026-09-02 — the
+inventory formspec is blank, and **the drop half ran for the first time**: with
+`diggable = false` commented out and the server restarted, a node dug by hand
+disappeared and no item appeared, on the ground or in the inventory. The line was
+reverted afterwards. So `previous_drops` is not `nil`, the chain fires, and the
+empty list reaches the captured handler — the one thing `A8` changed that could
+have failed silently. What this still does not establish is that no inventory is
+*reachable*: `R1` found a bookshelf's own formspec shows the player's `main` list
+(`S8`).
+
+Previously pass on the inventory half only — `7f649d8` · engine 5.17.0 ·
+2026-09-01 — nothing was dug, because nothing could be.
 
 ### R3 · No knockback
 
@@ -405,7 +419,12 @@ re-enabled digging, at which point the owner has deliberately changed the game.
 **Untested by choice, recorded so it does not read as an omission.** Decided by
 the author on 2026-09-02.
 
-Result: unchecked
+Result: partial — `7dc764f` · engine 5.17.0 · 2026-09-02 — **the half that could
+have broken is done.** `R2`'s drop method passed: the chain fires, hands an empty
+list to the captured handler, and nothing drops. `R3` was not re-run on current
+code, so the knockback half is still resting on its 2026-09-01 pass. The risk
+there is small — `A8` left `calculate_knockback` byte-identical and nothing
+competes for it — but small is not none, and thirty seconds closes it.
 
 ---
 
