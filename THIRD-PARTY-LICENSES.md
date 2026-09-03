@@ -22,8 +22,11 @@ were ever reachable from it; they are now `mods/codeblock/lib/shapes.lua`. Liste
 here so the history stays legible — nothing in the game bundles it any more.
 
 `mods/default`, `mods/dye` and `mods/wool` are copies from Minetest Game. Of
-`default`, only its node definitions are used: 108 of them, out of roughly 9,700
-lines.
+`default`, only its node definitions are reachable: **106** of them, out of 9,744
+lines. `wool` supplies 15 more and `dye` is there because `wool` requires it —
+nothing in the game names a dye. The count was 108 here until it was checked by
+extracting every `default:` and `wool:` name from CodeBlock's palette and sorting
+it unique; the audit records that correction under `A13`.
 
 `mods/formspecs` (ActiveFormspecs, MIT, by Leslie E. Krause) was removed in
 v1.0.0. Its formspec session handling is now `mods/codeblock/lib/forms.lua`,
