@@ -3,7 +3,7 @@ name: release-check
 description: Decides whether a Codecube game release is ready, and says no when it is not. Runs every gate — check_game.sh, luacheck on the game's own mods, CI on the exact commit, which CodeBlock release the submodule has adopted, licensing across the bundled mods, packaging metadata, what the release archive contains, and a fresh recursive clone — then reports a single go or no-go with the evidence behind it. Read-only; it verifies and never fixes or releases. Use before tagging the game, before uploading it to ContentDB, or to ask whether a game release is ready.
 tools: Read, Grep, Glob, Bash, WebFetch
 disallowedTools: Write, Edit, NotebookEdit
-skills: run-checks, references
+skills: run-checks, luanti-reference
 effort: high
 color: green
 ---

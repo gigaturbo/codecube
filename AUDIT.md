@@ -2,7 +2,7 @@
 
 Findings only: what was wrong, what it cost, how it was fixed, and the reasoning
 a future change would otherwise re-break. **No roadmap and no milestones here** —
-the order of work and the `G1`–`G5` lettering live in `ROADMAP.md`. The manual
+the order of work and the `G1`–`G6` lettering live in `ROADMAP.md`. The manual
 checks are in `PLAYTEST.md`. What shipped, for a player, is in `CHANGELOG.md`.
 
 **This is not the main audit.** `codeblock` is the main project and keeps its
@@ -17,7 +17,8 @@ sandbox and security, `C` compliance and packaging, `A` architecture and
 performance. They were allocated once across this audit and the mod's, so a
 number never means two things and **a gap here is a finding that lives in the
 mod's audit**, not one dropped. Every id below kept the number it had in the
-shared audit; `C15` is the first allocated after the split, `C20` the second.
+shared audit; `C15` is the first allocated after the split, then `C20`, then
+`B50` and `C21` on 2026-09-04.
 The `S` series was all the mod's until `S8` was filed, fixed and confirmed here
 on 2026-09-01; the `F` feature series is the mod's own.
 
@@ -32,9 +33,21 @@ nothing dropped.
 
 ## Where it stands
 
-17 findings, this game's own. **13 resolved, 4 open, none won't-fix.** No open
-finding is critical or high: two medium (`A7`, `A8`) plus `A13`, and one low
-(`B48`). `A13` is **deferred rather than pending** — the trim it describes is
+19 findings, this game's own. **14 resolved, 5 open, none won't-fix.** No open
+finding is critical or high. Four are medium — `A7`, `A8`, `A13` and `B50` — and
+one is low, `C21`. **`B50` and `C21` are new on 2026-09-04**, from shaping the
+world-limits feature (`ROADMAP.md` `G6`): `B50` is falling out of the world and
+`C21` is a version ceiling in a bundled submodule. `B50` was widened the same day
+— it has **two routes, not one** — and its fix is now **committed**, on branch
+`g6-world-limits` at `f5f2385`, so nothing about this finding is unwritten.
+**Route two is verified**: the author fell through a program-made hole and was
+put back on the ground, and `W9` then passed in full at `f5f2385`, out-of-range
+spawn included. Route one, the generated edge, is still inferred from reading —
+nobody has walked to it, and `W5` is what closes this finding. The same sitting
+found the rescue looping at the spawn column; that was a defect in uncommitted
+code and so has **no id** — its record is `ROADMAP.md` `G6` and its check is
+`W9`.
+`A13` is **deferred rather than pending** — the trim it describes is
 waiting on a decision in `codeblock`, not on work here. It no longer carries
 `B19` and `B24`: both were closed directly on 2026-09-02, which was the point of
 looking at them, since "resolved for free by `A13`" had kept two boot-log defects
@@ -47,9 +60,19 @@ replacing an ABM's `action`, because Luanti cannot unregister one — so `R7` wa
 the only thing that could say whether it works, and it passed on 2026-09-02.
 `S8` and `B47` were fixed and confirmed the day before, by `R6` and `L1`.
 
-**Three of the seventeen arrived that same day, from the first hours anyone has
+**`B48` is fixed and unverified, as of 2026-09-04.** The stripped digging groups
+are committed on their own at `ec02760` — split out of `G6` so the `G4` fix
+stands separately, which also gives `R8` a sha to be run against — both gates are
+green, and neither gate runs a line of this game's Lua, so it stays here in full
+until `R8` is run in a world. What did
+change is that the question the filing left open is now answered from the
+documented API: `core.get_dig_params` never sees `diggable`, so the fix had to
+come from the groups and no other reading of the defect survives.
+
+**Three of the nineteen arrived that same day, from the first hours anyone has
 spent playing this game against `PLAYTEST.md`** — `B47`, `B48` and `S8`. None was
-visible from reading the three `cc_*` files, which between them are 21 lines; two
+visible from reading the three `cc_*` files, **which between them were 21 lines
+at the time** and are 338 now, since `G6`; two
 of the three are in how those lines meet a vendored node or the client. That is
 the argument for the `W`, `L` and `R` groups, and it is now evidence rather than
 an assertion.
@@ -63,9 +86,9 @@ from the code. **A fix is not evidence** — the check is, and it costs minutes.
 
 | Category | Count | Open |
 |---|---|---|
-| B bugs | 6 | `B48` — `B19`, `B24` and `B49` resolved, `P3` and `R7` are their checks |
+| B bugs | 7 | `B50` (two routes, fix committed at `f5f2385`; route two verified — `W9` passes, `W4` and `W8` partial and to be re-run — route one still inferred, and `W5` is what closes it); the other 6 resolved, of which `B19`, `B24` and `B48` are unverified in a world — `P3` and `R8` are their checks |
 | S sandbox and security | 1 | — `S8` resolved, `R6` passes |
-| C compliance and packaging | 6 | — |
+| C compliance and packaging | 7 | `C21` (a submodule's version ceiling, not ours to edit) |
 | A architecture and performance | 4 | `A7` (upstream), `A8` (drop chain confirmed, table walk open), `A13` (deferred) |
 
 The game is current with `codeblock` `2647228`, adopted at `33bdae8`; both are at
@@ -77,10 +100,165 @@ defect.
 
 ## Findings in full
 
-The four open findings, plus the closed ones whose reasoning is load-bearing
-enough to be undone by accident. A finding stops being pending once a
-`PLAYTEST.md` check has passed on it — `S8` and `B47` on 2026-09-01, `B49` on
-2026-09-02 — and each stays here in full for that reason.
+The open findings, plus the closed ones whose reasoning is load-bearing enough to
+be undone by accident. A finding stops being pending once a `PLAYTEST.md` check
+has passed on it — `S8` and `B47` on 2026-09-01, `B49` on 2026-09-02 — and each
+stays here in full for that reason. `C21` is short and lives in the `C` section.
+
+### B50 · medium · open, fix committed, verified for route two only — a player can fall out of the world, by two routes
+
+`minetest.conf` · `mods/cc_mapgen/init.lua` · `mods/cc_mapgen/mapgen_env.lua` ·
+`mods/cc_security/init.lua`
+
+**There are two routes, and the second was not visible when this was filed.**
+Route one is walking off the generated edge, described below, and the bedrock
+wall closes it. Route two is falling through a hole a program made in the floor,
+and **the wall does not touch it**: the drone's bound is `mapgen_limit`, so the
+drone reaches every node of the floor, and `cc_mapgen:bedrock` is an ordinary
+node to a program — `remove` deletes a floor tile or a wall column. A player who
+walks into that hole drops into unlit air below `y = 0` and then straight out of
+the bottom of the generated world, with the same no damage, no `fly`, no way
+back. `diggable = false` does not help, because it binds the player and not a
+program. Found by `code-expert` on 2026-09-04 while building the wall.
+
+#### Route one — the generated edge
+
+`minetest.conf` set `mapgen_limit = 4096`, so generation stopped at roughly ±4080.
+**Nothing marks that edge and nothing stops a player reaching it.** Past it there
+is no node to stand on, `default_privs` grants no `fly`, and `enable_damage =
+false` — so a player who walks off falls into ungenerated space indefinitely,
+unhurt, with no ground to land on and no privilege to fly back. The floor is the
+same defect downwards: `mgflat` fills stone to the bottom of the generated range,
+so nothing is *visibly* a limit in either direction.
+
+**Suspected from reading, not verified.** This is inferred from `minetest.conf`,
+`game.conf` and the mapgen the game selects; nobody has walked to ±4080 and
+stepped off. At roughly seven minutes' walk the edge is far enough that it may
+never have been met in play, which is exactly why it is filed rather than
+observed. Confirming it is a matter of `/teleport`ing near the limit and walking.
+
+**Closed by `ROADMAP.md` `G6`, and the fix is a shape rather than a patch.** The
+agreed answer is a bounded slab — a bedrock plane at `y = 0` with nothing
+generated beneath it, and a full-height bedrock wall at the horizontal edge — so
+that both limits are things a player can see before reaching them. For route two
+the author ruled, on 2026-09-04, that **`cc_security` clamps the player**: a
+connected player found outside the world box is put back at the spawn point. It
+is the only answer that holds regardless of what a program does to the floor, and
+`cc_security` is already the mod whose job is what a player may do. The six
+decisions behind the shape, and what was rejected — a `y`-only clamp that puts
+the player back into the hole, recording the fall as a known limit, and asking
+CodeBlock to refuse writes to `cc_mapgen:bedrock` — are recorded in `ROADMAP.md`
+under `G6` and under *deliberately not doing*; they are a feature's grounds, not
+a finding's, which is why they are there and not here.
+
+**Committed, and partly verified, as of 2026-09-04.** The wall, the floor, the
+1024 default, the `settingtypes.txt` entry, the raised engine floor **and the
+clamp for route two** are committed on branch `g6-world-limits` at `f5f2385`,
+with both gates re-run green *after* committing and **neither running a line of
+the game's Lua**. `PLAYTEST.md` `W4`–`W9` are the whole of the evidence this
+finding will ever have, and they split by route: `W4`, `W8` and `W9` are route
+two — the floor, the fall through a program-made hole, and where the rescue puts
+you — while route one, the generated edge, rests on `W5` and on `W6`'s proof that
+the drone's bound and the wall are the same number. **`W7` is neither route**: it
+is whether an old world is re-bounded at all.
+
+**Route two is no longer suspected: it was observed, and so was the clamp.** The
+author played the uncommitted tree on 2026-09-04, dug a hole away from spawn,
+walked in, and was put back on the ground. So the fall through a program-made
+hole is real, the clamp answers it, and the whole `G6` stack is live — there was
+a bedrock floor to cut through, which means `mapgen_env.lua` loaded and ran, the
+engine is 5.9 or later, and `register_mapgen_script` did what it was chosen for.
+**`W9` then passed in full at `f5f2385`**, including the out-of-range variant the
+author confirmed they ran, so the rescue destination is a place you can stand and
+route two's fix is verified where it was weakest. **Route one is still
+inferred**: nobody has walked to the edge, and `W5`, `W6` and `W7` are
+`unchecked`. This finding therefore closes on `W5`, not on more code.
+
+**The weakness in that evidence is that it names no commit, and it is kept
+rather than backdated.** `W4` and `W8` record a date and a tree, both are
+`partial`, and a commit now exists — but `repair_spawn()` landed on the rescue
+path between the sitting and `f5f2385`, so writing that sha onto them would carry
+a result across a change to the code it exercised. Both are to be **re-run at
+`f5f2385`**. `W8`'s near-miss half — the clamp *not* firing on a player standing
+legitimately at the edge — was not run either.
+
+**What the fix nearly got wrong, and why the spawn height is derived.** The
+clamp's first fallback spawn was `{x = 0, y = 1, z = 0}`, with a comment calling
+it *"one node above the bedrock plane at y = 0"*. `mgflat_ground_level` defaults
+to **8** and nothing here overrides it, so the plane is eight nodes underground
+and `y = 1` is inside solid stone; `static_spawnpoint` is unset in this game, so
+that fallback was the ordinary path and not an edge case. Damage is off, so a
+rescued player would have been left embedded rather than killed — a worse place
+than the fall. It is now
+`tonumber(core.get_mapgen_setting("mgflat_ground_level")) + 1`. `core.get_spawn_level`
+answers the same question and cannot be used: it needs the emerge manager, which
+initialises after every mod has loaded, so at mod load time it returns 1 — the
+same wrong number — and writes to `errorstream` on every boot. **This carries no
+finding id**: `git diff HEAD` shows the whole clamp as an insertion, so the wrong
+fallback was the change being wrong and was caught before it shipped. Its record
+is the `G6` entry in `ROADMAP.md`, and it is repeated here only because the next
+reader of that line needs to know why the number is derived rather than written
+down.
+
+**And the second thing it nearly got wrong, found by playing on 2026-09-04.**
+After the rescue above, the author stood at spawn and cut the floor out from
+under themselves — so the hole was now exactly where the rescue lands. They were
+put back at `(0, 9, 0)` in mid-air, fell about 1.35 s back through it, crossed
+`y = 0`, and were moved back: **airborne throughout, so never able to walk out.**
+It is the same shape as the `y = 1` fallback — *the rescue destination was never
+checked for being a place you can stand* — which is why the two sit together.
+`repair_spawn()` in `mods/cc_security/init.lua` now runs immediately before
+`player:set_pos(spawn)`. **No finding id either**: the clamp had never been
+committed when this was found. Its record is the `G6` entry, `W9` is its
+evidence, and **`W9` passes at `f5f2385`** — all three cases, with the spawn
+mapblock out of range for at least one of them, which is what exercises the
+`get_node_or_nil` / `ignore` branch and the `load_area` before the write.
+
+**Keep — the repair goes one node under the destination, not on the plane at
+`y = 0`.** Filling the plane would leave the player at the bottom of the shaft
+the program dug, unable to climb out and unable to dig: the same softlock by
+another route. The mirror case is closed by the same call, which reverses a
+decision this game held for one day — see `ROADMAP.md` `G6`, where the grounds
+are, since they are a feature's and not a finding's.
+
+**Keep — `get_node_or_nil` and `load_area`, and neither is tidiable away.**
+`minetest.get_node` reports `ignore` for an unloaded mapblock, which reads as an
+ordinary solid node, so a repair written on it would be skipped on exactly the
+tick that needs it — the loop would still be there and the code would still look
+right. Hence `get_node_or_nil` plus an explicit `ignore` test. And the area is
+loaded as well as read, because **`set_node` into a non-resident mapblock
+silently does nothing**: checking without loading gives a repair that reads
+correctly and writes nothing. `emerge_area` was rejected as asynchronous — the
+player would arrive before the ground.
+
+**Keep — the `walkable` tests are against `false`, not against truthiness.**
+`walkable` defaults to true and node definitions leave it out, so
+`registered_nodes["default:stone"].walkable` is `nil` and not `true`. A
+truthiness test would read every ordinary solid node as walk-through, and the
+mirror case — a player sealed inside stone at spawn, with damage off and no way
+out — would be left unfixed while the code looked like it handled it.
+
+**`W8`'s near miss is now confirmed against the code, by tracing and not by
+observing.** A player's position is their feet and the bedrock plane's nodes span
+`y = -0.5` to `0.5`, so a player standing on an exposed floor tile reads `0.5` —
+half a node of margin under the `p.y < 0` test, which is why the test is `< 0`
+and carries a comment saying that `<= 0` is the tidy-up that would break it.
+Standing against the wall is inside the box for the same reason: the wall
+occupies the outermost generated column, so the furthest column a player can
+stand in is one short of `world_max`. **The join-timing failure mode was
+considered and withdrawn**: `ServerEnvironment::loadPlayer` sets the base
+position before `addPlayer`, and `l_get_connected_players` skips a `RemotePlayer`
+whose `PlayerSAO` is null, so the first globalstep that can see a joining player
+sees a settled position. A player who logged out mid-fall *is* teleported within
+250 ms of rejoining, and that is the clamp working. It was never written into
+`W8` and nothing was removed from it.
+
+**Keep — the engine floor is 5.9 and it was recorded as 5.7 first.** The fix
+needs `core.register_mapgen_script`, which is absent from the shipped `lua_api`
+at 5.7.0 and 5.8.0 and present at 5.9.0. Below 5.9 the call is `nil`, `cc_mapgen`
+fails to load and the game does not start — which is why `game.conf` requires
+5.9 unguarded rather than shipping an unbounded world to older engines. The full
+correction is under `ROADMAP.md` `G6` decision 4.
 
 ### A13 · medium · open, deferred — `default` is 9,744 lines to supply 106 node definitions, and the rest still runs
 
@@ -110,6 +288,13 @@ background CPU cost; `B49` establishes that two of them were rewriting players'
 builds, and closes that in `cc_security`. They live in `functions.lua`, which this
 trim keeps, so trimming would never have removed them — the two findings are
 independent and `B49` is the one that mattered.
+
+**Keep — a second thing the trim must not remove, added 2026-09-04 by `G6`.**
+`mods/default/textures/default_obsidian.png` is the texture of
+`cc_mapgen:bedrock`, reused so the world's wall and floor ship no media of their
+own. It is not a node definition and would not show up in any count of the
+palette, so a trim done against `nodes.lua` alone would take it. Cut it and the
+edge of the world renders as the unknown-node texture. **Nothing checks this.**
 
 **One thing to check before cutting, since the palette is the contract.** The
 block list a player's program uses is `codeblock`'s, in its config; the nodes
@@ -154,7 +339,6 @@ reintroduce the texture whichever way `set_sun` treats an omitted field. Recorde
 here only so the next reader does not re-derive it from the claim that the two
 calls match.
 ### A8 · medium · open — the drop chain is confirmed; `last_mod` is untested by choice and the table walk untouched
-### A8 · medium · open — the callback half is fixed and unverified; the table walk is untouched
 
 `mods/cc_security/init.lua` · `game.conf` · `.luacheckrc`
 
@@ -236,6 +420,12 @@ to see every mod's registrations (moving it earlier silently covers fewer nodes
 and nothing fails), and Luanti offers no global switch for it, so there may be
 nothing better than the walk. Deciding that is what remains.
 
+**The walk got wider on 2026-09-04**, when `B48`'s fix added an inner `pairs`
+over each node's `groups` and a rebuilt table per node. It is the same one pass,
+so the cost is still paid once at load — but a walk that now *writes* `groups` on
+every registered node has a larger blast radius than one setting `diggable`, and
+that is why `R1`, `R4` and `R6` are all marked for re-running.
+
 ### B49 · medium · resolved, `R7` passes — the world rewrites what a program built
 
 `mods/default/functions.lua` · `mods/cc_security/init.lua`
@@ -287,7 +477,7 @@ server still running. The fallback, had it failed, was deleting the two ABMs fro
 `functions.lua` — a vendored edit, which is why it was not the first choice. Undo
 either half of this and nothing here fails a gate; only `R7` would catch it.
 
-### B48 · low · open — wool plays the dig animation before the server refuses
+### B48 · low · resolved, unverified in a world — wool plays the dig animation before the server refuses
 
 `mods/cc_security/init.lua` · `mods/wool/init.lua`
 
@@ -302,15 +492,54 @@ them. Seen by `PLAYTEST.md` `R1` on 2026-09-01.
 Cosmetic — nothing breaks — but it teaches a player that digging half-works,
 which is the opposite of what the restriction is for.
 
-**Not verified: whether the client is told at all.** The mechanism above is
-inferred from which nodes show it, not from reading the engine. `override_item`
-runs at `on_mods_loaded`, and whether a `diggable` changed there reaches the
-client's copy of the node definition is the open question; if it does, the client
-is ignoring the field and the fix has to come from the groups instead. Stripping
-the dig groups in the same override would stop the prediction at its source, but
-groups carry other meanings — `flammable`, `falling_node`, and whatever the
-palette or `codeblock` reads — so that is a change to make deliberately, not as a
-tidy-up.
+**The open question is settled, and from the documented API rather than by
+inference.** This was filed saying the mechanism was guessed from which nodes
+crack, and that if `diggable` did reach the client then the client was ignoring
+it. Neither alternative is open now:
+`core.get_dig_params(groups, tool_capabilities, wear)` — `lua_api.md` 5.17.0,
+line 4691 — takes **groups and tool capabilities only**, and `diggable` is not an
+input to the dig-time calculation at all. So the client cannot consult the field,
+and the fix had to come from the groups. The corroboration is the hand's own
+groupcaps in `mods/default/tools.lua:13-17` — `crumbly`, `snappy`,
+`oddly_breakable_by_hand`, and **no `cracky`** — which is exactly why the
+stone-family ground never cracked and wool always did. The observation the
+finding was built on now has a mechanism behind it.
+
+**Fixed by stripping six digging groups in the same `override_item` pass.** The
+`on_mods_loaded` loop now takes `def` as well as `name` and replaces each node's
+`groups` with a copy without `crumbly`, `cracky`, `snappy`, `choppy`,
+`oddly_breakable_by_hand` and `dig_immediate`. `diggable = false` is unchanged
+and is still what enforces the restriction; the strip only stops the prediction.
+
+**Keep — the six are a closed set, and every other group is kept on purpose.**
+The filing warned this was "a change to make deliberately, not as a tidy-up", and
+the deliberate part is the list. `flammable`, `falling_node`, `attached_node`,
+`soil`, `spreading_dirt_type`, `leafdecay`, `wool`, `dye`, `color_*` and `level`
+all survive, because none of them says anything about digging — `level` is kept
+because it means nothing without a digging group beside it. Three things a future
+change would otherwise re-break:
+
+- **`dig_immediate` is load-bearing, not defensive.** Roughly a dozen `default`
+  nodes carry `dig_immediate = 3` — leaves, papyrus, grass, `nodes.lua:725, 789,
+  888, 1344, 1722` among them — and that is the engine's always-diggable special
+  group, so those predicted a dig regardless of the hand's groupcaps and cracked
+  *instantly*. Dropping it from the list brings back the fastest case.
+- **`override_item` replaces a top-level `groups` outright rather than merging**,
+  so no `cracky` survives from the original definition. That is what makes a
+  rebuilt copy sufficient.
+- **`del_fields` was not an option.** It arrived in 5.9.0 and `game.conf` sets
+  `min_minetest_version = 5.4`, and it deletes top-level fields rather than keys
+  inside `groups` — the same note `S8` carries for callbacks.
+
+Nothing else here reads node groups: `codeblock` does not (its `api.groups` is a
+documentation grouping of API entries, not node groups), and neither
+`codeblock:poser` nor `codeblock:setter` declares `tool_capabilities`.
+
+**Not closed, because nothing has been run.** Both gates are green —
+`check_game.sh` passes and luacheck is silent — and **neither runs a line of the
+game's Lua**, so this is committed rather than verified, in the same state as
+`B19` and `B24`. `PLAYTEST.md` `R8` is what closes it: no crack texture and no
+dig sound on `wool`, `default:leaves` and `default:stone` under a held punch.
 
 ### B19 · low · resolved, unverified in a world — five `NodeResolver` errors on every world load
 
@@ -355,10 +584,14 @@ first. `P3` is what confirms the log is clean.
 
 ## B — bugs
 
-5 findings, 4 resolved. `B48` is the only one open. `B19`, `B24` and `B47` are
-closed and kept in full above — the first two because a re-vendored `default`
-would bring both back, and `B47` because the prediction it got wrong is the
-reusable part.
+7 findings, 6 resolved; `B50` is open, suspected and in full above. The resolved
+count **said 5 until 2026-09-04**, while the
+table above already said 6; the body was the one that was wrong, `B20` having
+been left out of it. Three of the six resolved are unverified in a world: `B19` and `B24` wait on
+`P3`, `B48` on `R8`. `B19`, `B24`, `B48` and `B47` are kept in full above — the
+first two because a re-vendored `default` would bring both back, `B48` because
+the six stripped groups are a set someone could narrow by accident, and `B47`
+because the prediction it got wrong is the reusable part.
 
 ### B47 · low · resolved, `L1` passes — the sunrise texture is still drawn, so part of the sun shows
 
@@ -490,7 +723,45 @@ outright is not available.
 
 ## C — compliance and packaging
 
-6 findings, all 6 resolved.
+7 findings, 6 resolved. `C21` is open and is the only one here the game cannot
+fix in its own tree.
+
+### C21 · low · open — a bundled submodule carries the version ceiling this game's own check forbids
+
+`mods/vector3/mod.conf`
+
+`max_minetest_version = 5.5`, beside `min_minetest_version = 5.3`. `C1` is the
+same defect in this game's `game.conf`, and `check_game.sh` now fails a
+reinstated one there — while a mod the game hard-depends on has carried one all
+along, unchecked.
+
+**It blocks nothing at load.** Per the 5.17.0 reference the engine reads only
+`depends` and `optional_depends` out of a `mod.conf`, so this is ContentDB
+metadata: it constrains what the *package page* claims to support, not what the
+engine will start. That is what makes it low rather than high.
+
+**What makes it worth filing anyway is the direction of travel.** `ROADMAP.md`
+`G6` raises this game to `min_minetest_version = 5.9`, **four minor versions**
+above `vector3`'s stated ceiling — so the game advertises a floor its own
+dependency advertises as out of range. A reader comparing the two package pages
+sees a contradiction, which is exactly the shape `C4` was filed for.
+`mods/codeblock/mod.conf` still says 5.4, which is the other half of the same
+picture and is upstream's call.
+
+**Corrected 2026-09-04, the same day this was filed: three minor versions, not
+four.** It was written against a `min_minetest_version` of 5.7, which was the
+author's instruction and was factually wrong —
+`core.register_mapgen_script` first appears in the 5.9.0 `lua_api`, so 5.7 and
+5.8 cannot start the game at all. The gap this finding describes widened with
+the correction; the severity did not, because the engine still reads no
+`max_minetest_version` out of a `mod.conf`. Recorded rather than overwritten:
+`G6` decision 4 in `ROADMAP.md` carries the evidence.
+
+**Not ours to edit.** `vector3` is a pinned submodule with its own repository
+(`v1.5` at `16621648`); the fix is upstream or a re-pin, and neither is work this
+repository does on its own. Nothing here should hand-edit a submodule's
+`mod.conf` — that change would be silently discarded by the next pointer move.
+Recorded so it reads as known rather than missed.
 
 - **C20 · medium · resolved in `9ad884c`** — the ContentDB long
   description was `README.md` verbatim: `scripts/gen_cdb_json.sh` embedded the
@@ -648,6 +919,34 @@ other route — most likely `du` on the unpacked tree, where cluster rounding ov
 than claimed; the absolute figures were not reproducible, and the method now
 travels with the numbers so the next measurement is comparable.
 
+**Filed from reading, and one route since observed — `B50` and `C21`,
+2026-09-04.** `C21` is read straight out of a tracked file
+(`mods/vector3/mod.conf`) and is verified as *a fact about the metadata*; what is
+unverified is whether it costs anything. `B50`'s **route one is still inferred**,
+from `mapgen_limit`, `default_privs` without `fly`, `enable_damage = false` and
+the mapgen the game selects: **nobody has walked to the edge**. **Route two is
+now verified.** The author fell through a program-made hole away from spawn on
+2026-09-04 and was put back on the ground, and `W9` passed in full at `f5f2385`
+— all three cases, spawn out of range for at least one of them. The weakness left
+is that the earlier half was seen on an uncommitted tree, so `W4` and `W8` name a
+date and no sha and stay `partial` until re-run at `f5f2385`.
+
+**Committed and part-proven, on branch `g6-world-limits` at 2026-09-04:** the
+whole of `G6` — `minetest.conf` at `mapgen_limit = 1024`, `game.conf` at
+`min_minetest_version = 5.9`, a new root `settingtypes.txt`, `cc_mapgen`'s
+bedrock node and forced limit, the new `cc_mapgen/mapgen_env.lua` that writes the
+floor and the wall on the emerge threads, and `cc_security`'s world-box
+globalstep **with the `repair_spawn()` added to it on 2026-09-04**, after playing
+found the rescue looping at the spawn column — is `f5f2385`. `B48`'s group strip
+in the same `mods/cc_security/init.lua` was split out ahead of it as `ec02760`,
+so the `G4` fix stands on its own. **Both gates were re-run after committing**,
+on `f5f2385`: `check_game.sh` ended `all game integration checks passed` with
+`.cdb.json matches CONTENTDB.md`, and luacheck on the three `cc_*` mods printed
+nothing. **Neither gate runs a line of the game's Lua**, and CI has no run on
+this branch — the latest run is on `578b364`, which predates it. `W9` is the one
+part now proven in a world; `W4`, `W8` and `R8` are what would make the rest
+evidence.
+
 **Committed, unproven:** `CONTENTDB.md` and the generator change for `C20`
 landed in `9ad884c`, `.cdb.json` regenerated and `check_game.sh` passing on it.
 It has not been seen rendered on ContentDB, in a browser or in-game — that is
@@ -674,9 +973,35 @@ closed with the guard proven not to be too broad. Every restriction the game
 claims is now checked: nothing diggable, no drops, no knockback, no inventory
 reachable, and the drone building through all of it.
 
-**Still not checked:** `R3` beside `R5`, which is all that keeps `R5` partial;
-`L3`, gated on `A7` landing upstream; `P3` (the boot log), `P4` (the main menu),
-`P5` (the ContentDB page, which needs a release), and the boot half of `P1`.
+**Played twice on 2026-09-04, and only the second run has a commit behind it.**
+The first was the uncommitted working tree: `W8`'s ordinary case passes and `W4`
+is partial as a by-product, so route two of `B50` and the clamp that answers it
+are both observed, and the same sitting produced the spawn-column loop and its
+fix. Those two result lines name a date and a tree instead of a sha — the one
+thing every other result in `PLAYTEST.md` avoids — and they are **kept that way
+rather than backdated onto `f5f2385`**, because `repair_spawn()` landed on the
+same path in between; both are to be re-run.
+
+**The second run is `W9`, at `f5f2385`, and it is a full pass.** All three cases
+— the reported loop, the mirror case where the destination is filled, and the
+no-op that must leave the surface stone — and the author confirmed spawn was out
+of range, which is the false pass the check was written to exclude: `set_node`
+into a non-resident mapblock silently does nothing, so a resident spawn would
+have proved the less interesting half. The engine version was not noted at the
+time in either run; what the sessions themselves prove is 5.9 or later, and
+5.17.0 remains the only install.
+
+**Still not checked:** `W5`, `W6` and `W7` — the wall, the drone's bound, and an
+existing world re-bounded, none of them implied by the
+2026-09-04 fall; `R8`, which is the whole of `B48`'s
+evidence; `R3` beside `R5`, which is all that keeps `R5` partial; `L3`, gated on
+`A7` landing upstream; `P3` (the boot log), `P4` (the main menu), `P5` (the
+ContentDB page, which needs a release), and the boot half of `P1`. **`R1`, `R4`
+and `R6` are marked for re-running** at the same time: the `B48` change rewrites
+`groups` on every registered node, and if the new inner loop errors on any one of
+them, `register_on_mods_loaded` aborts and every node after that point keeps
+`diggable = true` — with table iteration order unstable, that is a different set
+of nodes each boot.
 `L2`'s second-player half was not exercised either — singleplayer only, so a
 per-player setting applied to whoever joined first would not have been caught.
 
@@ -696,7 +1021,70 @@ untracked licence file as a fix. Both are kept because the method that produced
 them is the reusable part. `C5` additionally carried a stale state marker for
 several revisions while its prose was already correct.
 
+**Two more from 2026-09-04, both about a version number.** `C21` was filed
+against a `min_minetest_version` of 5.7 and the real floor is 5.9 — the number
+came from an instruction and was believed rather than checked, and reading the
+shipped `lua_api` at three tags settled it in minutes. And `B50` was filed as one
+route out of the world when there are two; the second was found by building the
+fix for the first, which is the reusable part: **a fix is where a defect's real
+shape shows up**, and this one was not visible from any amount of reading
+`minetest.conf`.
+
 ---
+
+Revised 2026-09-04, a fifth time, on `G6` being committed and `W9` passing.
+`B50`'s fix is now `f5f2385` on branch `g6-world-limits`, with `B48`'s group
+strip split out ahead of it as `ec02760`, and **both gates were re-run after
+committing** rather than before. The finding moves from *fix written and never
+seen in a world* to **fix committed, verified for route two only**, and the two
+routes are now mapped onto their checks: `W4`, `W8` and `W9` are route two,
+`W5` and `W6` are route one, `W7` is neither. `W9` is a full pass at `f5f2385`,
+out-of-range spawn included, which is the false pass it was written to exclude.
+`W4` and `W8` **keep their missing sha rather than being backdated onto
+`f5f2385`** — `repair_spawn()` landed on the path they exercise in between, and
+`R6` is why this project does not carry a result across a change to the code it
+tested. The `cc_*` line count is corrected from 103 to **338**. No finding
+changed state and the counts are unchanged: 19 findings, 14 resolved, 5 open.
+**`B50` now closes on `W5`, not on more code.**
+
+Revised 2026-09-04, a fourth time, on the first in-world evidence `G6` has. The
+author played the **uncommitted working tree**: route two of `B50` and the clamp
+that answers it are **observed rather than inferred**, so this finding stops
+being suspected in that half, while route one and the wall stay inferred. The
+same sitting found the rescue looping at the spawn column, which has **no id** —
+the clamp has never been committed, so that is the change being wrong before it
+shipped and its record is `ROADMAP.md` `G6`. Three **Keep** paragraphs added
+against `repair_spawn()`: why the repair goes under the destination rather than
+on the plane at `y = 0`, why `get_node_or_nil` and `load_area` are both required,
+and why the `walkable` tests are against `false` rather than truthiness. Each
+would ship a silent half-fix if tidied away. No finding changed state and the
+counts are unchanged: 19 findings, 14 resolved, 5 open.
+
+Revised 2026-09-04, a third time, while `G6` was built: `B50` widened to two
+routes — the generated edge, and a hole a program digs in the floor, which the
+wall does not close — with the author's ruling that `cc_security` clamps a player
+outside the world box back to spawn; its fix recorded as written-and-unrun, with
+`W4`–`W8` as the evidence it will need. The engine floor is corrected from 5.7 to
+**5.9** in `C21` and in `B50`'s **Keep**, on the shipped `lua_api` at three tags:
+`register_mapgen_script` is absent at 5.7.0 and 5.8.0 and present at 5.9.0. The
+gap `C21` describes is four minor versions, not three. `A13` gains a constraint —
+the trim must keep `default_obsidian.png`, which the bedrock node reuses. No
+finding changed state and the counts are unchanged: 19 findings, 14 resolved,
+5 open.
+
+Revised 2026-09-04, a second time, while the world-limits feature was shaped with
+the author: `B50` and `C21` filed, both open and both with nothing written for
+them. `B50` is the defect `ROADMAP.md` `G6` closes and is **suspected from
+reading, not seen in a world**; `C21` is `vector3`'s `max_minetest_version = 5.5`,
+which `G6`'s move to 5.7 makes visible. The counts move to 19 findings, 14
+resolved and 5 open. The feature's own grounds are in `ROADMAP.md`, not here —
+work that is wrong before it ships is the roadmap's record.
+
+Revised 2026-09-04, describing codecube `578b364` (main) plus an uncommitted
+`cc_security` change: `B48` moves to resolved-unverified, its open question
+settled from `core.get_dig_params` rather than from inference; `A8` records that
+the table walk it holds open has widened; the `B` count in the body is corrected
+from 5 to 6, and a duplicated stale `### A8` heading is removed.
 
 Revised 2026-09-02 five times: while scoping G3, which produced `B49` and
 deferred `A13`; at `377d1f9`, when `R7` confirmed the `B49` fix in a world; again
@@ -712,8 +1100,7 @@ Before that, 2026-09-01, five times in one day: at `8b27f2f` for the packaging c
 at `7f649d8` for the first playtest; again for the `B47` and `S8` fixes it
 produced; again after re-running `L1` and `R6` against those fixes, which closed
 `B47` and reopened `S8`; and again at `c042364`, when `R6` and `R4` closed `S8`
-for good. Describes codecube `7dc764f` (main) and codeblock
-`2647228` (master), the release commit this game has adopted. `S8`, `B47`, `B48`
+for good. The adopted codeblock release is `2647228` (master). `S8`, `B47`, `B48`
 and `B49` are the new findings; ids were allocated against the mod's audit in the
 sibling checkout, which stands at `B46`, `S7`, `A16`, `C19` and `F8` — the game's
 `C20` is the highest `C`.

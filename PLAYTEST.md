@@ -37,17 +37,82 @@ nothing has gone wrong there yet and nothing proves it right either.
 Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
 (packaging, boot and install). Those letters are deliberately none of `B`, `S`,
 `C`, `A` or `F`, so a check id can never be read as a finding id, and none of
-`G1`–`G5`, the milestone lettering in `ROADMAP.md`.
+`G1`–`G6`, the milestone lettering in `ROADMAP.md`.
 
 ## Where it stands
 
+**Six checks are new on 2026-09-04 — `W4`–`W9`, all `B50`.** They are the whole
+of the in-world evidence for `G6`, the bounded world: the floor, the wall, that
+the drone's bound followed the number, that an existing world is re-bounded, that
+a player who falls through a hole a program made is put back at spawn, and that
+the place they are put back into is one they can stand in. **The code for all six
+is now committed**, on branch `g6-world-limits` at `f5f2385`, with both gates
+re-run green after committing — and **neither gate runs a line of the game's
+Lua**.
+
+**`W9` passes in full, at `f5f2385`, and it is the strongest result this project
+has.** All three cases, and the false pass the check names was actively excluded:
+asked whether the run included the out-of-range variant, the author confirmed
+spawn was out of range, which is what forces the `get_node_or_nil` / `ignore`
+branch and the `load_area` before the write. A pass with the spawn mapblock
+resident throughout would have proved the less interesting half, because
+`set_node` into a non-resident mapblock silently does nothing.
+
+**`W8` and `W4` stay partial, and their missing sha is deliberately kept.** The
+author played the *uncommitted* tree on 2026-09-04, so both name a date and a
+tree. A commit now exists, but backdating `f5f2385` onto them would carry a
+result across a change to the code it exercised: `repair_spawn()` landed on the
+rescue path between that sitting and the commit, and `W8` is a check of that
+path. `R6` is why this project does not do that. **Both are to be re-run at
+`f5f2385`.** What they establish anyway is that the whole `G6` stack is live:
+there was a bedrock floor to cut through, so `mapgen_env.lua` loaded and ran, the
+engine is 5.9 or later, `register_mapgen_script` did what it was chosen for, and
+the clamp fires.
+
+**That sitting is what found the spawn column looping, which is `W9`.** Rescued
+once away from spawn, the author then cut the floor out from under themselves at
+spawn, so the hole was where the rescue lands: put back at `(0, 9, 0)` in
+mid-air, falling about 1.35 s back through it, crossed `y = 0`, moved back —
+airborne throughout, so never able to walk out. `repair_spawn()` in
+`mods/cc_security/init.lua` is the fix and `W9` is its evidence. It carries **no
+finding id**: the clamp had never been committed, so this was the change being
+wrong before it shipped, and its record is `ROADMAP.md`'s `G6` entry.
+
+**`W5`, `W6` and `W7` were not seen and are not implied.** The wall, the drone's
+bound naming 1024, and an existing world being re-bounded remain `unchecked`; a
+fall near spawn says nothing about any of the three. So `B50` is verified for
+route two only — a program carving a hole, which `W9` now closes and `W8` will
+confirm — while route one, walking off the generated edge, rests on the wall and
+therefore on `W5`.
+
+**`W3`'s method went stale with the same change**, and its result line is left
+alone: it passed by teleporting "several thousand nodes" out, which now lands
+outside a world whose limit is 1024. The pass is still what was seen at
+`7f649d8`; the instruction is what has to be re-read before it is re-run.
+
+**`P2` is owed a re-run too.** `G6` adds two tracked files — the game-root
+`settingtypes.txt` and `mods/cc_mapgen/mapgen_env.lua` — and `.gitattributes`
+decides what reaches a player with nothing checking it (`C15`). Both are files a
+player *should* get, so nothing is expected to be wrong; `P2` is what says so.
+
 **The game's behaviour has been checked in a world on 2026-09-01 over three
-rounds, and again on 2026-09-02.** Fourteen of the eighteen have been run and
-twelve pass: `W1`–`W3`, `L1`, `L2`, `R1`–`R4`, `R6`, `R7` and `P2`. Two are
-partial: `P1`, its clone half only, and `R5`, whose drop half passed and whose
-`R3` re-run has not been done. `L3` waits on `A7` landing upstream in
-`codeblock`; `P3`, `P4` and `P5` are simply not done, and `P5` needs a release
-first.
+rounds, again on 2026-09-02, and twice on 2026-09-04.** Seventeen of the
+twenty-five have been run and thirteen pass: `W1`–`W3`, `W9`, `L1`, `L2`,
+`R1`–`R4`, `R6`, `R7` and `P2`. Four are partial: `P1`, its clone half only;
+`R5`, whose drop half passed and whose `R3` re-run has not been done; and `W8`
+and `W4`, both from 2026-09-04 and both against an uncommitted tree. `L3` waits
+on `A7` landing upstream in `codeblock`; `W5`, `W6`, `W7`, `R8`, `P3`, `P4` and
+`P5` are simply not done, and `P5` needs a release first.
+
+**`R8` is new on 2026-09-04, and four existing checks are marked for re-running
+beside it.** Since `B48` is now committed on its own at `ec02760`, all five have
+a sha to be run against. `B48`'s fix rewrites `groups` on *every* registered node in the
+`cc_security` override pass, which is a far wider blast radius than the
+`diggable` field it sits next to. `R8` is the only thing that can say the crack
+animation is gone, and `R1`, `R4`, `R6` and `P3` are the ones that would catch
+the pass having broken something else on the way. Each says so where it stands.
+None of their existing results has been moved — a pass recorded at `7f649d8` or
+`6f2409e` is still what was seen then, and it is the code that has moved.
 
 **`R2`'s drop half ran on 2026-09-02, for the first time in this project.** It
 had been recorded as passing since the first playtest on the strength of the
@@ -70,8 +135,9 @@ Nothing but `R7` could say whether it works, and on 2026-09-02 it did: nothing
 moved in five minutes.
 
 **Three findings came out of those rounds** — `B47`, `B48` and `S8` — none of
-them visible from reading the three `cc_*` files, which are 21 lines between
-them. Two are closed and re-checked; `B48` is cosmetic and open.
+them visible from reading the three `cc_*` files, **which were 21 lines between
+them at the time** — 338 now, since `G6`. All three are now fixed; `B48` is the
+one whose fix has not been seen in a world, which is what `R8` is for.
 
 **`B49` came the other way, and is worth noting for that.** It was found by
 reading `mods/default` while scoping `A13`, not by playing — three rounds in a
@@ -92,8 +158,24 @@ and `R4` is what would catch that being too broad.
 
 ## W · World and mapgen
 
-`mods/cc_mapgen/init.lua` is three lines: one `set_mapgen_setting` call for
-`mg_flags`, with `override_meta = true`.
+`mods/cc_mapgen/init.lua` settles the world's flags and its size, and
+`mapgen_env.lua` beside it writes the bounds into each chunk on the emerge
+threads: nothing below `y = 0`, a bedrock plane at `y = 0`, and a bedrock wall at
+the outermost generated column. `cc_security` holds the two that are about the
+player rather than the map — the clamp (`W8`) and the repair of the place it
+lands in (`W9`). `W4`–`W9` are all `B50`; `W9` passes at `f5f2385`, `W4` and
+`W8` are partial from 2026-09-04 against an uncommitted tree and are to be
+re-run, and `W5`–`W7` have never been run.
+
+**Three facts about the world these checks are run in, because each one changes a
+method below.** First, `mg_flags` carries `nobiomes`, so `mgflat` has no top or filler
+node and **the surface is stone** — there is no dirt and no grass anywhere until
+a program places some. Second, `mgflat_ground_level` is **8**, so that surface is
+at `y = 8` and the bedrock plane at `y = 0` is **eight nodes underground**: it is
+never seen in ordinary play, and reaching it means having a program clear a shaft
+down to it. Third, the clamp in `cc_security` is committed at `f5f2385`, so
+**`/teleport`ing to a negative `y` no longer leaves you there** — you are put back
+at spawn within 250 ms, which is `W8`'s subject and `W4`'s obstacle.
 
 ### W1 · A new world is flat and clean at spawn
 
@@ -136,14 +218,212 @@ engine emerges, and only the second is what the game promises.
 **Use `/teleport`, not flight.** `default_privs` dropped `fly` and `noclip` on
 2026-09-02, so the method this check passed by is no longer available to a
 default player — grant the priv or teleport. The distance is also worth
-re-reading against `mapgen_limit`, now 4096: "several thousand nodes" should
-still land inside the world, but it is closer to the edge than it was at 2000.
+re-reading against `mapgen_limit`, **now 1024** and no longer 4096: "several
+thousand nodes" now lands *outside* the world, so this check must be re-run at a
+distance inside 1024 — and past the wall there is nothing to teleport into.
 
 Result: pass — `7f649d8` · engine 5.17.0 · 2026-09-01 — ground generated live
 several thousand nodes out is the same flat clean ground. The setting applies to
 every emerged chunk, not only to world creation. **Passed by flying**, before
 `fly` left `default_privs`; the finding it establishes is unaffected, but a
 re-run takes the route above.
+
+### W4 · The floor is there and you cannot fall through it [B50]
+
+**The method changed on 2026-09-04 and the old one no longer works.** It was
+`/teleport` to `y = -5`; the clamp now puts you back at spawn within 250 ms, so
+that only exercises `W8`. Go from above instead.
+
+Have a program clear a shaft from the surface down to `y = 1` — the surface is at
+`y = 8` and everything between is stone — then climb or teleport into it and
+stand on the bottom.
+
+**Pass:** the shaft bottoms out on a plane of bedrock at `y = 0` that the program
+did not place and cannot remove by accident, and you are standing on it rather
+than falling. Then have the program `remove` one node of that plane and look into
+the hole from beside it: what is under the plane is **air, not stone** — nothing
+is generated below `y = 0`. Do not walk in; that is `W8`.
+
+**A near miss looks like this:** the shaft bottoms out on more *stone*, or the
+hole shows stone under it. That means the mapgen environment script never loaded
+and `mgflat`'s ordinary fill is still there, so neither the floor nor the wall
+exists — check the boot log for a `register_mapgen_script` error, which is what
+an engine below 5.9 gives.
+
+Result: partial — **no commit, the uncommitted working tree of 2026-09-04** ·
+engine 5.17.0 (the only install; not noted at the time, and what the session
+itself proves is ≥ 5.9) · 2026-09-04 — **established as a by-product of `W8`, not
+by the method above.** The author dug a hole away from spawn and fell through it,
+so there was a bedrock floor at `y = 0` to cut through and air under it: the
+mapgen environment script loaded and ran, and `mgflat`'s ordinary fill is not
+still there. What was *not* done is the method: nobody has stood on the plane at
+the bottom of a shaft, and nobody has looked into a removed tile from beside it.
+**Re-run once there is a commit** — a result naming no sha is not evidence anyone
+else can put in front of themselves. **That commit now exists, `f5f2385`, and
+this result is deliberately not backdated onto it**: `W9`'s repair landed on the
+same rescue path between the sitting and the commit, and carrying a result across
+a change to the code it exercised is the mistake `R6` taught this project.
+Re-run at `f5f2385`.
+
+### W5 · The wall stands, full height, all the way along [B50]
+
+`/teleport` toward `+x` past 1000, then walk into the edge. Look up along the
+face, and walk some way along `z` with the wall beside you.
+
+**Pass:** an unbroken bedrock face, from the floor up out of sight, standing at
+the same `x` all along `z`, with no gap where one mapchunk meets the next.
+
+**A near miss looks like this:** a wall that is there at eye level and absent
+thirty nodes up. That is the wall being written only into the chunk that
+contains the ground, and it is exactly the case a check done from standing height
+would pass.
+
+Result: unchecked
+
+### W6 · The drone's bound followed the number [B50]
+
+Ask the drone to move past 1024 on any horizontal axis.
+
+**Pass:** it refuses with *"The drone cannot leave the world (1024 nodes)"* —
+naming **1024**, not 4096.
+
+This is the only thing that proves the game's `minetest.conf` reached
+`core.settings` and that the drone's bound and the wall are the same number.
+CodeBlock reads `mapgen_limit` itself; nothing in this game writes it into the
+mod, so a disagreement here would let a program build where a player cannot walk.
+
+Result: unchecked
+
+### W7 · An existing world is re-bounded [B50]
+
+Open a world created before this change — one whose `map_meta.txt` still carries
+the old `mapgen_limit = 4096` — and walk or teleport out to 1024.
+
+**Pass:** the edge is at 1024, not 4096.
+
+`mapgen_limit` is stored per world, so without `override_meta = true` on
+`cc_mapgen`'s `set_mapgen_setting` call an old world keeps its old edge for ever.
+This check is the only thing that argument buys and the only route to seeing it
+fail.
+
+Result: unchecked
+
+### W8 · A player who falls through a program-made hole is put back [B50]
+
+Implemented in `mods/cc_security/init.lua`, not `cc_mapgen`: the wall and the
+floor do not close this, because a program may `remove` a floor tile and
+`diggable = false` binds the player, not a program.
+
+The floor is eight nodes underground, so this needs two steps, not one. Have a
+program clear a shaft from the surface down to `y = 1` and then `remove` one
+bedrock node at `y = 0` under it — `W4`'s shaft will do. Then walk into the hole.
+
+**Pass:** you end up at the spawn point, standing on the surface. You do not keep
+falling. The spawn you arrive at is on top of the ground at `y = 8`, **not inside
+stone**: the fallback height is derived from `mgflat_ground_level`, and being
+embedded rather than falling is the way this fix fails without looking like a
+failure.
+
+**A near miss looks like this:** the clamp fires on the fall *and* on a player
+standing legitimately at the very edge of the world — against the wall, or on the
+floor plane itself — teleporting them to spawn every few seconds and making the
+world unplayable at its own boundary. So walk the wall and stand on the exposed
+floor plane for a while in the same session: neither must move you.
+
+**Both halves of that near miss have been traced in the code and neither should
+fire; this check is what says so in a world.** A player's position is their feet
+and the plane's nodes span `y = -0.5` to `0.5`, so standing on an exposed floor
+tile reads `0.5` — half a node under the `p.y < 0` test. The wall occupies the
+outermost generated column, so the furthest column anyone can stand in is one
+short of the horizontal bound. A third failure mode, the clamp firing on a player
+mid-join before their position settles, was traced and **withdrawn**: the engine
+sets a player's position before adding them, and a player with no `PlayerSAO`
+does not appear in `core.get_connected_players()`. Someone who logged out
+mid-fall *is* teleported on rejoining, and that is the clamp working, not a near
+miss.
+
+**The spawn column is a separate check.** This one is run *away from spawn*, so
+the hole is not where the rescue lands. What happens when it is, is `W9`, and it
+is the case this check's first run found.
+
+Result: partial — **no commit, the uncommitted working tree of 2026-09-04** ·
+engine 5.17.0 (the only install; not noted at the time, and what the session
+itself proves is ≥ 5.9) · 2026-09-04 — **the first half passes, observed rather
+than traced.** The author made a hole away from spawn, jumped into it, and was
+put back on the ground: the clamp fires, and the derived spawn height is a place
+you land on rather than inside. **The near-miss half was not run** — nobody has
+walked the wall or stood on the exposed floor plane for a while to confirm the
+clamp does *not* fire there, and that is what keeps this partial rather than a
+pass. **Re-run both halves once there is a commit.** **That commit now exists,
+`f5f2385`, and this result is deliberately not backdated onto it**: the sitting
+predates `repair_spawn()`, which now runs on this very path immediately before
+`set_pos`, so the code observed is not the code committed. Re-run at `f5f2385`.
+
+The same sitting then dug the spawn column and hit an infinite teleport, which is
+`W9` and a defect in the clamp as it stood, not a failure of this check.
+
+### W9 · The place the clamp puts you is a place you can stand [B50]
+
+**Separate from `W8` and not a half of it.** `W8` is *are you moved*; this is
+*where to*. They have different setups, different tells and different ways of
+failing, so they get different result lines — a rescue that fires perfectly into
+a shaft passes `W8` and is still a softlock.
+
+`repair_spawn()` in `mods/cc_security/init.lua` runs immediately before
+`player:set_pos(spawn)`: the node under the destination is made
+`cc_mapgen:bedrock` if it is not walkable, and the two nodes the player's body
+occupies are cleared if they are. It is the only place `cc_security` writes to
+the map. Three cases, in this order.
+
+**1 · The reported loop.** From spawn, have the drone remove the bedrock at
+`(0, 0, 0)` and the stone column above it, so the spawn column is a shaft. Walk
+in.
+
+**Pass:** you are moved back **once**, and you are standing on a solid node at
+the surface, stationary, able to walk away.
+**Fail:** any second teleport, or moved back but still falling. That is the
+defect exactly as it was reported on 2026-09-04.
+
+**2 · The mirror case.** From *away* from spawn, have the drone fill `(0, 9, 0)`
+and `(0, 10, 0)` with stone, then fall out of the world from a fresh shaft where
+you are.
+
+**Pass:** you arrive at spawn in open air, free to move.
+**Fail:** you arrive unable to move, with your view inside a node. With damage
+off that has no way out at all, which is why it is worse than case 1 and why the
+repair clears the body as well as filling under it.
+
+**3 · The no-op case.** With spawn untouched, fall out from a shaft elsewhere.
+
+**Pass:** you land at spawn *and the surface node at `(0, 8, 0)` is still stone,
+not bedrock*. The repair must not fire when nothing is broken; a bedrock tile
+appearing in an untouched surface means the tests are inverted.
+
+**Two false passes this check must be run against, because they are how the fix
+looks fixed without being fixed:**
+
+- **Case 1 passing only because the spawn mapblock happened to be resident**,
+  which hides the `ignore` path entirely. `minetest.get_node` reports `ignore`
+  for an unloaded mapblock and that reads as an ordinary solid node, so the
+  repair would be skipped on exactly the tick that needs it. To force the other
+  branch: after digging the spawn shaft, go a few hundred nodes away, stay until
+  the spawn area is out of range, *then* fall out of the world from where you
+  are.
+- **Landing on the bedrock plane at `y = 0` rather than at the surface.** The
+  tell is your `y` after the rescue: about **8.5**, not about 0.5. Landing at the
+  bottom of the shaft the program dug is the other softlock — unable to climb out
+  and unable to dig — not a fix, and it is what filling the plane instead of the
+  node under the destination would produce.
+
+Result: pass — `f5f2385` · engine 5.17.0 · 2026-09-04 — all three cases, and
+**the first false pass was actively excluded**: asked whether the run included
+the out-of-range variant, the author confirmed spawn was out of range. That is
+the variant that forces the `get_node_or_nil` / `ignore` branch and the
+`load_area` before the write — `set_node` into a non-resident mapblock silently
+does nothing, so a pass with the spawn mapblock resident throughout would have
+proved the less interesting half. The reported loop is gone: moved back once,
+standing, able to walk away. The mirror case arrives in open air. The no-op case
+leaves the surface at `(0, 8, 0)` stone, so the walkable tests are not inverted.
 
 ---
 
@@ -210,11 +490,19 @@ Result: unchecked
 `mods/cc_security/init.lua`, and it is the whole of what a player may and may not
 do: a blank inventory formspec per player, a guard denying every player-initiated
 inventory action (`S8`), a pass over every registered node setting
-`diggable = false`, denying its three inventory callbacks and stopping its timer
-(`S8`, `B49`), every ABM action replaced with a no-op (`B49`), and two engine
+`diggable = false`, stripping the six digging groups so the client stops
+predicting a dig (`B48`), denying its three inventory callbacks and stopping its
+timer (`S8`, `B49`), every ABM action replaced with a no-op (`B49`), and two engine
 globals replaced — drops chained with an empty list, knockback returning 0, with
 `last_mod = cc_security` in `game.conf` keeping this mod the one that replaces
-them (`A8`).
+them (`A8`). It also holds the world-box clamp added for `B50` — a player found
+outside the world is put back at spawn, and the destination is repaired first so
+that it is somewhere they can stand — but those two read with the rest of the
+world's bounds and are `W8` and `W9`, not here.
+
+**That repair is the one place in this mod that writes to the map**; every other
+rule in it denies. Worth knowing here, because "`cc_security` only ever denies"
+is otherwise the natural summary of this group and it is no longer true.
 
 ### R1 · Nothing is diggable
 
@@ -225,6 +513,14 @@ block types including one from `wool` and one from `default`.
 `on_mods_loaded` over `minetest.registered_nodes`, so a node registered later —
 by another mod, or by a future `default` trim — would not be covered; try a block
 type the drone can place but you have not seen before.
+
+**Re-run this against `B48`, and it is the one most at risk.** That change adds
+an inner `pairs` over every node's `groups` inside the same loop. If it errors on
+any single node, `register_on_mods_loaded` aborts and **every node after that
+point keeps `diggable = true`** — and table iteration order is not stable, so a
+partial failure hits a different set of nodes on every boot. One punch on one
+wall would miss that. Try several block types, from `default` and from `wool`,
+and try them in a fresh world rather than the one already open.
 
 Result: pass, with two things it turned up — `7f649d8` · engine 5.17.0 ·
 2026-09-01 — nothing breaks, anywhere, on any node tried. The rule holds. But:
@@ -262,11 +558,19 @@ node — it is the fallback for the one gap `R1` names: **the override pass runs
 `on_mods_loaded` over `registered_nodes`, so a node registered later is not
 covered**, and then the drop guard is all that is left.
 
-**To check it, reproduce that gap.** Comment out the `diggable = false` line in
-`mods/cc_security/init.lua`'s `override_item` call, restart the server, and dig a
-node by hand. Revert the line afterwards. This is not cheating the check: an
-uncovered node is exactly the situation the guard exists for, and it is the only
-way to put the real `handle_node_drops` on a real dig.
+**To check it, reproduce that gap.** Comment out **both** the `diggable = false`
+line and the `groups = groups` line in `mods/cc_security/init.lua`'s
+`override_item` call, restart the server, and dig a node by hand. Revert both
+lines afterwards. This is not cheating the check: an uncovered node is exactly
+the situation the guard exists for, and it is the only way to put the real
+`handle_node_drops` on a real dig.
+
+**The `groups` line is why this method changed on 2026-09-04.** `B48` strips six
+digging groups from every node, and the hand digs by groupcap — so with the
+groups gone, `diggable = true` on its own may leave nothing the hand can break,
+and the check would silently do nothing instead of failing. The pass below was
+recorded before that change, by commenting out one line, and stands: it is
+evidence about `handle_node_drops`, which `B48` did not touch.
 
 **Pass:** the inventory formspec is blank; digging with the line commented out
 removes the node and **no item appears** — none on the ground, none in the
@@ -303,6 +607,11 @@ of the node for a *player's* tool; the drone writes the map directly and must be
 unaffected. This is the check that a restriction has not been made so broad it
 disables the point of the game.
 
+**Re-run this against `B48`.** It is the widening control for that loop: six
+groups have just vanished from under whatever might have been reading them, and
+this is what says the drone still builds through the same override pass. Run it
+in the same session as `R8`.
+
 Result: pass — `6f2409e` · engine 5.17.0 · 2026-09-02 — re-run after `A8` changed
 `cc_security`. The drone still places and removes normally, so chaining the drop
 handler and declaring `last_mod` have not narrowed the game.
@@ -335,6 +644,11 @@ bookshelf's formspec shows `list[current_player;main]`, so it is a way into the
 player's own inventory even when nothing can be moved into the bookshelf itself.
 Drag a drone tool from the hotbar into one of the rows below it. Nothing should
 move. That is the half the first fix missed.
+
+**Re-run this against `B48` too — cheap to fold in.** It does not test groups,
+but its three `allow_metadata_inventory_*` callbacks are set by the same
+`override_item` call in the same loop, so a mid-loop error takes them out
+alongside `diggable`.
 
 Result: pass — `6f2409e` · engine 5.17.0 · 2026-09-02 — re-run after `A8` changed
 `cc_security`. Both halves still hold: the bookshelf takes nothing and no drone
@@ -401,9 +715,8 @@ should behave exactly like the old. What is worth confirming is that it does:
 been run, and a `nil` there would error on the one path that is meant to be
 silent.
 
-Re-run `R3`, and run `R2` **by its drop method** — comment out `diggable = false`
-in `mods/cc_security/init.lua`, restart, dig a node by hand, revert the line.
-That is the only way to put a real dig through the chain; no second mod, nothing
+Re-run `R3`, and run `R2` **by its drop method**, which is written out under
+`R2` and now needs two lines commented out rather than one. That is the only way to put a real dig through the chain; no second mod, nothing
 to install. Without it R5 proves nothing that `R3` does not already prove.
 
 **Pass:** both still pass. No item entity ever appears, and nothing pushes you.
@@ -425,6 +738,50 @@ list to the captured handler, and nothing drops. `R3` was not re-run on current
 code, so the knockback half is still resting on its 2026-09-01 pass. The risk
 there is small — `A8` left `calculate_knockback` byte-identical and nothing
 competes for it — but small is not none, and thirty seconds closes it.
+
+### R8 · No node ever plays a dig animation [B48]
+
+**The outcome and the animation are different claims, and only the animation is
+new.** Every node was already undiggable at `R1`; what `B48` changes is that the
+client no longer *predicts* a dig it is about to be refused. So a node staying
+put proves nothing here — the observation is what the screen and the speakers do
+during the punch.
+
+Punch and **hold** on each of three nodes, for a full two seconds each, close
+enough to see the face clearly and with sound on:
+
+1. `wool`, any colour. Was `oddly_breakable_by_hand = 3`, and is the node that
+   produced the finding: it cracked through all five stages and then stayed.
+2. `default:leaves`. Was `dig_immediate = 3`, so before the fix it cracked
+   *instantly*, in a single frame. It is the fastest case and the one where a
+   partial strip would still show.
+3. `default:stone`. `cracky`, never hand-diggable, so it never cracked and must
+   still not. This is the control that says the fix removed a prediction rather
+   than breaking the display: a stone that now behaves differently means
+   something other than the digging groups was touched.
+
+**Pass:** on all three, **no cracking texture appears at any stage** — not stage
+one, not a single frame — and **no dig sound plays**. The node is also still
+there afterwards, on all three, which is `R1`'s claim and not this one.
+
+**A near miss looks like this:** the block does not break, so it reads as a pass,
+while the first crack stage still flashes on `leaves`. That is the whole defect
+`B48` describes, and only holding the punch and watching the face catches it.
+Equally, a `wool` that stops cracking while `leaves` still flashes means the
+group list is incomplete, not that the fix works.
+
+**Then confirm the strip did not cost anything else.** Wool must still show its
+colour and `leaves` must still look like leaves — the fix keeps every non-dig
+group deliberately, and colour, flammability, attachment and decay all ride on
+them. Run `R4` in the same session: it is the check that says the drone can still
+build through the same override pass, and this change edits the loop `R4` guards.
+
+**`B48`'s fix is now committed on its own, at `ec02760`** — split out of `G6` so
+the `G4` fix stands separately — so this check finally has a sha to be run
+against, and so do the `R1`, `R4`, `R6` and `P3` re-runs beside it. `f5f2385`
+carries it too and is the tip; either names the same `cc_security` override pass.
+
+Result: unchecked
 
 ---
 
@@ -498,6 +855,12 @@ count of distinct messages, not of occurrences — that is what hid the two
 `TileDef.image` warnings behind the `formspecs` warnings until `B20` removed
 them. A single occurrence of anything new is therefore worth a finding.
 
+**`B48` makes this more worth doing than it was.** One of the two
+`TileDef.image` warnings came from `override_item` re-processing a definition,
+and that change alters what is handed to `override_item` on every node — a
+rebuilt `groups` table rather than the one already there. Whatever the pass
+re-triggers, it now re-triggers against something different.
+
 Result: unchecked
 
 ### P4 · The main menu presents the game
@@ -536,3 +899,45 @@ half of `P1` at `8b27f2f`; the `W`, `L` and `R` groups at `7f649d8`; then `L1`
 and `R6` at `b9bf82b` against the fixes those produced, and `R6` and `R4` again
 at `c042364`. All played by the author in a world on Luanti 5.17.0 — recovered
 from the engine's own debug log afterwards, not noted at the time.
+
+Revised 2026-09-04 a second time, at `578b364` plus the uncommitted `G6` work:
+`W4`–`W8` added for `B50` — the floor, the wall, the drone's bound, an existing
+world re-bounded, and the clamp that puts a player back at spawn after they fall
+through a hole a program made. All five `unchecked`; nothing of `G6` has been run
+in a world. No existing result line was changed.
+
+Revised 2026-09-04 at `578b364` plus an uncommitted `cc_security` change: `R8`
+added for `B48`, `R1`, `R4`, `R6` and `P3` marked for re-running beside it, and
+`R2`'s drop method corrected to comment out `groups = groups` as well as
+`diggable = false` — with the groups stripped, the first line on its own may
+leave the hand nothing it can break, and the check would do nothing rather than
+fail. No result line was changed.
+
+Revised again on 2026-09-04, after the clamp landed in the working tree and the
+world it is run in was read properly. **`W4`'s method was stale and could not
+have been run as written**: it teleported to `y = -5`, which the clamp now
+answers by putting the player back at spawn, so it tested `W8` and not the floor.
+It goes down a program-cleared shaft instead. **`W8`'s method was stale for a
+second reason**: `mgflat_ground_level` is 8, so the floor is eight nodes
+underground and "delete one bedrock node and walk into the hole" needs the shaft
+first. `W8`'s near miss is now confirmed against the code, a third failure mode
+about join timing is recorded as withdrawn rather than left implied, and the
+`W` group carries the two facts that changed both methods — the surface is stone,
+and it is at `y = 8`. **No result line was changed and none may be:** every one
+of `W4`–`W8` is still `unchecked`.
+
+Revised a fourth time on 2026-09-04, and this one records evidence. The author
+played the **uncommitted working tree** and reported two things in one sentence,
+recorded here as two results: `W8`'s ordinary case passes — a hole away from
+spawn, jumped into, put back on the ground — and the spawn column loops, which is
+the new `W9`. `W4` goes to partial as a by-product of the first, since there was
+a bedrock floor to cut through and air under it. **`W4` and `W8` are the only
+results in this document that name no commit**, because the tree they were seen
+on is uncommitted; both say so and both must be re-run once there is one. `W5`,
+`W6` and `W7` were *not* observed and stay `unchecked` — a fall near spawn says
+nothing about the wall, the drone's bound or an existing world. `W9` is a new
+check rather than a half of `W8` because the two ask different questions — *are
+you moved* and *where to* — and a rescue that fires perfectly into a shaft passes
+one while failing the other. The `R` group intro now says that `cc_security`
+writes to the map in exactly one place, since "it only ever denies" was the
+natural reading of that group and is no longer true.

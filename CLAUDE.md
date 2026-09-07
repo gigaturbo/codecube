@@ -26,7 +26,7 @@ instructions.
 | | |
 |---|---|
 | `codeblock`, `vector3` | Submodules. Pinned dependencies, **not working copies.** |
-| `cc_day`, `cc_mapgen`, `cc_security` | The game's own mods, one Lua file each: permanent daylight, a flat clean mapgen, and the build restrictions. **This is the only Lua this repository owns or lints.** |
+| `cc_day`, `cc_mapgen`, `cc_security` | The game's own mods: permanent daylight, a flat bounded clean mapgen, and the build restrictions. One Lua file each except `cc_mapgen`, which has a second, `mapgen_env.lua`, run in the mapgen environment on the emerge threads. **This is the only Lua this repository owns or lints.** |
 | `default`, `dye`, `wool` | Vendored from Minetest Game for their nodes. Third-party, deliberately not linted and not ours to restyle. |
 
 **CodeBlock is developed in its own sibling checkout, not here.** `mods/codeblock`
@@ -67,7 +67,7 @@ Six tracked documents, all in this directory, plus the `.claude/` definitions an
 the HTML renderings:
 
 - `ROADMAP.md` — the game's own mods, its packaging and presentation, and which
-  CodeBlock release it has adopted. Its milestones are lettered **`G1`–`G5`**,
+  CodeBlock release it has adopted. Its milestones are lettered **`G1`–`G6`**,
   deliberately not "Phase N" — that is the mod's scheme and appears in its commit
   messages, and the two must stay distinguishable.
 - `TODO.md` — intentions that are not findings. One line per item and a finding
@@ -109,8 +109,8 @@ own skill first. Their definitions are the long form; this is only the map.
 | Agent | Owns | Reads |
 |---|---|---|
 | `project-manager` | the record above, `README.md`, `CONTENTDB.md` and the `.cdb.json` generator over it, `.reports/`, and the `.claude/` definitions | `build-feature` |
-| `code-expert` | `mods/cc_day`, `mods/cc_mapgen`, `mods/cc_security`, `scripts/`, `game.conf`, `minetest.conf`, and the packaging and lint configuration | `code-standards`, `references` |
-| `test-agent` | the two gates, the CI lookup, `PLAYTEST.md`'s result lines, and the evidence side of `AUDIT.md` | `run-checks`, `references` |
+| `code-expert` | `mods/cc_day`, `mods/cc_mapgen`, `mods/cc_security`, `scripts/`, `game.conf`, `minetest.conf`, and the packaging and lint configuration | `code-standards`, `luanti-reference` |
+| `test-agent` | the two gates, the CI lookup, `PLAYTEST.md`'s result lines, and the evidence side of `AUDIT.md` | `run-checks`, `luanti-reference` |
 
 Two rules make the split work: **call the agent rather than doing its work**, and
 **never two of them on one file in a turn** — `AUDIT.md` and `PLAYTEST.md` are
@@ -150,9 +150,25 @@ you changed.
 
 ## Architecture
 
-`cc_mapgen` makes the world flat and clean, `cc_day` holds it at noon,
-`cc_security` restricts what a player may break or place; each is a single Lua
-file. That is the whole of this game's code.
+`cc_mapgen` makes the world flat, clean and bounded — a bedrock floor at
+`y = 0` and a bedrock wall at the outermost generated column, written from
+`mapgen_env.lua` on the emerge threads, which is what `min_minetest_version =
+5.9` in `game.conf` is for. `cc_day` holds the world at noon. `cc_security`
+restricts what a player may break or place, and puts a player found outside the
+world box back at spawn — repairing that destination first, which is **the one
+place this game writes to the map**; every other rule in `cc_security` denies.
+Four Lua files, 338 lines. That is the whole of this game's code.
+
+**The surface is stone, and the bedrock floor is buried.** `mg_flags` carries
+`nobiomes`, so `mgflat` has no top or filler node — there is no dirt and no grass
+in the world until a program places some — and it fills stone up to
+`mgflat_ground_level`, which is 8. So a player stands at `y = 8` and the plane at
+`y = 0` is eight nodes down, out of sight in ordinary play.
+
+The world's size is one number, `mapgen_limit`, declared in the game-root
+`settingtypes.txt` and defaulted in `minetest.conf`. CodeBlock reads the same
+setting for the drone's bound, so the two never disagree; nothing here writes it
+into the mod.
 
 ## Environment notes
 

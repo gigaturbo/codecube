@@ -1,13 +1,13 @@
 ---
 name: build-feature
 description: How work gets built in the Codecube game — first deciding whether it is the game's at all rather than the CodeBlock mod's, then shaping it in prose under a G milestone, putting the author's choices to them, arguing out what should not be built, writing it with the two gates, the author playing it in a real world, and recording what that found. Use when starting or resuming a G item, when a TODO line is being picked up, or when deciding whether a piece of work is finished.
-when_to_use: Starting or resuming any item in ROADMAP.md's G1-G5 milestones, before writing any code under mods/cc_*, when asked what is next on a milestone or whether something is finished, when triaging whether an idea belongs to the game or to the mod, and when a playtest has just produced results.
+when_to_use: Starting or resuming any item in ROADMAP.md's G1-G6 milestones, before writing any code under mods/cc_*, when asked what is next on a milestone or whether something is finished, when triaging whether an idea belongs to the game or to the mod, and when a playtest has just produced results.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write, AskUserQuestion
 ---
 
 # Building something in Codecube
 
-The milestones `G1`–`G5` and the agreed shape of each item live in
+The milestones `G1`–`G6` and the agreed shape of each item live in
 **`ROADMAP.md`**; the reasoning is in `AUDIT.md`, the in-world checks in
 `PLAYTEST.md`, the author's inbox in `TODO.md`. Ids are never renumbered, and
 milestones here are **lettered**, never "Phase N" — that is the mod's scheme and
@@ -19,8 +19,8 @@ project's own, and it is the one that saves the most.
 ## 0. Decide whose the work is
 
 **Most feature-shaped ideas that arrive here belong to CodeBlock, upstream.** The
-game is thin on purpose: 35 lines of Lua across `cc_day`, `cc_mapgen` and
-`cc_security`, plus packaging and presentation. Everything a player *does* is the
+game is thin on purpose: a bit over a hundred lines of Lua across `cc_day`,
+`cc_mapgen` and `cc_security`, plus packaging and presentation. Everything a player *does* is the
 mod's.
 
 - The **game's** if it is about the world, the light, what a player may break or
@@ -101,7 +101,7 @@ if the change reaches behaviour no existing check does. `run-checks` holds what 
 good check looks like and how a result is recorded.
 
 Reach for the engine's documentation on the first surprise, not the second — the
-`references` skill bundles `lua_api.md` and the settings reference offline.
+`luanti-reference` skill bundles `lua_api.md` and the settings reference offline.
 
 ## 6. Record what the playtest found, before the work moves on
 

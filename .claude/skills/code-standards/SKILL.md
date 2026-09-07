@@ -1,6 +1,6 @@
 ---
 name: code-standards
-description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is 35 lines of Lua across three mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
+description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is a bit over a hundred lines of Lua across three mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
 when_to_use: Before editing mods/cc_day, mods/cc_mapgen, mods/cc_security, scripts/, game.conf, minetest.conf, .luacheckrc or .gitattributes; when auditing the game's own code; when deciding whether a change belongs to the game or to the mod; and whenever you are about to state that an engine function exists or behaves in a particular way.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 ---
@@ -17,15 +17,16 @@ behaviours that have already cost findings.
 
 ## The first question is always *whose is this*
 
-The game owns **35 lines of Lua**, in three files — counted as lines that are
-neither blank nor a comment, which is how the numbers below can be re-derived
-rather than trusted:
+The game owns **139 lines of Lua**, in four files — counted as lines that are
+neither blank nor a comment, recounted on the 2026-09-04 working tree with the
+whole of `G6` in it, clamp and its spawn repair included, which is how the
+numbers below can be re-derived rather than trusted:
 
 | Mod | Lines | What it does |
 |---|---|---|
 | `cc_day` | 7 | Holds the world at noon, no sky objects |
-| `cc_mapgen` | 3 | Sets `mg_flags` so a new world is flat and clean |
-| `cc_security` | 25 | Nothing diggable, no drops, no knockback, no inventory form, nothing growing or spreading |
+| `cc_mapgen` | 17 + 36 | `init.lua` sets `mg_flags` and the world's size and registers the bedrock node; `mapgen_env.lua` writes the floor and the wall on the emerge threads |
+| `cc_security` | 79 | Nothing diggable, no drops, no knockback, no inventory form, nothing growing or spreading, and the world-box clamp with its spawn repair |
 
 Everything a player *does* — the sandbox, the drone, the editor, the API and its
 limits — is CodeBlock's, upstream, in its own repository. So a feature-shaped
@@ -45,8 +46,14 @@ to `cc_*` needs a reason that a mod change could not serve.
 ## The restriction boundary
 
 `cc_security` is what makes a Codecube world read-only to a player's hands: the
-drone builds, the player does not. It is thirteen lines and every one of them is
+drone builds, the player does not. It is 79 lines and every one of them is
 load-bearing.
+
+**One rule in it writes to the map, and only one**: the clamp repairs the rescue
+destination — bedrock under the feet, the two occupied nodes cleared — before
+moving a player back, because a program is free to have dug or filled the spawn
+column and a destination the player cannot stand in is not a rescue. Anything
+else added here should deny, not write. (`B50`)
 
 Five questions for any change to it, or to `minetest.conf` and `game.conf`:
 
@@ -98,11 +105,48 @@ Five questions for any change to it, or to `minetest.conf` and `game.conf`:
 - `minetest.conf` at the game root supplies **defaults a player or server owner
   can still change**. It is presentation and courtesy, never a guarantee; a
   restriction that matters belongs in `cc_security`.
+- **The engine floor is 5.9 and unguarded** — `min_minetest_version` in
+  `game.conf`, and the author has ruled against buying compatibility with a
+  guarded call. So the bundled 5.17.0 `lua_api.md` proves a function exists
+  *today*, not that the game may call it: check the same name at
+  `https://raw.githubusercontent.com/luanti-org/luanti/5.9.0/doc/lua_api.md`
+  before using it. `core.settings:get_pos` is 5.10 and later; the spelling that
+  works at the floor is `core.setting_get_pos(name)`, deprecated at 5.17 but
+  present and documented.
+- **`core.get_mapgen_edges()` is safe to call at mod load time**, and its result
+  is the right one for the game because `last_mod = cc_security` puts every
+  `cc_*` mod's `set_mapgen_setting` before it. The engine reads a *copy* of the
+  mapgen params for this call — `l_mapgen.cpp` says so in a comment, at 5.9.0 and
+  at 5.17.0 alike — so unlike `makeMapgenParams` it does not freeze mapgen
+  settings against later mods.
+- **`core.get_spawn_level` cannot be called at mod load time.** It goes through
+  the emerge manager, and mapgens initialise *after* every mod has loaded, so it
+  returns `1` and writes a line to `errorstream` on every boot. The height a
+  new player actually spawns at comes from
+  `core.get_mapgen_setting("mgflat_ground_level")`, which is **8** by default and
+  is a string. This cost a defect in `G6`'s clamp before it shipped: a fallback
+  spawn written as `y = 1` would have put a rescued player inside solid stone,
+  because the bedrock plane at `y = 0` is eight nodes under the surface.
+- **`walkable` defaults to true, and the Lua definition table keeps the
+  omission.** The engine applies the default when it reads the definition, so
+  `core.registered_nodes[name].walkable` is `nil` for ordinary solid nodes such
+  as `default:stone`. Test `def.walkable ~= false`; testing it for truthiness
+  reads every solid node as walk-through.
+- **`core.get_node` answers `ignore` for an unloaded mapblock**, which is
+  indistinguishable from a real node unless you look at the name. Use
+  `core.get_node_or_nil`, treat `ignore` as "no answer" in a loaded block too,
+  and `core.load_area` first when you intend to write — `core.set_node` into a
+  non-resident block silently does nothing. All three spellings exist at the
+  5.9 floor. (`B50`)
+- **The world's surface is stone.** `mg_flags` carries `nobiomes`, so `mgflat`
+  has no top or filler node and fills stone to `mgflat_ground_level`. There is no
+  dirt and no grass in a Codecube world until a program places some — `B49` is
+  about what `default` *registers*, not about what the mapgen produces.
 
-Use the **`references`** skill before stating that a `core.*` function exists, is
-deprecated, or takes particular arguments. It bundles `lua_api.md`, the Lua 5.1
-manual and ContentDB's own rules offline. Answering from memory is how findings
-get here.
+Use the **`luanti-reference`** skill before stating that a `core.*` function
+exists, is deprecated, or takes particular arguments. It bundles `lua_api.md`,
+the Lua 5.1 manual, ContentDB's own rules and the engine behaviours that have
+already cost findings. Answering from memory is how findings get here.
 
 ## The vendored mods are not ours
 

@@ -73,7 +73,7 @@ releases rather than following commits.
   `README.md` edit no longer affects it.
 - `ROADMAP.md`, `TODO.md`, `AUDIT.md` and `PLAYTEST.md` **at the game root** —
   strike what this release closed, or ask `project-manager` to. The reasoning is
-  in `AUDIT.md`; the order of work and the `G1`–`G5` milestones are in
+  in `AUDIT.md`; the order of work and the `G1`–`G6` milestones are in
   `ROADMAP.md`. The mod keeps its own record in its own repository and it is
   never edited from here.
 - `PLAYTEST.md` — read the `Result:` lines and note what this release has
