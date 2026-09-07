@@ -18,7 +18,7 @@ performance. They were allocated once across this audit and the mod's, so a
 number never means two things and **a gap here is a finding that lives in the
 mod's audit**, not one dropped. Every id below kept the number it had in the
 shared audit; `C15` is the first allocated after the split, then `C20`, then
-`B50` and `C21` on 2026-09-07.
+`B50` and `C21` on 2026-09-07, then `C22`.
 The `S` series was all the mod's until `S8` was filed, fixed and confirmed here
 on 2026-09-01; the `F` feature series is the mod's own.
 
@@ -26,117 +26,439 @@ States: **resolved**, **open**, **won't fix** (the defect is real, the decision
 is not to fix it), **withdrawn** (no longer applies — none is). Severities:
 critical, high, medium, low.
 
+**Findings are grouped by state first, then by series.** Open findings are in
+full, ahead of everything else; resolved ones follow in `B`, `S`, `C`, `A`
+order, each series behind an index table.
+
 Compression rule: a closed finding whose reasoning is spent is one line. A closed
 finding whose reasoning is load-bearing keeps a **Keep** paragraph, because
-someone could otherwise undo it by accident. Nothing has ever been renumbered and
-nothing dropped.
+someone could otherwise undo it by accident — and a `Keep` never states a rule
+without the finding id it came from. They are identified by the `**Keep —`
+marker in this document and are **not listed anywhere else**: a list of them goes
+stale silently and then licenses the deletion of the ones it missed. Nothing has
+ever been renumbered and nothing dropped.
+
+## Status
+
+| Series | Total | Resolved | Open | Won't fix |
+|---|---|---|---|---|
+| `B` bugs | 7 | 7 | 0 | 0 |
+| `S` sandbox and security | 1 | 1 | 0 | 0 |
+| `C` compliance and packaging | 8 | 6 | 2 | 0 |
+| `A` architecture and performance | 4 | 1 | 3 | 0 |
+| **Total** | **20** | **15** | **5** | **0** |
+
+**No open finding is critical or high.** Three are medium and two are low.
+
+| Id | Sev | State | What | Waiting on |
+|---|---|---|---|---|
+| `A7` | medium | open | `cc_day` duplicates a sky block `codeblock` also runs | the removal landing upstream, then adopting that release and running `L3`. Nothing is written in this repository for it |
+| `A8` | medium | open | the every-node table walk that expresses one rule | a decision on whether Luanti offers anything better than the walk. The drop chain half is confirmed by `R2` |
+| `A13` | medium | open, deferred | `default` is 9,744 lines to supply 106 node definitions | `codeblock` deciding whether to take the blocks itself. Deferred by the author twice, 2026-09-02 and 2026-09-07 |
+| `C21` | low | open | `mods/vector3/mod.conf` declares `max_minetest_version = 5.5`, four minor versions under this game's floor | upstream `vector3` or a re-pin. Not this repository's to edit |
+| `C22` | low | open | three menu images ship to every player with no licence stated anywhere | **the author choosing a licence**, then `code-expert` writing it into a `license.txt`, `THIRD-PARTY-LICENSES.md` and `scripts/gen_cdb_json.sh` |
+
+**Three findings are resolved in committed code and unverified in a world**, which
+is a weaker state than resolved and is tracked here because nothing else tracks
+it. The game has no test suite, so a `PLAYTEST.md` result line is the only thing
+that closes the gap.
+
+| Id | Resolved in | Unverified until |
+|---|---|---|
+| `B19` | `e51f969` | `P3` |
+| `B24` | `e51f969` | `P3` |
+| `B48` | `ec02760` | `R8`, with `R1`, `R4` and `R6` re-run beside it |
+
+**One playtest sitting closes all three** — `R8` and `P3` are in the same session,
+and `R1`, `R4` and `R6` are the re-runs `B48`'s fix made necessary because it
+rewrites `groups` on every registered node. `PLAYTEST.md` holds the list of what
+needs action; it is not restated here.
 
 ## Where it stands
 
-20 findings, this game's own. **15 resolved, 5 open, none won't-fix.** No open
-finding is critical or high. Three are medium — `A7`, `A8` and `A13` — and two
-are low, `C21` and `C22`.
-
-**`C22` is new on 2026-09-07 and is the only finding here that has been true since
-the project began.** The game's three menu images ship to every player and no file
-anywhere states a licence for them, while every bundled mod has a `license.txt`
-and a row in `THIRD-PARTY-LICENSES.md`. It was turned up sideways, by `G7` giving
-`cc_mapgen` its own textures and a *License of media* section with them: the game
-now names a licence for two 16×16 files and none for 655 kB of artwork seen
-before anyone enters a world. Raised by `code-expert` as suspected and **verified
-here by reading all four files**.
-
-**`B50` is resolved, and it is the one finding here closed by evidence rather than
-by a commit.** Falling out of the world had **two routes**: the generated edge,
-and a hole a program carves in the floor. Both are shut — a bedrock plane at
-`y = 0` with air beneath, a full-height bedrock wall at the outermost generated
+**`B50` is resolved, and it is the one finding here closed by evidence rather
+than by a commit.** Falling out of the world had **two routes**: the generated
+edge, and a hole a program carves in the floor. Both are shut — a bedrock plane
+at `y = 0` with air beneath, a full-height wall at the outermost generated
 column, and a `cc_security` globalstep that puts a player found outside the box
 back into their own column — committed at `f5f2385` with the rescue's destination
 reversed at `60259dd`. **What closed it is `PLAYTEST.md` `W4`–`W9`, all six
-passing at `60259dd`.** Route one had never been walked to at all and rested
+passing at `60259dd`.** Route one had never been walked to at all and rests
 entirely on `W5`; route two had passed at `f5f2385` and lost that evidence when
-`60259dd` replaced the destination it described. Both are now observed. Two
-defects found while building this were in uncommitted code and carry **no id** —
-the `y = 1` fallback inside solid stone, and the rescue looping at the spawn
-column — and their record is `ROADMAP.md` `G6`, as is the design reversal at
-`60259dd`, which was the author's instruction after playing and not a defect at
-all.
+`60259dd` replaced the destination it described. Both are now observed.
 
-**A third defect was found in uncommitted code on 2026-09-07 and carries no id
-either, which makes it the third application of the same rule.** `G7` raises
-`mgflat_ground_level` to 128, and `cc_security` derived both its spawn fallback
-and its scan bound from `(ground or 8)` — so on the fallback path a rescued
-player would have been put at `y = 9`, inside a hundred and twenty nodes of solid
-stone. It is the same shape as `G6`'s `y = 1` fallback and was caught the same
-way, by reading the change against the number it had just moved. Collapsed to a
-single `or 128` at the definition. **No id, because what gets one is a defect in
-committed code**; the record of a change that was wrong before it landed is
-`ROADMAP.md` `G7`, and `PLAYTEST.md` `W14` cases 2 and 3 are what would have
-caught it in a world. Filed nowhere else, so that a future reader who finds `W14`
-asking pointedly about the number 9 knows why.
+**Three defects were found in uncommitted code while building `G6` and `G7`, and
+none carries an id.** The `y = 1` spawn fallback inside solid stone, the rescue
+looping at the spawn column, and — on 2026-09-07 — `cc_security` deriving both
+its fallback and its scan bound from `(ground or 8)` after the game's default
+became 128, which would have put a rescued player at `y = 9` inside a hundred and
+twenty nodes of stone. **What gets an id is a defect in committed code**; a
+change that is wrong before it lands is the change being wrong, and its record is
+the `ROADMAP.md` entry — `G6` for the first two, `G7` for the third. `W14` cases
+2 and 3 are what would have caught the third in a world, which is why that check
+asks pointedly about the number 9. The rescue's reversal at `60259dd` is not a
+defect either: it is what the author asked for after playing.
+
+**`C22` is new on 2026-09-07 and is the only finding here that has been true
+since the project began.** The game's three menu images ship to every player and
+no file anywhere states a licence for them, while every bundled mod has a
+`license.txt` and a row in `THIRD-PARTY-LICENSES.md`. It was turned up sideways,
+by `G7` giving `cc_mapgen` its own textures and a *License of media* section with
+them: the game now names a licence for two 16×16 files and none for 655 kB of
+artwork seen before anyone enters a world. Raised by `code-expert` as suspected
+and **verified here by reading all four files**.
 
 `C21` is the other finding new on 2026-09-07, from shaping the same feature: a
 version ceiling in a bundled submodule, and the only one here the game cannot fix
-in its own tree.
-`A13` is **deferred rather than pending** — the trim it describes is
-waiting on a decision in `codeblock`, not on work here. It no longer carries
-`B19` and `B24`: both were closed directly on 2026-09-02, which was the point of
-looking at them, since "resolved for free by `A13`" had kept two boot-log defects
-invisible behind a deferred item. `A7` is written upstream in `codeblock` and
-closes here at adoption; `A8`'s drop chain is confirmed and its table walk is
-what keeps it open.
+in its own tree. `A13` is **deferred rather than pending** — the trim it
+describes waits on a decision in `codeblock`, not on work here. It no longer
+carries `B19` and `B24`: both were closed directly on 2026-09-02, which was the
+point of looking at them, since "resolved for free by `A13`" had kept two
+boot-log defects invisible behind a deferred item. `A7` is written upstream in
+`codeblock` and closes here at adoption; `A8`'s drop chain is confirmed and its
+table walk is what keeps it open.
 
 **`B49` is resolved and confirmed.** Its fix rests on undocumented behaviour —
 replacing an ABM's `action`, because Luanti cannot unregister one — so `R7` was
 the only thing that could say whether it works, and it passed on 2026-09-02.
 `S8` and `B47` were fixed and confirmed the day before, by `R6` and `L1`.
-
-**`B48` is fixed and unverified, as of 2026-09-07.** The stripped digging groups
-are committed on their own at `ec02760` — split out of `G6` so the `G4` fix
-stands separately, which also gives `R8` a sha to be run against — both gates are
-green, and neither gate runs a line of this game's Lua, so it stays here in full
-until `R8` is run in a world. What did
-change is that the question the filing left open is now answered from the
-documented API: `core.get_dig_params` never sees `diggable`, so the fix had to
-come from the groups and no other reading of the defect survives.
+**`B48` is fixed and unverified**: the stripped digging groups are committed on
+their own at `ec02760`, split out of `G6` so the `G4` fix stands separately and
+`R8` has a sha to be run against. What did change is that the question the filing
+left open is now answered from the documented API: `core.get_dig_params` never
+sees `diggable`, so the fix had to come from the groups and no other reading of
+the defect survives.
 
 **Three of the twenty arrived on 2026-09-01, from the first hours anyone has
 spent playing this game against `PLAYTEST.md`** — `B47`, `B48` and `S8`. None was
 visible from reading the three `cc_*` files, **which between them were 21 lines
 at the time** and are **464** now across four files, since `G6`, the rescue
-rewrite, the barrier node and the world's new depth; two
-of the three are in how those lines meet a vendored node or the client. That is
-the argument for the `W`, `L` and `R` groups, and it is now evidence rather than
-an assertion.
+rewrite, the barrier node and the world's new depth; two of the three are in how
+those lines meet a vendored node or the client. That is the argument for the `W`,
+`L` and `R` groups, and it is now evidence rather than an assertion.
 
-**Re-running a check against its own fix is the other thing that day established.**
-`L1` re-run cleared a blocker that had been predicted for `B47` and did not
-exist. `R6` re-run found that the first `S8` fix had closed the wrong half, and
-would have been marked pass on the strength of the fix alone; a second re-run,
-with `R4` beside it, is what closed it properly. Neither outcome was available
-from the code. **A fix is not evidence** — the check is, and it costs minutes.
+**Re-running a check against its own fix is the other thing that day
+established.** `L1` re-run cleared a blocker that had been predicted for `B47`
+and did not exist. `R6` re-run found that the first `S8` fix had closed the wrong
+half, and would have been marked pass on the strength of the fix alone; a second
+re-run, with `R4` beside it, is what closed it properly. Neither outcome was
+available from the code. **A fix is not evidence** — the check is, and it costs
+minutes.
 
-| Category | Count | Open |
-|---|---|---|
-| B bugs | 7 | — all 7 resolved. `B50` closed on 2026-09-07 with `W4`–`W9` passing at `60259dd`, both routes verified. Three of the seven are resolved but **unverified in a world**: `B19` and `B24` wait on `P3`, `B48` on `R8` |
-| S sandbox and security | 1 | — `S8` resolved, `R6` passes |
-| C compliance and packaging | 8 | `C21` (a submodule's version ceiling, not ours to edit), `C22` (the menu artwork ships with no licence stated) |
-| A architecture and performance | 4 | `A7` (upstream), `A8` (drop chain confirmed, table walk open), `A13` (deferred) |
+**Where the repository stands.** `C15` landed in `8d18e8b`; `C20` is the only
+finding here to arrive from reading a published rule rather than from a defect,
+and was filed and fixed in one change at `9ad884c`. The adopted `codeblock`
+pointer is `2647228`, which is **a commit off `master` and not a tagged
+release** — see `ROADMAP.md` `G5`, which is where it is put back on the release
+track. CI's most recent run is on `578b364`; **branch `g6-world-limits` has 18
+unpushed commits and no CI run at all**.
 
-The game is current with `codeblock` `2647228`, adopted at `33bdae8`; both are at
-`origin` and both CI workflows were green on those exact shas. `C15` was open as
-a working-tree change at the last revision and has since landed in `8d18e8b`.
-`C20` is new — filed and fixed in the same change, committed in `9ad884c`, and
-the only finding here to arrive from reading a published rule rather than from a
-defect.
+## Open findings
 
-## Findings in full
+In full, and they are the reason to read this document. `A7`, `A8` and `A13` are
+medium; `C21` and `C22` are low. Nothing here is critical or high.
 
-The open findings, plus the closed ones whose reasoning is load-bearing enough to
-be undone by accident. A finding stops being pending once a `PLAYTEST.md` check
-has passed on it — `S8` and `B47` on 2026-09-01, `B49` on 2026-09-02, `B50` on
-2026-09-07 — and each stays here in full for that reason. `C21` is short and lives
-in the `C` section.
+### C22 · low · open — three original images ship to every player with no licence stated anywhere
+
+`menu/background.png`, `menu/header.png`, `menu/icon.png`
+
+The game's own menu artwork. **All three reach every player** — `P2` at `8b27f2f`
+lists them by name in the release archive, and `.gitattributes` keeps them there
+deliberately, because `menu/*.png` is what the main menu reads. **No licence is
+stated for them in any file.** `THIRD-PARTY-LICENSES.md` has no media row and no
+mention of `menu/` at all; there is no `menu/license.txt`; the root `LICENSE` is
+the bare AGPL-3.0 text with no statement of what it covers here; and `.cdb.json`
+carries `"license": "AGPL-3.0-only"` and **no `media_license`**, though
+ContentDB's package config accepts one — `.claude/skills/luanti-reference/references/contentdb-package-config.txt:84`,
+*"media_license : A license name, see /api/licenses/"*.
+
+**Verified rather than taken on report.** `code-expert` raised it as suspected; it
+was checked here by reading all four files. `menu/background.svg`, `header.svg`
+and `icon.svg` are the sources beside them and are `export-ignore`d by the `*.svg`
+rule, so they do not ship — the PNGs do.
+
+**Low, and the reason is worth stating because it argues both ways.** The root
+`LICENSE` plausibly covers the whole repository, so this is not a legal void; it
+is an unstated one, and the licence named on the package page describes the
+*code*. What makes it worth filing anyway is that this project already answers
+the question everywhere else: every bundled mod has a `license.txt`, every one is
+catalogued in `THIRD-PARTY-LICENSES.md`, and `C3`, `C4` and `C5` exist because
+that cataloguing was done deliberately rather than by accident. The one directory
+of original media the game ships is the one place the convention was not applied.
+
+**Sharpened on 2026-09-07 by `G7`, which is what turned it up.** `cc_mapgen` now
+ships two textures of its own, and `mods/cc_mapgen/license.txt` gained a *License
+of media* section naming both files and their licence. So the game now states a
+media licence for two 16×16 textures and none for three images totalling 655 kB
+that every player sees before they enter a world. That contrast is the finding.
+
+**Not fixed here.** The fix is `code-expert`'s in all three of its parts: a media
+licence statement, a `THIRD-PARTY-LICENSES.md` row, and a `media_license` field
+in `scripts/gen_cdb_json.sh` — `.cdb.json` is generated and must never be
+hand-edited. **Which licence to state is the author's**, not either agent's, and
+it is the same question `G7`'s texture decision raises: AGPL-3.0-only keeps the
+package single-licence, CC BY-SA 4.0 is the convention for game art and lets the
+artwork be reused. `ROADMAP.md` `G7` records that decision and flags it
+reversible.
+
+### C21 · low · open — a bundled submodule carries the version ceiling this game's own check forbids
+
+`mods/vector3/mod.conf`
+
+`max_minetest_version = 5.5`, beside `min_minetest_version = 5.3`. `C1` is the
+same defect in this game's `game.conf`, and `check_game.sh` now fails a
+reinstated one there — while a mod the game hard-depends on has carried one all
+along, unchecked.
+
+**It blocks nothing at load.** Per the 5.17.0 reference the engine reads only
+`depends` and `optional_depends` out of a `mod.conf`, so this is ContentDB
+metadata: it constrains what the *package page* claims to support, not what the
+engine will start. That is what makes it low rather than high.
+
+**What makes it worth filing anyway is the direction of travel.** `ROADMAP.md`
+`G6` raises this game to `min_minetest_version = 5.9`, **four minor versions**
+above `vector3`'s stated ceiling — so the game advertises a floor its own
+dependency advertises as out of range. A reader comparing the two package pages
+sees a contradiction, which is exactly the shape `C4` was filed for.
+`mods/codeblock/mod.conf` still says 5.4, which is the other half of the same
+picture and is upstream's call.
+
+**Corrected 2026-09-07, the same day this was filed: three minor versions, not
+four.** It was written against a `min_minetest_version` of 5.7, which was the
+author's instruction and was factually wrong —
+`core.register_mapgen_script` first appears in the 5.9.0 `lua_api`, so 5.7 and
+5.8 cannot start the game at all. The gap this finding describes widened with
+the correction; the severity did not, because the engine still reads no
+`max_minetest_version` out of a `mod.conf`. Recorded rather than overwritten:
+`G6` decision 4 in `ROADMAP.md` carries the evidence.
+
+**Not ours to edit.** `vector3` is a pinned submodule with its own repository
+(`v1.5` at `16621648`); the fix is upstream or a re-pin, and neither is work this
+repository does on its own. Nothing here should hand-edit a submodule's
+`mod.conf` — that change would be silently discarded by the next pointer move.
+Recorded so it reads as known rather than missed.
+
+### A7 · medium · open, and the edit is upstream — `cc_day` duplicates a block `codeblock` already runs, marked "TEMP fix"
+
+`mods/cc_day/init.lua` · `codeblock lib/register.lua:178`
+
+Both register an `on_joinplayer` calling the same five sky methods; the copy
+inside `codeblock` is annotated `-- TODO: TEMP fix`. Sky presentation is the
+game's job, not the programming mod's — and removing it also stops `codeblock`
+imposing permanent daylight on any other game that installs it.
+
+**Routed here, and it is the one genuinely two-sided item.** The duplicate to
+delete is in `codeblock`, but the decision and the behaviour that must survive it
+are the game's: `cc_day` is what should own permanent noon. Kept in this audit as
+one finding rather than split in two; the mod's roadmap does not list it.
+
+**Nothing is written in this repository for it.** `codeblock` removes the block
+upstream, so `cc_day` is already what this side should look like — it is the copy
+that survives, and no `cc_*` file changes. The game's half is adopting the release
+that carries the removal and then running `L3`, which is why this finding stays
+open here after the upstream edit lands and closes only at adoption.
+
+**Corrected 2026-09-02: "identical arguments" above was wrong.** `codeblock` calls
+a bare `set_sun{visible = false}`; `cc_day` calls
+`set_sun{visible = false, sunrise_visible = false}` — the `B47` fix. The
+difference does not make the removal urgent, and `B47`'s **Keep** is where that is
+settled: `L1` passes with the duplicate still in place, and removing a call cannot
+reintroduce the texture whichever way `set_sun` treats an omitted field. Recorded
+here only so the next reader does not re-derive it from the claim that the two
+calls match.
+
+### A8 · medium · open — the drop chain is confirmed; `last_mod` is untested by choice and the table walk untouched
+
+`mods/cc_security/init.lua` · `game.conf` · `.luacheckrc`
+
+`function minetest.handle_node_drops() end` and
+`function minetest.calculate_knockback() return 0 end` overwrote the globals
+outright, discarding whatever another mod installed and being discarded in turn
+by any later mod that did the same, with the winner decided alphabetically.
+
+**`last_mod` is a `game.conf` key, not a `mod.conf` one** — checked against the
+5.17.0 reference on 2026-09-02, where `mod.conf` has only `depends` and
+`optional_depends`. So the declaration goes in this game's `game.conf`, which set
+none before, and **only one mod can be last**: spending it on `cc_security` is a
+choice about the whole game, not a line in a mod. It is the right mod to spend it
+on — it is the only one here whose job is to have the last word.
+
+**Fixed in two halves, and only one of them is a chain.**
+
+- **Drops are chained, with an empty list.** `previous_drops(pos, {}, digger)`
+  keeps whatever the captured handler did besides handing out items — logging,
+  statistics, a sound — while handing out nothing. Chaining with the real list
+  would drop items and break the game's central promise, so the empty list is the
+  whole trick.
+- **Knockback is not chained, deliberately.** The reference suggests caching and
+  calling the old function "to allow multiple mods to change knockback
+  behaviour"; that is advice for a mod *modifying* knockback. This one abolishes
+  it, the function is a pure calculation, and calling the captured value could
+  only cost time before its result was thrown away. `return 0` is the honest
+  shape, and `last_mod` is the whole of what protects it.
+
+**A chain cannot make the guarantee on its own, which is why both halves exist.**
+A captured handler that invents items rather than reading its `drops` argument
+would still drop them. Nothing stops that; being last is what keeps such a mod
+from being the one in charge in the first place.
+
+**`.luacheckrc` still ignores `122` for this file, and the reason has changed.**
+Replacing the two globals is the point of the lines, so the assignment stays;
+what the warning was really pointing at — the replacement being discarded by
+whatever loads next — is what `last_mod` fixes. The old rationale said the fix
+"belongs with that work"; that work is this.
+
+**Nothing in this game competes for either global, so the fix is defensive.**
+`grep -rn "handle_node_drops\|calculate_knockback" mods/` finds only
+`cc_security` — not `default`, not `codeblock`, not `wool`. Both halves of the
+defect are therefore unobservable in the game as it ships: the captured handler
+is the engine default, and `last_mod` orders this mod against nothing. Behaviour
+today is identical to the two lines it replaced. The code is kept because it is
+cheap and correct if a mod is ever added, but **`last_mod` is not free** — only
+one mod in a game can be last, and this spends that slot.
+
+**The chain is confirmed in a world, on 2026-09-02.** `R2` was run by its drop
+method — `diggable = false` commented out, server restarted, a node dug by hand,
+the line reverted — and nothing dropped, on the ground or into the inventory. So
+`previous_drops` is not `nil`, the chain fires, and the empty list reaches the
+captured handler. That was the one thing this change could have broken silently,
+and it is now evidence rather than a reading of the reference. `R5` is *partial*
+only because `R3` was not re-run beside it; `calculate_knockback` is byte-identical
+to before, so that half is low risk rather than open.
+
+**What is still untested, by choice.** The composition half — that `last_mod`
+makes this mod's assignment the surviving one — needs a second mod that assigns
+the same globals, and building one would be testing a composition this game does
+not have. Decided by the author on 2026-09-02, recorded so it does not later read
+as an oversight. The scenario it defends is a server owner adding a worldmod to a
+Codecube server, and even then `diggable = false` is what holds the promise: the
+drop handler matters only after something has re-enabled digging.
+
+**`R2`'s drop half had never run before this, in the whole project.** It was
+recorded as passing from the first playtest on the strength of the inventory
+panel alone, because the check said "with digging somehow permitted" and nothing
+in a running game permits it — no chat command digs, `diggable` is a node
+property rather than a privilege, and the drone writes with `set_node` and
+`VoxelManip`, which never compute drops. A check that cannot be run reads exactly
+like one that passed.
+
+**The other half of this finding is untouched, and is why it stays open.** The
+mod overrides **every registered node** at `on_mods_loaded` to set
+`diggable = false` — a large table walk to express one rule. It has to run there
+to see every mod's registrations (moving it earlier silently covers fewer nodes
+and nothing fails), and Luanti offers no global switch for it, so there may be
+nothing better than the walk. Deciding that is what remains.
+
+**The walk got wider on 2026-09-07**, when `B48`'s fix added an inner `pairs`
+over each node's `groups` and a rebuilt table per node. It is the same one pass,
+so the cost is still paid once at load — but a walk that now *writes* `groups` on
+every registered node has a larger blast radius than one setting `diggable`, and
+that is why `R1`, `R4` and `R6` are all marked for re-running.
+
+### A13 · medium · open, deferred — `default` is 9,744 lines to supply 106 node definitions, and the rest still runs
+
+`mods/default`
+
+The palette references **122** nodes: 106 from `default`, 15 from `wool`, plus
+`air`. Nothing else in `default` is reachable — digging is disabled for every
+node, the inventory formspec is blanked, `handle_node_drops` is stubbed, mapgen
+is flat with no decorations, ores or biomes, and creative is on. So
+`mapgen.lua` (2,492 lines), `trees`, `crafting`, `furnace`, `chests`, `tools`,
+`craftitems`, `item_entity` and `torch` register and do nothing — roughly 6,800
+lines. It also installs 3 LBMs and 101 craft recipes.
+
+**Corrected 2026-09-02: 106 and 122, not the 108 and 124 first recorded.** Counted
+this time rather than estimated, by extracting every `default:`/`wool:` string
+from `codeblock/lib/config.lua` at the adopted commit and sorting it unique. The
+shape of the finding is unchanged.
+
+**All 106 are in `nodes.lua`**, which needs only `functions.lua` for its sound
+helpers and `init.lua` for two more. Twelve of the 106 have no literal
+`register_node` call because they are registered in loops — the grass, dry grass,
+fern and marram grass series. So the removable set is whole files, and no
+palette node is entangled with one.
+
+**The ABMs are not part of this finding any more.** They were cited here as a
+background CPU cost; `B49` establishes that two of them were rewriting players'
+builds, and closes that in `cc_security`. They live in `functions.lua`, which this
+trim keeps, so trimming would never have removed them — the two findings are
+independent and `B49` is the one that mattered.
+
+**The two-texture keep-list this finding carried for one day is withdrawn,
+2026-09-07.** `G6` added it and `G7` widened it: the world's bounds shipped no
+media of their own and borrowed `default_obsidian.png` for `cc_mapgen:bedrock`
+and `default_obsidian_glass.png` for `cc_mapgen:barrier`, so a trim done against
+`nodes.lua` alone would have taken both and rendered half the world's edge as the
+unknown-node texture. **That is no longer true.** The same day, `cc_mapgen` was
+given its own two textures in `mods/cc_mapgen/textures/`, and **nothing in this
+game names either `default` file any more** — `grep -rn obsidian mods/cc_*` finds
+nothing. The trim's scope is exactly what it was before `G6`, and the paragraph
+distinguishing `default_obsidian_glass_detail.png` from the other two went with
+it, having nothing left to disambiguate.
+
+**Recorded rather than deleted, because that is the shape this finding keeps
+producing.** A constraint appeared on this finding from an unrelated milestone,
+was widened, and vanished inside a week; the same thing happened with `B19` and
+`B24`, which sat here as "resolved for free by `A13`" until it turned out that a
+deferred item was hiding two live boot-log defects. **Anything that attaches
+itself to a deferred finding needs its own reason to be here**, and a borrowed
+texture had one for about a day.
+
+**Re-declined by the author on 2026-09-07, on fuller information.** Asked while
+the textures were being made whether `default`, `wool` and `dye` could simply be
+removed, they were shown that CodeBlock's palette is 106 `default:*` names plus
+15 `wool:*`, and that **`mods/codeblock/mod.conf` declares
+`depends = default, wool, vector3`** — so removing either stops the bundled mod
+loading, and `dye` is present because `wool` requires it. The answer was *"leave
+it for now"*. This is the second decision on the same subject, five days after
+the first, and it does not change the finding's state: deferred, not pending.
+**One correction from that exchange**: the hard dependency was attributed to
+`cc_mapgen`'s `mod.conf`, which was wrong — none of the three `cc_*` mods
+declares a `depends` line at all. It is the submodule's, which if anything makes
+the case for the deferral stronger.
+
+**One thing to check before cutting, since the palette is the contract.** The
+block list a player's program uses is `codeblock`'s, in its config; the nodes
+come from here. Removing a node the palette names breaks saved player programs,
+which is the game's own reason to care about the mod's major version.
+
+**`mapgen.lua` is safe to cut whatever is decided about the rest** — 2,492 lines,
+dead whoever ends up owning the palette, since `cc_mapgen` disables decorations,
+ores and biomes outright.
+
+**Deferred on 2026-09-02, by the author, and the reason is the good one.**
+`codeblock` is expected to integrate the blocks it needs, at which point the
+game's vendored `default` is not trimmed but deleted. Doing the trim now means
+hand-curating 9,744 lines of third-party code against a contract owned by the
+other repository, and then mirroring every palette change the mod makes — the
+coupling this project avoids everywhere else. The saving is size and boot noise,
+not behaviour, so nothing a player meets is waiting on it. See `ROADMAP.md` under
+*deliberately not doing* for what would change that.
+
+## Resolved — B bugs
+
+**7 findings, all 7 resolved, and the `B` series has no open finding left.**
+`B50` closed on 2026-09-07 when `W4`–`W9` all passed at `60259dd` and both of its
+routes became observed. Three are resolved but **unverified in a world**: `B19`
+and `B24` wait on `P3`, `B48` on `R8`.
+
+| Id | Sev | Was | Fixed by | Where it stands |
+|---|---|---|---|---|
+| `B50` | medium | a player could fall out of the world, by two routes | a bedrock floor at `y = 0`, a full-height wall at the generated edge, and a `cc_security` rescue into the player's own column | `f5f2385` and `60259dd`; closed by `W4`–`W9` at `60259dd` |
+| `B49` | medium | `default`'s ABMs and saplings rewrote what a program had built | every ABM's `action` and every node's `on_timer` replaced, in `cc_security` | confirmed by `R7`, 2026-09-02 |
+| `B48` | low | wool played the dig animation before the server refused | six digging groups stripped from every node's `groups` | `ec02760`; **unverified**, `R8` |
+| `B47` | low | the sunrise glow was still drawn, so part of the sun showed at dawn | `set_sun{sunrise_visible = false}` | confirmed by `L1`, 2026-09-01 |
+| `B24` | low | vendored `default` used a deprecated `TileDef.image` field | renamed to `name`, one token | `e51f969`; **unverified**, `P3` |
+| `B19` | low | five `NodeResolver` errors on every world load | two `flowers:*` aliases of `air` in `cc_mapgen` | `e51f969`; **unverified**, `P3` |
+| `B20` | low | every deprecation warning in the boot came from `mods/formspecs` | the mod removed | — |
+
+The entries below are the ones whose reasoning is load-bearing: `B50` for its
+five **Keep** paragraphs, `B19` and `B24` because a re-vendored `default` would
+bring both back, `B48` because the six stripped groups are a set someone could
+narrow by accident, and `B47` because the prediction it got wrong is the reusable
+part. The `B` resolved count **said 5 until 2026-09-07**, while the table above
+already said 6; the body was the one that was wrong, `B20` having been left out
+of it.
 
 ### B50 · medium · resolved, `W4`–`W9` all pass — a player could fall out of the world, by two routes
 
@@ -175,7 +497,16 @@ seeing the fix hold rather than by first reproducing the defect.
 **Closed by `ROADMAP.md` `G6`, and the fix is a shape rather than a patch.** The
 agreed answer is a bounded slab — a bedrock plane at `y = 0` with nothing
 generated beneath it, and a full-height bedrock wall at the horizontal edge — so
-that both limits are things a player can see before reaching them. For route two
+that both limits are things a player can see before reaching them.
+
+**Keep — the world's size costs no mod load-order dependency, and that is why it
+is one setting rather than a handshake.** `mapgen_limit` lives in the game's
+`minetest.conf`, which the engine reads into `core.settings` **before any mod
+runs**, so CodeBlock reading the same key for the drone's bound cannot race
+`cc_mapgen` writing it. Nothing here passes the number to the mod and nothing
+should start: a game-side second number, or any load-order arrangement that made
+one mod tell another, is exactly what `G6` decision 2 refused. `W6` is the only
+thing that proves the two bounds are one number rather than two that agree. For route two
 the author ruled, on 2026-09-07, that **`cc_security` clamps the player**: a
 connected player found outside the world box is put back at the spawn point — a
 destination reversed on 2026-09-07, see below. It
@@ -320,198 +651,6 @@ fails to load and the game does not start — which is why `game.conf` requires
 5.9 unguarded rather than shipping an unbounded world to older engines. The full
 correction is under `ROADMAP.md` `G6` decision 4.
 
-### A13 · medium · open, deferred — `default` is 9,744 lines to supply 106 node definitions, and the rest still runs
-
-`mods/default`
-
-The palette references **122** nodes: 106 from `default`, 15 from `wool`, plus
-`air`. Nothing else in `default` is reachable — digging is disabled for every
-node, the inventory formspec is blanked, `handle_node_drops` is stubbed, mapgen
-is flat with no decorations, ores or biomes, and creative is on. So
-`mapgen.lua` (2,492 lines), `trees`, `crafting`, `furnace`, `chests`, `tools`,
-`craftitems`, `item_entity` and `torch` register and do nothing — roughly 6,800
-lines. It also installs 3 LBMs and 101 craft recipes.
-
-**Corrected 2026-09-02: 106 and 122, not the 108 and 124 first recorded.** Counted
-this time rather than estimated, by extracting every `default:`/`wool:` string
-from `codeblock/lib/config.lua` at the adopted commit and sorting it unique. The
-shape of the finding is unchanged.
-
-**All 106 are in `nodes.lua`**, which needs only `functions.lua` for its sound
-helpers and `init.lua` for two more. Twelve of the 106 have no literal
-`register_node` call because they are registered in loops — the grass, dry grass,
-fern and marram grass series. So the removable set is whole files, and no
-palette node is entangled with one.
-
-**The ABMs are not part of this finding any more.** They were cited here as a
-background CPU cost; `B49` establishes that two of them were rewriting players'
-builds, and closes that in `cc_security`. They live in `functions.lua`, which this
-trim keeps, so trimming would never have removed them — the two findings are
-independent and `B49` is the one that mattered.
-
-**The two-texture keep-list this finding carried for one day is withdrawn,
-2026-09-07.** `G6` added it and `G7` widened it: the world's bounds shipped no
-media of their own and borrowed `default_obsidian.png` for `cc_mapgen:bedrock`
-and `default_obsidian_glass.png` for `cc_mapgen:barrier`, so a trim done against
-`nodes.lua` alone would have taken both and rendered half the world's edge as the
-unknown-node texture. **That is no longer true.** The same day, `cc_mapgen` was
-given its own two textures in `mods/cc_mapgen/textures/`, and **nothing in this
-game names either `default` file any more** — `grep -rn obsidian mods/cc_*` finds
-nothing. The trim's scope is exactly what it was before `G6`, and the paragraph
-distinguishing `default_obsidian_glass_detail.png` from the other two went with
-it, having nothing left to disambiguate.
-
-**Recorded rather than deleted, because that is the shape this finding keeps
-producing.** A constraint appeared on this finding from an unrelated milestone,
-was widened, and vanished inside a week; the same thing happened with `B19` and
-`B24`, which sat here as "resolved for free by `A13`" until it turned out that a
-deferred item was hiding two live boot-log defects. **Anything that attaches
-itself to a deferred finding needs its own reason to be here**, and a borrowed
-texture had one for about a day.
-
-**Re-declined by the author on 2026-09-07, on fuller information.** Asked while
-the textures were being made whether `default`, `wool` and `dye` could simply be
-removed, they were shown that CodeBlock's palette is 106 `default:*` names plus
-15 `wool:*`, and that **`mods/codeblock/mod.conf` declares
-`depends = default, wool, vector3`** — so removing either stops the bundled mod
-loading, and `dye` is present because `wool` requires it. The answer was *"leave
-it for now"*. This is the second decision on the same subject, five days after
-the first, and it does not change the finding's state: deferred, not pending.
-**One correction from that exchange**: the hard dependency was attributed to
-`cc_mapgen`'s `mod.conf`, which was wrong — none of the three `cc_*` mods
-declares a `depends` line at all. It is the submodule's, which if anything makes
-the case for the deferral stronger.
-
-**One thing to check before cutting, since the palette is the contract.** The
-block list a player's program uses is `codeblock`'s, in its config; the nodes
-come from here. Removing a node the palette names breaks saved player programs,
-which is the game's own reason to care about the mod's major version.
-
-**Deferred on 2026-09-02, by the author, and the reason is the good one.**
-`codeblock` is expected to integrate the blocks it needs, at which point the
-game's vendored `default` is not trimmed but deleted. Doing the trim now means
-hand-curating 9,744 lines of third-party code against a contract owned by the
-other repository, and then mirroring every palette change the mod makes — the
-coupling this project avoids everywhere else. The saving is size and boot noise,
-not behaviour, so nothing a player meets is waiting on it. See `ROADMAP.md` under
-*deliberately not doing* for what would change that.
-
-### A7 · medium · open, and the edit is upstream — `cc_day` duplicates a block `codeblock` already runs, marked "TEMP fix"
-
-`mods/cc_day/init.lua` · `codeblock lib/register.lua:178`
-
-Both register an `on_joinplayer` calling the same five sky methods; the copy
-inside `codeblock` is annotated `-- TODO: TEMP fix`. Sky presentation is the
-game's job, not the programming mod's — and removing it also stops `codeblock`
-imposing permanent daylight on any other game that installs it.
-
-**Routed here, and it is the one genuinely two-sided item.** The duplicate to
-delete is in `codeblock`, but the decision and the behaviour that must survive it
-are the game's: `cc_day` is what should own permanent noon. Kept in this audit as
-one finding rather than split in two; the mod's roadmap does not list it.
-
-**Nothing is written in this repository for it.** `codeblock` removes the block
-upstream, so `cc_day` is already what this side should look like — it is the copy
-that survives, and no `cc_*` file changes. The game's half is adopting the release
-that carries the removal and then running `L3`, which is why this finding stays
-open here after the upstream edit lands and closes only at adoption.
-
-**Corrected 2026-09-02: "identical arguments" above was wrong.** `codeblock` calls
-a bare `set_sun{visible = false}`; `cc_day` calls
-`set_sun{visible = false, sunrise_visible = false}` — the `B47` fix. The
-difference does not make the removal urgent, and `B47`'s **Keep** is where that is
-settled: `L1` passes with the duplicate still in place, and removing a call cannot
-reintroduce the texture whichever way `set_sun` treats an omitted field. Recorded
-here only so the next reader does not re-derive it from the claim that the two
-calls match.
-### A8 · medium · open — the drop chain is confirmed; `last_mod` is untested by choice and the table walk untouched
-
-`mods/cc_security/init.lua` · `game.conf` · `.luacheckrc`
-
-`function minetest.handle_node_drops() end` and
-`function minetest.calculate_knockback() return 0 end` overwrote the globals
-outright, discarding whatever another mod installed and being discarded in turn
-by any later mod that did the same, with the winner decided alphabetically.
-
-**`last_mod` is a `game.conf` key, not a `mod.conf` one** — checked against the
-5.17.0 reference on 2026-09-02, where `mod.conf` has only `depends` and
-`optional_depends`. So the declaration goes in this game's `game.conf`, which set
-none before, and **only one mod can be last**: spending it on `cc_security` is a
-choice about the whole game, not a line in a mod. It is the right mod to spend it
-on — it is the only one here whose job is to have the last word.
-
-**Fixed in two halves, and only one of them is a chain.**
-
-- **Drops are chained, with an empty list.** `previous_drops(pos, {}, digger)`
-  keeps whatever the captured handler did besides handing out items — logging,
-  statistics, a sound — while handing out nothing. Chaining with the real list
-  would drop items and break the game's central promise, so the empty list is the
-  whole trick.
-- **Knockback is not chained, deliberately.** The reference suggests caching and
-  calling the old function "to allow multiple mods to change knockback
-  behaviour"; that is advice for a mod *modifying* knockback. This one abolishes
-  it, the function is a pure calculation, and calling the captured value could
-  only cost time before its result was thrown away. `return 0` is the honest
-  shape, and `last_mod` is the whole of what protects it.
-
-**A chain cannot make the guarantee on its own, which is why both halves exist.**
-A captured handler that invents items rather than reading its `drops` argument
-would still drop them. Nothing stops that; being last is what keeps such a mod
-from being the one in charge in the first place.
-
-**`.luacheckrc` still ignores `122` for this file, and the reason has changed.**
-Replacing the two globals is the point of the lines, so the assignment stays;
-what the warning was really pointing at — the replacement being discarded by
-whatever loads next — is what `last_mod` fixes. The old rationale said the fix
-"belongs with that work"; that work is this.
-
-**Nothing in this game competes for either global, so the fix is defensive.**
-`grep -rn "handle_node_drops\|calculate_knockback" mods/` finds only
-`cc_security` — not `default`, not `codeblock`, not `wool`. Both halves of the
-defect are therefore unobservable in the game as it ships: the captured handler
-is the engine default, and `last_mod` orders this mod against nothing. Behaviour
-today is identical to the two lines it replaced. The code is kept because it is
-cheap and correct if a mod is ever added, but **`last_mod` is not free** — only
-one mod in a game can be last, and this spends that slot.
-
-**The chain is confirmed in a world, on 2026-09-02.** `R2` was run by its drop
-method — `diggable = false` commented out, server restarted, a node dug by hand,
-the line reverted — and nothing dropped, on the ground or into the inventory. So
-`previous_drops` is not `nil`, the chain fires, and the empty list reaches the
-captured handler. That was the one thing this change could have broken silently,
-and it is now evidence rather than a reading of the reference. `R5` is *partial*
-only because `R3` was not re-run beside it; `calculate_knockback` is byte-identical
-to before, so that half is low risk rather than open.
-
-**What is still untested, by choice.** The composition half — that `last_mod`
-makes this mod's assignment the surviving one — needs a second mod that assigns
-the same globals, and building one would be testing a composition this game does
-not have. Decided by the author on 2026-09-02, recorded so it does not later read
-as an oversight. The scenario it defends is a server owner adding a worldmod to a
-Codecube server, and even then `diggable = false` is what holds the promise: the
-drop handler matters only after something has re-enabled digging.
-
-**`R2`'s drop half had never run before this, in the whole project.** It was
-recorded as passing from the first playtest on the strength of the inventory
-panel alone, because the check said "with digging somehow permitted" and nothing
-in a running game permits it — no chat command digs, `diggable` is a node
-property rather than a privilege, and the drone writes with `set_node` and
-`VoxelManip`, which never compute drops. A check that cannot be run reads exactly
-like one that passed.
-
-**The other half of this finding is untouched, and is why it stays open.** The
-mod overrides **every registered node** at `on_mods_loaded` to set
-`diggable = false` — a large table walk to express one rule. It has to run there
-to see every mod's registrations (moving it earlier silently covers fewer nodes
-and nothing fails), and Luanti offers no global switch for it, so there may be
-nothing better than the walk. Deciding that is what remains.
-
-**The walk got wider on 2026-09-07**, when `B48`'s fix added an inner `pairs`
-over each node's `groups` and a rebuilt table per node. It is the same one pass,
-so the cost is still paid once at load — but a walk that now *writes* `groups` on
-every registered node has a larger blast radius than one setting `diggable`, and
-that is why `R1`, `R4` and `R6` are all marked for re-running.
-
 ### B49 · medium · resolved, `R7` passes — the world rewrites what a program built
 
 `mods/default/functions.lua` · `mods/cc_security/init.lua`
@@ -613,9 +752,13 @@ change would otherwise re-break:
 - **`override_item` replaces a top-level `groups` outright rather than merging**,
   so no `cracky` survives from the original definition. That is what makes a
   rebuilt copy sufficient.
-- **`del_fields` was not an option.** It arrived in 5.9.0 and `game.conf` sets
-  `min_minetest_version = 5.4`, and it deletes top-level fields rather than keys
-  inside `groups` — the same note `S8` carries for callbacks.
+- **`del_fields` is not the answer here, and the reason changed on 2026-09-07.**
+  It was ruled out for being unavailable: it arrived in 5.9.0 and `game.conf`
+  declared `min_minetest_version = 5.4`. **`G6` raised that floor to 5.9**, so
+  availability is no longer the objection — the remaining one is that it deletes
+  *top-level* fields rather than keys inside `groups`, which is the wrong
+  operation for this fix whatever engine is running. `S8` carries the same
+  correction for callbacks, where availability *was* the whole objection.
 
 Nothing else here reads node groups: `codeblock` does not (its `api.groups` is a
 documentation grouping of API entries, not node groups), and neither
@@ -626,6 +769,37 @@ documentation grouping of API entries, not node groups), and neither
 game's Lua**, so this is committed rather than verified, in the same state as
 `B19` and `B24`. `PLAYTEST.md` `R8` is what closes it: no crack texture and no
 dig sound on `wool`, `default:leaves` and `default:stone` under a held punch.
+
+### B47 · low · resolved, `L1` passes — the sunrise texture is still drawn, so part of the sun shows
+
+`mods/cc_day/init.lua`
+
+`player:set_sun({visible = false})` hides the sun disc and nothing else. The
+sunrise and sunset glow is a separate field of the same table,
+`sunrise_visible`, which defaults to true — so at dawn and dusk part of the sun
+is still painted on a sky the game promises has none. Seen at `/time 5000` by
+`PLAYTEST.md` `L1` on 2026-09-01.
+
+The light half of the promise is intact: `override_day_night_ratio(1)` pins the
+level and it does not vary. This is the objects half, and it is one field:
+`set_sun{visible = false, sunrise_visible = false}`. `L1` passes on it.
+
+**Keep — a blocker that was predicted and did not exist, and how that was
+settled.** This was filed with a warning that the one-field fix might not hold:
+`codeblock` registers the same five calls in its own `on_joinplayer` (the
+duplicate `A7` removes), including a bare `set_sun{visible = false}`. The
+reference lists every `set_sun` field as optional with a stated default, and says
+that passing *no* arguments resets the sun entirely — which reads as though an
+omitted field might take its default rather than keep its current value. If so,
+the mod's bare call would put `sunrise_visible` back and `A7` would be a
+prerequisite.
+
+**It is not.** `L1` re-run at `b9bf82b` passes with the duplicate still in place.
+Either `set_sun` merges with the current parameters or `cc_day`'s callback runs
+second; the outcome does not distinguish them and it does not need to, because
+removing a call cannot reintroduce the texture either way. The reusable part is
+the method: the ambiguity was written down as unverified rather than resolved by
+reading the reference a second time, and one re-run settled it in a minute.
 
 ### B19 · low · resolved, unverified in a world — five `NodeResolver` errors on every world load
 
@@ -668,52 +842,6 @@ token, it fixes a real deprecation rather than restyling, and re-vendoring
 `default` would silently bring the warning back — so if that happens, look here
 first. `P3` is what confirms the log is clean.
 
-## B — bugs
-
-**7 findings, all 7 resolved.** `B50` closed on 2026-09-07, when `W4`–`W9` all
-passed at `60259dd` and both of its routes became observed; it is kept in full
-above, because its **Keep** paragraphs are what a future change would re-break.
-The resolved count **said 5 until 2026-09-07**, while the
-table above already said 6; the body was the one that was wrong, `B20` having
-been left out of it. Three of the seven are resolved but unverified in a world:
-`B19` and `B24` wait on
-`P3`, `B48` on `R8`. `B19`, `B24`, `B48` and `B47` are kept in full above — the
-first two because a re-vendored `default` would bring both back, `B48` because
-the six stripped groups are a set someone could narrow by accident, and `B47`
-because the prediction it got wrong is the reusable part.
-
-### B47 · low · resolved, `L1` passes — the sunrise texture is still drawn, so part of the sun shows
-
-`mods/cc_day/init.lua`
-
-`player:set_sun({visible = false})` hides the sun disc and nothing else. The
-sunrise and sunset glow is a separate field of the same table,
-`sunrise_visible`, which defaults to true — so at dawn and dusk part of the sun
-is still painted on a sky the game promises has none. Seen at `/time 5000` by
-`PLAYTEST.md` `L1` on 2026-09-01.
-
-The light half of the promise is intact: `override_day_night_ratio(1)` pins the
-level and it does not vary. This is the objects half, and it is one field:
-`set_sun{visible = false, sunrise_visible = false}`. `L1` passes on it.
-
-**Keep — a blocker that was predicted and did not exist, and how that was
-settled.** This was filed with a warning that the one-field fix might not hold:
-`codeblock` registers the same five calls in its own `on_joinplayer` (the
-duplicate `A7` removes), including a bare `set_sun{visible = false}`. The
-reference lists every `set_sun` field as optional with a stated default, and says
-that passing *no* arguments resets the sun entirely — which reads as though an
-omitted field might take its default rather than keep its current value. If so,
-the mod's bare call would put `sunrise_visible` back and `A7` would be a
-prerequisite.
-
-**It is not.** `L1` re-run at `b9bf82b` passes with the duplicate still in place.
-Either `set_sun` merges with the current parameters or `cc_day`'s callback runs
-second; the outcome does not distinguish them and it does not need to, because
-removing a call cannot reintroduce the texture either way. The reusable part is
-the method: the ambiguity was written down as unverified rather than resolved by
-reading the reference a second time, and one re-run settled it in a minute.
-
-
 - **B20 · low · resolved** — every deprecation warning in the boot came from
   `mods/formspecs/init.lua:110, 117`: two `TileDef.image` warnings plus a
   `description.txt` one, the complete set from the whole game. The first-party
@@ -727,7 +855,7 @@ reading the reference a second time, and one re-run settled it in a minute.
   identical ones were consuming the quota. Worth remembering as a general trap
   when reading a boot log. Those two became `B24`.
 
-## S — sandbox and security
+## Resolved — S sandbox and security
 
 1 finding, resolved and confirmed by `R6`. The first `S` on the game's side:
 `S1`–`S7` are the mod's and are about the Lua sandbox, which is the mod's
@@ -806,94 +934,31 @@ work is the mod's and it breaks any saved program that names the block.
 **Leaving it documented** was the cheapest and loses a boundary the game
 advertises.
 
-Note for any wider fix: `del_fields` on `override_item` arrived in 5.9.0 and
-`game.conf` declares `min_minetest_version = 5.4`, so removing a callback
-outright is not available.
+**Note for any wider fix, and it was reversed on 2026-09-07.** `del_fields` on
+`override_item` arrived in 5.9.0, and this note said removing a callback outright
+was therefore unavailable because `game.conf` declared
+`min_minetest_version = 5.4`. **`G6` raised that floor to 5.9**, so `del_fields`
+*is* available now and a wider fix has an option it did not have when this was
+written. Nothing has been rewritten on the strength of it: the fix in place
+works, and the residue below is a metadata string `del_fields` does not reach
+either. Recorded rather than deleted, because the constraint is quoted in `B48`
+as well and a reader meeting it twice should meet the correction twice.
 
-## C — compliance and packaging
+## Resolved — C compliance and packaging
 
-8 findings, 6 resolved. `C21` and `C22` are open. `C21` is the only one here the
-game cannot fix in its own tree; `C22` is entirely in it.
+**8 findings, 6 resolved.** `C21` and `C22` are open and in full above.
 
-### C22 · low · open — three original images ship to every player with no licence stated anywhere
+| Id | Sev | Was | Fixed by | Where it stands |
+|---|---|---|---|---|
+| `C20` | medium | the ContentDB long description was `README.md` verbatim, breaking six of ContentDB's page rules | `CONTENTDB.md` written for its own reader, and the generator repointed at it | `9ad884c`; **unseen**, `P5` needs a release |
+| `C15` | low | the release archive shipped `.claude/`, the record documents and the art sources | `.* export-ignore` plus rules by name | `8d18e8b`; confirmed by `P2` at `8b27f2f` |
+| `C5` | medium | the three `cc_*` mods had no licence file | a `license.txt` each, enforced by `check_game.sh` | — |
+| `C4` | medium | licence metadata disagreed between the game and the mod inside it | unified on AGPL-3.0-only | — |
+| `C3` | medium | bundled AGPL and MIT code shipped without its licence text | the text, or a `THIRD-PARTY-LICENSES.md` row, enforced by `check_game.sh` | — |
+| `C2` | low | image URLs named `master` on a repository that has only `main` | repointed to `main` | the filing itself was wrong; see below |
 
-`menu/background.png`, `menu/header.png`, `menu/icon.png`
-
-The game's own menu artwork. **All three reach every player** — `P2` at `8b27f2f`
-lists them by name in the release archive, and `.gitattributes` keeps them there
-deliberately, because `menu/*.png` is what the main menu reads. **No licence is
-stated for them in any file.** `THIRD-PARTY-LICENSES.md` has no media row and no
-mention of `menu/` at all; there is no `menu/license.txt`; the root `LICENSE` is
-the bare AGPL-3.0 text with no statement of what it covers here; and `.cdb.json`
-carries `"license": "AGPL-3.0-only"` and **no `media_license`**, though
-ContentDB's package config accepts one — `.claude/skills/luanti-reference/references/contentdb-package-config.txt:84`,
-*"media_license : A license name, see /api/licenses/"*.
-
-**Verified rather than taken on report.** `code-expert` raised it as suspected; it
-was checked here by reading all four files. `menu/background.svg`, `header.svg`
-and `icon.svg` are the sources beside them and are `export-ignore`d by the `*.svg`
-rule, so they do not ship — the PNGs do.
-
-**Low, and the reason is worth stating because it argues both ways.** The root
-`LICENSE` plausibly covers the whole repository, so this is not a legal void; it
-is an unstated one, and the licence named on the package page describes the
-*code*. What makes it worth filing anyway is that this project already answers
-the question everywhere else: every bundled mod has a `license.txt`, every one is
-catalogued in `THIRD-PARTY-LICENSES.md`, and `C3`, `C4` and `C5` exist because
-that cataloguing was done deliberately rather than by accident. The one directory
-of original media the game ships is the one place the convention was not applied.
-
-**Sharpened on 2026-09-07 by `G7`, which is what turned it up.** `cc_mapgen` now
-ships two textures of its own, and `mods/cc_mapgen/license.txt` gained a *License
-of media* section naming both files and their licence. So the game now states a
-media licence for two 16×16 textures and none for three images totalling 655 kB
-that every player sees before they enter a world. That contrast is the finding.
-
-**Not fixed here.** The fix is `code-expert`'s in all three of its parts: a media
-licence statement, a `THIRD-PARTY-LICENSES.md` row, and a `media_license` field
-in `scripts/gen_cdb_json.sh` — `.cdb.json` is generated and must never be
-hand-edited. **Which licence to state is the author's**, not either agent's, and
-it is the same question `G7`'s texture decision raises: AGPL-3.0-only keeps the
-package single-licence, CC BY-SA 4.0 is the convention for game art and lets the
-artwork be reused. `ROADMAP.md` `G7` records that decision and flags it
-reversible.
-
-### C21 · low · open — a bundled submodule carries the version ceiling this game's own check forbids
-
-`mods/vector3/mod.conf`
-
-`max_minetest_version = 5.5`, beside `min_minetest_version = 5.3`. `C1` is the
-same defect in this game's `game.conf`, and `check_game.sh` now fails a
-reinstated one there — while a mod the game hard-depends on has carried one all
-along, unchecked.
-
-**It blocks nothing at load.** Per the 5.17.0 reference the engine reads only
-`depends` and `optional_depends` out of a `mod.conf`, so this is ContentDB
-metadata: it constrains what the *package page* claims to support, not what the
-engine will start. That is what makes it low rather than high.
-
-**What makes it worth filing anyway is the direction of travel.** `ROADMAP.md`
-`G6` raises this game to `min_minetest_version = 5.9`, **four minor versions**
-above `vector3`'s stated ceiling — so the game advertises a floor its own
-dependency advertises as out of range. A reader comparing the two package pages
-sees a contradiction, which is exactly the shape `C4` was filed for.
-`mods/codeblock/mod.conf` still says 5.4, which is the other half of the same
-picture and is upstream's call.
-
-**Corrected 2026-09-07, the same day this was filed: three minor versions, not
-four.** It was written against a `min_minetest_version` of 5.7, which was the
-author's instruction and was factually wrong —
-`core.register_mapgen_script` first appears in the 5.9.0 `lua_api`, so 5.7 and
-5.8 cannot start the game at all. The gap this finding describes widened with
-the correction; the severity did not, because the engine still reads no
-`max_minetest_version` out of a `mod.conf`. Recorded rather than overwritten:
-`G6` decision 4 in `ROADMAP.md` carries the evidence.
-
-**Not ours to edit.** `vector3` is a pinned submodule with its own repository
-(`v1.5` at `16621648`); the fix is upstream or a re-pin, and neither is work this
-repository does on its own. Nothing here should hand-edit a submodule's
-`mod.conf` — that change would be silently discarded by the next pointer move.
-Recorded so it reads as known rather than missed.
+`C1` is not in this document: it is the same defect in the mod's `mod.conf` and
+belongs to the mod's audit.
 
 - **C20 · medium · resolved in `9ad884c`** — the ContentDB long
   description was `README.md` verbatim: `scripts/gen_cdb_json.sh` embedded the
@@ -916,65 +981,6 @@ Recorded so it reads as known rather than missed.
   sentence loses its object; four `dp.png` and one `ds.png` were in that state,
   which is why `CONTENTDB.md` names the two tools in words. The mod's counterpart
   is `C19`. <https://content.luanti.org/help/appealing_page/>
-
-- **C2 · low · resolved, and the filing was wrong** — image URLs named `master`
-  while the repository has only `main`. Now they name `main`. The
-  `codeblock/master/…` URLs alongside were correctly left alone: that repository
-  really does use `master`.
-
-  **Keep — the error was methodological, and it is why this entry survives.**
-  It was filed as High, claiming the ContentDB screenshot was broken. *That was
-  incorrect — the images always worked*: GitHub serves the old name of a renamed
-  default branch as an alias, the `master` URL returned the identical
-  510,694-byte file, and a bogus ref 404s. `git ls-remote` confirmed only `main`
-  existed, and the 404 was then **inferred rather than fetched**. One `curl`
-  would have settled it. Verify the claim you are about to publish, not the fact
-  next to it.
-
-- **C3 · medium · resolved** — `mods/worldedit` and `mods/formspecs` shipped
-  AGPL and MIT code without its licence text; both licences require the notice to
-  travel with the code, and AGPL §5 is explicit. `worldedit` gained the AGPLv3
-  text.
-
-  **Keep — with one correction, and the mechanism it produced is what remains.**
-  For `formspecs` an MIT LICENSE was written into the directory and reported
-  done: *that was wrong* — it was a submodule of a repository we do not control,
-  so the file was untracked and would have vanished from every fresh clone. Its
-  MIT text went into `THIRD-PARTY-LICENSES.md` instead, and `check_game.sh` now
-  verifies that a mod either carries its own licence file or is named in that
-  document. Negative-tested both ways. Both mods have since been deleted; the
-  mechanism covers `default`, `dye` and `wool`.
-
-- **C4 · medium · resolved** — licence metadata disagreed across the project: the
-  game AGPL-3.0-only, the mod inside it GPL-3.0-only with a GPLv3 badge.
-  Combining is permitted and AGPL is the right label for the result, but a reader
-  comparing the two saw a contradiction. Unified on AGPL-3.0-only.
-
-  **Keep — whether relicensing was permitted, and how that was settled.** AGPL
-  was the only available direction, since the game vendored AGPLv3 WorldEdit.
-  `codeblock` descends from TurtleMiner and three other authors appear in its
-  history, so permission needed checking: blaming every tracked text file found
-  exactly **two external lines out of ~4,880** — a markdown underline and a blank
-  line — neither copyrightable. Changed: `LICENSE`, the README badge and line,
-  `.cdb.json`'s `license` and `media_license`, and `scripts/gen_cdb_json.sh`,
-  which hardcoded the licence and would have reverted a hand-patched `.cdb.json`.
-  Kept in this audit rather than the mod's because the contradiction was between
-  the two repositories and the label that resolves it is the game's; the matching
-  edits inside `codeblock` are recorded in its changelog as a breaking change for
-  redistributors.
-
-- **C5 · medium · resolved** — the three `cc_*` mods had no licence file and a
-  `mod.conf` carrying only `name` and `description`. Each now has a `license.txt`
-  naming AGPL-3.0-only and pointing at the root `LICENSE` rather than three 35 kB
-  copies, and `check_game.sh` enforces their presence.
-
-  **Keep — `title` and `author` were added deliberately not uniformly.** The four
-  first-party mods carry `author = giga-turbo`; the vendored ones get a `title`
-  only, because claiming authorship of a vendored mod would be false attribution
-  however tidy. This entry also carried a stale *partial* chip for several
-  revisions while its own prose said the work had landed; corrected at `580cf1f`.
-  Same drift as the mod's `A12`: prose updated when the work landed, state marker
-  not.
 
 - **C15 · low · resolved in `8d18e8b`** — the release archive shipped `.claude/`
   (993 kB of agent and skill definitions), the audit, `.github/`, `scripts/`, the
@@ -1000,9 +1006,72 @@ Recorded so it reads as known rather than missed.
   archive. Every tracked document added since — `AUDIT.md`, `PLAYTEST.md`,
   `CONTENTDB.md` — needed its own line for exactly that reason.
 
-## A — architecture and performance
+- **C5 · medium · resolved** — the three `cc_*` mods had no licence file and a
+  `mod.conf` carrying only `name` and `description`. Each now has a `license.txt`
+  naming AGPL-3.0-only and pointing at the root `LICENSE` rather than three 35 kB
+  copies, and `check_game.sh` enforces their presence.
 
-4 findings, 1 resolved. `A7`, `A8` and `A13` are open and in full above.
+  **Keep — `title` and `author` were added deliberately not uniformly.** The four
+  first-party mods carry `author = giga-turbo`; the vendored ones get a `title`
+  only, because claiming authorship of a vendored mod would be false attribution
+  however tidy. This entry also carried a stale *partial* chip for several
+  revisions while its own prose said the work had landed; corrected at `580cf1f`.
+  Same drift as the mod's `A12`: prose updated when the work landed, state marker
+  not.
+
+- **C4 · medium · resolved** — licence metadata disagreed across the project: the
+  game AGPL-3.0-only, the mod inside it GPL-3.0-only with a GPLv3 badge.
+  Combining is permitted and AGPL is the right label for the result, but a reader
+  comparing the two saw a contradiction. Unified on AGPL-3.0-only.
+
+  **Keep — whether relicensing was permitted, and how that was settled.** AGPL
+  was the only available direction, since the game vendored AGPLv3 WorldEdit.
+  `codeblock` descends from TurtleMiner and three other authors appear in its
+  history, so permission needed checking: blaming every tracked text file found
+  exactly **two external lines out of ~4,880** — a markdown underline and a blank
+  line — neither copyrightable. Changed: `LICENSE`, the README badge and line,
+  `.cdb.json`'s `license` and `media_license`, and `scripts/gen_cdb_json.sh`,
+  which hardcoded the licence and would have reverted a hand-patched `.cdb.json`.
+  Kept in this audit rather than the mod's because the contradiction was between
+  the two repositories and the label that resolves it is the game's; the matching
+  edits inside `codeblock` are recorded in its changelog as a breaking change for
+  redistributors.
+
+- **C3 · medium · resolved** — `mods/worldedit` and `mods/formspecs` shipped
+  AGPL and MIT code without its licence text; both licences require the notice to
+  travel with the code, and AGPL §5 is explicit. `worldedit` gained the AGPLv3
+  text.
+
+  **Keep — with one correction, and the mechanism it produced is what remains.**
+  For `formspecs` an MIT LICENSE was written into the directory and reported
+  done: *that was wrong* — it was a submodule of a repository we do not control,
+  so the file was untracked and would have vanished from every fresh clone. Its
+  MIT text went into `THIRD-PARTY-LICENSES.md` instead, and `check_game.sh` now
+  verifies that a mod either carries its own licence file or is named in that
+  document. Negative-tested both ways. Both mods have since been deleted; the
+  mechanism covers `default`, `dye` and `wool`.
+
+- **C2 · low · resolved, and the filing was wrong** — image URLs named `master`
+  while the repository has only `main`. Now they name `main`. The
+  `codeblock/master/…` URLs alongside were correctly left alone: that repository
+  really does use `master`.
+
+  **Keep — the error was methodological, and it is why this entry survives.**
+  It was filed as High, claiming the ContentDB screenshot was broken. *That was
+  incorrect — the images always worked*: GitHub serves the old name of a renamed
+  default branch as an alias, the `master` URL returned the identical
+  510,694-byte file, and a bogus ref 404s. `git ls-remote` confirmed only `main`
+  existed, and the 404 was then **inferred rather than fetched**. One `curl`
+  would have settled it. Verify the claim you are about to publish, not the fact
+  next to it.
+
+## Resolved — A architecture and performance
+
+**4 findings, 1 resolved.** `A7`, `A8` and `A13` are open and in full above.
+
+| Id | Sev | Was | Fixed by | Where it stands |
+|---|---|---|---|---|
+| `A14` | medium | CI conflated the component with the composite: the game's badge reported on the mod's internals and the mod had no CI at all | split along the component/composite line; the mod took its own `.luacheckrc`, specs and badge | — |
 
 - **A14 · medium · resolved** — CI conflated the component with the composite.
   `codeblock` Phase 0 put every check in the game repository, where they linted
@@ -1071,7 +1140,7 @@ ways. `C21` is read straight out of a tracked file (`mods/vector3/mod.conf`) and
 is verified as *a fact about the metadata*; what is unverified is whether it costs
 anything.
 
-**Committed and unproven, on branch `g6-world-limits`, tip `60259dd`:** what is
+**Committed and unproven, on branch `g6-world-limits`, tip `d6e4a12`:** what is
 left in this state is `B48`'s group strip at `ec02760` — `R8` is its check, with
 `R1`, `R4`, `R6` and `P3` re-run beside it — and `B19` and `B24`, which wait on
 `P3`. `G6` itself is no longer here: `f5f2385` carried `minetest.conf` at
@@ -1087,20 +1156,26 @@ nothing — and **neither gate runs a line of the game's Lua**, which is why the
 the playtest and nothing was owed**: no code changed. CI still has no run on this
 branch; the latest is on `578b364`, which predates it.
 
-**Written and gated, and none of committed, released or seen — three changes, in
-one working tree over `93b8ea1`.** This is a fourth state and it is weaker than
-*committed and unproven*, because there is no sha to name. `G7` holds all three:
-the translucent barrier at the world's edge; the game's own two textures for both
-bound nodes, in a new `mods/cc_mapgen/textures/`; and `mgflat_ground_level` at
-128 with the settings entry, the `minetest.conf` default and the forced override
-that carry it, plus the `cc_security` fallback that moved with it. **Both gates
-were run green by `code-expert` after the last edit** — `check_game.sh` ending
-`all game integration checks passed`, luacheck on the three `cc_*` mods printing
-nothing — and **neither runs a line of this game's Lua**, so green says the game
-still assembles and nothing more. `PLAYTEST.md` `W10`–`W14` are the five checks,
-all `unchecked`, none with a sha. **No finding is opened by any of the three**:
-`G6`'s wall was correct and `W5` says so, and the one real defect the pass
-introduced was caught before it was committed.
+**Committed and unproven — the whole of `G7`, at `d6e4a12`, 2026-09-08.** All
+three changes landed in one commit: the translucent barrier at the world's edge;
+the game's own two textures for both bound nodes, in a new
+`mods/cc_mapgen/textures/`; and `mgflat_ground_level` at 128 with the settings
+entry, the `minetest.conf` default and the forced override that carry it, plus
+the `cc_security` fallback that moved with it. **Both gates were green on it** —
+`check_game.sh` ending `all game integration checks passed`, luacheck on the
+three `cc_*` mods printing nothing — and **neither runs a line of this game's
+Lua**, so green says the game still assembles and nothing more. `PLAYTEST.md`
+`W10`–`W14` are the five checks and **all five are still `unchecked`**; what
+changed at `d6e4a12` is that they now have a sha to be run against, which they
+did not before. **No finding is opened by any of the three**: `G6`'s wall was
+correct and `W5` says so, and the one real defect the pass introduced was caught
+before it was committed.
+
+**`W4`, `W8` and `W9` are owed re-runs at `d6e4a12`.** All three pass at
+`60259dd`, where `mgflat_ground_level` was 8, and all three exercise heights
+`cc_security`'s rescue derives from that number. Their passes are not moved and
+not backdated — they are what was seen at `60259dd` — but a result cannot survive
+a change to the code it exercised, and this is a change to it.
 
 **Committed, unproven:** `CONTENTDB.md` and the generator change for `C20`
 landed in `9ad884c`, `.cdb.json` regenerated and `check_game.sh` passing on it.
@@ -1152,10 +1227,26 @@ into the check's own instructions. **The rule cost one re-run and bought results
 that name the code in the tree rather than code that had since changed**, which
 is the argument for it whatever the re-run costs.
 
+**Claimed and not verified — a comment in `mods/cc_security/init.lua:96-97`.** It
+says that a player who falls through the floor does not keep falling: the engine
+collides with unloaded space and zeroes their velocity, so they come to rest on
+an invisible dark ledge. **That claim replaced a wrong one** — the comment
+previously said such a player "never lands" — but the replacement was **taken on
+trust from an earlier session's note and has never been checked**, neither
+against the engine's source nor in a running world. `B50`'s fix and its reasoning
+do not depend on it either way and are unaffected: the rescue fires on a player
+outside the box whether they are falling or resting. Recorded here because a
+comment stating a mechanism reads exactly like one that was verified, and this
+one was not. It is a `TODO.md` line, not a finding — nothing is wrong with the
+code, only with what is known about the sentence beside it.
+
 **Still not checked:** `R8`, which is the whole of `B48`'s
 evidence; `R3` beside `R5`, which is all that keeps `R5` partial; `L3`, gated on
 `A7` landing upstream; `P3` (the boot log), `P4` (the main menu), `P5` (the
-ContentDB page, which needs a release), and the boot half of `P1`. **`R1`, `R4`
+ContentDB page, which needs a release), the boot half of `P1`, and **`W10`–`W14`,
+which have had a sha since `d6e4a12` and have not been run against it**. `P2` is
+owed a re-run: `G6` added two tracked files and `G7` a new directory and two
+more, and nothing in either CI reads `.gitattributes`. **`R1`, `R4`
 and `R6` are marked for re-running** at the same time: the `B48` change rewrites
 `groups` on every registered node, and if the new inner loop errors on any one of
 them, `register_on_mods_loaded` aborts and every node after that point keeps
@@ -1190,6 +1281,42 @@ shape shows up**, and this one was not visible from any amount of reading
 `minetest.conf`.
 
 ---
+
+Revised 2026-09-08 at `d6e4a12`, on `G7` being committed and on this document
+being reorganised. **No finding was filed, none changed state, and the counts are
+unchanged: 20 findings, 15 resolved, 5 open** — `A7`, `A8`, `A13`, `C21`, `C22`.
+Four things moved.
+
+- **`G7` is committed.** Everything that read *written and gated, none of
+  committed, released or seen* is now *committed and unproven at `d6e4a12`*. The
+  five checks `W10`–`W14` are still `unchecked`; what they gained is a sha to be
+  run against. `W4`, `W8` and `W9` are now recorded as **owed re-runs** at
+  `d6e4a12`, because `mgflat_ground_level` moved from 8 to 128 and all three
+  exercise heights the rescue derives from it.
+- **The document is grouped by state before series.** `## Status` at the top
+  carries a series table with a total row and a `waiting on` table for everything
+  not resolved, which is a view this audit never had — what would close each open
+  finding was previously stated only inside each finding's prose. Open findings
+  follow in full; resolved ones follow by series, each behind an index table.
+  **No finding text was cut to do it**, and no `Keep` was touched.
+- **A constraint quoted twice is corrected in both places.** `B48` and `S8` each
+  ruled out `del_fields` on the ground that it arrived in 5.9.0 while `game.conf`
+  declared `min_minetest_version = 5.4`. **`G6` raised that floor to 5.9**, so
+  availability is no longer an objection anywhere in this document. `B48`'s
+  reasoning survives on its second ground — `del_fields` deletes top-level fields,
+  not keys inside `groups` — and `S8`'s does not, so `S8` now records that a wider
+  fix has an option it did not have. Nothing was rewritten on the strength of it.
+- **One claim is moved into *claimed* where it was reading as verified.** The
+  comment at `mods/cc_security/init.lua:96-97` says the engine collides with
+  unloaded space and leaves a fallen player on an invisible dark ledge. It
+  replaced a wrong claim, and it was itself taken on trust and never checked
+  against the engine source or in a world. `B50` does not depend on it.
+
+**The `Keep` paragraphs were deliberately left in place rather than gathered into
+a section of their own.** Every resolved finding here except `B19` and `B24`
+carries one, so gathering them would have separated each piece of reasoning from
+the finding it belongs to and left a list that goes stale silently. They are
+identified by the `**Keep —` marker and are not enumerated anywhere.
 
 Revised 2026-09-07, on the world's wall becoming a translucent
 `cc_mapgen:barrier` above the `cc_mapgen:bedrock` floor. **No finding was filed

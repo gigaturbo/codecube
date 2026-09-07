@@ -2,10 +2,10 @@
 
 The manual checks nothing else here can reach. **This game has no test suite at
 all** — `scripts/check_game.sh` verifies that the game *assembles*, not that it
-behaves, and luacheck reads three files without running them. So every claim
-about what the game actually does in a world rests on reading three short Lua
-files, and this document is where that gap is written down rather than
-rediscovered from prose in `ROADMAP.md` and `AUDIT.md`.
+behaves, and luacheck reads four files without running them. So every claim about
+what the game actually does in a world rests on reading four short Lua files, and
+this document is where that gap is written down rather than rediscovered from
+prose in `ROADMAP.md` and `AUDIT.md`.
 
 The mod's own manual checks are separate and are the larger set:
 `mods/codeblock/PLAYTEST.md`. Nothing here re-checks the drone, the editor, the
@@ -14,6 +14,46 @@ player gets when they install the package.
 
 `PLAYTEST.md` carries its own `export-ignore` line in `.gitattributes`, so this
 file never ships to a player.
+
+Groups are lettered **W** (world and mapgen), **L** (light), **R**
+(restrictions) and **P** (packaging, boot and install). Those letters are
+deliberately none of `B`, `S`, `C`, `A` or `F`, so a check id can never be read
+as a finding id, and none of `G1`–`G7`, the milestone lettering in `ROADMAP.md`.
+
+## How a check is written
+
+Every entry takes this shape. It is written down here because someone adding a
+check opens this file and not an agent definition.
+
+```
+### <id> · <what a pass means, as a sentence> [<finding ids>]
+
+<one or two sentences on what the check is really about, where that is not
+obvious from the title — especially where a wrong result would look like a
+right one>
+
+1. <a numbered step, done in a running world>
+2. <the next one>
+
+**Pass:** <what distinguishes a pass from something that merely did not crash>
+
+Result: unchecked
+```
+
+Two rules about the steps, and both were bought with a wasted session.
+
+- **Hand the runner an actual program or command, not a description of one.** A
+  step that says "have the drone build a large cube" is a step the runner has to
+  design before they can run it, and two runners will design it differently. Give
+  the program.
+- **A recipe names the shell it is for.** A `cmd.exe` line pasted into PowerShell
+  can run something else entirely and report a plausible-sounding error that
+  names nothing about the cause. Write which shell, and quote arguments so the
+  expansion is explicit.
+
+A check with no finding id in brackets exists because nothing has gone wrong
+there yet and nothing proves it right either. Where there is an id, the reasoning
+is in `AUDIT.md` under it.
 
 ## How to record a result
 
@@ -30,156 +70,139 @@ and the point of the line is that a stale pass reads as stale rather than as
 current. A `fail` is not a finding — report it and let `AUDIT.md` allocate or
 widen an id.
 
-Reference the finding id in brackets after the title where there is one; the
-reasoning is in `AUDIT.md` under that id. A check with no id exists because
-nothing has gone wrong there yet and nothing proves it right either.
+Four more rules, each of which this project has needed.
 
-Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
-(packaging, boot and install). Those letters are deliberately none of `B`, `S`,
-`C`, `A` or `F`, so a check id can never be read as a finding id, and none of
-`G1`–`G7`, the milestone lettering in `ROADMAP.md`.
+- **Name both commits when the checkout was at a record-only commit.** If the
+  tree that was run has no code change of its own — a documentation or record
+  commit sitting on top of the code being checked — write it as
+  `` `2feadb1`, record-only over `24842d3` ``, so the reader can see which
+  commit the behaviour actually came from.
+- **Results are listed newest first within an entry.** An entry accumulates its
+  history downwards, so the top line is what the check most recently said. `R4`
+  and `R6` are the two entries here with more than one result and both read that
+  way.
+- **A result is never carried across a change to the code it exercised.**
+  Backdating a pass onto a later commit, or leaving one in place after the code
+  moved, produces something that looks like evidence and is not. Retire it and
+  re-run instead. That rule cost this project two re-runs on 2026-09-07 and is
+  what makes every remaining result checkable.
+- **Never move a result off `unchecked` on reading.** Only a person running it in
+  a world can do that.
 
 ## Where it stands
 
-**The whole `W` group passed at `60259dd`, and it is the largest piece of
-evidence this project has ever held.** `W4`–`W9` are all `B50`, and they are six
-for six: the floor at `y = 0` with air under it, the wall unbroken and full
-height, the drone's own error naming 1024, an existing world re-bounded, the
-clamp firing on a fall and *not* on someone standing legitimately at the edge,
-and the place the rescue puts you. **`B50` closes on this.** `W5` is route one —
-walking off the generated edge — and it is the check the finding was explicitly
-waiting on; `W8` and `W9` are route two, a program carving a hole. Both routes
-are observed now, rather than one.
+| | |
+|---|---|
+| Entries | **30** |
+| Live checks | 30 |
+| Most recent result a `pass` | **18** |
+| `partial` | 2 |
+| `fail` | 0 |
+| Unrun (`unchecked`) | **10** |
+| Results retired | 2 — `W8` and `W9`, both at `f5f2385`, on 2026-09-07 |
+| Findings closed by a check | `B47`, `B49`, `B50`, `S8` |
 
-**Three things stop being inferred with it, and `W6` carried the most.** `W6` is
-the only check that can say the game's `minetest.conf` reached `core.settings`
-and that the drone's bound and the wall are one number — the whole architecture
-of `G6` decision 2, which until this run rested on reading
+**What needs action**, and it is the list — `TODO.md` points here rather than
+keeping a second copy.
+
+| Check | State | Why it needs action |
+|---|---|---|
+| `W3` | pass, **method stale** | it passed by teleporting "several thousand nodes" out, which now lands outside a world whose limit is 1024. The pass is still what was seen at `7f649d8`; the instruction has to be re-read before it is re-run |
+| `W4` | pass, **re-run owed** | passes at `60259dd`, where `mgflat_ground_level` was 8. `d6e4a12` moved it to 128 and the rescue derives its heights from that number |
+| `W8` | pass, **re-run owed** | same reason as `W4` |
+| `W9` | pass, **re-run owed** | same reason as `W4` |
+| `W10` | unrun | the barrier is see-through and still a wall. Sha `d6e4a12` |
+| `W11` | unrun | the game's own textures, and the floor not showing a tiling grid. Sha `d6e4a12` |
+| `W12` | unrun | a new world puts you 128 nodes above the floor |
+| `W13` | unrun, **run first** | an existing world's surface actually moving. It is the whole point of forcing the setting, and `code-expert` calls it the thing most likely to be wrong |
+| `W14` | unrun, **run first** | the rescue reading the new depth. It stands behind a real defect the same change introduced and caught — a `(ground or 8)` fallback that would have put a rescued player inside 120 nodes of stone |
+| `L3` | unrun | gated on `A7`'s removal landing upstream in `codeblock` and being adopted here |
+| `R1` | pass, **re-run owed** | `B48`'s fix rewrites `groups` on every registered node, a far wider blast radius than the `diggable` field beside it |
+| `R3` | pass, **re-run owed** | thirty seconds, and it is the whole of what keeps `R5` partial |
+| `R4` | pass, **re-run owed** | same blast radius as `R1` |
+| `R5` | **partial** | its drop half passed at `7dc764f`; the knockback half rests on `R3` not having been re-run |
+| `R6` | pass, **re-run owed** | same blast radius as `R1` |
+| `R8` | unrun | the whole of `B48`'s evidence, at `ec02760` |
+| `P1` | **partial** | the clone half passed at `8b27f2f`; the boot half has never been run |
+| `P2` | pass, **re-run owed** | `G6` added two tracked files and `G7` a new directory and two more, and nothing in either CI reads `.gitattributes` (`C15`) |
+| `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence |
+| `P4` | unrun | the main menu shows the game's name, artwork and icon |
+| `P5` | unrun | needs a release first — it is the ContentDB page as published |
+
+**Two sittings cover all of it.** One is `G4`'s and it is small: `R8` at
+`ec02760`, with `R1`, `R4`, `R6` and `P3` re-run beside it, plus `P4`, `P1`'s
+boot half, the thirty seconds of `R3` that closes `R5`, and `P2`. The other is
+`G7`'s: `W13` and `W14` first, then `W10`, `W11`, `W12`, and the `W4`, `W8` and
+`W9` re-runs the new depth made owed.
+
+**The whole `W4`–`W9` group passed at `60259dd`, and it is the largest piece of
+evidence this project has ever held.** All six are `B50`: the floor at `y = 0`
+with air under it, the wall unbroken and full height with no gap at a mapchunk
+seam, the drone's own error naming 1024, an existing world re-bounded, the clamp
+firing on a fall and *not* on someone standing legitimately at the edge, and the
+place the rescue puts you. **`B50` closed on this**, on both of its routes: `W5`
+is route one, walking off the generated edge, which nobody in this project had
+ever done; `W8` and `W9` are route two, a program carving a hole.
+
+**Three things stopped being inferred with it, and `W6` carried the most.** `W6`
+is the only check that can say the game's `minetest.conf` reached `core.settings`
+and that the drone's bound and the wall are one number — the whole architecture of
+`G6` decision 2, which until that run rested on reading
 `mods/codeblock/lib/commands.lua:49`. `W7` is the only thing `override_meta =
-true` ever bought, and an existing world really is re-bounded on opening. `W5` is
-the wall at full height with no gap where one mapchunk meets the next, which no
-amount of reading `mapgen_env.lua` could settle.
+true` ever bought. `W5` is the wall at full height with no seam, which no amount
+of reading `mapgen_env.lua` could settle.
 
-**`W8` is a full pass, and the ambiguity it used to carry is gone.** Its earlier
+**`W8` is a full pass and the ambiguity it used to carry is gone.** Its earlier
 passes were recorded against a near-miss half nobody had run — the clamp must
-**not** fire on a player standing against the wall or on the exposed floor
-plane — and by this document's convention an unrun half is `partial`. The rewrite
-of 2026-09-07 put that half into the check's own instructions: *"walk the wall and
-stand on the exposed floor plane for a while in the same session: neither must
-move you."* So a pass reported against the check as written is a pass on both
-halves, and it is recorded as one rather than upgraded from anything.
+**not** fire on a player standing against the wall or on the exposed floor plane —
+and by this document's convention an unrun half is `partial`. The 2026-09-07
+rewrite put that half into the check's own instructions, so a pass against the
+check as written is a pass on both halves.
 
-**Nothing was re-run for this and nothing needed to be.** No code changed. The
-last green run of both gates was on `60259dd`, and neither runs a line of the
-game's Lua.
-
-**`W3`'s method went stale with the same change**, and its result line is left
-alone: it passed by teleporting "several thousand nodes" out, which now lands
-outside a world whose limit is 1024. The pass is still what was seen at
-`7f649d8`; the instruction is what has to be re-read before it is re-run.
-
-**`P2` is owed a re-run, and it is owed harder than it was.** `G6` added two
-tracked files — the game-root `settingtypes.txt` and
-`mods/cc_mapgen/mapgen_env.lua` — and the uncommitted `G7` work adds **a new
-directory and two more**, `mods/cc_mapgen/textures/cc_mapgen_bedrock.png` and
-`cc_mapgen_barrier.png`. `.gitattributes` decides what reaches a player and
-nothing in either CI checks it (`C15`). All four are files a player *should* get,
-so nothing is expected to be wrong. `code-expert` confirmed the two textures by
-hand with `git check-attr`: neither is `export-ignore`d, so both ship. **That is
-one manual run and not a gate**, and a texture that failed to ship would render
-the floor and the wall as the unknown-node texture with nothing failing anywhere
-first. `P2` is what says so properly.
+**`W10`–`W14` gained a sha on 2026-09-08 and are still unrun.** They cover the
+three changes `d6e4a12` committed: a translucent `cc_mapgen:barrier` at the
+world's edge instead of solid bedrock (`W10`), the game's own textures for both
+bound nodes instead of two borrowed from `default` (`W11`), and a world 128 nodes
+deep instead of 8 (`W12`, `W13`, `W14`). **Both gates were green on that commit
+and neither runs a line of this game's Lua**, so nothing about how any of it
+looks, how deep it is, or where a rescue puts anybody is evidence yet. For a
+stretch of 2026-09-07 these were five entries with no commit at all to be run
+against, which is the most this document has ever carried.
 
 **The game's behaviour has been checked in a world on 2026-09-01 over three
 rounds, again on 2026-09-02, and three times on 2026-09-07.** Twenty of the
-**thirty** have a live result and **eighteen pass**: `W1`–`W9`, `L1`, `L2`,
-`R1`–`R4`, `R6`, `R7` and `P2`. Two are partial: `P1`, its clone half only, and
-`R5`, whose drop half passed and whose `R3` re-run has not been done. `L3` waits
-on `A7` landing upstream in `codeblock`; `R8`, `W10`, `W11`, `W12`, `W13`, `W14`,
-`P3`, `P4` and `P5` are unrun, and `P5` needs a release first.
-
-**Five checks here now have no commit at all — `W10` through `W14` — and they are
-the five newest.** They cover three uncommitted changes made on 2026-09-07 in one
-working tree: a translucent `cc_mapgen:barrier` at the world's edge instead of
-solid bedrock (`W10`), the game's own textures for both bound nodes instead of
-two borrowed from `default` (`W11`), and a world 128 nodes deep instead of 8
-(`W12`, `W13`, `W14`). **Both gates are green on all three and neither runs a
-line of this game's Lua**, so nothing about how any of it looks, how deep it is,
-or where a rescue puts anybody is evidence. Their result lines stay `unchecked`
-and get no sha until the changes are committed.
-
-**Of those five, `W13` and `W14` are the ones to run first.** `W13` is an
-existing world's surface actually moving, which is the whole point of forcing the
-setting and the part `code-expert` calls most likely to be wrong; `W14` is the
-rescue reading the new depth, and it is the check that stands behind a real
-defect the same change introduced and caught — a `(ground or 8)` fallback that
-would have put a rescued player inside a hundred and twenty nodes of stone. The
-other three are appearance, and a wrong appearance is visible the moment anybody
-looks.
-
-**`W4`, `W8` and `W9` will be owed re-runs when the depth lands.** All three pass
-at `60259dd`, where `mgflat_ground_level` was 8; all three exercise heights the
-rescue derives from that number. Their passes are not moved and not backdated —
-they are what was seen at `60259dd` — but a result cannot survive a change to the
-code it exercised, and this is a change to it. The methods below are rewritten to
-work at either depth in the meantime.
-
-**What is left is `G4`'s, and it is small.** `R8` at `ec02760` is the check
-`B48` waits on, with the `R1`, `R4`, `R6` and `P3` re-runs beside it that the
-group-stripping change made necessary. One session covers all five, and it is the
-next thing this document is owed. `P4`, `P1`'s boot half and the thirty seconds
-of `R3` that closes `R5` fold into the same sitting.
-
-**`R8` is new on 2026-09-07, and four existing checks are marked for re-running
-beside it.** Since `B48` is now committed on its own at `ec02760`, all five have
-a sha to be run against. `B48`'s fix rewrites `groups` on *every* registered node in the
-`cc_security` override pass, which is a far wider blast radius than the
-`diggable` field it sits next to. `R8` is the only thing that can say the crack
-animation is gone, and `R1`, `R4`, `R6` and `P3` are the ones that would catch
-the pass having broken something else on the way. Each says so where it stands.
-None of their existing results has been moved — a pass recorded at `7f649d8` or
-`6f2409e` is still what was seen then, and it is the code that has moved.
-
-**`R2`'s drop half ran on 2026-09-02, for the first time in this project.** It
-had been recorded as passing since the first playtest on the strength of the
-inventory panel alone — nothing had ever been dug, because `diggable = false`
-makes it impossible, and the check said only "with digging somehow permitted".
-Commenting that line out for one run is what finally exercised
-`handle_node_drops`, and it is the method the check now carries.
-
-**Every restriction that was checked on 2026-09-01 is evidence rather than
-reading.** Nothing is diggable, no item drops, there is no knockback, no
-inventory is reachable, and the drone still builds through all of it.
-`cc_mapgen` is proven the same way: flat and clean at spawn, far out into
-unemerged map, and in a world created with other flags. `cc_day` holds the light
-and the sky at every hour.
-
-**`R7` is the one that earned the most.** The game also claims the world never
-changes on its own, and the fix behind that claim rests on undocumented
-behaviour — replacing an ABM's `action`, because Luanti cannot unregister one.
-Nothing but `R7` could say whether it works, and on 2026-09-02 it did: nothing
-moved in five minutes.
+thirty entries have a live result, eighteen of them a pass.
 
 **Three findings came out of those rounds** — `B47`, `B48` and `S8` — none of
-them visible from reading the three `cc_*` files, **which were 21 lines between
-them at the time** — 439 now across four files, since `G6`, the rescue rewrite
-and the barrier node. All three are now fixed; `B48` is the
-one whose fix has not been seen in a world, which is what `R8` is for.
+them visible from reading the `cc_*` files, **which were 21 lines between them at
+the time** and are 464 now across four. All three are fixed; `B48` is the one
+whose fix has not been seen in a world, which is what `R8` is for.
 
 **`B49` came the other way, and is worth noting for that.** It was found by
 reading `mods/default` while scoping `A13`, not by playing — three rounds in a
 world walked past dirt spreading grass and a roofed grass floor reverting,
 because nobody had thought to wait five minutes and look again. Playing finds
 what reading misses; this one went the other way, and `R7` put it back in front
-of a world.
+of a world. `R7` is also the check that earned the most: the fix behind *the
+world never changes on its own* rests on undocumented behaviour — replacing an
+ABM's `action`, because Luanti cannot unregister one — and nothing but `R7` could
+say whether it works.
 
 **`R6` is the case for re-running a check against its own fix.** The first `S8`
 fix stopped items going into the bookshelf and left the real hazard standing: the
 same panel is a way into the player's own inventory, and a drone tool dragged out
 of the hotbar there lands in a row the player can no longer open. Marking `R6`
-pass on the strength of that fix would have shipped it. The same applies to `R4`,
-re-run beside `R6` because the second fix denies every player inventory action
-and `R4` is what would catch that being too broad.
+pass on the strength of that fix would have shipped it. `R4` is re-run beside it
+because the second fix denies *every* player inventory action, and `R4` is what
+would catch that being too broad.
+
+**`R2`'s drop half ran on 2026-09-02, for the first time in this project.** It
+had been recorded as passing since the first playtest on the strength of the
+inventory panel alone — nothing had ever been dug, because `diggable = false`
+makes it impossible, and the check said only "with digging somehow permitted".
+Commenting that line out for one run is what finally exercised
+`handle_node_drops`, and it is the method the check now carries. **A check that
+cannot be run reads exactly like one that passed.**
 
 ---
 
@@ -209,14 +232,14 @@ subject and `W4`'s obstacle.
 
 **`mgflat_ground_level` is the number that moved, and every result below was
 recorded before it did.** It was **8** at `60259dd`, which is the commit `W4`–`W9`
-all pass at, so those runs went down eight nodes of stone. The uncommitted
-working tree of 2026-09-07 sets it to **128**, and `W12` is the check that says
-so. The methods below are written to work at either — they say "the surface" and
-"the plane" rather than a number — but **anywhere a number is unavoidable, both
-are given**, and a pass recorded at `60259dd` is a pass against a world eight
-nodes deep. When the depth change is committed, `W4`, `W8` and `W9` are owed
-re-runs against it: all three exercise `cc_security`'s rescue, and the constant
-it derives its heights from is exactly what changed.
+all pass at, so those runs went down eight nodes of stone. **`d6e4a12` sets it to
+128**, and `W12` is the check that says so. The methods below are written to work
+at either — they say "the surface" and "the plane" rather than a number — but
+**anywhere a number is unavoidable, both are given**, and a pass recorded at
+`60259dd` is a pass against a world eight nodes deep. **`W4`, `W8` and `W9` are
+therefore owed re-runs at `d6e4a12`**: all three exercise `cc_security`'s rescue,
+and the constant it derives its heights from is exactly what changed. Their
+passes are not moved and not backdated — they are what was seen at `60259dd`.
 
 ### W1 · A new world is flat and clean at spawn
 
@@ -278,7 +301,7 @@ that only exercises `W8`. Go from above instead.
 Have a program clear a shaft from the surface down to `y = 1` — the surface is at
 `mgflat_ground_level` and everything between it and `y = 1` is stone — then climb
 or teleport into it and stand on the bottom. **That is 8 nodes of stone at
-`60259dd`, where the pass below was recorded, and 128 in the uncommitted tree**,
+`60259dd`, where the pass below was recorded, and 128 at `d6e4a12`**,
 so the shaft the program has to clear is sixteen times longer than it was and a
 loop written for the old depth will stop short.
 
@@ -376,7 +399,7 @@ floor do not close this, because a program may `remove` a floor tile and
 The floor is under the whole depth of the stone, so this needs two steps, not
 one. Have a program clear a shaft from the surface down to `y = 1` and then
 `remove` one bedrock node at `y = 0` under it — `W4`'s shaft will do, and it is
-eight nodes deep at `60259dd` and 128 in the uncommitted tree. Then walk into the
+eight nodes deep at `60259dd` and 128 at `d6e4a12`. Then walk into the
 hole.
 
 **Pass:** you stop falling, and you are put back **in your own column** — at the
@@ -472,7 +495,7 @@ ground the program has not touched.
 
 **Pass:** you are put back **one node inside the wall, at the same `z`**, standing
 on top of the stone surface — `y` about **`mgflat_ground_level` + 0.5**, so 8.5 at
-`60259dd` and 128.5 in the uncommitted tree. Not embedded in the stone, and
+`60259dd` and 128.5 at `d6e4a12`. Not embedded in the stone, and
 not down on the bedrock plane.
 **Fail:** your view is inside a node, or you arrive at `y` about 0.5. This is also
 the first check of the clamp arithmetic, which was never player-visible before:
@@ -489,7 +512,7 @@ The old form of this case asserted that the surface at `(0, 8, 0)` was still
 stone, and since `60259dd` that assertion is vacuous.
 
 **4 · The bound exhausted.** The scan gives up 64 nodes above
-`mgflat_ground_level` — **72 at `60259dd`, 192 in the uncommitted tree** — and
+`mgflat_ground_level` — **72 at `60259dd`, 192 at `d6e4a12`** — and
 this is the **only surviving route into `repair_spawn()`**. Reuse case 2's way out
 of the world: have the drone fill the column one node inside the wall, at the `z`
 you will walk out at, with stone from `y = 1` up past that height, then walk out
@@ -498,7 +521,7 @@ sixteen times the pillar it used to**, and it is the one case here that a depth
 change makes materially harder to set up.
 
 **Pass:** you arrive at spawn, in open air, free to move — `y` about
-`mgflat_ground_level` + 1, so 9 at `60259dd` and **129** in the uncommitted tree.
+`mgflat_ground_level` + 1, so 9 at `60259dd` and **129** at `d6e4a12`.
 **Fail:** you arrive embedded in a node, or the rescue does nothing at all.
 Building a solid pillar the full height of the scan and falling out of the world
 at exactly its footprint is the case the bound trades away, and what it costs is the old
@@ -586,8 +609,8 @@ try to place a node on its far side.
 **The floor is not part of this check.** `cc_mapgen:bedrock` is still the plane at
 `y = 0`, including the outermost column at that layer, and still under the whole
 depth of the stone. `W4` is its check and this does not replace it. **What the
-floor now *looks* like is `W11`**, which is new beside this one: the same
-uncommitted tree gives both bound nodes the game's own textures, so
+floor now *looks* like is `W11`**, which is new beside this one: the same commit
+gives both bound nodes the game's own textures, so
 `cc_mapgen:bedrock` is no longer unchanged the way this paragraph used to say.
 
 **The texture the outline comes from changed on 2026-09-07, after this check was
@@ -597,9 +620,9 @@ keeping the same 1px-border, transparent-centre geometry. What is checked here i
 the *geometry* — an outline per node face with sky through the middle — and that
 is what both textures give. `W11` is where the new artwork itself is looked at.
 
-Result: unchecked — the change is written and both gates are green, and neither
-gate runs a line of this game's Lua. **Not committed**, so there is no sha to run
-it against yet.
+Result: unchecked — committed at `d6e4a12`, both gates green there, and neither
+gate runs a line of this game's Lua. It has a sha to be run against and nobody
+has looked at it.
 
 ### W11 · The floor and the wall are the game's own artwork, and the floor does not tile
 
@@ -640,8 +663,8 @@ and it is meant to be there — a regular grid on the *wall* is a pass, a regula
 grid on the *floor* is a fail. The two are next to each other and easy to
 conflate.
 
-Result: unchecked — written and both gates green, and neither gate renders a
-pixel. **Not committed**, so there is no sha to run it against yet.
+Result: unchecked — committed at `d6e4a12`, both gates green there, and neither
+gate renders a pixel. It has a sha to be run against and nobody has looked at it.
 
 ### W12 · A new world puts you 128 nodes above the floor
 
@@ -670,7 +693,7 @@ Codecube shows **Surface height** at 128 beside **World half-extent** at 1024.
 That is a server owner's route to it and the reason it is a setting rather than a
 constant.
 
-Result: unchecked — written and both gates green, not committed.
+Result: unchecked — committed at `d6e4a12`, both gates green there.
 
 ### W13 · An existing world's surface moves to 128 when you open it
 
@@ -706,7 +729,7 @@ is the wrong one.
 ground already generated keeps the height it has. The setting reaches new chunks
 only, exactly as the wall does.
 
-Result: unchecked — written and both gates green, not committed.
+Result: unchecked — committed at `d6e4a12`, both gates green there.
 
 ### W14 · The rescue still knows where the surface is [B50]
 
@@ -752,8 +775,8 @@ before it finds the surface. Bounded, and at most four times a second per
 out-of-box player. If a rescue feels slower than it did, that is why and it is
 deliberate.
 
-Result: unchecked — written and both gates green, and neither gate runs a line of
-this game's Lua. **Not committed**, so there is no sha to run it against yet.
+Result: unchecked — committed at `d6e4a12`, both gates green there, and neither
+gate runs a line of this game's Lua.
 
 ---
 
@@ -956,6 +979,42 @@ the guard is deliberately total, and this is what would have caught the editor o
 a tool depending on an inventory move. Also passed at `7f649d8`, before the
 guard.
 
+### R5 · The chained drop handler still hands out nothing [A8]
+
+**A regression check, not a composition one.** `A8` replaced
+`function minetest.handle_node_drops() end` with a call to the handler it
+captured, given an empty drop list. **Nothing else in this game assigns either
+global** — `grep -rn "handle_node_drops\|calculate_knockback" mods/` finds only
+`cc_security` — so the captured value is the engine default and the new code
+should behave exactly like the old. What is worth confirming is that it does:
+`previous_drops` being non-nil is read from the 5.17.0 reference and has never
+been run, and a `nil` there would error on the one path that is meant to be
+silent.
+
+Re-run `R3`, and run `R2` **by its drop method**, which is written out under
+`R2` and now needs two lines commented out rather than one. That is the only way to put a real dig through the chain; no second mod, nothing
+to install. Without it R5 proves nothing that `R3` does not already prove.
+
+**Pass:** both still pass. No item entity ever appears, and nothing pushes you.
+
+**What this deliberately does not check, and why.** `A8`'s other half — that
+`last_mod = cc_security` makes this mod's assignment the one that survives —
+needs a second mod installed that assigns the same globals, and none ships here.
+Building one for the occasion would be testing a composition this game does not
+have. The scenario it defends is a server owner adding a worldmod to a Codecube
+server from ContentDB, and even then the game's promise is held by
+`diggable = false`: the drop handler matters only once something has already
+re-enabled digging, at which point the owner has deliberately changed the game.
+**Untested by choice, recorded so it does not read as an omission.** Decided by
+the author on 2026-09-02.
+
+Result: partial — `7dc764f` · engine 5.17.0 · 2026-09-02 — **the half that could
+have broken is done.** `R2`'s drop method passed: the chain fires, hands an empty
+list to the captured handler, and nothing drops. `R3` was not re-run on current
+code, so the knockback half is still resting on its 2026-09-01 pass. The risk
+there is small — `A8` left `calculate_knockback` byte-identical and nothing
+competes for it — but small is not none, and thirty seconds closes it.
+
 ### R6 · A bookshelf opens nothing you can use [S8]
 
 Have a program place a `bookshelf`, then right-click it. Try to drag one of the
@@ -1036,42 +1095,6 @@ grass, the sapling stayed a sapling, and the server kept running. The `action`
 replacement takes effect, so the fallback of deleting the two ABMs from
 `mods/default/functions.lua` is not needed.
 
-### R5 · The chained drop handler still hands out nothing [A8]
-
-**A regression check, not a composition one.** `A8` replaced
-`function minetest.handle_node_drops() end` with a call to the handler it
-captured, given an empty drop list. **Nothing else in this game assigns either
-global** — `grep -rn "handle_node_drops\|calculate_knockback" mods/` finds only
-`cc_security` — so the captured value is the engine default and the new code
-should behave exactly like the old. What is worth confirming is that it does:
-`previous_drops` being non-nil is read from the 5.17.0 reference and has never
-been run, and a `nil` there would error on the one path that is meant to be
-silent.
-
-Re-run `R3`, and run `R2` **by its drop method**, which is written out under
-`R2` and now needs two lines commented out rather than one. That is the only way to put a real dig through the chain; no second mod, nothing
-to install. Without it R5 proves nothing that `R3` does not already prove.
-
-**Pass:** both still pass. No item entity ever appears, and nothing pushes you.
-
-**What this deliberately does not check, and why.** `A8`'s other half — that
-`last_mod = cc_security` makes this mod's assignment the one that survives —
-needs a second mod installed that assigns the same globals, and none ships here.
-Building one for the occasion would be testing a composition this game does not
-have. The scenario it defends is a server owner adding a worldmod to a Codecube
-server from ContentDB, and even then the game's promise is held by
-`diggable = false`: the drop handler matters only once something has already
-re-enabled digging, at which point the owner has deliberately changed the game.
-**Untested by choice, recorded so it does not read as an omission.** Decided by
-the author on 2026-09-02.
-
-Result: partial — `7dc764f` · engine 5.17.0 · 2026-09-02 — **the half that could
-have broken is done.** `R2`'s drop method passed: the chain fires, hands an empty
-list to the captured handler, and nothing drops. `R3` was not re-run on current
-code, so the knockback half is still resting on its 2026-09-01 pass. The risk
-there is small — `A8` left `calculate_knockback` byte-identical and nothing
-competes for it — but small is not none, and thirty seconds closes it.
-
 ### R8 · No node ever plays a dig animation [B48]
 
 **The outcome and the animation are different claims, and only the animation is
@@ -1115,6 +1138,8 @@ against, and so do the `R1`, `R4`, `R6` and `P3` re-runs beside it. `f5f2385`
 carries it too and is the tip; either names the same `cc_security` override pass.
 
 Result: unchecked
+
+---
 
 ---
 
@@ -1353,3 +1378,36 @@ the working tree — rather than being written for a world nobody has run them i
 `W10`'s note about `cc_mapgen:bedrock` being "unchanged" was corrected for the
 same reason: it is not, it has a new texture, and `W11` is where that is looked
 at.
+
+Revised 2026-09-08 at `d6e4a12`, on `G7` being committed and on this document
+gaining the two things it never had: a statement of **how a check is written**,
+and **counts**.
+
+- **`W10`–`W14` have a sha and are still `unchecked`.** `d6e4a12` committed all
+  three `G7` changes, so the five newest entries stop being checks with nothing
+  to be run against — which for a stretch of 2026-09-07 was five at once, the
+  most this document has ever carried. **No result moved**, and none may: only a
+  person running one in a world can do that.
+- **`W4`, `W8` and `W9` go on the owed-re-run list properly**, in the *what needs
+  action* table rather than only in prose. Their passes at `60259dd` stand; the
+  depth they were run against does not.
+- **`## How a check is written`** is new. Every entry here already followed that
+  shape and nothing said so, and the nearest statement of it lived in the
+  `run-checks` skill — the wrong place, since someone opening this file to add a
+  check does not read a skill. The two rules under it, *hand the runner an actual
+  program or command* and *a recipe names the shell it is for*, were each bought
+  with a wasted session.
+- **`## Where it stands` is now two tables and a third of the prose.** The counts
+  existed nowhere before; the *what needs action* table existed nowhere at all,
+  and `TODO.md` was carrying the list instead, which is exactly the duplication
+  that goes stale. `TODO.md` now points here. **No fact was dropped to do it** —
+  `W3`'s method having gone stale, `P2` being owed harder than it was, and the
+  argument for each re-run all moved into the table or the prose under it.
+- **Two recording rules were missing and are written down**: name both commits
+  when the checkout was at a record-only commit, and **results are listed newest
+  first within an entry**. That second one is this document's actual practice —
+  `R4` and `R6` are the only entries with more than one result and both read
+  newest first — and it is the opposite of the sibling `codeblock` project's
+  convention. Written to match what is here rather than what is there.
+- **`R5` is back in group order.** The file ran `R1 R2 R3 R4 R6 R7 R5 R8`; it now
+  runs `R1`–`R8`. Nothing in the entry changed.

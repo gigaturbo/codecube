@@ -63,8 +63,8 @@ has the object; only a fresh `git clone --recurse-submodules` catches it
 
 ## The record
 
-Six tracked documents, all in this directory, plus the `.claude/` definitions and
-the HTML renderings:
+Seven tracked documents, all in this directory, plus the `.claude/` definitions
+and the HTML renderings:
 
 - `ROADMAP.md` — the game's own mods, its packaging and presentation, and which
   CodeBlock release it has adopted. Its milestones are lettered **`G1`–`G7`**,
@@ -85,6 +85,11 @@ the HTML renderings:
 - `CONTENTDB.md` — the ContentDB long description. **Not the README**: write this
   file, never `.cdb.json`, and read the rules in the header of
   `scripts/gen_cdb_json.sh` before adding to it. (C20)
+- `THIRD-PARTY-LICENSES.md` — the licence catalogue for everything the game
+  bundles, code and media. It is the one record document that **ships to a
+  player**: it carries no `export-ignore` line, deliberately, because a licence
+  notice has to travel with what it licenses. `check_game.sh` reads it — a mod
+  either carries its own licence file or is named here (C3).
 - `.reports/*.html` — gitignored browsable renderings of `ROADMAP.md`, `AUDIT.md`
   and `PLAYTEST.md`. Presentation only: they hold no fact the Markdown does not,
   so a deleted `.reports/` costs nothing.
@@ -97,9 +102,17 @@ Finding ids — `B` bugs, `S` sandbox and security, `C` compliance and packaging
 gap in a sequence is a finding held by the mod's own audit, from when the two
 projects shared one record. The mod's `F` feature series is its own.
 
-The `project-manager` agent owns all six, plus `README.md` and this file, the
+The `project-manager` agent owns all seven, plus `README.md` and this file, the
 renderings, and the `.claude/` definitions beside them; edit one by hand only for
 something that agent cannot know.
+
+**One exception, and it is deliberate.** `code-expert` writes its own definition,
+`.claude/agents/code-expert.md`, and the skill it reads,
+`.claude/skills/code-standards/SKILL.md`, so that an engine behaviour or a trap
+that cost it a debugging round is written down where the next change will meet
+it. That is the mechanism by which a mistake is made once. Nothing else in
+`.claude/` is its — `luanti-reference` is a shared reference skill and belongs to
+no single agent.
 
 ## The agents and the skills
 
@@ -108,8 +121,8 @@ own skill first. Their definitions are the long form; this is only the map.
 
 | Agent | Owns | Reads |
 |---|---|---|
-| `project-manager` | the record above, `README.md`, `CONTENTDB.md` and the `.cdb.json` generator over it, `.reports/`, and the `.claude/` definitions | `build-feature` |
-| `code-expert` | `mods/cc_day`, `mods/cc_mapgen`, `mods/cc_security`, `scripts/`, `game.conf`, `minetest.conf`, and the packaging and lint configuration | `code-standards`, `luanti-reference` |
+| `project-manager` | the record above, `README.md`, `CONTENTDB.md` and the `.cdb.json` generator over it, `.reports/`, and the `.claude/` definitions bar the two below | `build-feature` |
+| `code-expert` | `mods/cc_day`, `mods/cc_mapgen`, `mods/cc_security`, `scripts/`, `game.conf`, `minetest.conf`, the packaging and lint configuration, and its own two files — `.claude/agents/code-expert.md` and `.claude/skills/code-standards/SKILL.md` | `code-standards`, `luanti-reference` |
 | `test-agent` | the two gates, the CI lookup, `PLAYTEST.md`'s result lines, and the evidence side of `AUDIT.md` | `run-checks`, `luanti-reference` |
 
 Two rules make the split work: **call the agent rather than doing its work**, and
@@ -137,9 +150,10 @@ bash scripts/gen_cdb_json.sh  # regenerate after a CONTENTDB.md edit; check_game
 
 The game has **no test suite of its own**, and no automated check reaches its
 behaviour at all — `check_game.sh` verifies that the game *assembles*. Say so
-plainly rather than reporting a test gate as passed. What behaviour evidence
-exists is whatever has been run out of `PLAYTEST.md`, and at present that is
-nothing.
+plainly rather than reporting a test gate as passed. Every claim about behaviour
+rests on a `PLAYTEST.md` result line naming a commit, an engine version and a
+date; count them there rather than trusting a number written anywhere else,
+including here.
 
 Linting and testing the mod belongs to its own repository and CI, and neither
 workflow duplicates the other. The consequence: **the two go red

@@ -24,9 +24,22 @@ repository runs a line of the game's Lua, ever.
 
 So a green report here means *assembles and lints clean*, and it says so in those
 words. Reporting it as "tests pass" would be false, and it is the single thing
-most worth getting right in every reply you write. The only evidence about
-behaviour is a `PLAYTEST.md` result line, and **nothing in that document has ever
-been run.**
+most worth getting right in every reply you write. **The only evidence about
+behaviour is a `PLAYTEST.md` result line**, and the only way to know how much
+there is, is to read that document and count — never a number recalled from a
+document, including this one.
+
+Two rules follow from having no suite, and both are about not being reassured by
+a check.
+
+- **A check that cannot fail is indistinguishable from one that passes.**
+  `check_game.sh` is a pile of guards, and a guard whose pattern stopped matching
+  is silent. Do not trust a gate you have not seen fail: when a change should
+  have tripped one, confirm it tripped.
+- **An id is for a defect in committed code.** A wrong *check* — a `PLAYTEST.md`
+  entry that asks for the wrong thing, or whose pass is indistinguishable from
+  not crashing — is a defect in `PLAYTEST.md` and gets no id. Report it to
+  `project-manager`, which owns the entries.
 
 ## The gates
 
@@ -99,15 +112,18 @@ coherence, the `Keep` paragraphs. What is yours is the **evidence**:
   concretely.
 - **Close one** when the code and a run show it, naming what showed it.
 - **Compress a closed finding** whose reasoning is spent to one line: id, what it
-  was, how it was fixed, the commit. Leave the `Keep` paragraphs alone — `C2`,
-  `C3`, `C4`, `C15` and `B20` each hold a constraint a future change would
-  otherwise re-break.
+  was, how it was fixed, the commit. **Never compress away a `Keep` paragraph.**
+  A `Keep` is a constraint a future change would otherwise re-break, written
+  under the finding it came from; there are more of them than any list here could
+  stay current with, so identify them by the marker in the document, not from
+  memory. Compression is of prose, never of fact.
 
 Ids are **never renumbered**, because commit messages cite them, and a gap in a
 sequence is a finding held by the mod's own audit from when the two projects
-shared one record — say so rather than filling it. There are no `S` findings on
-the game's side, and the `F` feature series is the mod's own. Never silently drop
-a finding: mark it **withdrawn** and say why.
+shared one record — say so rather than filling it. The `S` series was almost all
+the mod's, and the game holds one of its own, `S8`; the `F` feature series is the
+mod's entirely and is not allocated here. Never silently drop a finding: mark it
+**withdrawn** and say why.
 
 Regenerate `.reports/audit.html` after changing the Markdown, and only from it —
 it is gitignored presentation and holds no fact of its own. If `project-manager`

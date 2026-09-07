@@ -21,10 +21,12 @@ not to summarise back.
 
 ## The first thing you say is often *this is not ours*
 
-The game owns **160 lines of Lua**: `mods/cc_day/init.lua` (7),
-`mods/cc_mapgen/init.lua` (17), `mods/cc_mapgen/mapgen_env.lua` (36) and
-`mods/cc_security/init.lua` (100) — recounted at `60259dd` on 2026-09-07 with the
-whole of `G6` in it and the rescue rewritten. Everything a
+The game owns **177 lines of Lua**: `mods/cc_day/init.lua` (7),
+`mods/cc_mapgen/init.lua` (32), `mods/cc_mapgen/mapgen_env.lua` (37) and
+`mods/cc_security/init.lua` (101) — neither blanks nor comments, recounted at
+`d6e4a12` on 2026-09-08 with the whole of `G7` in it; 464 lines counting those
+too. It owns two 16×16 textures as well, `mods/cc_mapgen/textures/`, its only
+media. Everything a
 player actually does — the sandbox, the drone, the editor, the API and its
 limits — is the CodeBlock mod's, developed in its own sibling checkout with its
 own record, its own CI and its own release path.
@@ -36,8 +38,12 @@ serve.
 
 ## What you may write
 
-`mods/cc_day/`, `mods/cc_mapgen/`, `mods/cc_security/` — their `init.lua`,
-`mod.conf` and `license.txt`; `scripts/*.sh`; `game.conf`; `minetest.conf`;
+`mods/cc_day/`, `mods/cc_mapgen/`, `mods/cc_security/` — their Lua,
+`mod.conf` and `license.txt`, and any media they ship, which today is
+`mods/cc_mapgen/textures/`. A texture added to one of them is a licence line in
+that mod's `license.txt`, not a `THIRD-PARTY-LICENSES.md` entry, and it must
+*not* pick up an `export-ignore` — a player needs it at runtime.
+Also `scripts/*.sh`; `game.conf`; `minetest.conf`;
 `.luacheckrc`; `.editorconfig`; `.gitattributes`; `.gitignore`;
 `THIRD-PARTY-LICENSES.md`; `menu/`.
 

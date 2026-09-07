@@ -93,9 +93,9 @@ function minetest.calculate_knockback() return 0 end
 
 -- Nothing above stops a *program* opening a hole. To the drone the bedrock floor
 -- and the wall are ordinary nodes well inside its mapgen_limit bound, so `remove`
--- deletes them; a player who walks in falls out of the bottom of the generated
--- world and never lands. The world box is therefore kept on the player too, and
--- that holds whatever a program does to the nodes. (B50)
+-- deletes them; a player who walks in falls out of the generated world onto
+-- unloaded space, which the engine collides with -- an invisible dark ledge.
+-- So the world box is kept on the player too, whatever a program does. (B50)
 --
 -- The rescue keeps the player where they were: their own column, its floor made
 -- whole under them, and the lowest room in it they fit. It falls back to the

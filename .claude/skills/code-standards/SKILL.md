@@ -1,32 +1,35 @@
 ---
 name: code-standards
-description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is a bit over a hundred lines of Lua across three mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
+description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is 177 lines of Lua across three mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, an index of the guards a change would re-break, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
 when_to_use: Before editing mods/cc_day, mods/cc_mapgen, mods/cc_security, scripts/, game.conf, minetest.conf, .luacheckrc or .gitattributes; when auditing the game's own code; when deciding whether a change belongs to the game or to the mod; and whenever you are about to state that an engine function exists or behaves in a particular way.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
 # Writing code in Codecube
 
+**This game is 177 lines of Lua, and the craft here is almost entirely deciding
+what not to add.** Everything a player *does* belongs upstream in CodeBlock; what
+is left is the world, the light, the restrictions, the packaging, and a handful
+of engine behaviours that have each already cost a finding.
+
 What the game is, what is in `mods/`, and the submodule policy are in `CLAUDE.md`
 and are not restated here. The editing, coding and helper conventions are in
 `~/.claude/CLAUDE.md`, they apply here unchanged, and they are not restated
 either.
 
-This skill is the craft: what this game may hold, what it must not, and the
-behaviours that have already cost findings.
-
 ## The first question is always *whose is this*
 
-The game owns **160 lines of Lua**, in four files — counted as lines that are
-neither blank nor a comment, recounted at `60259dd` on 2026-09-07 with the whole
-of `G6` in it and the rescue rewritten, which is how the numbers below can be
-re-derived rather than trusted:
+The game owns **177 lines of Lua**, in four files — counted as lines that are
+neither blank nor a comment, recounted at `d6e4a12` on 2026-09-08 with the whole
+of `G7` in it, which is how the numbers below can be re-derived rather than
+trusted. Counting blanks and comments too it is 464 lines, so most of what is
+here is prose about why:
 
 | Mod | Lines | What it does |
 |---|---|---|
 | `cc_day` | 7 | Holds the world at noon, no sky objects |
-| `cc_mapgen` | 17 + 36 | `init.lua` sets `mg_flags` and the world's size and registers the bedrock node; `mapgen_env.lua` writes the floor and the wall on the emerge threads |
-| `cc_security` | 100 | Nothing diggable, no drops, no knockback, no inventory form, nothing growing or spreading, and the world-box clamp with the column rescue and its spawn fallback |
+| `cc_mapgen` | 32 + 37 | `init.lua` sets `mg_flags`, the world's size and its depth, and registers the two nodes the bounds are made of — `cc_mapgen:bedrock`, the floor at `y = 0`, and `cc_mapgen:barrier`, a translucent `glasslike` wall; `mapgen_env.lua` writes both on the emerge threads. It is also the only `cc_*` mod with media: two 16×16 textures in `textures/`, licensed in its own `license.txt` |
+| `cc_security` | 101 | Nothing diggable, no drops, no knockback, no inventory form, nothing growing or spreading, and the world-box clamp with the column rescue and its spawn fallback |
 
 Everything a player *does* — the sandbox, the drone, the editor, the API and its
 limits — is CodeBlock's, upstream, in its own repository. So a feature-shaped
@@ -46,7 +49,7 @@ to `cc_*` needs a reason that a mod change could not serve.
 ## The restriction boundary
 
 `cc_security` is what makes a Codecube world read-only to a player's hands: the
-drone builds, the player does not. It is 100 lines and every one of them is
+drone builds, the player does not. It is 101 lines and every one of them is
 load-bearing.
 
 **One rule in it writes to the map, and only one**: the clamp makes the rescue
@@ -67,20 +70,11 @@ Five questions for any change to it, or to `minetest.conf` and `game.conf`:
    `handle_node_drops` that hands out nothing, and an empty inventory formspec.
    Removing any one is a change to what the game *is*.
 2. **Does it override an engine function by assignment?** `cc_security` replaces
-   `handle_node_drops` and `calculate_knockback`. Both are **finding `A8`**, and
-   `luacheck` code `122` is ignored for that file because of them. The callback
-   half is fixed: drops chain to the captured handler with an **empty list**, so
-   another mod's bookkeeping survives while nothing is handed out, and
-   `last_mod = cc_security` in `game.conf` is what stops a mod loading later
-   taking either rule away. Knockback is deliberately *not* chained — a pure
-   calculation whose result the game replaces outright. **`last_mod` is a
-   `game.conf` key, not a `mod.conf` one**, and only one mod can be last, so
-   spending it is a whole-game decision — already spent, on this.
-   **Nothing in the game competes for either global**, so both are defensive and
-   behave exactly like the two lines they replaced; the author decided on
-   2026-09-02 not to build a second mod to prove the load order, and `R5` checks
-   only that the chain did not break `R2` and `R3`. Do not re-argue that without
-   reading `A8` first.
+   `handle_node_drops` and `calculate_knockback`, which is why `luacheck` code
+   `122` is off for that file and why `last_mod = cc_security` is spent in
+   `game.conf` — a **`game.conf` key, not a `mod.conf` one**, only one mod can
+   hold it, and it is already spent on this. Read **`A8`** before re-arguing any
+   of it, including the chaining and the load order.
 3. **Does it depend on load order?** The node override runs in
    `register_on_mods_loaded` because it has to see every mod's registrations. A
    guard moved earlier silently covers fewer nodes, and nothing fails.
@@ -95,18 +89,31 @@ Five questions for any change to it, or to `minetest.conf` and `game.conf`:
 
 ## The Luanti and Lua facts that hold here
 
+Use the **`luanti-reference`** skill before stating that a `core.*` function
+exists, is deprecated, or takes particular arguments. It bundles `lua_api.md`,
+the Lua 5.1 manual, ContentDB's own rules and the engine behaviours that have
+already cost findings. Answering from memory is how findings get here.
+
+### The language, and what it is called
+
 - `minetest` is a permanent alias for `core` and is **not** deprecated. Leave the
   existing spelling alone rather than sweeping a two-line file.
 - Lua 5.1 / LuaJIT: `loadstring`, `setfenv`, `math.pow`, `math.atan2` all exist;
   **`0` is truthy**, and so is `""`; there is no `__pairs`, no `__len`, no
   integer division; you cannot yield across `pcall`.
+
+### `game.conf` and `minetest.conf` keys
+
 - `min_minetest_version` / `max_minetest_version` in `game.conf` are read by
   **ContentDB, not enforced by the engine**. Never set a `max_` — it hides a
   working game from everyone on a current release, and nothing local fails.
   `check_game.sh` fails the build on a reinstated one (**`C1`**'s counterpart).
-- `disabled_settings` in `game.conf` takes a `!` prefix to force a setting off —
-  `!creative_mode` and `enable_damage` are not the same kind of entry, and they
-  read as though they were.
+- **`disabled_settings` in `game.conf` hides each setting it names and
+  initialises it to `false`; a `!` prefix initialises it to `true` instead.** So
+  this game's `!creative_mode, enable_damage` turns creative mode *on* and damage
+  *off*, and it is correct as written — the two entries read alike and mean
+  opposite things. Only `enable_damage`, `creative_mode` and `enable_server` are
+  supported, and `!` does not work for `enable_server`.
 - `minetest.conf` at the game root supplies **defaults a player or server owner
   can still change**. It is presentation and courtesy, never a guarantee; a
   restriction that matters belongs in `cc_security`.
@@ -118,6 +125,9 @@ Five questions for any change to it, or to `minetest.conf` and `game.conf`:
   before using it. `core.settings:get_pos` is 5.10 and later; the spelling that
   works at the floor is `core.setting_get_pos(name)`, deprecated at 5.17 but
   present and documented.
+
+### Engine behaviours, each of which has already cost something here
+
 - **`core.get_mapgen_edges()` is safe to call at mod load time**, and its result
   is the right one for the game because `last_mod = cc_security` puts every
   `cc_*` mod's `set_mapgen_setting` before it. The engine reads a *copy* of the
@@ -173,11 +183,6 @@ Five questions for any change to it, or to `minetest.conf` and `game.conf`:
   5.4.0. The boolean form is deprecated and costs a line in the boot log, which
   `B19` and `B24` exist to keep clean. The default is `"clip"` for every drawtype
   except normal, liquid, flowingliquid, mesh and nodebox.
-
-Use the **`luanti-reference`** skill before stating that a `core.*` function
-exists, is deprecated, or takes particular arguments. It bundles `lua_api.md`,
-the Lua 5.1 manual, ContentDB's own rules and the engine behaviours that have
-already cost findings. Answering from memory is how findings get here.
 
 ## The vendored mods are not ours
 
@@ -237,7 +242,48 @@ assume.
 The gates and the CI lookup are the **`run-checks`** skill's, and `test-agent`
 owns them.
 
+**Make a new check fail once**, against a deliberately broken input, before
+trusting it. A check that cannot fail is indistinguishable from one that passes.
+`check_game.sh` earned its place that way — a reinstated version ceiling, a
+dangling `depends` and a stale `.cdb.json` were each injected, and each was
+caught. Anything added to it gets the same treatment, and the injection is
+reverted before the change is handed back.
+
 Then say plainly, in the reply: which gates ran and what they printed; that the
 game **has no test suite**, so nothing you ran demonstrates behaviour; what
 therefore needs a `PLAYTEST.md` entry; and any defect found in code you did not
 write, so it can get a finding id.
+
+## The guards, and where each is written
+
+Every row is an invariant a plausible change would re-break with nothing
+failing. The reasoning is in the finding, or in the comment beside the code —
+this is an index, not a second copy of either.
+
+| Guard | Finding | Where it is written |
+|---|---|---|
+| `last_mod = cc_security`, so the two engine-function replacements survive, and so every `cc_*` mod's `set_mapgen_setting` runs before `cc_security` reads the values back | `A8` | `game.conf` |
+| `disabled_settings = !creative_mode, enable_damage` — creative on, damage off; the `!` is not a typo | — | `game.conf` |
+| The node override pass runs in `register_on_mods_loaded`, so it sees every mod's registrations; moved earlier it silently covers fewer nodes | — | `cc_security/init.lua` |
+| `handle_node_drops` chains to the captured handler with an empty list; `calculate_knockback` is replaced outright and deliberately not chained | `A8` | `cc_security/init.lua`, `.luacheckrc` (`122`) |
+| The six digging groups are stripped from every node as well as `diggable = false`, because `diggable` is server-side only and the client predicts a dig from groups; every other group is kept | `B48` | `cc_security/init.lua` |
+| `never()` returns `false`, not `deny()`'s `0` — a truthy return restarts a node timer | `B49` | `cc_security/init.lua` |
+| Each ABM's `action` is replaced with a no-op and `registered_abms` is never cleared, since the engine registers each by position | `B49` | `cc_security/init.lua` |
+| `register_allow_player_inventory_action` and the three `allow_metadata_inventory_*` denials, because a node's own formspec reaches around the blanked inventory | `S8` | `cc_security/init.lua` |
+| `walkable()` returns `true`, `false` or `nil`, and every caller compares against a literal — `walkable` defaults to true and definitions omit it, and an unanswerable node is unusable in both directions | `B50` | `cc_security/init.lua` |
+| `get_node_or_nil`, never `get_node`, and `load_area` before every read and every write in the rescue | `B50` | `cc_security/init.lua` |
+| The rescue is the one place this game writes to the map; `repair_spawn()` is the one place it writes air. Everything else here denies | `B50` | `cc_security/init.lua` |
+| `p.y < 0` and not `<= 0` — feet on the exposed floor read `0.5` | `B50` | `cc_security/init.lua` |
+| The world box comes from `get_mapgen_edges()`, not from `mapgen_limit`: only mapchunks wholly inside the limit are generated | `B50` | `cc_security/init.lua`, `cc_mapgen/mapgen_env.lua` |
+| The rescue height comes from `get_mapgen_setting("mgflat_ground_level")`, never `get_spawn_level`, and its fallback is the game's 128 and not the engine's 8 | `B50` | `cc_security/init.lua` |
+| `set_mapgen_setting(..., true)` on both `mapgen_limit` and `mgflat_ground_level` — the engine stores every mapgen setting per world in `map_meta.txt`, so without the force an existing world keeps its old value | — | `cc_mapgen/init.lua` |
+| `cc_mapgen:barrier` is plain `glasslike` — not `glasslike_framed`, which draws from a second tile this node does not have, and not `glasslike_framed_optional`, whose look follows a client setting | — | `cc_mapgen/init.lua` |
+| `paramtype = "light"` and `sunlight_propagates` are a pair: `light_propagates` is derived from `paramtype`, which defaults to `"none"`, so a see-through wall without them shadows for no visible reason | — | `cc_mapgen/init.lua` |
+| `pointable = false` is deliberately *not* set on the barrier — the client alone honours it, and pointing through would let a player place a node on its far side | — | `cc_mapgen/init.lua` |
+| `use_texture_alpha` takes the string form; the boolean is deprecated and costs a boot-log line | `B19`, `B24` | `cc_mapgen/init.lua` |
+| Neither bounds node carries a dig group, for the same reason as the override pass | `B48` | `cc_mapgen/init.lua` |
+| `flowers:mushroom_brown` and `_red` are aliased to `air`, so `default`'s log schematics resolve and the boot log opens clean | `B19` | `cc_mapgen/init.lua` |
+| `mapgen_env.lua` writes `minp..maxp` only, never the emerged shell, which belongs to the neighbouring chunks | — | `cc_mapgen/mapgen_env.lua` |
+| An interior chunk wholly above `y = 0` returns before `get_data`, which would otherwise be half a million nodes read and written on an emerge thread to change none of them | — | `cc_mapgen/mapgen_env.lua` |
+| `sunrise_visible = false` is a field of its own — hiding the sun leaves the sunrise texture drawn | `B47` | `cc_day/init.lua` |
+| Every tracked document carries its own `export-ignore` line, or `git archive` ships it to a player | `C15` | `.gitattributes` |

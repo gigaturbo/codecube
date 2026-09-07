@@ -68,6 +68,13 @@ releases rather than following commits.
   repository or to the package's own page, and no instruction that leans on an
   image, because images are not visible inside Luanti. If a mod change makes a
   feature description here wrong, fix it now.
+- `CONTENTDB.md`'s **`## Recent changes` section — every release touches it.**
+  It is what a visitor to the package page reads instead of the changelog, so it
+  carries the same release in the same order — what breaks first, then what is
+  new — in a handful of player-facing lines, not the full list. **Nothing checks
+  that it and `CHANGELOG.md` agree**: `check_game.sh` only diffs `.cdb.json`
+  against `CONTENTDB.md`, so a section left describing the previous release
+  passes every gate and is wrong on the page.
 - `bash scripts/gen_cdb_json.sh` **if `CONTENTDB.md` changed.** `.cdb.json`
   embeds that file and `check_game.sh` diffs it; a stale one fails CI. A
   `README.md` edit no longer affects it.
