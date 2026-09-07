@@ -36,9 +36,32 @@ minetest.register_allow_player_inventory_action(deny)
 -- so each action is replaced with a no-op instead. The table is deliberately not
 -- cleared: the engine registers each ABM by position, and emptying it would leave
 -- those registrations pointing at nothing. (B49)
+--
+-- `diggable = false` is what enforces the restriction, but only on the server.
+-- The client predicts a dig from the node's groups and its own tool
+-- capabilities alone -- `core.get_dig_params` takes those two and never
+-- `diggable` -- so a node the hand believes it can break cracks on screen
+-- before the server refuses. Dropping the digging groups below stops the
+-- prediction at its source. Every other group is kept deliberately: they carry
+-- colour, flammability, attachment, decay and whatever the palettes read, and
+-- none of them says anything about digging. (B48)
+local dig_groups = {
+    crumbly = true,
+    cracky = true,
+    snappy = true,
+    choppy = true,
+    oddly_breakable_by_hand = true,
+    dig_immediate = true
+}
+
 minetest.register_on_mods_loaded(function()
-    for name in pairs(minetest.registered_nodes) do
+    for name, def in pairs(minetest.registered_nodes) do
+        local groups = {}
+        for group, value in pairs(def.groups or {}) do
+            if not dig_groups[group] then groups[group] = value end
+        end
         minetest.override_item(name, {
+            groups = groups,
             diggable = false,
             on_timer = never,
             allow_metadata_inventory_put = deny,
