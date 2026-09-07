@@ -17,16 +17,16 @@ behaviours that have already cost findings.
 
 ## The first question is always *whose is this*
 
-The game owns **139 lines of Lua**, in four files — counted as lines that are
-neither blank nor a comment, recounted on the 2026-09-04 working tree with the
-whole of `G6` in it, clamp and its spawn repair included, which is how the
-numbers below can be re-derived rather than trusted:
+The game owns **160 lines of Lua**, in four files — counted as lines that are
+neither blank nor a comment, recounted at `60259dd` on 2026-09-07 with the whole
+of `G6` in it and the rescue rewritten, which is how the numbers below can be
+re-derived rather than trusted:
 
 | Mod | Lines | What it does |
 |---|---|---|
 | `cc_day` | 7 | Holds the world at noon, no sky objects |
 | `cc_mapgen` | 17 + 36 | `init.lua` sets `mg_flags` and the world's size and registers the bedrock node; `mapgen_env.lua` writes the floor and the wall on the emerge threads |
-| `cc_security` | 79 | Nothing diggable, no drops, no knockback, no inventory form, nothing growing or spreading, and the world-box clamp with its spawn repair |
+| `cc_security` | 100 | Nothing diggable, no drops, no knockback, no inventory form, nothing growing or spreading, and the world-box clamp with the column rescue and its spawn fallback |
 
 Everything a player *does* — the sandbox, the drone, the editor, the API and its
 limits — is CodeBlock's, upstream, in its own repository. So a feature-shaped
@@ -46,14 +46,19 @@ to `cc_*` needs a reason that a mod change could not serve.
 ## The restriction boundary
 
 `cc_security` is what makes a Codecube world read-only to a player's hands: the
-drone builds, the player does not. It is 79 lines and every one of them is
+drone builds, the player does not. It is 100 lines and every one of them is
 load-bearing.
 
-**One rule in it writes to the map, and only one**: the clamp repairs the rescue
-destination — bedrock under the feet, the two occupied nodes cleared — before
-moving a player back, because a program is free to have dug or filled the spawn
-column and a destination the player cannot stand in is not a rescue. Anything
-else added here should deny, not write. (`B50`)
+**One rule in it writes to the map, and only one**: the clamp makes the rescue
+destination standable before moving a player, because a program is free to have
+dug or filled any column and a destination the player cannot stand in is not a
+rescue. Since `60259dd` the destination is the player's **own** column — clamped
+inside the wall, one bedrock node written at `y = 0` if the floor there will not
+hold them, then a scan up for the first height at which both nodes they occupy
+are clear. Nothing is cleared on that path; the spawn fallback, `repair_spawn()`,
+is the only place that writes air, and it is reached only when the scan finds no
+room in 64 nodes above `mgflat_ground_level`. Anything else added here should
+deny, not write. (`B50`)
 
 Five questions for any change to it, or to `minetest.conf` and `game.conf`:
 

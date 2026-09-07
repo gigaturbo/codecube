@@ -44,46 +44,45 @@ Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
 **Six checks are new on 2026-09-04 — `W4`–`W9`, all `B50`.** They are the whole
 of the in-world evidence for `G6`, the bounded world: the floor, the wall, that
 the drone's bound followed the number, that an existing world is re-bounded, that
-a player who falls through a hole a program made is put back at spawn, and that
-the place they are put back into is one they can stand in. **The code for all six
-is now committed**, on branch `g6-world-limits` at `f5f2385`, with both gates
-re-run green after committing — and **neither gate runs a line of the game's
-Lua**.
+a player who falls through a hole a program made is put back, and that the place
+they are put back into is one they can stand in. **The code for all six is
+committed**, on branch `g6-world-limits`, tip `60259dd`, with both gates re-run
+green after committing — and **neither gate runs a line of the game's Lua**.
 
-**`W9` passes in full, at `f5f2385`, and it is the strongest result this project
-has.** All three cases, and the false pass the check names was actively excluded:
-asked whether the run included the out-of-range variant, the author confirmed
-spawn was out of range, which is what forces the `get_node_or_nil` / `ignore`
-branch and the `load_area` before the write. A pass with the spawn mapblock
-resident throughout would have proved the less interesting half, because
-`set_node` into a non-resident mapblock silently does nothing.
+**`W8` and `W9` were rewritten on 2026-09-07, and both passes were retired rather
+than carried forward.** `60259dd` reverses where the rescue puts a player: no
+longer the spawn point, but their own column, its floor made whole under them and
+the first height in it they fit. That is a design reversal the author asked for
+after playing — **`W8` and `W9` had both passed on the code it replaces, so
+nothing was wrong; the behaviour was unwanted** — and it carries no finding id.
+Its record is `ROADMAP.md`'s `G6` entry. But a destination that changed is a
+destination two checks were written around: `W8`'s pass is now inverted, `W9`'s
+case 2 no longer reaches the code it tested and its case 3 has become vacuous.
+**Backdating a result onto a later commit is the rule this document wrote for
+itself, and it applies to its own record first**, so both go back to `unchecked`
+and the two passes are recorded here as history, not as evidence: `W8` passed at
+`f5f2385` on 2026-09-04, near-miss half never run, and `W9` passed in full at
+`f5f2385` on the same day, out-of-range spawn included.
 
-**`W8` and `W4` stay partial, and their missing sha is deliberately kept.** The
-author played the *uncommitted* tree on 2026-09-04, so both name a date and a
-tree. A commit now exists, but backdating `f5f2385` onto them would carry a
-result across a change to the code it exercised: `repair_spawn()` landed on the
-rescue path between that sitting and the commit, and `W8` is a check of that
-path. `R6` is why this project does not do that. **Both are to be re-run at
-`f5f2385`.** What they establish anyway is that the whole `G6` stack is live:
-there was a bedrock floor to cut through, so `mapgen_env.lua` loaded and ran, the
-engine is 5.9 or later, `register_mapgen_script` did what it was chosen for, and
-the clamp fires.
+**Two cases in `W9` are new with the rewrite**, because the new rescue reaches
+behaviour nothing covered: a **blocked column** — clamped back in from outside the
+wall over untouched terrain, which is the author's *"nearest free block above
+him"* and the first check of the clamp arithmetic — and the **bound exhausted**, a
+column solid past 64 nodes above `mgflat_ground_level`, which is now the only
+route into `repair_spawn()` at all.
 
-**That sitting is what found the spawn column looping, which is `W9`.** Rescued
-once away from spawn, the author then cut the floor out from under themselves at
-spawn, so the hole was where the rescue lands: put back at `(0, 9, 0)` in
-mid-air, falling about 1.35 s back through it, crossed `y = 0`, moved back —
-airborne throughout, so never able to walk out. `repair_spawn()` in
-`mods/cc_security/init.lua` is the fix and `W9` is its evidence. It carries **no
-finding id**: the clamp had never been committed, so this was the change being
-wrong before it shipped, and its record is `ROADMAP.md`'s `G6` entry.
+**`W4` stays partial, and its missing sha is deliberately kept.** The author
+played the *uncommitted* tree on 2026-09-04. What it establishes anyway is that
+the whole `G6` stack is live: there was a bedrock floor to cut through, so
+`mapgen_env.lua` loaded and ran, the engine is 5.9 or later, and
+`register_mapgen_script` did what it was chosen for. **Re-run at `60259dd`.**
 
 **`W5`, `W6` and `W7` were not seen and are not implied.** The wall, the drone's
 bound naming 1024, and an existing world being re-bounded remain `unchecked`; a
-fall near spawn says nothing about any of the three. So `B50` is verified for
-route two only — a program carving a hole, which `W9` now closes and `W8` will
-confirm — while route one, walking off the generated edge, rests on the wall and
-therefore on `W5`.
+fall near spawn says nothing about any of the three. So `B50` now has **no live
+in-world evidence on either route**: route two — a program carving a hole — was
+verified by `W8` and `W9` and that evidence went with the rewrite, and route one,
+walking off the generated edge, rests on the wall and therefore on `W5`.
 
 **`W3`'s method went stale with the same change**, and its result line is left
 alone: it passed by teleporting "several thousand nodes" out, which now lands
@@ -96,13 +95,15 @@ decides what reaches a player with nothing checking it (`C15`). Both are files a
 player *should* get, so nothing is expected to be wrong; `P2` is what says so.
 
 **The game's behaviour has been checked in a world on 2026-09-01 over three
-rounds, again on 2026-09-02, and twice on 2026-09-04.** Seventeen of the
-twenty-five have been run and thirteen pass: `W1`–`W3`, `W9`, `L1`, `L2`,
-`R1`–`R4`, `R6`, `R7` and `P2`. Four are partial: `P1`, its clone half only;
-`R5`, whose drop half passed and whose `R3` re-run has not been done; and `W8`
-and `W4`, both from 2026-09-04 and both against an uncommitted tree. `L3` waits
-on `A7` landing upstream in `codeblock`; `W5`, `W6`, `W7`, `R8`, `P3`, `P4` and
-`P5` are simply not done, and `P5` needs a release first.
+rounds, again on 2026-09-02, and twice on 2026-09-04.** Fifteen of the
+twenty-five have a live result and twelve pass: `W1`–`W3`, `L1`, `L2`, `R1`–`R4`,
+`R6`, `R7` and `P2`. Three are partial: `P1`, its clone half only; `R5`, whose
+drop half passed and whose `R3` re-run has not been done; and `W4`, from
+2026-09-04 against an uncommitted tree. `L3` waits on `A7` landing upstream in
+`codeblock`; `W5`–`W9`, `R8`, `P3`, `P4` and `P5` are unrun, and `P5` needs a
+release first. **`W8` and `W9` are unrun because their results were retired on
+2026-09-07, not because nobody has played them** — that is a state this document
+had not had before, and the distinction is in the `W` group.
 
 **`R8` is new on 2026-09-04, and four existing checks are marked for re-running
 beside it.** Since `B48` is now committed on its own at `ec02760`, all five have
@@ -136,7 +137,7 @@ moved in five minutes.
 
 **Three findings came out of those rounds** — `B47`, `B48` and `S8` — none of
 them visible from reading the three `cc_*` files, **which were 21 lines between
-them at the time** — 338 now, since `G6`. All three are now fixed; `B48` is the
+them at the time** — 397 now, since `G6` and the rescue rewrite. All three are now fixed; `B48` is the
 one whose fix has not been seen in a world, which is what `R8` is for.
 
 **`B49` came the other way, and is worth noting for that.** It was found by
@@ -162,10 +163,11 @@ and `R4` is what would catch that being too broad.
 `mapgen_env.lua` beside it writes the bounds into each chunk on the emerge
 threads: nothing below `y = 0`, a bedrock plane at `y = 0`, and a bedrock wall at
 the outermost generated column. `cc_security` holds the two that are about the
-player rather than the map — the clamp (`W8`) and the repair of the place it
-lands in (`W9`). `W4`–`W9` are all `B50`; `W9` passes at `f5f2385`, `W4` and
-`W8` are partial from 2026-09-04 against an uncommitted tree and are to be
-re-run, and `W5`–`W7` have never been run.
+player rather than the map — the clamp (`W8`) and the place it puts them (`W9`).
+`W4`–`W9` are all `B50`. **None of the six has a live result**: `W8` and `W9` were
+rewritten on 2026-09-07, when `60259dd` reversed the rescue's destination, and
+their passes were retired with the code they described; `W4` is partial from
+2026-09-04 against an uncommitted tree; `W5`–`W7` have never been run.
 
 **Three facts about the world these checks are run in, because each one changes a
 method below.** First, `mg_flags` carries `nobiomes`, so `mgflat` has no top or filler
@@ -173,9 +175,11 @@ node and **the surface is stone** — there is no dirt and no grass anywhere unt
 a program places some. Second, `mgflat_ground_level` is **8**, so that surface is
 at `y = 8` and the bedrock plane at `y = 0` is **eight nodes underground**: it is
 never seen in ordinary play, and reaching it means having a program clear a shaft
-down to it. Third, the clamp in `cc_security` is committed at `f5f2385`, so
-**`/teleport`ing to a negative `y` no longer leaves you there** — you are put back
-at spawn within 250 ms, which is `W8`'s subject and `W4`'s obstacle.
+down to it. Third, the clamp in `cc_security` is committed, and since `60259dd`
+it rescues a player **into their own column** rather than to spawn, so
+**`/teleport`ing to a negative `y` no longer leaves you there** — within 250 ms
+you are stood on the first room in the column you were over. That is `W8`'s
+subject and `W4`'s obstacle.
 
 ### W1 · A new world is flat and clean at spawn
 
@@ -259,11 +263,11 @@ mapgen environment script loaded and ran, and `mgflat`'s ordinary fill is not
 still there. What was *not* done is the method: nobody has stood on the plane at
 the bottom of a shaft, and nobody has looked into a removed tile from beside it.
 **Re-run once there is a commit** — a result naming no sha is not evidence anyone
-else can put in front of themselves. **That commit now exists, `f5f2385`, and
-this result is deliberately not backdated onto it**: `W9`'s repair landed on the
-same rescue path between the sitting and the commit, and carrying a result across
-a change to the code it exercised is the mistake `R6` taught this project.
-Re-run at `f5f2385`.
+else can put in front of themselves. **Commits now exist and this result is
+deliberately not backdated onto one**: `W9`'s repair landed on the same rescue
+path between the sitting and `f5f2385`, and `60259dd` then replaced the
+destination outright. Carrying a result across a change to the code it exercised
+is the mistake `R6` taught this project. **Re-run at `60259dd`.**
 
 ### W5 · The wall stands, full height, all the way along [B50]
 
@@ -318,15 +322,23 @@ The floor is eight nodes underground, so this needs two steps, not one. Have a
 program clear a shaft from the surface down to `y = 1` and then `remove` one
 bedrock node at `y = 0` under it — `W4`'s shaft will do. Then walk into the hole.
 
-**Pass:** you end up at the spawn point, standing on the surface. You do not keep
-falling. The spawn you arrive at is on top of the ground at `y = 8`, **not inside
-stone**: the fallback height is derived from `mgflat_ground_level`, and being
-embedded rather than falling is the way this fix fails without looking like a
-failure.
+**Pass:** you stop falling, and you are put back **in your own column** — at the
+bottom of the shaft you just fell down, standing on a bedrock node the rescue
+laid where the program removed one. Your `y` is about **0.5**, and you are **not**
+at spawn. You will be standing in a shaft you cannot climb or dig out of: that is
+the accepted trade, not a failure of this check, and the way out is to point the
+drone at the shaft wall.
+
+**The destination changed at `60259dd` on 2026-09-07 and this check's pass was
+inverted with it.** Until then the rescue went to the spawn point and *"you end
+up at spawn, standing on the surface"* was the pass. Arriving at spawn now means
+the column scan found no room in 64 nodes and fell back, which this setup does
+not produce — so **at spawn is a fail here**, and the check for the fallback is
+`W9` case 4. The grounds for the reversal are in `ROADMAP.md` under `G6`.
 
 **A near miss looks like this:** the clamp fires on the fall *and* on a player
 standing legitimately at the very edge of the world — against the wall, or on the
-floor plane itself — teleporting them to spawn every few seconds and making the
+floor plane itself — moving them every few seconds and making the
 world unplayable at its own boundary. So walk the wall and stand on the exposed
 floor plane for a while in the same session: neither must move you.
 
@@ -342,88 +354,118 @@ does not appear in `core.get_connected_players()`. Someone who logged out
 mid-fall *is* teleported on rejoining, and that is the clamp working, not a near
 miss.
 
-**The spawn column is a separate check.** This one is run *away from spawn*, so
-the hole is not where the rescue lands. What happens when it is, is `W9`, and it
-is the case this check's first run found.
+**Where you land is a separate check.** This one is *are you moved, and does the
+falling stop*; `W9` is *is the place you land one you can stand in*, and it holds
+the cases this setup does not reach — a column blocked by terrain, and a column
+with no room in it at all.
 
-Result: partial — **no commit, the uncommitted working tree of 2026-09-04** ·
-engine 5.17.0 (the only install; not noted at the time, and what the session
-itself proves is ≥ 5.9) · 2026-09-04 — **the first half passes, observed rather
-than traced.** The author made a hole away from spawn, jumped into it, and was
-put back on the ground: the clamp fires, and the derived spawn height is a place
-you land on rather than inside. **The near-miss half was not run** — nobody has
-walked the wall or stood on the exposed floor plane for a while to confirm the
-clamp does *not* fire there, and that is what keeps this partial rather than a
-pass. **Re-run both halves once there is a commit.** **That commit now exists,
-`f5f2385`, and this result is deliberately not backdated onto it**: the sitting
-predates `repair_spawn()`, which now runs on this very path immediately before
-`set_pos`, so the code observed is not the code committed. Re-run at `f5f2385`.
+Result: unchecked
 
-The same sitting then dug the spawn column and hit an infinite teleport, which is
-`W9` and a defect in the clamp as it stood, not a failure of this check.
+**An earlier result was retired here on 2026-09-07 rather than carried forward.**
+The author ran this check at `f5f2385` on 2026-09-04 and reported it a **pass**,
+which cleared the missing sha the previous partial carried — and what they
+watched was a rescue **to the spawn point**, the destination `60259dd` replaced.
+A result cannot survive a change to the code it exercised, which is the rule this
+project wrote for itself after `R6` and which applies to its own record first, so
+the line is gone rather than moved. The near-miss half is untouched by `60259dd`
+and has **still never been run**: nobody has walked the wall or stood on the
+exposed floor plane to confirm the clamp does *not* fire there. Re-run both halves
+at `60259dd`.
 
-### W9 · The place the clamp puts you is a place you can stand [B50]
+### W9 · The place the rescue puts you is a place you can stand [B50]
 
-**Separate from `W8` and not a half of it.** `W8` is *are you moved*; this is
-*where to*. They have different setups, different tells and different ways of
-failing, so they get different result lines — a rescue that fires perfectly into
-a shaft passes `W8` and is still a softlock.
+**Separate from `W8` and not a half of it.** `W8` is *are you moved, and does the
+falling stop*; this is *is where you land somewhere you can be*. The split
+survived `60259dd` even though its old framing did not: the two used to divide on
+whether the **spawn column** was involved, and they now divide on **being moved**
+versus **the column being made standable**. Kept as two checks for the reason the
+split was made in the first place — a rescue that fires perfectly into a sealed
+column passes `W8` and is still a softlock, and the two have different setups,
+different tells and different ways of failing.
 
-`repair_spawn()` in `mods/cc_security/init.lua` runs immediately before
-`player:set_pos(spawn)`: the node under the destination is made
-`cc_mapgen:bedrock` if it is not walkable, and the two nodes the player's body
-occupies are cleared if they are. It is the only place `cc_security` writes to
-the map. Three cases, in this order.
+What this checks is `standing_pos()` in `mods/cc_security/init.lua`: it clamps
+the player's column inside the wall, writes `cc_mapgen:bedrock` at `(x, 0, z)` if
+that node will not hold them, and scans up for the first height at which both
+nodes a player occupies are clear. `repair_spawn()` is unchanged and is now
+reached **only** when that scan finds no room. Four cases.
 
-**1 · The reported loop.** From spawn, have the drone remove the bedrock at
-`(0, 0, 0)` and the stone column above it, so the spawn column is a shaft. Walk
-in.
+**1 · The shaft you dug**, and the setup that produced the reported loop. From
+spawn, have the drone remove the bedrock at `(0, 0, 0)` and the stone column
+above it, so the spawn column is a shaft. Walk in.
 
-**Pass:** you are moved back **once**, and you are standing on a solid node at
-the surface, stationary, able to walk away.
-**Fail:** any second teleport, or moved back but still falling. That is the
-defect exactly as it was reported on 2026-09-04.
+**Pass:** you are moved back **once**, and you are standing on a solid node,
+stationary, at the bottom of your own shaft — `y` about **0.5**, on a fresh
+bedrock tile. **You will not be able to walk away**, and since `60259dd` that is
+the specified behaviour rather than a fail: the way out is to point the drone at
+the shaft wall. **Fail:** any second teleport, or moved back but still falling.
+That is the defect exactly as it was reported on 2026-09-04, and it is what
+making the floor whole under you prevents.
 
-**2 · The mirror case.** From *away* from spawn, have the drone fill `(0, 9, 0)`
-and `(0, 10, 0)` with stone, then fall out of the world from a fresh shaft where
-you are.
+**2 · The blocked column** — the author's *"nearest free block above him"*, new on
+2026-09-07 and the case nothing has ever covered. Have the drone remove a wall
+column so there is a way out of the world, then walk out through the gap, over
+ground the program has not touched.
 
-**Pass:** you arrive at spawn in open air, free to move.
-**Fail:** you arrive unable to move, with your view inside a node. With damage
-off that has no way out at all, which is why it is worse than case 1 and why the
-repair clears the body as well as filling under it.
+**Pass:** you are put back **one node inside the wall, at the same `z`**, standing
+on top of the stone surface — `y` about **8.5**. Not embedded in the stone, and
+not down on the bedrock plane.
+**Fail:** your view is inside a node, or you arrive at `y` about 0.5. This is also
+the first check of the clamp arithmetic, which was never player-visible before:
+the wall stands *on* the outermost generated column, so the innermost standable
+column is one node in from it, and an off-by-one here puts you inside the wall.
 
-**3 · The no-op case.** With spawn untouched, fall out from a shaft elsewhere.
+**3 · The no-op case.** With the world otherwise untouched, fall out from a shaft
+elsewhere.
 
-**Pass:** you land at spawn *and the surface node at `(0, 8, 0)` is still stone,
-not bedrock*. The repair must not fire when nothing is broken; a bedrock tile
-appearing in an untouched surface means the tests are inverted.
+**Pass:** after the rescue, **the only node anywhere that may have changed is
+`(x, 0, z)`** — the floor tile under your own column, remade as bedrock. Nothing
+near spawn may have changed at all: the rescue does not visit spawn on this path.
+The old form of this case asserted that the surface at `(0, 8, 0)` was still
+stone, and since `60259dd` that assertion is vacuous.
+
+**4 · The bound exhausted.** The scan gives up 64 nodes above
+`mgflat_ground_level` — 72 in a default world — and this is the **only surviving
+route into `repair_spawn()`**. Reuse case 2's way out of the world: have the drone
+fill the column one node inside the wall, at the `z` you will walk out at, with
+stone from `y = 1` up past `y = 72`, then walk out through the removed wall
+column at that same `z`.
+
+**Pass:** you arrive at spawn, in open air, free to move.
+**Fail:** you arrive embedded in a node, or the rescue does nothing at all.
+Building a 72-node solid pillar and falling out of the world at exactly its
+footprint is the case the bound trades away, and what it costs is the old
+behaviour — spawn — rather than a softlock.
 
 **Two false passes this check must be run against, because they are how the fix
 looks fixed without being fixed:**
 
-- **Case 1 passing only because the spawn mapblock happened to be resident**,
-  which hides the `ignore` path entirely. `minetest.get_node` reports `ignore`
-  for an unloaded mapblock and that reads as an ordinary solid node, so the
-  repair would be skipped on exactly the tick that needs it. To force the other
-  branch: after digging the spawn shaft, go a few hundred nodes away, stay until
-  the spawn area is out of range, *then* fall out of the world from where you
-  are.
-- **Landing on the bedrock plane at `y = 0` rather than at the surface.** The
-  tell is your `y` after the rescue: about **8.5**, not about 0.5. Landing at the
-  bottom of the shaft the program dug is the other softlock — unable to climb out
-  and unable to dig — not a fix, and it is what filling the plane instead of the
-  node under the destination would produce.
+- **The `ignore` branch, and it is weaker than it was.** `minetest.get_node`
+  reports `ignore` for an unloaded mapblock and that reads as an ordinary solid
+  node, so a repair written on it would be skipped on exactly the tick that needs
+  it — hence `get_node_or_nil` and the explicit test. But the column the rescue
+  now works in is the one the player is standing in, so it is nearly always
+  resident, and **the out-of-range variant no longer forces that branch.**
+  `load_area` still matters, because the scan reaches 72 nodes above a player who
+  is below `y = 0` and the top of that column need not be in memory. Of the four
+  cases only **case 4** still puts a possibly non-resident area under a write, at
+  spawn, which is a few hundred nodes from where it is run.
+- **Landing on the bedrock plane at `y = 0` rather than on the surface, which was
+  the tell for a bad fix and is now the fix.** Exactly reversed by `60259dd`, so
+  read it per case: in case 1 about **0.5** is the pass and about 8.5 would mean
+  the scan is not stopping at the lowest room in the column; in case 2 about
+  **8.5** is the pass and about 0.5 would mean the column was carved out rather
+  than scanned up.
 
-Result: pass — `f5f2385` · engine 5.17.0 · 2026-09-04 — all three cases, and
-**the first false pass was actively excluded**: asked whether the run included
-the out-of-range variant, the author confirmed spawn was out of range. That is
-the variant that forces the `get_node_or_nil` / `ignore` branch and the
-`load_area` before the write — `set_node` into a non-resident mapblock silently
-does nothing, so a pass with the spawn mapblock resident throughout would have
-proved the less interesting half. The reported loop is gone: moved back once,
-standing, able to walk away. The mirror case arrives in open air. The no-op case
-leaves the surface at `(0, 8, 0)` stone, so the walkable tests are not inverted.
+Result: unchecked
+
+**A pass was retired here on 2026-09-07 rather than carried forward.** All three
+cases as they then stood passed at `f5f2385` on 2026-09-04, including the
+out-of-range variant the author confirmed they ran, and it was the strongest
+result this project had. It was a result about a rescue **to the spawn point**,
+which `60259dd` replaced: case 2 no longer reaches the code it tested, case 3's
+assertion is now vacuous, and case 1's pass condition is inverted. Carrying it
+would be backdating a result across a change to the code it exercised — the thing
+this document says not to do.
 
 ---
 
@@ -496,13 +538,16 @@ timer (`S8`, `B49`), every ABM action replaced with a no-op (`B49`), and two eng
 globals replaced — drops chained with an empty list, knockback returning 0, with
 `last_mod = cc_security` in `game.conf` keeping this mod the one that replaces
 them (`A8`). It also holds the world-box clamp added for `B50` — a player found
-outside the world is put back at spawn, and the destination is repaired first so
-that it is somewhere they can stand — but those two read with the rest of the
-world's bounds and are `W8` and `W9`, not here.
+outside the world is put back into their own column, on the first place in it
+they fit, with the floor made whole under them, and to spawn only when that
+column has no room at all — but those two read with the rest of the world's
+bounds and are `W8` and `W9`, not here.
 
-**That repair is the one place in this mod that writes to the map**; every other
+**That rescue is the one place in this mod that writes to the map**; every other
 rule in it denies. Worth knowing here, because "`cc_security` only ever denies"
-is otherwise the natural summary of this group and it is no longer true.
+is otherwise the natural summary of this group and it is no longer true. Since
+`60259dd` it writes **one node**, the floor tile under the rescued column, on the
+ordinary path; only the spawn fallback clears anything.
 
 ### R1 · Nothing is diggable
 
@@ -941,3 +986,27 @@ you moved* and *where to* — and a rescue that fires perfectly into a shaft pas
 one while failing the other. The `R` group intro now says that `cc_security`
 writes to the map in exactly one place, since "it only ever denies" was the
 natural reading of that group and is no longer true.
+
+Revised 2026-09-07 at `60259dd`, and this is the first revision that **removes
+results**. The author asked, after playing, for the rescue to keep the player
+where they were rather than return them to spawn, and to lift them to the nearest
+free space above when their column is solid; `60259dd` does that, and it is a
+design reversal rather than a defect — `W8` and `W9` had both **passed** on the
+code it replaces. `W8` had also been re-run at `f5f2385` on 2026-09-04 and
+reported a pass, clearing the missing sha its earlier partial carried. Neither
+pass survives, because both describe a destination this code no longer produces:
+`W8`'s pass condition is inverted (you end at the bottom of your own shaft, `y`
+about 0.5, and arriving at spawn is now a fail), `W9` case 2 no longer reaches
+`repair_spawn()` at all, and case 3's assertion about the surface at `(0, 8, 0)`
+is vacuous because the rescue never visits spawn. Both are back to `unchecked`
+with their history recorded above rather than backdated — the rule about carrying
+a result across a change to its code, applied to this document's own record.
+`W9` is rewritten around four cases, two of them new: the **blocked column**,
+which is the author's *"nearest free block above him"* and the first check of the
+clamp arithmetic, and the **bound exhausted**, which is the only surviving route
+into `repair_spawn()`. `W9`'s first false pass is recorded as **weakened** — the
+rescue column is the player's own and so nearly always resident, so only case 4
+still forces a write into possibly non-resident map — and its second is recorded
+as **reversed**: landing on the bedrock plane was the tell for a bad fix and is
+now the fix. `W4`'s re-run target moves from `f5f2385` to `60259dd`; no other
+result line was touched.

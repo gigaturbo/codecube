@@ -27,13 +27,15 @@ renumbered; milestones here are lettered G1-G6, not the mod's phase numbers.
 - [x] bound the world: bedrock floor at y=0, bedrock wall at the edge, default 1024 (audit B50, roadmap G6) - committed f5f2385, the floor is seen and the wall is not
 - [x] game-root settingtypes.txt declaring mapgen_limit only (roadmap G6, extends C7)
 - [x] raise min_minetest_version 5.4 -> 5.9 for the mapgen environment (roadmap G6) - 5.7 was wrong, register_mapgen_script arrived in 5.9.0
-- [x] cc_security: put a player found outside the world box back at spawn, for the hole a program digs in the floor (audit B50, roadmap G6 decision 6) - committed f5f2385, W8 partial against the tree that preceded it
-- [x] cc_security: repair the rescue destination before moving anyone - playing found the spawn column looping (roadmap G6, no finding id) - W9 passes f5f2385 2026-09-04, out-of-range spawn included
-- [x] PLAYTEST checks for the world limits (audit B50) - W4-W9; W9 passes, W4 and W8 partial against an uncommitted tree, W5-W7 unchecked
+- [x] cc_security: catch a player found outside the world box, for the hole a program digs in the floor (audit B50, roadmap G6 decision 6) - committed f5f2385
+- [x] cc_security: repair the rescue destination before moving anyone - playing found the spawn column looping (roadmap G6, no finding id) - committed f5f2385, now the fallback path only
+- [x] cc_security: rescue the player into their own column instead of to spawn, lifting them to the nearest free space above (roadmap G6 decision 7, no finding id - the author asked for it after playing) - committed 60259dd
+- [x] PLAYTEST checks for the world limits (audit B50) - W4-W9; W4 partial, W5-W9 unchecked, W8 and W9 rewritten on 2026-09-07 and their passes retired with the destination they described
 - [ ] decide whether to lower mgflat_ground_level so the bedrock floor is visible; it is 8, so the floor is buried and only the wall is (roadmap G6 open question) - unanswered
 - [ ] CONTENTDB.md and README.md: say the world is bounded, once G6 ships (audit B50)
 - [ ] vector3 declares max_minetest_version = 5.5, four minor versions below the 5.9 G6 needs (audit C21) - upstream or a re-pin
-- [ ] re-run W4 and W8 at f5f2385 - seen on an uncommitted tree, kept partial rather than backdated because repair_spawn landed on W8's path in between
+- [ ] run W8 and W9 at 60259dd - both rewritten for the new rescue, W9 with two new cases: a column blocked by terrain, and one solid past the scan bound
+- [ ] re-run W4 at 60259dd - seen on an uncommitted tree, kept partial rather than backdated
 - [ ] run W5 - route one of B50, the wall, and the only check that closes the finding
 - [ ] run W6 and W7 - the drone's error naming 1024, and an old world re-bounded
 - [ ] run R8 at ec02760, with R1, R4, R6 and P3 beside it (audit B48)

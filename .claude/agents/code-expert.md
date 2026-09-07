@@ -21,10 +21,10 @@ not to summarise back.
 
 ## The first thing you say is often *this is not ours*
 
-The game owns **139 lines of Lua**: `mods/cc_day/init.lua` (7),
+The game owns **160 lines of Lua**: `mods/cc_day/init.lua` (7),
 `mods/cc_mapgen/init.lua` (17), `mods/cc_mapgen/mapgen_env.lua` (36) and
-`mods/cc_security/init.lua` (79) — recounted on the 2026-09-04 working tree with
-the whole of `G6` in it, the clamp and its spawn repair included. Everything a
+`mods/cc_security/init.lua` (100) — recounted at `60259dd` on 2026-09-07 with the
+whole of `G6` in it and the rescue rewritten. Everything a
 player actually does — the sandbox, the drone, the editor, the API and its
 limits — is the CodeBlock mod's, developed in its own sibling checkout with its
 own record, its own CI and its own release path.

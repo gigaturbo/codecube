@@ -154,10 +154,14 @@ you changed.
 `y = 0` and a bedrock wall at the outermost generated column, written from
 `mapgen_env.lua` on the emerge threads, which is what `min_minetest_version =
 5.9` in `game.conf` is for. `cc_day` holds the world at noon. `cc_security`
-restricts what a player may break or place, and puts a player found outside the
-world box back at spawn — repairing that destination first, which is **the one
-place this game writes to the map**; every other rule in `cc_security` denies.
-Four Lua files, 338 lines. That is the whole of this game's code.
+restricts what a player may break or place, and rescues a player found outside
+the world box **into their own column** — clamping it inside the wall, making the
+floor whole under it and standing them on the first height in it they fit, and
+falling back to the spawn point only when nothing in that column fits. Those
+writes are **the one place this game writes to the map**; every other rule in
+`cc_security` denies. Four Lua files, **160 lines** of code — `cc_day` 7,
+`cc_mapgen` 17 + 36, `cc_security` 100, counting neither blanks nor comments, and
+397 lines in all. That is the whole of this game's code.
 
 **The surface is stone, and the bedrock floor is buried.** `mg_flags` carries
 `nobiomes`, so `mgflat` has no top or filler node — there is no dirt and no grass
