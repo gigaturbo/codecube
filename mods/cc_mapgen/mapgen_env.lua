@@ -1,5 +1,5 @@
 -- The edge of the world, written into each chunk as the mapgen produces it:
--- nothing below y = 0, a bedrock plane at y = 0, and a bedrock wall standing
+-- nothing below y = 0, a bedrock plane at y = 0, and a barrier wall standing
 -- full height at the outermost generated column on x and on z.
 --
 -- This file runs in the mapgen environment, on the emerge threads; init.lua
@@ -9,6 +9,7 @@
 
 local c_air = core.get_content_id("air")
 local c_bedrock = core.get_content_id("cc_mapgen:bedrock")
+local c_barrier = core.get_content_id("cc_mapgen:barrier")
 
 -- Where the wall stands. Not at mapgen_limit: only mapchunks falling wholly
 -- inside the limit are generated, so the last generated column is short of it.
@@ -48,12 +49,12 @@ core.register_on_generated(function(vmanip, minp, maxp, blockseed)
         else
             for _, x in ipairs(wall_x) do
                 for i in area:iter(x, y, minp.z, x, y, maxp.z) do
-                    data[i] = c_bedrock
+                    data[i] = c_barrier
                 end
             end
             for _, z in ipairs(wall_z) do
                 for i in area:iter(minp.x, y, z, maxp.x, y, z) do
-                    data[i] = c_bedrock
+                    data[i] = c_barrier
                 end
             end
         end

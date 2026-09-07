@@ -37,7 +37,7 @@ nothing has gone wrong there yet and nothing proves it right either.
 Groups are lettered **W** (world), **L** (light), **R** (restrictions) and **P**
 (packaging, boot and install). Those letters are deliberately none of `B`, `S`,
 `C`, `A` or `F`, so a check id can never be read as a finding id, and none of
-`G1`–`G6`, the milestone lettering in `ROADMAP.md`.
+`G1`–`G7`, the milestone lettering in `ROADMAP.md`.
 
 ## Where it stands
 
@@ -78,18 +78,51 @@ alone: it passed by teleporting "several thousand nodes" out, which now lands
 outside a world whose limit is 1024. The pass is still what was seen at
 `7f649d8`; the instruction is what has to be re-read before it is re-run.
 
-**`P2` is owed a re-run too.** `G6` adds two tracked files — the game-root
-`settingtypes.txt` and `mods/cc_mapgen/mapgen_env.lua` — and `.gitattributes`
-decides what reaches a player with nothing checking it (`C15`). Both are files a
-player *should* get, so nothing is expected to be wrong; `P2` is what says so.
+**`P2` is owed a re-run, and it is owed harder than it was.** `G6` added two
+tracked files — the game-root `settingtypes.txt` and
+`mods/cc_mapgen/mapgen_env.lua` — and the uncommitted `G7` work adds **a new
+directory and two more**, `mods/cc_mapgen/textures/cc_mapgen_bedrock.png` and
+`cc_mapgen_barrier.png`. `.gitattributes` decides what reaches a player and
+nothing in either CI checks it (`C15`). All four are files a player *should* get,
+so nothing is expected to be wrong. `code-expert` confirmed the two textures by
+hand with `git check-attr`: neither is `export-ignore`d, so both ship. **That is
+one manual run and not a gate**, and a texture that failed to ship would render
+the floor and the wall as the unknown-node texture with nothing failing anywhere
+first. `P2` is what says so properly.
 
 **The game's behaviour has been checked in a world on 2026-09-01 over three
 rounds, again on 2026-09-02, and three times on 2026-09-07.** Twenty of the
-twenty-five have a live result and **eighteen pass**: `W1`–`W9`, `L1`, `L2`,
+**thirty** have a live result and **eighteen pass**: `W1`–`W9`, `L1`, `L2`,
 `R1`–`R4`, `R6`, `R7` and `P2`. Two are partial: `P1`, its clone half only, and
 `R5`, whose drop half passed and whose `R3` re-run has not been done. `L3` waits
-on `A7` landing upstream in `codeblock`; `R8`, `P3`, `P4` and `P5` are unrun, and
-`P5` needs a release first.
+on `A7` landing upstream in `codeblock`; `R8`, `W10`, `W11`, `W12`, `W13`, `W14`,
+`P3`, `P4` and `P5` are unrun, and `P5` needs a release first.
+
+**Five checks here now have no commit at all — `W10` through `W14` — and they are
+the five newest.** They cover three uncommitted changes made on 2026-09-07 in one
+working tree: a translucent `cc_mapgen:barrier` at the world's edge instead of
+solid bedrock (`W10`), the game's own textures for both bound nodes instead of
+two borrowed from `default` (`W11`), and a world 128 nodes deep instead of 8
+(`W12`, `W13`, `W14`). **Both gates are green on all three and neither runs a
+line of this game's Lua**, so nothing about how any of it looks, how deep it is,
+or where a rescue puts anybody is evidence. Their result lines stay `unchecked`
+and get no sha until the changes are committed.
+
+**Of those five, `W13` and `W14` are the ones to run first.** `W13` is an
+existing world's surface actually moving, which is the whole point of forcing the
+setting and the part `code-expert` calls most likely to be wrong; `W14` is the
+rescue reading the new depth, and it is the check that stands behind a real
+defect the same change introduced and caught — a `(ground or 8)` fallback that
+would have put a rescued player inside a hundred and twenty nodes of stone. The
+other three are appearance, and a wrong appearance is visible the moment anybody
+looks.
+
+**`W4`, `W8` and `W9` will be owed re-runs when the depth lands.** All three pass
+at `60259dd`, where `mgflat_ground_level` was 8; all three exercise heights the
+rescue derives from that number. Their passes are not moved and not backdated —
+they are what was seen at `60259dd` — but a result cannot survive a change to the
+code it exercised, and this is a change to it. The methods below are rewritten to
+work at either depth in the meantime.
 
 **What is left is `G4`'s, and it is small.** `R8` at `ec02760` is the check
 `B48` waits on, with the `R1`, `R4`, `R6` and `P3` re-runs beside it that the
@@ -129,7 +162,8 @@ moved in five minutes.
 
 **Three findings came out of those rounds** — `B47`, `B48` and `S8` — none of
 them visible from reading the three `cc_*` files, **which were 21 lines between
-them at the time** — 397 now, since `G6` and the rescue rewrite. All three are now fixed; `B48` is the
+them at the time** — 439 now across four files, since `G6`, the rescue rewrite
+and the barrier node. All three are now fixed; `B48` is the
 one whose fix has not been seen in a world, which is what `R8` is for.
 
 **`B49` came the other way, and is worth noting for that.** It was found by
@@ -164,14 +198,25 @@ checks, not the retired ones.
 **Three facts about the world these checks are run in, because each one changes a
 method below.** First, `mg_flags` carries `nobiomes`, so `mgflat` has no top or filler
 node and **the surface is stone** — there is no dirt and no grass anywhere until
-a program places some. Second, `mgflat_ground_level` is **8**, so that surface is
-at `y = 8` and the bedrock plane at `y = 0` is **eight nodes underground**: it is
-never seen in ordinary play, and reaching it means having a program clear a shaft
-down to it. Third, the clamp in `cc_security` is committed, and since `60259dd`
+a program places some. Second, the surface stands at `mgflat_ground_level` and
+the bedrock plane is at `y = 0` whatever that is, so the plane is always
+underground: it is never seen in ordinary play, and reaching it means having a
+program clear a shaft down to it. Third, the clamp in `cc_security` is committed, and since `60259dd`
 it rescues a player **into their own column** rather than to spawn, so
 **`/teleport`ing to a negative `y` no longer leaves you there** — within 250 ms
 you are stood on the first room in the column you were over. That is `W8`'s
 subject and `W4`'s obstacle.
+
+**`mgflat_ground_level` is the number that moved, and every result below was
+recorded before it did.** It was **8** at `60259dd`, which is the commit `W4`–`W9`
+all pass at, so those runs went down eight nodes of stone. The uncommitted
+working tree of 2026-09-07 sets it to **128**, and `W12` is the check that says
+so. The methods below are written to work at either — they say "the surface" and
+"the plane" rather than a number — but **anywhere a number is unavoidable, both
+are given**, and a pass recorded at `60259dd` is a pass against a world eight
+nodes deep. When the depth change is committed, `W4`, `W8` and `W9` are owed
+re-runs against it: all three exercise `cc_security`'s rescue, and the constant
+it derives its heights from is exactly what changed.
 
 ### W1 · A new world is flat and clean at spawn
 
@@ -231,8 +276,11 @@ re-run takes the route above.
 that only exercises `W8`. Go from above instead.
 
 Have a program clear a shaft from the surface down to `y = 1` — the surface is at
-`y = 8` and everything between is stone — then climb or teleport into it and
-stand on the bottom.
+`mgflat_ground_level` and everything between it and `y = 1` is stone — then climb
+or teleport into it and stand on the bottom. **That is 8 nodes of stone at
+`60259dd`, where the pass below was recorded, and 128 in the uncommitted tree**,
+so the shaft the program has to clear is sixteen times longer than it was and a
+loop written for the old depth will stop short.
 
 **Pass:** the shaft bottoms out on a plane of bedrock at `y = 0` that the program
 did not place and cannot remove by accident, and you are standing on it rather
@@ -325,9 +373,11 @@ Implemented in `mods/cc_security/init.lua`, not `cc_mapgen`: the wall and the
 floor do not close this, because a program may `remove` a floor tile and
 `diggable = false` binds the player, not a program.
 
-The floor is eight nodes underground, so this needs two steps, not one. Have a
-program clear a shaft from the surface down to `y = 1` and then `remove` one
-bedrock node at `y = 0` under it — `W4`'s shaft will do. Then walk into the hole.
+The floor is under the whole depth of the stone, so this needs two steps, not
+one. Have a program clear a shaft from the surface down to `y = 1` and then
+`remove` one bedrock node at `y = 0` under it — `W4`'s shaft will do, and it is
+eight nodes deep at `60259dd` and 128 in the uncommitted tree. Then walk into the
+hole.
 
 **Pass:** you stop falling, and you are put back **in your own column** — at the
 bottom of the shaft you just fell down, standing on a bedrock node the rescue
@@ -421,7 +471,8 @@ column so there is a way out of the world, then walk out through the gap, over
 ground the program has not touched.
 
 **Pass:** you are put back **one node inside the wall, at the same `z`**, standing
-on top of the stone surface — `y` about **8.5**. Not embedded in the stone, and
+on top of the stone surface — `y` about **`mgflat_ground_level` + 0.5**, so 8.5 at
+`60259dd` and 128.5 in the uncommitted tree. Not embedded in the stone, and
 not down on the bedrock plane.
 **Fail:** your view is inside a node, or you arrive at `y` about 0.5. This is also
 the first check of the clamp arithmetic, which was never player-visible before:
@@ -438,16 +489,19 @@ The old form of this case asserted that the surface at `(0, 8, 0)` was still
 stone, and since `60259dd` that assertion is vacuous.
 
 **4 · The bound exhausted.** The scan gives up 64 nodes above
-`mgflat_ground_level` — 72 in a default world — and this is the **only surviving
-route into `repair_spawn()`**. Reuse case 2's way out of the world: have the drone
-fill the column one node inside the wall, at the `z` you will walk out at, with
-stone from `y = 1` up past `y = 72`, then walk out through the removed wall
-column at that same `z`.
+`mgflat_ground_level` — **72 at `60259dd`, 192 in the uncommitted tree** — and
+this is the **only surviving route into `repair_spawn()`**. Reuse case 2's way out
+of the world: have the drone fill the column one node inside the wall, at the `z`
+you will walk out at, with stone from `y = 1` up past that height, then walk out
+through the removed wall column at that same `z`. **At 128 this case costs
+sixteen times the pillar it used to**, and it is the one case here that a depth
+change makes materially harder to set up.
 
-**Pass:** you arrive at spawn, in open air, free to move.
+**Pass:** you arrive at spawn, in open air, free to move — `y` about
+`mgflat_ground_level` + 1, so 9 at `60259dd` and **129** in the uncommitted tree.
 **Fail:** you arrive embedded in a node, or the rescue does nothing at all.
-Building a 72-node solid pillar and falling out of the world at exactly its
-footprint is the case the bound trades away, and what it costs is the old
+Building a solid pillar the full height of the scan and falling out of the world
+at exactly its footprint is the case the bound trades away, and what it costs is the old
 behaviour — spawn — rather than a softlock.
 
 **Two false passes this check must be run against, because they are how the fix
@@ -459,15 +513,15 @@ looks fixed without being fixed:**
   it — hence `get_node_or_nil` and the explicit test. But the column the rescue
   now works in is the one the player is standing in, so it is nearly always
   resident, and **the out-of-range variant no longer forces that branch.**
-  `load_area` still matters, because the scan reaches 72 nodes above a player who
-  is below `y = 0` and the top of that column need not be in memory. Of the four
+  `load_area` still matters, because the scan reaches the whole depth of the world
+  plus 64 above a player who is below `y = 0` and the top of that column need not be in memory. Of the four
   cases only **case 4** still puts a possibly non-resident area under a write, at
   spawn, which is a few hundred nodes from where it is run.
 - **Landing on the bedrock plane at `y = 0` rather than on the surface, which was
   the tell for a bad fix and is now the fix.** Exactly reversed by `60259dd`, so
-  read it per case: in case 1 about **0.5** is the pass and about 8.5 would mean
-  the scan is not stopping at the lowest room in the column; in case 2 about
-  **8.5** is the pass and about 0.5 would mean the column was carved out rather
+  read it per case: in case 1 about **0.5** is the pass and landing up at the surface would mean
+  the scan is not stopping at the lowest room in the column; in case 2 the
+  **surface** is the pass and about 0.5 would mean the column was carved out rather
   than scanned up.
 
 Result: pass, all four cases — `60259dd` · engine 5.17.0 · 2026-09-07 — the
@@ -490,6 +544,216 @@ tested, case 3's assertion had gone vacuous and case 1's pass condition was
 inverted. Carrying it would have been backdating a result across a change to the
 code it exercised. Two of the four cases above are new with that rewrite and have
 now been run for the first time.
+
+### W10 · The wall is a barrier you can see through, and still a wall
+
+No finding id: this is not a defect. The wall was already correct — it stood,
+full height, unbroken, and `W5` proves it. What changed is what it *looks* like,
+because the author asked for a world edge that is visible and a solid opaque face
+is not what they wanted to look at. Nothing but a running world can settle
+whether the new one reads as an edge.
+
+Walk or `/teleport` to the world edge on any axis and face the wall. Look at it
+from a few nodes back, then from up against it. Then try to walk through it, and
+try to place a node on its far side.
+
+**Pass**, and all four parts are required:
+
+- **A dark outline around every node face** — a regular grid across the whole
+  wall, one cell per node, with sky visible through the middle of each cell.
+- **No shadow band along the edge.** The ground and anything built near the wall
+  is lit the same as ground in the middle of the world. That pair is
+  `paramtype = "light"` and `sunlight_propagates` doing their job.
+- **Still solid.** You are stopped at the column, and you cannot place a node
+  through it onto its far side.
+- **Still nothing you can take.** It does not crack under a punch, drops nothing,
+  and is not in any inventory — the same properties bedrock has.
+
+**Two near misses, and both look like a pass from the wrong angle.**
+
+1. **Sky past the edge proves nothing on its own.** If the wall simply failed to
+   generate you would also see sky, and see it far better. So the deciding part
+   is being *stopped*: confirm you cannot walk out, at the same column the
+   bedrock wall used to occupy. Seeing through it and being stopped by it have to
+   be observed in the same place, in the same sitting.
+2. **An outline only along the top of the wall and at the world's corners**, with
+   clear glass between, is the framed drawtype having come back — the engine
+   drawing the wall as one connected pane instead of a node each. That is the
+   exact appearance this change exists to avoid, and from far enough back it can
+   pass for a clean edge. The grid must be there *per node*, in the middle of a
+   straight run of wall, not only where the wall ends or turns.
+
+**The floor is not part of this check.** `cc_mapgen:bedrock` is still the plane at
+`y = 0`, including the outermost column at that layer, and still under the whole
+depth of the stone. `W4` is its check and this does not replace it. **What the
+floor now *looks* like is `W11`**, which is new beside this one: the same
+uncommitted tree gives both bound nodes the game's own textures, so
+`cc_mapgen:bedrock` is no longer unchanged the way this paragraph used to say.
+
+**The texture the outline comes from changed on 2026-09-07, after this check was
+written, and the pass is unaffected.** It was `default_obsidian_glass.png`,
+borrowed from the vendored mod; it is now `cc_mapgen_barrier.png`, the mod's own,
+keeping the same 1px-border, transparent-centre geometry. What is checked here is
+the *geometry* — an outline per node face with sky through the middle — and that
+is what both textures give. `W11` is where the new artwork itself is looked at.
+
+Result: unchecked — the change is written and both gates are green, and neither
+gate runs a line of this game's Lua. **Not committed**, so there is no sha to run
+it against yet.
+
+### W11 · The floor and the wall are the game's own artwork, and the floor does not tile
+
+No finding id: nothing is defective. On 2026-09-07 the author asked for bedrock
+*"more black like in minecraft"*, and `cc_mapgen` now ships its own two 16×16
+textures instead of borrowing `default_obsidian.png` and
+`default_obsidian_glass.png`. **Nobody has rendered either file.** Both were
+decoded back after they were written, which says what bytes are in them and
+nothing at all about what a wall or a floor of them looks like from three nodes
+away.
+
+Have a program clear a shaft to the bedrock plane at `y = 0` and then clear a
+**wide** expanse of it — twenty nodes on a side at least, and more is better —
+and stand on it. Look straight down, then look across it to its far edge at a
+shallow angle. Then go to the world's edge and look at the wall beside the floor
+where the two meet.
+
+**Pass**, and the second part is the one worth the trip:
+
+- **The floor reads as black mottled rock**, distinctly darker and less blue than
+  the obsidian it replaced. Anyone who remembers the old floor should be able to
+  say which is which.
+- **No tiling grid across the expanse**, at any angle. No repeating shape, no
+  seam every sixteenth node, no line where one texture meets the next. **This is
+  what the wrapping blur exists for and it is the thing most likely to look
+  wrong** — a non-wrapping blur darkens or lightens the four edges of the tile
+  and a large floor turns into visible graph paper.
+- **The floor and the wall read as one material**, dark and of a piece, rather
+  than as two nodes that happen to be adjacent.
+
+**A near miss looks like this:** a floor that is fine when you look straight down
+and grids up when you look across it. Tiling artefacts are far more visible at a
+shallow angle than from directly above, so looking down at your feet and calling
+it clean is the way to miss this. Look across the expanse, at eye level.
+
+**And one thing that is *not* this check.** The barrier's outline grid is `W10`,
+and it is meant to be there — a regular grid on the *wall* is a pass, a regular
+grid on the *floor* is a fail. The two are next to each other and easy to
+conflate.
+
+Result: unchecked — written and both gates green, and neither gate renders a
+pixel. **Not committed**, so there is no sha to run it against yet.
+
+### W12 · A new world puts you 128 nodes above the floor
+
+No finding id. On 2026-09-07 the author asked for the floor at 128, and
+`mgflat_ground_level` goes from the engine's 8 to 128 — declared in
+`settingtypes.txt`, defaulted in `minetest.conf`, and forced onto the world by
+`cc_mapgen`. The bedrock plane stays at `y = 0`, so the number is how much stone
+there is between the surface and the bottom of the world.
+
+Create a **new** world with default settings, enter it, and read your own
+position — `/status` or the debug display, `F5`.
+
+**Pass:** you are standing on stone at `y` about **128.5**, and the world under
+you is solid stone all the way down to the bedrock plane at `y = 0`. Have a
+program clear a shaft and confirm the bottom of it is bedrock at `y = 0`, exactly
+as `W4` says — the floor did not move, the surface did.
+
+**A near miss looks like this:** you are at `y` about **8.5**. That is the
+engine's own default, and it means the game's `minetest.conf` did not reach
+`core.settings` or `cc_mapgen`'s forced `set_mapgen_setting` did not take. It is
+the same failure `W6` catches for `mapgen_limit`, by the same mechanism, and it
+reads as a perfectly ordinary world unless you look at the number.
+
+**Also check the setting is offered.** Advanced settings → Content: Games →
+Codecube shows **Surface height** at 128 beside **World half-extent** at 1024.
+That is a server owner's route to it and the reason it is a setting rather than a
+constant.
+
+Result: unchecked — written and both gates green, not committed.
+
+### W13 · An existing world's surface moves to 128 when you open it
+
+No finding id, and **`code-expert` calls this the thing most likely to be wrong
+and the whole point of the change.** The engine writes every `mgflat_*` parameter
+into a world's `map_meta.txt` when the world is created, so a world made at
+ground level 8 keeps 8 for ever unless something overrides it. `cc_mapgen` passes
+`override_meta = true` on the `set_mapgen_setting` call for exactly that reason.
+
+**`W7` is the precedent and this is the same check for a second key.** `W7`
+proved the mechanism for `mapgen_limit` — an old world carrying 4096 in its
+`map_meta.txt` is re-bounded to 1024 on opening — and it passed at `60259dd`.
+That the same argument works for `mgflat_ground_level` was verified by reading:
+`MapgenFlatParams::writeParams` at 5.9.0 writes the key, a real `map_meta.txt` on
+this machine carries it, and `MapSettingsManager::setMapSetting`'s `override_meta`
+branch is generic rather than restricted to `MapgenParams` fields. **Reading is
+not running**, and `W7` is the only reason to expect this to pass at all.
+
+Open a world created before this change — one whose `map_meta.txt` still says
+`mgflat_ground_level = 8` — and walk out into ground that has **never been
+generated**, well past anywhere you visited before. Watch it emerge ahead of you.
+
+**Pass:** the newly generated ground comes in at `y = 128`, not 8, and there is a
+step where the old terrain meets the new. Confirm `mgflat_ground_level = 128` in
+that world's `map_meta.txt` after closing it.
+
+**A near miss looks like this:** the new ground arrives at 8 like the old ground,
+and everything looks consistent and correct. A seamless world is the *failure*
+here, and it is the only check in this document where the tidier-looking outcome
+is the wrong one.
+
+**What this deliberately does not promise**, and it is under *what ships broken*:
+ground already generated keeps the height it has. The setting reaches new chunks
+only, exactly as the wall does.
+
+Result: unchecked — written and both gates green, not committed.
+
+### W14 · The rescue still knows where the surface is [B50]
+
+No new finding id — this is `B50`'s rescue, re-checked under a depth it was not
+written for. **It is also the check that would have caught a real defect in this
+change.** `cc_security` derived its spawn fallback and its scan bound from
+`(ground or 8)`; with the game's default now 128 that constant had become the
+wrong fallback and would have put a rescued player at `y = 9`, inside a hundred
+and twenty nodes of solid stone. It is now a single `or 128` at the definition.
+The defect was never committed and carries no id; this check is what stands
+behind the fix.
+
+**Every number here is the point.** Run the three cases and read your `y` each
+time. An **8** or a **9** anywhere in the results means a stale constant survives
+somewhere in the rescue path.
+
+1. **Through the floor.** `W8`'s setup at the new depth: clear a shaft to `y = 1`,
+   `remove` one bedrock node under it, walk in.
+   **Pass:** `y` about **0.5**, at the bottom of your own shaft, on a fresh
+   bedrock tile.
+
+2. **Clamped in from outside the wall**, over ground a program has not touched —
+   `W9` case 2's setup.
+   **Pass:** `y` about **128.5**, standing on top of the stone surface one node
+   inside the wall. **Fail: about 8.5**, which would mean the scan stopped at the
+   old surface height and left you buried in a hundred and twenty nodes of stone.
+
+3. **The spawn fallback**, `W9` case 4's setup at the new depth: fill your exit
+   column solid past the scan bound, then walk out.
+   **Pass:** you arrive at spawn in open air, free to move, at `y` about **129**.
+   **Fail: about 9**, and this is the exact shape of the defect that was caught —
+   spawn derived from the engine's default instead of the game's.
+
+**A near miss looks like this:** case 1 passes and you stop there. It is the
+cheapest of the three and the only one whose pass value did not move with the
+depth, so it says nothing at all about the constant this check exists for. **Cases
+2 and 3 are the check**; case 1 is here so the three read as one setup.
+
+**The cost this check runs into, recorded so it is not mistaken for a fault.**
+The rescue's `load_area` column grew from 5 mapblocks (~80 kB) to 13 (~210 kB),
+because it spans `y = 0` to 193 now, and the scan reads up to ~128 more nodes
+before it finds the surface. Bounded, and at most four times a second per
+out-of-box player. If a rescue feels slower than it did, that is why and it is
+deliberate.
+
+Result: unchecked — written and both gates green, and neither gate runs a line of
+this game's Lua. **Not committed**, so there is no sha to run it against yet.
 
 ---
 
@@ -1052,3 +1316,40 @@ run, and the 2026-09-07 rewrite put that half into the check's own instructions,
 so a pass against the check as written covers it. `W9` passed all four cases,
 including the two the rewrite added. **No gate was re-run and none was owed** —
 nothing in the code changed, and the last green run of both was on `60259dd`.
+
+Revised 2026-09-07 at `93b8ea1` plus an uncommitted working tree, and this
+revision covers **two** passes of the same day's work, because the first was
+recorded in the checks themselves and never in this footer. **`W10` was added
+first**, for the translucent barrier at the world's edge, and it was the first
+entry in this document with no sha at all to be run against. **`W11`–`W14` follow
+here**, for the two changes that arrived on top of it: the game's own textures for
+both bound nodes, and a world 128 nodes deep instead of 8. All five are
+`unchecked` and all five stay that way — the three changes are written, both gates
+are green on them, **neither gate runs a line of this game's Lua**, and none of
+the three is committed. Five checks with no commit at once is the most this
+document has ever carried.
+
+`W11` is the artwork and the tiling grid, which is the thing a wrapping blur
+exists to prevent and the thing most likely to look wrong. `W12` is a new world
+at `y = 128`. **`W13` is an existing world's surface moving, and it is the one to
+run first** — `code-expert` calls it the point of the change, `W7` is its
+precedent for a different key, and its near miss is the seamless-looking outcome
+rather than the broken one, which no other check in this document has. `W14` is
+the rescue under the new depth, and it exists because the same change introduced
+a real defect and caught it: `cc_security` derived its spawn fallback and scan
+bound from `(ground or 8)`, which at a default of 128 would have put a rescued
+player at `y = 9` inside solid stone. It was never committed and carries no
+finding id; `W14`'s cases 2 and 3 are what would have caught it in a world, and
+its case 1 deliberately would not.
+
+**No result line was moved, and one is now on notice.** `W4`, `W8` and `W9` pass
+at `60259dd`, where `mgflat_ground_level` was 8, and all three read heights the
+rescue derives from that number. Those passes are what was seen at `60259dd` and
+are left alone; when the depth change is committed all three are owed re-runs,
+under this document's own rule that a result cannot survive a change to the code
+it exercised. The methods of the `W` group were rewritten in the meantime to
+carry **both** depths wherever a number was unavoidable — 8 at `60259dd`, 128 in
+the working tree — rather than being written for a world nobody has run them in.
+`W10`'s note about `cc_mapgen:bedrock` being "unchanged" was corrected for the
+same reason: it is not, it has a new texture, and `W11` is where that is looked
+at.

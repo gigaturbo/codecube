@@ -15,13 +15,13 @@ one: `mods/codeblock/AUDIT.md`.
 
 Two numbering conventions, so a commit message always resolves:
 
-- **Milestones here are lettered `G1`–`G6`.** They are not the mod's phases. The
+- **Milestones here are lettered `G1`–`G7`.** They are not the mod's phases. The
   mod numbers its work `Phase 0`–`Phase 8` and those numbers appear in commit
   messages, so this file never says "Phase N" for anything of its own. Where a
   milestone is the game's share of a mod phase, it says which.
 - **Finding ids are shared** with the mod's audit — a `B`, `S`, `C` or `A` number
   is allocated once across both, so it never means two things and is never
-  renumbered. The nineteen in `AUDIT.md` are the game's; the rest are the mod's,
+  renumbered. The twenty in `AUDIT.md` are the game's; the rest are the mod's,
   as is the `F` feature series.
 
 Target is **v1.0.0**, major because several changes break saved player programs.
@@ -35,8 +35,32 @@ the rescue reversed at `60259dd`, on branch `g6-world-limits`, with `B48` split
 out ahead of it as `ec02760`, and **both gates were re-run green after every
 commit** — neither of which runs a line of the game's Lua, which is why the
 checking is the half that mattered. `W4`, `W5`, `W6`, `W7`, `W8` and `W9` all
-pass at `60259dd`, so **`B50` is resolved on both of its routes**, and the four
-open findings left are `A7`, `A8`, `A13` and `C21`.
+pass at `60259dd`, so **`B50` is resolved on both of its routes**. Five findings
+are open: `A7`, `A8`, `A13`, `C21` and **`C22`**, new on 2026-09-07 — three
+original menu images that ship to every player with no licence stated anywhere.
+
+**`G7` is open beside it, and it now holds three uncommitted changes.** On
+2026-09-07 the author asked for a world edge that is *visible*, then for the
+bedrock to be *"more black like in minecraft"*, then for the floor to be at 128.
+The wall is a translucent `cc_mapgen:barrier` over a `cc_mapgen:bedrock` floor;
+both nodes now draw from **this mod's own two textures** rather than borrowing
+from `default`; and the stone surface stands at `mgflat_ground_level = 128`
+instead of 8. **All three are written, both gates green, and none is committed**
+— so none is in any sha, and `W10`–`W14` are five checks in `PLAYTEST.md` with
+nothing to be run against. **Neither gate runs a line of this game's Lua**, so
+green means the game still assembles and says nothing about how any of it looks
+or behaves. No finding is opened by any of the three: `G6`'s wall was already
+correct and `W5` says so, and a defect the same change introduced and caught was
+never committed.
+
+**`G6` and `G7` are both built against a four-line brief the author gave when
+`G6` opened, and it is now quoted verbatim under `G6`.** Two of its four
+requirements are done and checked, and two are written and unchecked — that is
+the whole scoreline for both milestones and it is the shortest way to read them.
+**It was written down on 2026-09-07 and not before**, having lived until then
+only in a conversation that has since been compacted; the search for it in this
+repository correctly found nothing, and one decision was briefly mis-recorded as
+unattributed on that basis. No finding id — `G6` decision 8 has the reasoning.
 
 **The next thing is one session in a world, and it is `G4`'s.** `R8` at
 `ec02760` is what says the crack animation is gone; `B48`'s fix rewrites `groups`
@@ -52,7 +76,7 @@ After that the only thing left before `G5` is `A7`, and its edit is upstream:
 `codeblock` removes the duplicate, `cc_day` is the copy that survives, and this
 repository's half is adopting the release and running `L3`.
 
-**Twenty of the twenty-five checks now have a live result and eighteen pass.**
+**Twenty of the thirty checks now have a live result and eighteen pass.**
 The game was played on 2026-09-01 in three rounds, again on 2026-09-02, and three
 times on 2026-09-07 — the last of those being the whole `W` group. Every
 restriction the game claims and every limit it now imposes is evidence rather
@@ -65,9 +89,9 @@ nothing here will.
 
 ## Milestones
 
-In work order, which is why `G6` sits before `G5`: the letters are allocated when
-a milestone is opened and never reused, and `G5` is shipping, so it stays last
-whatever is opened after it.
+In work order, which is why `G6` and `G7` sit before `G5`: the letters are
+allocated when a milestone is opened and never reused, and `G5` is shipping, so
+it stays last whatever is opened after it.
 
 ### G1. Ship an honest, installable package — done (6/6)
 
@@ -157,6 +181,53 @@ marks the edge and nothing stops anyone reaching it**, and with no `fly` privile
 and damage off a player who walks off falls into ungenerated space forever,
 unhurt and unable to return (`B50`). The world becomes a finite tray you build
 in, and both limits are things you can see.
+
+**The author's brief, verbatim, and it is what both `G6` and `G7` are built
+against.** Written here on 2026-09-07 and **recovered from the session rather
+than written down at the time** — see the note below, which is the point of
+quoting it at all:
+
+> Start a new feature thinking : world limits.
+> - They should stop the player to go further
+> - They should be visible
+> - They can be customized in the settings (map size)
+> - World has a Floor no player can fall under, visible (blocks like "bedrock"?),
+>   height of map configurable (mapgen?)
+
+**Four requirements, and the scoreline is clean:**
+
+1. **Stop the player going further** — `G6`, **done and checked**. The wall, the
+   floor, and the `cc_security` clamp for the hole a program digs. `W5`, `W8`
+   and `W9` pass at `60259dd` and `B50` is resolved on both routes.
+2. **They should be visible** — `G7`, **written and unchecked**. The floor and
+   the wall exist and `W5` proves the wall stands, but a solid opaque face is not
+   what the author meant by visible: this line is what made the barrier
+   translucent, and it is the line that **overrode an instruction not to spend
+   effort on appearance** when `glasslike_framed` turned out to render the wall
+   near-invisible. `W10` is its check and has no sha to be run against.
+3. **Customized in the settings (map size)** — `G6`, **done and checked**. The
+   game-root `settingtypes.txt` declares `mapgen_limit`, `minetest.conf` defaults
+   it to 1024, `cc_mapgen` forces it onto existing worlds. `W6` and `W7` pass at
+   `60259dd`.
+4. **A floor no player can fall under, visible, height of map configurable** —
+   split. The floor and the un-fall-under-able half are `G6`, done and checked
+   (`W4`, `W8`, `W9`). The configurable height is `G7`, **written and
+   unchecked** — `mgflat_ground_level` as a setting at 128, with `W12`, `W13` and
+   `W14`. The *visible* half of this line went the way requirement 2 did not: the
+   author answered it by burying the floor deeper, and it is under *deliberately
+   not doing*.
+
+**This brief existed nowhere durable until now, and that is a failure of this
+record rather than of the work.** It was said in conversation when `G6` opened,
+it drove two milestones and settled at least two design questions, and the
+conversation that held it has since been compacted — so for a stretch of
+2026-09-07 the only copy was in a transcript no checkout carries. It was searched
+for in this repository, correctly not found, and the setting it justifies was
+briefly recorded as **unattributed** on that basis. **The rule it broke is
+already written down** and did not need inventing: the project's memory for an
+agent is the tracked Markdown, and what the author asks for goes into it, in the
+repository, so a fresh clone carries it. **No finding id** — see the note at the
+end of this milestone.
 
 - [x] Ship the bounded slab: `minetest.conf` carries `mapgen_limit`, which is what
   CodeBlock already reads for the drone's bound, so **no mod load-order
@@ -262,8 +333,9 @@ in, and both limits are things you can see.
   so at mod load time it returns 1 — the same wrong number — and writes a line to
   `errorstream` on every boot.
 
-**Seven decisions, all taken on 2026-09-07 — the first six while `G6` was
-shaped, the seventh after playing it — each closing an argument:**
+**Eight decisions, all taken on 2026-09-07 — the first six while `G6` was
+shaped, the seventh after playing it, the eighth about this record rather than
+about the world — each closing an argument:**
 
 1. **A thin slab, not a solid block.** Bedrock plane at `y = 0`, air below,
    `mgflat`'s ordinary fill above. Keeping the current fill and only
@@ -272,9 +344,14 @@ shaped, the seventh after playing it — each closing an argument:**
 
    **That fill is stone, not dirt or grass.** `cc_mapgen` sets `mg_flags` with
    `nobiomes`, and without biomes `mgflat` has no top or filler node to place, so
-   it fills stone up to and including `mgflat_ground_level` — 8 by default and
-   unchanged here. The surface a player stands on at `y = 8` is stone, and no
-   `dirt` or `dirt_with_grass` exists in the world until a program places one.
+   it fills stone up to and including `mgflat_ground_level`. The surface a player
+   stands on is stone, and no `dirt` or `dirt_with_grass` exists in the world
+   until a program places one.
+
+   **`G6` shipped that at the engine's default of 8, and `G7` raises it to 128**,
+   so the "8" this decision was written against is no longer the number. The slab
+   is thicker; that it *is* a slab, with air below `y = 0` and nothing generated
+   there, is unchanged.
 2. **One number, not two.** The world is ±N on every axis and N is
    `mapgen_limit`, because **CodeBlock already reads `mapgen_limit`** as the
    drone's bound (`mods/codeblock/lib/commands.lua:49`, *"the engine's own edge of
@@ -349,14 +426,38 @@ shaped, the seventh after playing it — each closing an argument:**
    is the floor tile under the rescued column. That is a stronger version of the
    property decision 6 had already spent.
 
-**One open question, put to the author on 2026-09-07 and unanswered.** The author
-asked for limits *"they should be visible"*. The wall satisfies that; **the floor
-does not.** `mgflat_ground_level` is 8, so the bedrock plane at `y = 0` is buried
-eight nodes under the surface and is never seen in ordinary play — the only way
-to it is a program clearing a shaft. Lowering `mgflat_ground_level` so the
-surface sits on or near the plane is a one-line change in `cc_mapgen`. **Nothing
-has been decided and nothing has been changed**; this is recorded as a question,
-not as an omission.
+8. **The unwritten brief gets no finding id, and the reasoning is the same one
+   this project already uses for a wrong check.** Decided 2026-09-07. A
+   requirement that drove two milestones and existed only in a conversation is a
+   real failure and the exact one the record exists to prevent — but ids here are
+   `B` bugs, `S` sandbox, `C` compliance and packaging, `A` architecture, and all
+   four describe **the game**. This is a defect in the record. Giving it an `A`
+   would put a process failure into the game's architecture counts and into *what
+   ships broken*, where it ships nothing, and it would be the first id in either
+   audit that names no code. The precedent is settled and points the other way:
+   *a wrong check is a defect in the record and is fixed in `PLAYTEST.md`*, not
+   given an id. So the fix is the quotation above, and the cost of getting this
+   wrong is that it was nearly lost. **What would change it** is the same failure
+   recurring after this, which would make it a pattern rather than an incident.
+
+   **The guidance was already correct and was simply not followed**, which is
+   why nothing was added to `CLAUDE.md` or to any agent definition for it. The
+   `project-manager` definition already says the eight documents are the
+   project's memory and that what the author asked for is written into them, in
+   the repository, so a checkout on another machine carries it. Restating it
+   would be saying it twice to the same reader.
+
+**One open question, put to the author on 2026-09-07 — and answered the same day
+in the opposite direction from what it assumed.** The question was whether to
+*lower* `mgflat_ground_level` so the bedrock plane at `y = 0` sits on or near the
+surface and the floor becomes as visible as the wall. The author instead asked
+for the floor to be at **128**, and `G7` raises `mgflat_ground_level` from 8 to
+that. So the plane is now a hundred and twenty-eight nodes down rather than
+eight: **more out of sight than before, not less.** The question is closed — see
+*deliberately not doing* — and it is closed by the number moving the other way,
+not by anyone arguing the visibility case down. **What would change it is the
+author saying the floor should be seen**, which they have not been asked again
+since raising the number.
 
 **The in-world evidence is `W4`–`W9` in `PLAYTEST.md`, and all six pass at
 `60259dd`** — recorded 2026-09-07: the floor at `y = 0` with air below; the wall
@@ -378,7 +479,175 @@ solid past the scan bound. `W4`'s partial against an uncommitted tree was likewi
 re-run rather than given a sha it had not been seen at. **The rule cost two
 re-runs and bought six results that name the code in the tree.**
 
+### G7. Make the world something to be in — written, uncommitted, unchecked (0/3)
+
+Opened 2026-09-07, after `G6` closed. **Not a defect in `G6` and no finding is
+allocated for it**: the wall `G6` built is a correct barrier, `W5` proves it
+stands unbroken and full height, and nothing about it is wrong. What the author
+wants changed is what it *looks* like — *the world edge should be visible, and a
+solid opaque wall is not what they wanted to look at.* That is a new goal, so it
+gets its own letter rather than reopening a milestone that is 5/5 written and
+6/6 checked; letters are allocated when a milestone opens and are never reused,
+and `G5` stays last because it is shipping.
+
+**Widened on 2026-09-07, the same day it opened, and its title with it.** It was
+*"make the world's edge something to look at"* and one item. Two more changes
+arrived in the same working tree before anything was committed: the game's own
+textures for both bound nodes, and a world 128 nodes deep instead of 8. The
+textures are plainly this milestone's. The depth is not about the *edge* at all —
+it is about what the world is like to stand in and dig into — so the milestone
+was widened rather than a new letter opened, on the grounds that all three are
+appearance-and-feel changes, none is a defect, none opens a finding, and they are
+one uncommitted tree that has to be checked together. **What would have justified
+a new letter is the depth arriving on its own**, and it did not.
+
+**`G6`'s one open question is answered here, in the direction nobody proposed.**
+It asked whether to *lower* `mgflat_ground_level` so the bedrock floor becomes as
+visible as the wall. The author raised it instead. The floor is now buried
+deeper, and the question is recorded under *deliberately not doing* rather than
+left open.
+
+- [ ] Split the bounds into two nodes: `cc_mapgen:bedrock` stays the **floor** at
+  `y = 0` — including the outermost column at that layer, so the wall stands on a
+  one-node opaque skirt — and stays what `cc_security`'s rescue writes under a
+  player; a new `cc_mapgen:barrier` becomes the **wall** above it, plain
+  `glasslike`. `mapgen_env.lua` resolves a second content id and the two wall
+  loops write it. **Written by `code-expert`, both gates green — and it is none
+  of committed, released or seen.** `W10` is its check, and it was the first
+  entry in `PLAYTEST.md` with no sha at all to be run against.
+
+  **This line said *"no new media: both textures were already vendored in
+  `default`"*, and the next item reverses that.** Recorded rather than edited
+  away, because the borrowed-texture constraint it created was written into
+  `A13` and into *deliberately not doing* and had to be taken back out of both.
+
+- [ ] Ship the game's own textures for both bound nodes, 16×16, in a new
+  `mods/cc_mapgen/textures/`. Asked for by the author on 2026-09-07: the bedrock
+  should be *"more black like in minecraft"*, and the obsidian it borrowed is
+  blue-tinted. `cc_mapgen_bedrock.png` is a mottle of six neutral greys in the
+  range 8–51, blurred with a **wrapping** kernel so that a large floor shows no
+  tiling grid; `cc_mapgen_barrier.png` keeps the 1px-border, transparent-centre
+  geometry that makes plain `glasslike` outline every node face.
+  `use_texture_alpha = "clip"` stays correct and `code-expert` confirmed it by
+  decoding both files back. **Written, both gates green, not committed, and never
+  rendered by anybody.** `W11` is the check, and the tiling grid is the thing
+  most likely to look wrong.
+
+  **The same request came with a second one — remove `default`, `wool` and
+  `dye` — and the author declined it after seeing the cost.** CodeBlock's palette
+  is 106 `default:*` names plus 15 `wool:*`, and `mods/cc_mapgen/mod.conf` hard-
+  depends on all three; the answer was *"leave it for now"*. So `A13` keeps
+  exactly the scope it had. What this change buys `A13` is smaller and real: the
+  trim no longer has to keep two `default` textures alive for the game's own
+  bounds.
+
+- [ ] Raise `mgflat_ground_level` from the engine's 8 to **128**, and make it a
+  setting rather than a constant, mirroring `mapgen_limit`: a `settingtypes.txt`
+  entry (`int 128 1 512`), a default in `minetest.conf`, and a forced
+  `core.set_mapgen_setting('mgflat_ground_level', n, true)` in `cc_mapgen`. The
+  bedrock floor stays at `y = 0`, so the number is also how much stone there is
+  to dig into. **Written, both gates green, not committed.** `W12` and `W13` are
+  its checks and `W14` is the rescue under it.
+
+  **Both halves are the author's.** The number came from *"change height of floor
+  to 128"* — three readings were possible and 128 is the one they chose. Making
+  it a setting implements the fourth line of the feature brief they opened `G6`
+  with: *"height of map configurable (mapgen?)"*, quoted in full under `G6`
+  below. So this is the last of that brief's four requirements to be built, and
+  it is not a decision anyone took on the author's behalf.
+
+  **This entry said the opposite for part of 2026-09-07, and the correction is
+  worth keeping.** It read *"the ground given for it does not check out"* and
+  marked the setting **unattributed**, because the requirement was searched for
+  in this repository and is not in it — `git log -S` across every ref finds no
+  commit that added or removed the string. The search was sound and the
+  conclusion from it was wrong, because **the requirement never lived in the
+  repository at all**. It was said in conversation, and nobody wrote it down. See
+  `G6`.
+
+  **The map-meta trap is the reason this is not a one-liner, and it was verified
+  rather than assumed.** `MapgenFlatParams::writeParams` at 5.9.0 writes every
+  `mgflat_*` key into a world's `map_meta.txt`, a real `map_meta.txt` on this
+  machine confirms it, and `MapSettingsManager::setMapSetting`'s `override_meta`
+  branch is generic rather than restricted to `MapgenParams` fields. So without
+  the force an existing world keeps the surface it was created with for ever.
+  That is the same mechanism `W7` proved for `mapgen_limit`, and `W13` is the
+  check that it holds for this key too — **`code-expert` calls it the thing most
+  likely to be wrong and the whole point of the change.**
+
+  **One real defect was introduced and caught inside this change, and it gets no
+  finding id.** `cc_security` derived both its spawn fallback and its `scan_top`
+  from `(ground or 8)`. With the game's default now 128 that constant had become
+  the wrong fallback — a rescued player would have been put at `y = 9`, inside a
+  hundred and twenty nodes of solid stone, which is the same shape as the `y = 1`
+  fallback `G6` caught before it shipped. Collapsed to a single `or 128` at the
+  definition. **Ruled 2026-09-07: no id.** What gets an id is a defect in
+  committed code, and this one was never committed; the record of a change that
+  was wrong before it landed is this line. `W14` is the check that would have
+  caught it in a world.
+
+  **A cost note, weighed and deliberately not acted on.** The rescue's
+  `load_area` column grows from 5 mapblocks (~80 kB) to 13 (~210 kB), because it
+  now spans `y = 0` to 193, and the scan reads up to ~128 more nodes before it
+  finds the surface. Bounded, and at most four times a second per out-of-box
+  player. `code-expert` left the behaviour alone and suggests the scan could
+  start at the surface and fall back to a full-column scan. That is a `TODO.md`
+  line, not a finding: nothing is wrong, it is merely larger than it needs to be.
+
+  **A cost that was claimed and does not exist, corrected here so it is not
+  re-raised.** Sixteen times the solid volume was flagged in conversation as
+  something to watch. **That was wrong.** `MapgenFlat::generateTerrain` writes
+  every node of a mapchunk whatever the ground level is, so emerge time is
+  identical; the blocks between `y = 0` and 128 were already generated and stored,
+  as uniform air rather than uniform stone, and both compress to tens of bytes.
+  There is **no volume cost and no reason to lower 128**. Nothing in this file or
+  in `TODO.md` had picked the concern up, so nothing had to be removed.
+
+**Two things about the barrier that a later change would re-break, recorded here
+because they are the reason this milestone is not a one-liner.** The drawtype is
+plain `glasslike` and must stay so: `glasslike_framed` draws its faces from a
+second tile and would leave the wall all but invisible, and
+`glasslike_framed_optional` follows a client-side "Connected Glass" setting this
+game cannot decide. And `paramtype = "light"` with `sunlight_propagates` come as
+a pair — the engine derives `light_propagates` from `paramtype`, which defaults
+to `"none"`, so a see-through wall without them casts a shadow band with no
+visible cause. `W10` is written to catch both by sight.
+
+**The two new textures are licensed AGPL-3.0-only, and that is a decision the
+author may want to reverse.** Taken by `code-expert` on 2026-09-07 and recorded
+in `mods/cc_mapgen/license.txt` under *License of media*. The convention for game
+art is **CC BY-SA 4.0**, which would let other games reuse the textures; AGPL was
+chosen to keep Codecube single-licence, so that `THIRD-PARTY-LICENSES.md`'s row
+for the three `cc_*` mods stays true without qualification and no
+`media_license` question is raised on ContentDB. **The cost is that the artwork
+is not reusable outside an AGPL work**, which is a stronger restriction than the
+game needs and than most Luanti art carries. **Reversible**: two lines in one
+`license.txt`, plus a `media_license` field if ContentDB is to state it. Flagged
+here rather than settled, because the choice is the author's — it is about what
+other people may do with the game's media.
+
 ### G5. Adopt CodeBlock 1.0.0 and ship — not started
+
+**The submodule pointer is currently off the release track, not merely behind
+it.** `CLAUDE.md` says the pointer names the CodeBlock release this game has
+**adopted**, so a pointer that lags a release is correct and expected. This one
+is a different thing: `git ls-tree HEAD mods/codeblock` gives **`2647228`**,
+which is **not a tagged release at all** — it is a commit off `master`, pinned
+before this project settled on following releases. Upstream has published tags
+since, the newest being **`v0.7.3`**.
+
+So the game has adopted *a commit*, and the policy says it should have adopted
+*a release*. **Nothing is broken by it** — the game assembles, `P1`'s clone half
+passed on this pointer, and moving it is a decision taken with the documentation
+update that goes with it. But *"the pointer lags upstream, which is correct"* is
+not an accurate description of where it stands, and `G5` is where it is put back
+on the track: move to a tag, not to the tip of `master`. Read both numbers from
+`git ls-tree HEAD mods/codeblock` and `git tag` inside the submodule, never from
+upstream's `HEAD`.
+
+**The working tree's `mods/codeblock` is at `7dbe18f`, ahead of the committed
+pointer, and is deliberately left unstaged.** `git status` shows it modified;
+that is the normal resting state and nothing to fix.
 
 The game's own last step, and it comes after the mod has a 1.0.0 to adopt. No
 findings: nothing here is defective, it has not happened yet.
@@ -410,6 +679,17 @@ findings: nothing here is defective, it has not happened yet.
   before `G6` is bounded only where it has not yet been visited. `W7` confirms
   the *limit* moves on such a world; the missing wall in already-visited chunks is
   what it does not cover, and nothing does.
+- **An existing world's surface moves only where it has not been generated.**
+  `G7` forces `mgflat_ground_level = 128` onto every world, so an old world's
+  edge setting and its surface setting both change on opening — but chunks
+  already emerged keep the terrain they have. A world played at ground level 8
+  gets a step where the old ground meets the new. Same mechanism as the missing
+  wall above, same absence of any check for it beyond `W13`.
+- **Three original images ship with no licence stated anywhere.**
+  `menu/background.png`, `menu/header.png` and `menu/icon.png` reach every player
+  — `P2` confirms all three are in the archive — and neither
+  `THIRD-PARTY-LICENSES.md` nor any `license.txt` names a licence for them, while
+  `.cdb.json` carries `license` and no `media_license`. (C22)
 - **`mapgen_limit` appears twice in the advanced settings menu** — under Mapgen
   from builtin, and under Content: Games → Codecube. Both write the same key so
   they cannot disagree, but the builtin entry shows the engine's default of 4096
@@ -453,10 +733,26 @@ findings: nothing here is defective, it has not happened yet.
   then mirroring every palette change it makes, for a saving that is size and
   boot noise rather than behaviour. **What would change it:** CodeBlock deciding
   *not* to take the blocks. `mapgen.lua` is safe to cut regardless — 2,492 lines,
-  dead whoever owns the palette. **New constraint from `G6`:** the trim must keep
-  `mods/default/textures/default_obsidian.png`, which `cc_mapgen:bedrock` reuses
-  so the wall ships no media of its own. Cut it and the world's edge renders as
-  the unknown-node texture. Nothing checks this. (A13)
+  dead whoever owns the palette. **The texture constraint `G6` added here is
+  gone, on 2026-09-07.** For one day the trim had to keep
+  `default_obsidian.png` and `default_obsidian_glass.png` alive, because the
+  world's bounds borrowed them. `G7` gives `cc_mapgen` its own two textures, so
+  **nothing in this game names either file any more** and the trim's scope is
+  what it was before `G6`. Recorded rather than deleted, because a constraint
+  that appears and vanishes inside a week is one a future reader would otherwise
+  re-derive from nothing. (A13)
+
+  **Re-scoped and re-declined on 2026-09-07.** The author asked, while the
+  textures were being made, to remove `default`, `wool` and `dye` outright. Shown
+  that CodeBlock's palette is 106 `default:*` names plus 15 `wool:*`, and that
+  `mods/codeblock/mod.conf` hard-depends on `default` and `wool` — `dye` is there
+  because `wool` requires it — they answered **"leave it for now"**. **The
+  dependency named in the exchange was `cc_mapgen`'s and that was wrong**: none
+  of the three `cc_*` mods declares a `depends` line at all, and the hard
+  dependency is the submodule's. The conclusion is unchanged and if anything
+  firmer: removing `default` or `wool` stops the bundled mod loading. So the
+  deferral above is now the author's second decision on the
+  same subject, five days after the first, and on fuller information.
 
 - **A `settingtypes.txt` entry for anything the drone does.** Every drone setting
   is CodeBlock's, and CodeBlock is its own ContentDB package; in the mod it works
@@ -466,6 +762,24 @@ findings: nothing here is defective, it has not happened yet.
   size is the game's own subject, exactly like the light and the restrictions.
   This extends C7's reasoning rather than reversing it, and a request to expose a
   drone limit here is still refused. (C7)
+
+- **Lowering `mgflat_ground_level` so the bedrock floor is visible.** Put to the
+  author on 2026-09-07 as `G6`'s one open question, on the grounds that they had
+  asked for limits *"they should be visible"* and the wall satisfied that while
+  the floor did not. **Answered the same day by the number moving the other
+  way**: the author asked for the floor at 128, so the surface rose from 8 and the
+  plane at `y = 0` is now a hundred and twenty-eight nodes down instead of eight.
+  Whatever else 128 buys, it settles this — the floor is emphatically not going
+  to be seen in ordinary play, and a world you dig deep into was wanted more than
+  a floor you can look at. **What would change it:** the author saying the floor
+  should be visible after all. They have not been asked again since choosing 128,
+  so this is a decision inferred from an instruction rather than one stated, and
+  it is the weaker kind.
+
+- **Making the bedrock floor's `y` configurable.** Not proposed and not built.
+  The floor stays pinned at `y = 0` by `G6` decision 2; what `G7` makes
+  configurable is the **surface** above it, which is the same freedom by the
+  other end and costs no second number.
 
 - **A ceiling on the world.** Rejected on 2026-09-07 with the rest of `G6`'s
   shape: the player has no `fly` privilege and cannot reach one, so it would be
@@ -538,6 +852,17 @@ findings: nothing here is defective, it has not happened yet.
   lands exactly when the code lands and cannot outlive it if the branch is
   dropped. `v1.0.0` is already an unreleased heading that accumulates.
 
+- **Allocating a `B`/`S`/`C`/`A` id here for a defect in CodeBlock.** Decided
+  2026-09-07, when reading the mod turned up two: `check_inside_world` is applied
+  to the drone's *position* and never to a shape's extent, and the bound it
+  checks is the raw `mapgen_limit` rather than `get_mapgen_edges()`, which is at
+  least a mapchunk further out than the wall. Both are real and both let a
+  program build past the world's edge. **They are still not this audit's**: ids
+  are shared across the two records and allocating one here would put the mod's
+  work in the game's counts and its "what ships broken". They are carried as
+  `TODO.md` lines to raise upstream instead. What would change it is a defect in
+  the *game* caused by the mod's behaviour, which neither of these is.
+
 - **Duplicating CodeBlock's lint and tests in this repository.** It has its own
   repo, CI and `.luacheckrc`; this one checks that the game *assembles*. The two
   go red independently — check the repository you changed.
@@ -558,46 +883,86 @@ findings: nothing here is defective, it has not happened yet.
 
 ---
 
-2026-09-07 · codecube `60259dd` on branch **`g6-world-limits`**, off `main` at
-`578b364` — six commits: `5ca577f` moving the bundled Luanti reference into its
+2026-09-07 · codecube `93b8ea1` on branch **`g6-world-limits`**, off `main` at
+`578b364` — eight commits: `5ca577f` moving the bundled Luanti reference into its
 own skill, `ec02760` for `B48`, `f5f2385` for the whole of `G6`
 (`minetest.conf`, `game.conf`, a new root `settingtypes.txt`,
 `cc_mapgen/init.lua`, a new `cc_mapgen/mapgen_env.lua` and
 `cc_security/init.lua`), `3090b8a` recording them, `60259dd` for decision 7 —
 the rescue that keeps the player in their own column (`cc_security/init.lua`
-only, +98 −39) — and `22fe840`, the tip, recording that reversal and retiring the
-two results it invalidated · codeblock `2647228` (master), the commit this game
-has adopted;
+only, +98 −39) — `22fe840` recording that reversal and retiring the two results
+it invalidated, and `93b8ea1`, the tip, closing `B50` on the whole `W` group ·
+codeblock `2647228` (master), the commit this game has adopted;
 `mods/codeblock` is deliberately left unstaged, which is its normal resting
-state. **Both gates were re-run on `60259dd`**: `check_game.sh` ended `all game
-integration checks passed`, and luacheck on the three `cc_*` mods printed
-nothing. Neither runs a line of the game's Lua, and **neither was re-run for this
-pass, because no code changed** — the last green run is still `60259dd`. The
-record documents for this pass are in the working tree, to be committed naming
-`60259dd`.
+state.
+
+**The working tree is not `93b8ea1`, and that is the important part of this
+footer.** It carries the whole of `G7`, uncommitted, across seven files:
+`mods/cc_mapgen/init.lua`, `mods/cc_mapgen/mapgen_env.lua` and
+`mods/cc_mapgen/license.txt`; two **new, untracked** files in a new directory,
+`mods/cc_mapgen/textures/cc_mapgen_bedrock.png` and `cc_mapgen_barrier.png`;
+`settingtypes.txt` and `minetest.conf` for the surface height; and
+`mods/cc_security/init.lua` for the fallback that moved with it.
+`.claude/skills/code-standards/SKILL.md` carries what `code-expert` wrote beside
+them. **Both gates were run by `code-expert` on that tree after its final
+edit**: `check_game.sh` ended `all game integration checks passed` and luacheck
+on the three `cc_*` mods printed nothing at all. **Neither runs a line of this
+game's Lua**, so green here means the game still assembles and says nothing
+whatever about how the world now looks, how deep it is, or where a rescue puts
+anybody. The record documents for this pass are in the working tree beside them,
+to be committed together — so `W10`–`W14` get their sha from that commit and not
+before.
 
 **`G6` is done on both counts: 5/5 written and committed, 6/6 checked.** The
 author ran the whole `W` group at `60259dd` and reported `W4`, `W5`, `W6`, `W7`,
 `W8` and `W9` all pass, which resolves `B50` on both routes and leaves `A7`, `A8`,
-`A13` and `C21` as the only open findings. Twenty-five playtest checks, **twenty
-with a live result: eighteen pass**, `P1` and `R5` partial, and `L3`, `R8`, `P3`,
-`P4` and `P5` unrun. **No result in this project is recorded against a tree
+`A13`, `C21` and now `C22` as the open findings — **and none of `G7`'s three
+changes adds one**, because an appearance the author wants changed is not a
+defect in the wall that was built, and the one real defect the pass introduced
+was caught before it was committed. `C22` is unrelated to `G7` and pre-existing:
+the menu artwork has shipped unlicensed since the beginning. Thirty playtest
+checks, **twenty with a live result: eighteen pass**, `P1` and `R5` partial, and
+`L3`, `R8`, `W10`, `W11`, `W12`, `W13`, `W14`, `P3`, `P4` and `P5` unrun. **No result in this project is recorded against a tree
 instead of a commit any more** — `W4` was the last, and it was re-run rather than
 backdated. Nothing was re-run for the playtest and nothing was owed: no code
 changed, and both gates were last green on `60259dd`.
 
-The game's own Lua is **160 lines** across four files — `cc_day` 7,
-`cc_mapgen` 17 + 36, `cc_security` **100** — counting neither blanks nor
-comments.
+**`G7` is open and holds three uncommitted changes: the barrier, the game's own
+textures, and a world 128 deep.** All three were written by `code-expert` on
+2026-09-07, and after the last of them `check_game.sh` ended *all game
+integration checks passed* and luacheck on the three `cc_*` mods printed nothing.
+**Neither gate runs a line of this game's Lua, and none of the three is
+committed**, so each is *written and gated* and nothing more: not released, not
+seen, not in any sha. `W10`–`W14` are their checks and are five entries in
+`PLAYTEST.md` with no commit to be run against. **`W12`, `W13` and `W14` matter
+more than the appearance ones**: they are the world's depth reaching a new world,
+an existing world, and the rescue that has to know where the surface is.
 
-This file is **603 lines against its own "under roughly 150"**, up from 597
-before this pass, 528 before that and 307 before `G6` was built. It grew by six
-even though a milestone closed, because a `G6` that is finished still needs its
-decisions kept and its evidence named. **The question
-of splitting the decision log into a `DECISIONS.md` is now closed**: it was put to
-the author three times without an answer, so it is recorded under *deliberately
-not doing* as declined by silence and will not be raised again. Nothing has been
-restructured. The question of lowering `mgflat_ground_level` so the bedrock floor
-is visible is still genuinely open, and `W4` passing does not settle it — the
-check reaches the floor down a shaft a program cleared, which is exactly the
-route that makes it invisible in ordinary play.
+**One real defect was introduced and caught inside this pass and carries no id.**
+`cc_security`'s `(ground or 8)` fallback became wrong the moment the game's
+default was 128 — a rescue on that path would have put a player at `y = 9`, inside
+solid stone. It was never committed, so it is the change being wrong rather than
+a defect in the game; the record is the `G7` entry above, and `W14` is what would
+have caught it in a world. Two prior defects in `G6` were ruled the same way, so
+this is the third application of the same rule and not a new one.
+
+The game's own Lua is **177 lines** across four files — `cc_day` 7,
+`cc_mapgen` 32 + 37, `cc_security` **101** — counting neither blanks nor
+comments, and **464 lines in all**. It was 173 and 439 before this pass, and 160
+and 397 before the barrier node. The tree also gains **a new directory and two
+new tracked files**, `mods/cc_mapgen/textures/`, which is what makes the owed
+`P2` re-run owed harder: `code-expert` confirmed by hand with `git check-attr`
+that neither texture is `export-ignore`d, so both ship — but that rests on one
+manual run and on no gate at all (`C15`).
+
+This file is **924 lines against its own "under roughly 150"**, up from 683
+before this pass, 603 before that, 597 before that, 528 before that and 307
+before `G6` was built. It grew by two hundred and forty because `G7` went from one
+item to three, because **the author's four-line world-limits brief was finally
+written down** — it had driven `G6` and `G7` from a conversation that has since
+been compacted — and because two questions closed inside it: `A13`'s borrowed-texture
+constraint, which appeared with `G6` and vanished with `G7`, and **the question
+of lowering `mgflat_ground_level`, which is now answered** — the author raised the
+number instead, so the floor is buried deeper than ever and the question sits
+under *deliberately not doing* rather than open. The `DECISIONS.md` split stays
+closed, declined by silence, and nothing has been restructured.

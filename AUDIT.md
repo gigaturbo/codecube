@@ -2,7 +2,7 @@
 
 Findings only: what was wrong, what it cost, how it was fixed, and the reasoning
 a future change would otherwise re-break. **No roadmap and no milestones here** —
-the order of work and the `G1`–`G6` lettering live in `ROADMAP.md`. The manual
+the order of work and the `G1`–`G7` lettering live in `ROADMAP.md`. The manual
 checks are in `PLAYTEST.md`. What shipped, for a player, is in `CHANGELOG.md`.
 
 **This is not the main audit.** `codeblock` is the main project and keeps its
@@ -33,9 +33,18 @@ nothing dropped.
 
 ## Where it stands
 
-19 findings, this game's own. **15 resolved, 4 open, none won't-fix.** No open
-finding is critical or high. Three are medium — `A7`, `A8` and `A13` — and one is
-low, `C21`.
+20 findings, this game's own. **15 resolved, 5 open, none won't-fix.** No open
+finding is critical or high. Three are medium — `A7`, `A8` and `A13` — and two
+are low, `C21` and `C22`.
+
+**`C22` is new on 2026-09-07 and is the only finding here that has been true since
+the project began.** The game's three menu images ship to every player and no file
+anywhere states a licence for them, while every bundled mod has a `license.txt`
+and a row in `THIRD-PARTY-LICENSES.md`. It was turned up sideways, by `G7` giving
+`cc_mapgen` its own textures and a *License of media* section with them: the game
+now names a licence for two 16×16 files and none for 655 kB of artwork seen
+before anyone enters a world. Raised by `code-expert` as suspected and **verified
+here by reading all four files**.
 
 **`B50` is resolved, and it is the one finding here closed by evidence rather than
 by a commit.** Falling out of the world had **two routes**: the generated edge,
@@ -52,6 +61,19 @@ the `y = 1` fallback inside solid stone, and the rescue looping at the spawn
 column — and their record is `ROADMAP.md` `G6`, as is the design reversal at
 `60259dd`, which was the author's instruction after playing and not a defect at
 all.
+
+**A third defect was found in uncommitted code on 2026-09-07 and carries no id
+either, which makes it the third application of the same rule.** `G7` raises
+`mgflat_ground_level` to 128, and `cc_security` derived both its spawn fallback
+and its scan bound from `(ground or 8)` — so on the fallback path a rescued
+player would have been put at `y = 9`, inside a hundred and twenty nodes of solid
+stone. It is the same shape as `G6`'s `y = 1` fallback and was caught the same
+way, by reading the change against the number it had just moved. Collapsed to a
+single `or 128` at the definition. **No id, because what gets one is a defect in
+committed code**; the record of a change that was wrong before it landed is
+`ROADMAP.md` `G7`, and `PLAYTEST.md` `W14` cases 2 and 3 are what would have
+caught it in a world. Filed nowhere else, so that a future reader who finds `W14`
+asking pointedly about the number 9 knows why.
 
 `C21` is the other finding new on 2026-09-07, from shaping the same feature: a
 version ceiling in a bundled submodule, and the only one here the game cannot fix
@@ -78,10 +100,11 @@ change is that the question the filing left open is now answered from the
 documented API: `core.get_dig_params` never sees `diggable`, so the fix had to
 come from the groups and no other reading of the defect survives.
 
-**Three of the nineteen arrived that same day, from the first hours anyone has
+**Three of the twenty arrived on 2026-09-01, from the first hours anyone has
 spent playing this game against `PLAYTEST.md`** — `B47`, `B48` and `S8`. None was
 visible from reading the three `cc_*` files, **which between them were 21 lines
-at the time** and are 397 now, since `G6` and the rescue rewrite; two
+at the time** and are **464** now across four files, since `G6`, the rescue
+rewrite, the barrier node and the world's new depth; two
 of the three are in how those lines meet a vendored node or the client. That is
 the argument for the `W`, `L` and `R` groups, and it is now evidence rather than
 an assertion.
@@ -97,7 +120,7 @@ from the code. **A fix is not evidence** — the check is, and it costs minutes.
 |---|---|---|
 | B bugs | 7 | — all 7 resolved. `B50` closed on 2026-09-07 with `W4`–`W9` passing at `60259dd`, both routes verified. Three of the seven are resolved but **unverified in a world**: `B19` and `B24` wait on `P3`, `B48` on `R8` |
 | S sandbox and security | 1 | — `S8` resolved, `R6` passes |
-| C compliance and packaging | 7 | `C21` (a submodule's version ceiling, not ours to edit) |
+| C compliance and packaging | 8 | `C21` (a submodule's version ceiling, not ours to edit), `C22` (the menu artwork ships with no licence stated) |
 | A architecture and performance | 4 | `A7` (upstream), `A8` (drop chain confirmed, table walk open), `A13` (deferred) |
 
 The game is current with `codeblock` `2647228`, adopted at `33bdae8`; both are at
@@ -326,12 +349,38 @@ builds, and closes that in `cc_security`. They live in `functions.lua`, which th
 trim keeps, so trimming would never have removed them — the two findings are
 independent and `B49` is the one that mattered.
 
-**Keep — a second thing the trim must not remove, added 2026-09-07 by `G6`.**
-`mods/default/textures/default_obsidian.png` is the texture of
-`cc_mapgen:bedrock`, reused so the world's wall and floor ship no media of their
-own. It is not a node definition and would not show up in any count of the
-palette, so a trim done against `nodes.lua` alone would take it. Cut it and the
-edge of the world renders as the unknown-node texture. **Nothing checks this.**
+**The two-texture keep-list this finding carried for one day is withdrawn,
+2026-09-07.** `G6` added it and `G7` widened it: the world's bounds shipped no
+media of their own and borrowed `default_obsidian.png` for `cc_mapgen:bedrock`
+and `default_obsidian_glass.png` for `cc_mapgen:barrier`, so a trim done against
+`nodes.lua` alone would have taken both and rendered half the world's edge as the
+unknown-node texture. **That is no longer true.** The same day, `cc_mapgen` was
+given its own two textures in `mods/cc_mapgen/textures/`, and **nothing in this
+game names either `default` file any more** — `grep -rn obsidian mods/cc_*` finds
+nothing. The trim's scope is exactly what it was before `G6`, and the paragraph
+distinguishing `default_obsidian_glass_detail.png` from the other two went with
+it, having nothing left to disambiguate.
+
+**Recorded rather than deleted, because that is the shape this finding keeps
+producing.** A constraint appeared on this finding from an unrelated milestone,
+was widened, and vanished inside a week; the same thing happened with `B19` and
+`B24`, which sat here as "resolved for free by `A13`" until it turned out that a
+deferred item was hiding two live boot-log defects. **Anything that attaches
+itself to a deferred finding needs its own reason to be here**, and a borrowed
+texture had one for about a day.
+
+**Re-declined by the author on 2026-09-07, on fuller information.** Asked while
+the textures were being made whether `default`, `wool` and `dye` could simply be
+removed, they were shown that CodeBlock's palette is 106 `default:*` names plus
+15 `wool:*`, and that **`mods/codeblock/mod.conf` declares
+`depends = default, wool, vector3`** — so removing either stops the bundled mod
+loading, and `dye` is present because `wool` requires it. The answer was *"leave
+it for now"*. This is the second decision on the same subject, five days after
+the first, and it does not change the finding's state: deferred, not pending.
+**One correction from that exchange**: the hard dependency was attributed to
+`cc_mapgen`'s `mod.conf`, which was wrong — none of the three `cc_*` mods
+declares a `depends` line at all. It is the submodule's, which if anything makes
+the case for the deferral stronger.
 
 **One thing to check before cutting, since the palette is the contract.** The
 block list a player's program uses is `codeblock`'s, in its config; the nodes
@@ -763,8 +812,51 @@ outright is not available.
 
 ## C — compliance and packaging
 
-7 findings, 6 resolved. `C21` is open and is the only one here the game cannot
-fix in its own tree.
+8 findings, 6 resolved. `C21` and `C22` are open. `C21` is the only one here the
+game cannot fix in its own tree; `C22` is entirely in it.
+
+### C22 · low · open — three original images ship to every player with no licence stated anywhere
+
+`menu/background.png`, `menu/header.png`, `menu/icon.png`
+
+The game's own menu artwork. **All three reach every player** — `P2` at `8b27f2f`
+lists them by name in the release archive, and `.gitattributes` keeps them there
+deliberately, because `menu/*.png` is what the main menu reads. **No licence is
+stated for them in any file.** `THIRD-PARTY-LICENSES.md` has no media row and no
+mention of `menu/` at all; there is no `menu/license.txt`; the root `LICENSE` is
+the bare AGPL-3.0 text with no statement of what it covers here; and `.cdb.json`
+carries `"license": "AGPL-3.0-only"` and **no `media_license`**, though
+ContentDB's package config accepts one — `.claude/skills/luanti-reference/references/contentdb-package-config.txt:84`,
+*"media_license : A license name, see /api/licenses/"*.
+
+**Verified rather than taken on report.** `code-expert` raised it as suspected; it
+was checked here by reading all four files. `menu/background.svg`, `header.svg`
+and `icon.svg` are the sources beside them and are `export-ignore`d by the `*.svg`
+rule, so they do not ship — the PNGs do.
+
+**Low, and the reason is worth stating because it argues both ways.** The root
+`LICENSE` plausibly covers the whole repository, so this is not a legal void; it
+is an unstated one, and the licence named on the package page describes the
+*code*. What makes it worth filing anyway is that this project already answers
+the question everywhere else: every bundled mod has a `license.txt`, every one is
+catalogued in `THIRD-PARTY-LICENSES.md`, and `C3`, `C4` and `C5` exist because
+that cataloguing was done deliberately rather than by accident. The one directory
+of original media the game ships is the one place the convention was not applied.
+
+**Sharpened on 2026-09-07 by `G7`, which is what turned it up.** `cc_mapgen` now
+ships two textures of its own, and `mods/cc_mapgen/license.txt` gained a *License
+of media* section naming both files and their licence. So the game now states a
+media licence for two 16×16 textures and none for three images totalling 655 kB
+that every player sees before they enter a world. That contrast is the finding.
+
+**Not fixed here.** The fix is `code-expert`'s in all three of its parts: a media
+licence statement, a `THIRD-PARTY-LICENSES.md` row, and a `media_license` field
+in `scripts/gen_cdb_json.sh` — `.cdb.json` is generated and must never be
+hand-edited. **Which licence to state is the author's**, not either agent's, and
+it is the same question `G7`'s texture decision raises: AGPL-3.0-only keeps the
+package single-licence, CC BY-SA 4.0 is the convention for game art and lets the
+artwork be reused. `ROADMAP.md` `G7` records that decision and flags it
+reversible.
 
 ### C21 · low · open — a bundled submodule carries the version ceiling this game's own check forbids
 
@@ -995,6 +1087,21 @@ nothing — and **neither gate runs a line of the game's Lua**, which is why the
 the playtest and nothing was owed**: no code changed. CI still has no run on this
 branch; the latest is on `578b364`, which predates it.
 
+**Written and gated, and none of committed, released or seen — three changes, in
+one working tree over `93b8ea1`.** This is a fourth state and it is weaker than
+*committed and unproven*, because there is no sha to name. `G7` holds all three:
+the translucent barrier at the world's edge; the game's own two textures for both
+bound nodes, in a new `mods/cc_mapgen/textures/`; and `mgflat_ground_level` at
+128 with the settings entry, the `minetest.conf` default and the forced override
+that carry it, plus the `cc_security` fallback that moved with it. **Both gates
+were run green by `code-expert` after the last edit** — `check_game.sh` ending
+`all game integration checks passed`, luacheck on the three `cc_*` mods printing
+nothing — and **neither runs a line of this game's Lua**, so green says the game
+still assembles and nothing more. `PLAYTEST.md` `W10`–`W14` are the five checks,
+all `unchecked`, none with a sha. **No finding is opened by any of the three**:
+`G6`'s wall was correct and `W5` says so, and the one real defect the pass
+introduced was caught before it was committed.
+
 **Committed, unproven:** `CONTENTDB.md` and the generator change for `C20`
 landed in `9ad884c`, `.cdb.json` regenerated and `check_game.sh` passing on it.
 It has not been seen rendered on ContentDB, in a browser or in-game — that is
@@ -1083,6 +1190,22 @@ shape shows up**, and this one was not visible from any amount of reading
 `minetest.conf`.
 
 ---
+
+Revised 2026-09-07, on the world's wall becoming a translucent
+`cc_mapgen:barrier` above the `cc_mapgen:bedrock` floor. **No finding was filed
+and no state changed: the counts stay at 19 findings, 15 resolved, 4 open** —
+`A7`, `A8`, `A13` and `C21`. The wall `G6` built was a correct barrier and `W5`
+proves it stands unbroken and full height; what the author wants changed is what
+it looks like, which is an appearance goal and not a defect, so its record is
+`ROADMAP.md`'s new `G7` milestone and `PLAYTEST.md`'s `W10`, not an id here.
+`code-expert` also found no defect in code it did not write. The one change to
+this document is `A13`'s **Keep** paragraph, which now names **two** textures the
+trim must preserve — `default_obsidian.png` and `default_obsidian_glass.png` —
+and says explicitly that `default_obsidian_glass_detail.png` is *not* one of
+them, because the framed drawtype that would have used it was rejected. The
+change itself is **written and gated but not committed**: both gates were run by
+`code-expert` after the final edit and both are green, and neither runs a line of
+this game's Lua, so nothing here is behaviour evidence.
 
 Revised 2026-09-07 at `60259dd`, on the whole `W` group passing. **`B50` moves to
 resolved**, closed by `PLAYTEST.md` `W4`–`W9` rather than by a commit: route one,

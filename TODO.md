@@ -4,7 +4,7 @@ Intentions for the Codecube game, one line each. What the work involves is in
 `ROADMAP.md`; why, in this game's audit at `AUDIT.md`. The manual checks are in
 `PLAYTEST.md`. The mod is the main project and keeps its own list and its own
 audit, in `mods/codeblock/`. Finding ids are shared between the two audits and are never
-renumbered; milestones here are lettered G1-G6, not the mod's phase numbers.
+renumbered; milestones here are lettered G1-G7, not the mod's phase numbers.
 
 # v1.0.0 goals
 
@@ -32,13 +32,36 @@ renumbered; milestones here are lettered G1-G6, not the mod's phase numbers.
 - [x] cc_security: rescue the player into their own column instead of to spawn, lifting them to the nearest free space above (roadmap G6 decision 7, no finding id - the author asked for it after playing) - committed 60259dd, W8 and W9 pass there
 - [x] PLAYTEST checks for the world limits (audit B50) - W4-W9 written, rewritten for the new rescue, and all six run: pass at 60259dd
 - [x] run W4-W9 at 60259dd - W5 closes route one of B50, W8 and W9 close route two, W6 and W7 were first runs, W4 re-run rather than backdated
-- [ ] decide whether to lower mgflat_ground_level so the bedrock floor is visible; it is 8, so the floor is buried and only the wall is (roadmap G6 open question) - unanswered, and W4 passing does not settle it
-- [ ] CONTENTDB.md and README.md: say the world is bounded, once G6 ships (audit B50)
+- [~] cc_mapgen: split the bounds in two - bedrock stays the floor at y=0, a new translucent cc_mapgen:barrier becomes the wall (roadmap G7, no finding id - an appearance change the author asked for, not a defect in G6) - written, both gates green, NOT committed
+- [~] cc_mapgen: ship the game's own bedrock and barrier textures instead of borrowing two from default - the author asked for bedrock "more black like in minecraft" (roadmap G7, no finding id) - written, both gates green, NOT committed
+- [~] cc_mapgen: raise mgflat_ground_level 8 -> 128 and make it a setting, mirroring mapgen_limit (roadmap G7, no finding id) - implements the fourth line of the author's world-limits brief, "height of map configurable (mapgen?)", now quoted under roadmap G6 - written, both gates green, NOT committed
+- [x] decide whether to lower mgflat_ground_level so the bedrock floor is visible - answered 2026-09-07 in the opposite direction: the author raised it to 128, so the floor is buried deeper than ever (roadmap G7, deliberately not doing)
+- [x] remove default/wool/dye outright - declined by the author 2026-09-07, "leave it for now": codeblock's mod.conf hard-depends on default and wool (audit A13)
+- [ ] run W10-W14 once the G7 changes are committed - the outline grid per node, the floor not tiling, a new world at 128, an existing world's surface moving, and the rescue heights (roadmap G7)
+- [ ] C22: menu/background.png, header.png and icon.png ship to every player with no licence stated anywhere, and .cdb.json has no media_license - needs a licence statement, a THIRD-PARTY-LICENSES.md row, and a media_license in gen_cdb_json.sh (code-expert; which licence is the author's call)
+- [ ] decide whether the two new cc_mapgen textures stay AGPL-3.0-only or move to CC BY-SA 4.0, the convention for game art - AGPL was chosen to keep the game single-licence, and it is reversible (roadmap G7)
+- [ ] cc_security: the rescue's load_area column grew from 5 mapblocks to 13 with the deeper world, and the scan reads ~128 more nodes before it finds the surface - bounded and deliberate; it could start at the surface and fall back to a full-column scan (code-expert, not a finding)
+- [ ] CONTENTDB.md and README.md: say the world is bounded and 128 deep, once G6 and G7 ship (audit B50) - neither mentions the world's size, its depth or its edge at all yet; wait for W10 and W11 before describing what the wall or the floor looks like (roadmap G7)
 - [ ] vector3 declares max_minetest_version = 5.5, four minor versions below the 5.9 G6 needs (audit C21) - upstream or a re-pin
 - [ ] run R8 at ec02760, with R1, R4, R6 and P3 beside it (audit B48) - the only checking left, and the next thing to do
-- [ ] re-run P2: G6 added two tracked files and nothing in CI reads .gitattributes (audit C15)
+- [ ] re-run P2: G6 added two tracked files, G7 adds a new directory and two more (mods/cc_mapgen/textures/), and nothing in CI reads .gitattributes (audit C15) - code-expert confirmed both textures by hand with git check-attr, which is one manual run and not a gate
 - [ ] adopt a tagged CodeBlock release and update the game's documentation with it
 - [ ] fog distance
+
+# To raise in CodeBlock's own audit, not here
+
+These are the mod's defects, read while working on the game. They get no B/S/C/A
+id in `AUDIT.md`; they are hand-offs to the other repository. Both were read,
+neither was run.
+
+- [ ] codeblock: check_inside_world is applied to the drone's position only, never to a shape's extent - lib/commands.lua:82-87, called at :130, :213, :555, and by no shape command - so a drone inside the limit can place a shape of arbitrary extent past it
+- [ ] codeblock: the bound is the raw mapgen_limit setting (lib/commands.lua:49) rather than get_mapgen_edges(), and generation stops at least a mapchunk inside the limit, so the drone is permitted past the wall even where it does check
+
+# Owed corrections, each to the agent that owns the file
+
+- [ ] .claude/skills/code-standards/SKILL.md states disabled_settings backwards - it says `!` forces a setting off, where the API says `!` initializes it to true; game.conf is correct as written, so the skill would lead someone to "fix" a working file
+- [ ] .claude/skills/code-standards/SKILL.md carries a line count that is now stale - the game is 177 code lines across four files, 464 in all
+- [ ] mods/cc_security/init.lua:96-97 overstates a failure mode - it says a player through the floor "never lands", where the engine collides with unloaded space and zeroes velocity, so they land on an invisible dark ledge; B50's fix and reasoning are unaffected and confirmed
 
 # Other ideas
 

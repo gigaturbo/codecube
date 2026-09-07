@@ -22,4 +22,12 @@ root directory.
 License of media
 ----------------
 
-This mod contains no media.
+GNU Affero General Public License, version 3 only (AGPL-3.0-only)
+
+Copyright (C) 2026 giga-turbo
+
+textures/cc_mapgen_bedrock.png
+textures/cc_mapgen_barrier.png
+
+Both are original work for this game, made for it and taken from nowhere else,
+and are covered by the same license as the source code above.

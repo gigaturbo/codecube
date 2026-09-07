@@ -22,3 +22,17 @@
 #    fall inside the limit are generated, so the last generated column is a
 #    little short of it.
 mapgen_limit (World half-extent) int 1024 80 31007
+
+#    Y of the stone surface, and so the height a player stands at. The bedrock
+#    floor stays at y = 0 whatever this is, so the number is also how deep the
+#    stone under the surface goes: 128 buries the floor well out of sight, and 8,
+#    the engine's own default, leaves it a few steps down.
+#
+#    The engine stores this per world too, so changing it moves the surface of an
+#    existing world - the ground already generated keeps the old height and only
+#    newly generated ground gets the new one.
+#
+#    It has to stay well inside the world half-extent above: the surface is no
+#    use above the top of the generated box, and nothing checks the two against
+#    each other.
+mgflat_ground_level (Surface height) int 128 1 512

@@ -128,10 +128,20 @@ Five questions for any change to it, or to `minetest.conf` and `game.conf`:
   the emerge manager, and mapgens initialise *after* every mod has loaded, so it
   returns `1` and writes a line to `errorstream` on every boot. The height a
   new player actually spawns at comes from
-  `core.get_mapgen_setting("mgflat_ground_level")`, which is **8** by default and
-  is a string. This cost a defect in `G6`'s clamp before it shipped: a fallback
-  spawn written as `y = 1` would have put a rescued player inside solid stone,
-  because the bedrock plane at `y = 0` is eight nodes under the surface.
+  `core.get_mapgen_setting("mgflat_ground_level")`, and it is a string. **The
+  engine's default is 8; this game's is 128**, set in `minetest.conf` and forced
+  by `cc_mapgen`. This cost a defect in `G6`'s clamp before it shipped: a
+  fallback spawn written as `y = 1` would have put a rescued player inside solid
+  stone, because the bedrock plane at `y = 0` is the whole surface height under
+  the ground a player walks on.
+- **Every `mgflat_*` parameter is stored per world in `map_meta.txt`**, exactly
+  as `mapgen_limit` is — `MapgenFlatParams::writeParams` writes the lot, and a
+  real world's file carries every one. So `minetest.conf` alone changes new
+  worlds only, and an existing world silently keeps its old value. The third
+  argument to `core.set_mapgen_setting` is what reaches it, and it is generic:
+  `MapSettingsManager::setMapSetting` writes the name straight into the
+  map-meta settings object, so `override_meta` works for any mapgen setting and
+  not only for the ones in `MapgenParams`.
 - **`walkable` defaults to true, and the Lua definition table keeps the
   omission.** The engine applies the default when it reads the definition, so
   `core.registered_nodes[name].walkable` is `nil` for ordinary solid nodes such
@@ -147,6 +157,22 @@ Five questions for any change to it, or to `minetest.conf` and `game.conf`:
   has no top or filler node and fills stone to `mgflat_ground_level`. There is no
   dirt and no grass in a Codecube world until a program places some — `B49` is
   about what `default` *registers*, not about what the mapgen produces.
+- **`glasslike_framed` is a trap for a see-through wall.** It draws its faces
+  from the *second* tile, not the first, and on a one-node-thick wall it hides
+  every frame edge lying in the plane of the wall, keeping only the four that run
+  through its thickness — seen end-on, so a dot at each node corner rather than a
+  grid of lines (`content_mapblock.cpp`, `drawGlasslikeFramedNode`, at 5.9.0).
+  Vendored `default_obsidian_glass_detail.png` is alpha 0 in every pixel, so
+  those faces draw nothing at all and the wall comes out near-invisible: the
+  `airlike` outcome, reached by accident. Plain `glasslike` puts tile 0 on every
+  face whose neighbour differs, so a texture that is a dark one-pixel border
+  around a transparent centre gives a wall a player can see. `cc_mapgen:barrier`
+  uses that drawtype and `cc_mapgen_barrier.png`, its own texture, for that
+  reason; `cc_mapgen` no longer borrows anything from `default`.
+- **`use_texture_alpha` takes a string** — `"opaque"`, `"clip"`, `"blend"`, since
+  5.4.0. The boolean form is deprecated and costs a line in the boot log, which
+  `B19` and `B24` exist to keep clean. The default is `"clip"` for every drawtype
+  except normal, liquid, flowingliquid, mesh and nodebox.
 
 Use the **`luanti-reference`** skill before stating that a `core.*` function
 exists, is deprecated, or takes particular arguments. It bundles `lua_api.md`,

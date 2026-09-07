@@ -111,22 +111,26 @@ local world_min, world_max = minetest.get_mapgen_edges()
 -- `minetest.settings:get_pos` is 5.10 and later; this spelling is the one the
 -- game's 5.9 floor has.
 --
--- Without a static spawn point, the first air node over the mapgen's ground --
--- the same node the engine's own findSpawnPos gives a new player. The bedrock
--- plane at y = 0 is *not* the surface: mgflat fills stone up to and including
--- mgflat_ground_level, 8 by default, so the plane sits eight nodes under it and
--- a rescue to y = 1 would land the player inside stone. The setting is read
--- rather than assumed because a server owner may change it -- game.conf does
--- not disallow it -- and it comes back as a string. The 8 guards a nil the
--- engine should never return, since that value is its own default.
+-- Without a static spawn point, the first air node over the mapgen's ground. The
+-- bedrock plane at y = 0 is *not* the surface: mgflat fills stone up to and
+-- including mgflat_ground_level, which this game sets to 128, so the plane sits
+-- that far under it and a rescue to y = 1 would land the player inside stone.
+-- The setting is read rather than assumed because a server owner may change it
+-- -- game.conf does not disallow it -- and it comes back as a string.
 --
--- `minetest.get_spawn_level` answers the same question, but not here: it needs
+-- The 128 guards a nil the engine should never return, cc_mapgen having forced
+-- the setting before this mod loads. It is the game's own default, from
+-- minetest.conf; the engine's own default of 8 would be a fallback into a
+-- hundred and twenty nodes of solid stone.
+--
+-- `minetest.get_spawn_level` answers a similar question, but not here: it needs
 -- the emerge manager, which is initialised after every mod has run, and until
 -- then it returns 1 and writes an error to the log. (B50)
-local ground = tonumber(minetest.get_mapgen_setting("mgflat_ground_level"))
+local ground = tonumber(minetest.get_mapgen_setting("mgflat_ground_level")) or
+                   128
 
 local spawn = minetest.setting_get_pos("static_spawnpoint") or
-                  {x = 0, y = (ground or 8) + 1, z = 0}
+                  {x = 0, y = ground + 1, z = 0}
 
 -- The three nodes the spawn fallback lands in: the one the player stands on, and
 -- the two their body occupies. Rounded because a server owner's
@@ -192,11 +196,11 @@ end
 -- How far up a column a rescue looks for room to stand: the mapgen surface,
 -- which is stone to mgflat_ground_level, plus 64 nodes of whatever a program has
 -- built on top of it, and never past the top of the world. It is also the height
--- of the column load_area pulls into memory -- five mapblocks, about 80 kB, in a
--- default world. A player whose own column is solid the whole way up goes to
--- spawn instead: that is what the bound trades away, and the spawn path is the
--- one that cannot fail.
-local scan_top = math.min((ground or 8) + 64, world_max.y - 1)
+-- of the column load_area pulls into memory -- thirteen mapblocks, a little over
+-- 200 kB, with the surface at 128. A player whose own column is solid the whole
+-- way up goes to spawn instead: that is what the bound trades away, and the
+-- spawn path is the one that cannot fail.
+local scan_top = math.min(ground + 64, world_max.y - 1)
 
 -- Where to put a player who has left the world box: their own column, made
 -- standable. nil when nothing in it fits them. (B50)

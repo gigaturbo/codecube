@@ -1,13 +1,13 @@
 ---
 name: build-feature
 description: How work gets built in the Codecube game — first deciding whether it is the game's at all rather than the CodeBlock mod's, then shaping it in prose under a G milestone, putting the author's choices to them, arguing out what should not be built, writing it with the two gates, the author playing it in a real world, and recording what that found. Use when starting or resuming a G item, when a TODO line is being picked up, or when deciding whether a piece of work is finished.
-when_to_use: Starting or resuming any item in ROADMAP.md's G1-G6 milestones, before writing any code under mods/cc_*, when asked what is next on a milestone or whether something is finished, when triaging whether an idea belongs to the game or to the mod, and when a playtest has just produced results.
+when_to_use: Starting or resuming any item in ROADMAP.md's G1-G7 milestones, before writing any code under mods/cc_*, when asked what is next on a milestone or whether something is finished, when triaging whether an idea belongs to the game or to the mod, and when a playtest has just produced results.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write, AskUserQuestion
 ---
 
 # Building something in Codecube
 
-The milestones `G1`–`G6` and the agreed shape of each item live in
+The milestones `G1`–`G7` and the agreed shape of each item live in
 **`ROADMAP.md`**; the reasoning is in `AUDIT.md`, the in-world checks in
 `PLAYTEST.md`, the author's inbox in `TODO.md`. Ids are never renumbered, and
 milestones here are **lettered**, never "Phase N" — that is the mod's scheme and

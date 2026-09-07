@@ -23,7 +23,7 @@ others:
 
 | File | Why it is yours |
 |---|---|
-| `ROADMAP.md` | What is left to do for the game: its own mods, its packaging and presentation, and which `codeblock` release it has adopted. Milestones lettered `G1`–`G6`. **And the log of what was agreed** in conversation — a scope decision, a default chosen, a question settled. Nothing else records those. |
+| `ROADMAP.md` | What is left to do for the game: its own mods, its packaging and presentation, and which `codeblock` release it has adopted. Milestones lettered `G1`–`G7`. **And the log of what was agreed** in conversation — a scope decision, a default chosen, a question settled. Nothing else records those. |
 | `TODO.md` | Intentions not yet findings. One line per item, a finding id in parentheses where there is one, no prose. The description of the work goes in `ROADMAP.md`, the reasoning in the audit. |
 | `AUDIT.md` | Every finding with its id, severity, state and, once fixed, how — plus the reasoning a future change would re-break. **Findings only: no roadmap, no milestones.** Compress as it grows. |
 | `PLAYTEST.md` | The manual checks nothing automated here reaches. The game has **no test suite at all**, so this is its only route to evidence about behaviour. Each check gives what to do in-world, what a pass looks like, its finding id, and a result line — outcome, commit, engine version, date — so a stale pass reads as stale. Groups are lettered `W`, `L`, `R`, `P`, deliberately not a finding prefix or a `G`. |
@@ -210,14 +210,14 @@ Ids are **never renumbered**: an existing commit message must keep resolving. A
 gap in a sequence is a finding held by the mod's own audit, from when the two
 records were one; say so rather than filling the gap.
 
-Milestones here are lettered **`G1`–`G6`**. Never say "Phase N" — that is the
+Milestones here are lettered **`G1`–`G7`**. Never say "Phase N" — that is the
 mod's scheme and appears in its commit messages, and the two must stay
 distinguishable.
 
 ## AUDIT.md
 
 Tracked, at the root. Findings and nothing else — the order of work and the
-`G1`–`G6` lettering are `ROADMAP.md`'s. Sections: what it is and how ids work;
+`G1`–`G7` lettering are `ROADMAP.md`'s. Sections: what it is and how ids work;
 where it stands, with counts by category and state; **open findings first**, in
 full; then the findings grouped `B`, `S`, `C`, `A`, each with id, severity,
 state, title, where it is, what was wrong and — when resolved — how, with the
@@ -284,7 +284,7 @@ re-litigated.
 - **Now.** The one thing to do next for the game and why, two or three
   sentences. Consistent with the audit's next-step panel. Do not offer a
   recommendation about the mod's work — that is not this project's to sequence.
-- **Milestones** `G1`–`G6` in order, each with a one-line goal, a state and the
+- **Milestones** `G1`–`G7` in order, each with a one-line goal, a state and the
   fraction of its items closed.
 - **Under each**, the work as short imperative lines, each carrying its finding
   ID so the audit can be consulted for the reasoning. One line each, no
