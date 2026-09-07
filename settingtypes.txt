@@ -1,0 +1,24 @@
+#    Settings for the Codecube game, shown in the advanced settings under
+#    Content: Games.
+#
+#    Editing THIS file changes nothing in a running game. The engine does not
+#    read defaults from settingtypes.txt - it only parses it to draw the
+#    settings menu. The real default is the one in the game's minetest.conf, and
+#    the two are kept in step by hand: change one, change the other.
+
+[Codecube]
+
+#    Half-extent of the world, in nodes, measured from the origin on every axis.
+#    1024 gives a 2048 x 2048 field with a bedrock floor at y = 0 and a bedrock
+#    wall around it. It bounds the drone as well as the player, so a program
+#    cannot build past the wall either.
+#
+#    The engine stores this per world, so changing it moves the edge of an
+#    existing world: raise it and the old wall stays where it was generated,
+#    lower it and ground already generated outside the new wall is stranded
+#    beyond it.
+#
+#    The wall does not stand exactly at this number. Only whole mapchunks that
+#    fall inside the limit are generated, so the last generated column is a
+#    little short of it.
+mapgen_limit (World half-extent) int 1024 80 31007
