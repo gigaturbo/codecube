@@ -28,50 +28,37 @@ Target is **v1.0.0**, major because several changes break saved player programs.
 
 ## Now
 
-**`G6` is written and committed — 5/5 — and its checking is now `1` partial and
-`5` unchecked, which is *less* evidence than a week ago.** Those are two states,
-not one. Shaped with the author on 2026-09-04 and built the same day, it is now
-`60259dd` on branch `g6-world-limits`, with `B48` split out ahead of it as
-`ec02760`; **both gates were re-run after every commit** and neither runs a line
-of the game's Lua.
+**`G6` is done: 5/5 written and committed, and now 6/6 checked.** Those are two
+states and this is the first milestone in the project to satisfy both. It was
+shaped with the author on 2026-09-07 and built the same day; it is `f5f2385` with
+the rescue reversed at `60259dd`, on branch `g6-world-limits`, with `B48` split
+out ahead of it as `ec02760`, and **both gates were re-run green after every
+commit** — neither of which runs a line of the game's Lua, which is why the
+checking is the half that mattered. `W4`, `W5`, `W6`, `W7`, `W8` and `W9` all
+pass at `60259dd`, so **`B50` is resolved on both of its routes**, and the four
+open findings left are `A7`, `A8`, `A13` and `C21`.
 
-**The rescue was reversed on 2026-09-07 and that cost `G6` its only passes.**
-`W8` and `W9` had both passed at `f5f2385` — nothing was wrong with the code, the
-*behaviour* was unwanted, and the author asked for a different one after playing
-it: a rescued player stays where they are, on the first free space in their own
-column, rather than being sent back to spawn. `60259dd` does that. Both checks
-described a destination the game no longer produces, so both were rewritten and
-both results retired rather than backdated, which is this file's own rule about
-carrying a result across a change to its code.
-
-**So the next thing this game needs is still not more code but `W4`–`W9` run in a
-world**, and there are now six of them rather than four. `W5` is the one that
-matters most: route one of `B50`, walking off the generated edge, rests entirely
-on the wall and **nobody has walked to it**, so `B50` closes on `W5` and on
-nothing else. `W8` and `W9` come next, because route two has no live evidence at
-all any more. The decisions behind the shape are recorded under the milestone and
-under *deliberately not doing*, so they are not re-argued. `G6` is the only item
-here that is a feature rather than a defect.
-
-Beside it, still outstanding: **one session in a world, `W5` first, then `W8`,
-`W9`, `W4`, `W6`, `W7` and `R8`**.
-`B48` is committed at `ec02760` and unseen — the override pass now strips six
-digging groups from every registered node — so `R8` says whether the crack
-animation is gone, and it now has a sha to be run against, and `R1`, `R4` and `R6` are what would catch that pass having broken
-something wider on the way. Fold in `P3` (a cold boot log, now expecting
-nothing), `P4` (the menu shows name, artwork and icon), `P1`'s boot half, and
-`R3`, the thirty seconds that closes `R5`.
+**The next thing is one session in a world, and it is `G4`'s.** `R8` at
+`ec02760` is what says the crack animation is gone; `B48`'s fix rewrites `groups`
+on every registered node, a far wider blast radius than the `diggable` field
+beside it, so `R1`, `R4` and `R6` are re-run with it to catch that pass having
+broken something else, and `P3` because the same pass is what re-triggered a
+deprecation warning once already. Five checks, one sitting. Fold in `P4` (the menu
+shows name, artwork and icon), `P1`'s boot half, `R3` — the thirty seconds that
+closes `R5` — and `P2`, owed since `G6` added two tracked files and nothing in CI
+reads `.gitattributes`.
 
 After that the only thing left before `G5` is `A7`, and its edit is upstream:
 `codeblock` removes the duplicate, `cc_day` is the copy that survives, and this
 repository's half is adopting the release and running `L3`.
 
-The game was played on 2026-09-01 in three rounds and again on 2026-09-02:
-fourteen of the checks then written run, twelve pass, two partial, and **every
-restriction the game claims is now evidence rather than reading**. Those two
-hours produced `B47`, `B48` and `S8`, none visible from reading the three `cc_*`
-files. The details are in `PLAYTEST.md` and the lessons in `AUDIT.md`; the short
-one is that **a fix is not evidence, the check is**.
+**Twenty of the twenty-five checks now have a live result and eighteen pass.**
+The game was played on 2026-09-01 in three rounds, again on 2026-09-02, and three
+times on 2026-09-07 — the last of those being the whole `W` group. Every
+restriction the game claims and every limit it now imposes is evidence rather
+than reading. Those sittings produced `B47`, `B48` and `S8`, none visible from
+reading the three `cc_*` files. The details are in `PLAYTEST.md` and the lessons
+in `AUDIT.md`; the short one is that **a fix is not evidence, the check is**.
 
 The game still has no test suite, nothing automated reaches its behaviour, and
 nothing here will.
@@ -157,9 +144,14 @@ written and `R8` has not been run.
   to predict a dig from. **Written, both gates green, unverified in a world** —
   `R8` closes it. (B48)
 
-### G6. Bound the world — committed, tip `60259dd`: 5/5 written, checking outstanding (0 of 6 pass, 1 partial, 5 unchecked)
+### G6. Bound the world — done: 5/5 written and committed at `60259dd`, 6/6 checked
 
-Shaped with the author on 2026-09-04. The world is unbounded in every way a
+**The first milestone here to be both.** Written, committed with both gates
+green, and then run in a world: `W4`–`W9` all pass at `60259dd`, which resolves
+`B50` on both routes. Keeping the two states apart is the point of this file, and
+this is the entry where they finally meet.
+
+Shaped with the author on 2026-09-07. The world is unbounded in every way a
 player meets it: `mapgen_limit` stops generation at roughly ±4080 but **nothing
 marks the edge and nothing stops anyone reaching it**, and with no `fly` privilege
 and damage off a player who walks off falls into ungenerated space forever,
@@ -186,10 +178,11 @@ in, and both limits are things you can see.
   horizontal edges from `core.get_mapgen_edges()`. This is the second route into
   `B50` and the only thing the floor and the wall do not close — see decision 6.
   **Committed at `f5f2385`, and where it puts the player was reversed at
-  `60259dd` — see decision 7.** Its ordinary case had been seen twice, against the
-  tree of 2026-09-04 and again at `f5f2385`, and **neither observation survives
-  the reversal**: both watched a rescue to spawn. `W8` and `W9` are rewritten and
-  unrun. (B50)
+  `60259dd` — see decision 7.** Its ordinary case had been seen twice before that,
+  against the tree of 2026-09-07 and again at `f5f2385`, and neither observation
+  survived the reversal — both watched a rescue to spawn. `W8` and `W9` were
+  rewritten around the new destination and **both pass at `60259dd`**, `W9` across
+  all four of its cases. (B50)
 
   **The same sitting found the second thing this fix nearly got wrong.** Standing
   at spawn after that rescue, the author cut the floor out from under themselves,
@@ -204,14 +197,14 @@ in, and both limits are things you can see.
   globalstep immediately before `player:set_pos(spawn)`. **No finding id**: the
   clamp had never been committed when this was found, so it was the change being
   wrong and caught before it shipped, and its record is this line. `W9` is its
-  evidence, and **`W9` passed at `f5f2385`** — all three cases, with spawn out of
-  range for at least one of them, so the `ignore` branch and the `load_area`
-  before the write were both exercised rather than skipped. **That pass was
-  retired on 2026-09-07**, with the destination it was about; `repair_spawn()`
-  itself is unchanged and is now the fallback path only.
+  evidence. Its first full pass, at `f5f2385`, was retired on 2026-09-07 with the
+  destination it was about; `repair_spawn()` itself is unchanged and is now the
+  fallback path only, so **`W9` case 4 at `60259dd` is what exercises it** — and
+  case 4 is also the only case left that puts a write into possibly non-resident
+  map, which is what the `ignore` branch and the `load_area` are for.
 
   **The mirror case was closed by the same repair, and that reverses a decision.**
-  Until 2026-09-04 this file listed *protecting the spawn column from the drone*
+  Until 2026-09-07 this file listed *protecting the spawn column from the drone*
   under *deliberately not doing*: a program could build a solid node there and the
   clamp would put a rescued player inside it, and closing it looked like buying a
   rule the engine does not keep on its own respawns. **That entry is gone**, on
@@ -269,8 +262,8 @@ in, and both limits are things you can see.
   so at mod load time it returns 1 — the same wrong number — and writes a line to
   `errorstream` on every boot.
 
-**Seven decisions, six taken on 2026-09-04 and the seventh on 2026-09-07, each
-closing an argument:**
+**Seven decisions, all taken on 2026-09-07 — the first six while `G6` was
+shaped, the seventh after playing it — each closing an argument:**
 
 1. **A thin slab, not a solid block.** Bedrock plane at `y = 0`, air below,
    `mgflat`'s ordinary fill above. Keeping the current fill and only
@@ -296,7 +289,7 @@ closing an argument:**
    mapgen-env `on_generated` run on the emerge threads, off the main thread,
    which is the whole point of choosing them.
 
-   **Corrected 2026-09-04, the same day, on evidence: the decision was taken as
+   **Corrected 2026-09-07, the same day, on evidence: the decision was taken as
    5.7 and 5.7 was wrong.** The version came from the author's instruction and
    was not checked at the time. It was then read out of the shipped `lua_api` at
    each tag: `register_mapgen_script` is **absent** from 5.7.0's
@@ -319,7 +312,7 @@ closing an argument:**
    into a program-made hole falls into unlit air below `y = 0` and then out of
    the bottom of the world — `B50` by a second route, which neither the wall nor
    `diggable = false` touches, because `diggable = false` binds the player and
-   not a program. **Ruled by the author on 2026-09-04:** one rule, in
+   not a program. **Ruled by the author on 2026-09-07:** one rule, in
    `cc_security` — a connected player outside the world box is put back at the
    spawn point. It is the only thing that keeps the promise *regardless of what a
    program does to the floor*, and `cc_security` is already the mod whose job is
@@ -356,7 +349,7 @@ closing an argument:**
    is the floor tile under the rescued column. That is a stronger version of the
    property decision 6 had already spent.
 
-**One open question, put to the author on 2026-09-04 and unanswered.** The author
+**One open question, put to the author on 2026-09-07 and unanswered.** The author
 asked for limits *"they should be visible"*. The wall satisfies that; **the floor
 does not.** `mgflat_ground_level` is 8, so the bedrock plane at `y = 0` is buried
 eight nodes under the surface and is never seen in ordinary play — the only way
@@ -365,25 +358,25 @@ surface sits on or near the plane is a one-line change in `cc_mapgen`. **Nothing
 has been decided and nothing has been changed**; this is recorded as a question,
 not as an omission.
 
-**The in-world evidence this needs is `W4`–`W9` in `PLAYTEST.md`**, written on
-2026-09-04 and rewritten on 2026-09-07: the floor at `y = 0` with air below; the
-wall unbroken and full height with no gap at a chunk seam; the drone's own error
+**The in-world evidence is `W4`–`W9` in `PLAYTEST.md`, and all six pass at
+`60259dd`** — recorded 2026-09-07: the floor at `y = 0` with air below; the wall
+unbroken and full height with no gap at a chunk seam; the drone's own error
 naming 1024 rather than 4096, which is the only thing proving `minetest.conf`
 reached `core.settings`; an existing world re-bounded, which is the only thing
 `override_meta` buys; the clamp firing on a fall and **not** on someone standing
-legitimately at the world's edge; and `W9`, where the rescue puts them.
+legitimately at the world's edge; and `W9`, where the rescue puts them, across
+four cases. **`B50` is resolved.**
 
-**None passes, one is partial and five are `unchecked`.** `W8` and `W9` passed at
-`f5f2385` and **their results were retired on 2026-09-07 with the destination
-they described** — decision 7 — rather than backdated onto `60259dd`. `W4`'s
-floor was observed on 2026-09-04 **against the uncommitted working tree, so it
-names no commit**; that weakness is kept, and it is to be re-run at `60259dd`.
-`W5`, `W6` and `W7` have not been seen at all: **the wall, the drone's bound
-naming 1024, and an existing world being re-bounded were not observed in any
-sitting** and are not implied by one. Route one of `B50` is exactly `W5`, so it
-is the check that closes the finding; route two now has no live evidence either.
-`W9` gained two cases with the rewrite — a column blocked by terrain, and a
-column solid past the scan bound.
+**Three of the six had never been run at all before that sitting.** `W5` is route
+one of `B50` — nobody had ever walked to the edge, and the finding closed on it.
+`W6` and `W7` were the drone's bound and an old world re-bounded, each the only
+route to seeing its half of decision 2 fail. `W8` and `W9` had passed at
+`f5f2385` and **their results were retired on 2026-09-07 with the destination they
+described** — decision 7 — rather than backdated; they were re-run instead, `W9`
+including the two cases the rewrite added, a column blocked by terrain and one
+solid past the scan bound. `W4`'s partial against an uncommitted tree was likewise
+re-run rather than given a sha it had not been seen at. **The rule cost two
+re-runs and bought six results that name the code in the tree.**
 
 ### G5. Adopt CodeBlock 1.0.0 and ship — not started
 
@@ -403,13 +396,6 @@ findings: nothing here is defective, it has not happened yet.
 
 ## What ships broken
 
-- **Neither route of `B50` has live in-world evidence.** Route one — walking off
-  the generated edge — has never been seen at all; the wall closes it and `W5` is
-  the only thing that could say so. Route two, falling through a hole a program
-  made, *was* verified at `f5f2385`, and **that evidence was retired on 2026-09-07
-  when `60259dd` reversed where the rescue puts the player**: `W8` and `W9`
-  described a destination the game no longer produces. `W4` stays partial against
-  an uncommitted tree; `W5`–`W9` are `unchecked`. (B50)
 - **A rescued player is left standing in the shaft they fell down**, and that is
   the design, not a defect — decision 7. Getting out means pointing the drone at
   the shaft wall, so it needs a working program and it is not a way out a player
@@ -421,7 +407,9 @@ findings: nothing here is defective, it has not happened yet.
 - **The wall exists only in chunks generated after this change.** It is written
   by the mapgen callback, so terrain already emerged near the old edge of a
   pre-existing world keeps no wall and nothing regenerates it. A world made
-  before `G6` is bounded only where it has not yet been visited.
+  before `G6` is bounded only where it has not yet been visited. `W7` confirms
+  the *limit* moves on such a world; the missing wall in already-visited chunks is
+  what it does not cover, and nothing does.
 - **`mapgen_limit` appears twice in the advanced settings menu** — under Mapgen
   from builtin, and under Content: Games → Codecube. Both write the same key so
   they cannot disagree, but the builtin entry shows the engine's default of 4096
@@ -473,17 +461,17 @@ findings: nothing here is defective, it has not happened yet.
 - **A `settingtypes.txt` entry for anything the drone does.** Every drone setting
   is CodeBlock's, and CodeBlock is its own ContentDB package; in the mod it works
   for a standalone install and appears under Mods. That ground is untouched. What
-  changed on 2026-09-04 is the scope of the file, not the rule: `G6` adds a
+  changed on 2026-09-07 is the scope of the file, not the rule: `G6` adds a
   game-root `settingtypes.txt` declaring **`mapgen_limit` only**, because a world
   size is the game's own subject, exactly like the light and the restrictions.
   This extends C7's reasoning rather than reversing it, and a request to expose a
   drone limit here is still refused. (C7)
 
-- **A ceiling on the world.** Rejected on 2026-09-04 with the rest of `G6`'s
+- **A ceiling on the world.** Rejected on 2026-09-07 with the rest of `G6`'s
   shape: the player has no `fly` privilege and cannot reach one, so it would be
   scenery rather than a limit anyone meets.
 
-- **Separate width and depth for the world.** Rejected 2026-09-04 — see `G6`
+- **Separate width and depth for the world.** Rejected 2026-09-07 — see `G6`
   decision 2. One number, and it is `mapgen_limit`, because the drone already
   reads that setting.
 
@@ -499,7 +487,7 @@ findings: nothing here is defective, it has not happened yet.
   the game package; whether the mod follows is upstream's call.**
 
 - **Guarding the mapgen call so the game still installs below 5.9.** Put to the
-  author on 2026-09-04 and declined: `if minetest.register_mapgen_script then`
+  author on 2026-09-07 and declined: `if minetest.register_mapgen_script then`
   would let the game install from 5.4 upward, but on anything below 5.9 it would
   **silently ship an unbounded world** — no floor, no wall, `B50`'s endless fall
   still present, and nothing telling the player why. Refusing to start was judged
@@ -508,7 +496,7 @@ findings: nothing here is defective, it has not happened yet.
   refusal to start already names it.
 
 - **Clamping the player's `y` back to the floor plane instead of to spawn.**
-  Rejected 2026-09-04 with `G6` decision 6, because a bare `y` clamp puts the
+  Rejected 2026-09-07 with `G6` decision 6, because a bare `y` clamp puts the
   player straight back into the hole they fell through and oscillates. **Still
   rejected, and decision 7 is not it**: `60259dd` keeps the player's column but
   makes the floor whole under them and scans *up* for room, so there is no hole
@@ -517,17 +505,17 @@ findings: nothing here is defective, it has not happened yet.
   the reasoning is under `G6` decision 7, not here.
 
 - **Recording the program-made hole as a known limit instead of fixing it.**
-  Declined 2026-09-04: the game's stated requirement is a world you cannot fall
+  Declined 2026-09-07: the game's stated requirement is a world you cannot fall
   out of, and the failure is silent and unrecoverable — no damage, no `fly`, no
   way back.
 
 - **Asking CodeBlock to refuse writes to `cc_mapgen:bedrock`.** Declined *for
-  now*, 2026-09-04, on timing rather than on principle: nothing would land here
+  now*, 2026-09-07, on timing rather than on principle: nothing would land here
   until a release is adopted, and `G6` would ship with the hole. **It remains the
   cleaner boundary** — the game owns the world, the mod owns what a program may
   write — so it is a deferred option, not a novelty to re-propose.
 
-- **Backdating a playtest result onto a later commit.** Decided 2026-09-04, when
+- **Backdating a playtest result onto a later commit.** Decided 2026-09-07, when
   `G6` was committed and `W4` and `W8` still named an uncommitted tree: their
   code is byte-identical in `f5f2385` *except* on the rescue path, which is what
   `W8` exercises, so the sha is not written on and both are re-run instead. The
@@ -538,8 +526,15 @@ findings: nothing here is defective, it has not happened yet.
   passes were removed rather than kept. The rule costs something only when it is
   applied to a result you would rather keep.
 
+- **Splitting this file's decision log out into a `DECISIONS.md`.** Put to the
+  author three times and never answered, so on 2026-09-07 it is **treated as
+  declined by silence** and is not to be proposed again. The consequence is
+  accepted rather than argued away: this file runs well over its own *"under
+  roughly 150 lines"*, and the decision log is why. Nothing has been
+  restructured. What would change it is the author saying so.
+
 - **Waiting for a release before the changelog records `G6`.** Decided
-  2026-09-04: the entry is written now, in the same branch as the code, so it
+  2026-09-07: the entry is written now, in the same branch as the code, so it
   lands exactly when the code lands and cannot outlive it if the branch is
   dropped. `v1.0.0` is already an unreleased heading that accumulates.
 
@@ -564,34 +559,45 @@ findings: nothing here is defective, it has not happened yet.
 ---
 
 2026-09-07 · codecube `60259dd` on branch **`g6-world-limits`**, off `main` at
-`578b364` — five commits: `5ca577f` moving the bundled Luanti reference into its
+`578b364` — six commits: `5ca577f` moving the bundled Luanti reference into its
 own skill, `ec02760` for `B48`, `f5f2385` for the whole of `G6`
 (`minetest.conf`, `game.conf`, a new root `settingtypes.txt`,
 `cc_mapgen/init.lua`, a new `cc_mapgen/mapgen_env.lua` and
-`cc_security/init.lua`), `3090b8a` recording them, and `60259dd` for decision 7,
+`cc_security/init.lua`), `3090b8a` recording them, `60259dd` for decision 7 —
 the rescue that keeps the player in their own column (`cc_security/init.lua`
-only, +98 −39) · codeblock `2647228` (master), the commit this game has adopted;
+only, +98 −39) — and `22fe840`, the tip, recording that reversal and retiring the
+two results it invalidated · codeblock `2647228` (master), the commit this game
+has adopted;
 `mods/codeblock` is deliberately left unstaged, which is its normal resting
 state. **Both gates were re-run on `60259dd`**: `check_game.sh` ended `all game
 integration checks passed`, and luacheck on the three `cc_*` mods printed
-nothing. Neither runs a line of the game's Lua. The record documents for this
-pass are in the working tree, to be committed naming `60259dd`.
-
-**`G6` is 5/5 written and committed, and its checking went backwards**: `W8` and
-`W9` passed at `f5f2385` and both results were retired on 2026-09-07 with the
-destination they described, so `W4` is partial, `W5`–`W9` are `unchecked`, and
-none of the six passes. Twenty-five playtest checks, fifteen with a live result:
-twelve pass, `P1`, `R5` and `W4` partial, and `W5`–`W9`, `L3`, `R8`, `P3`, `P4`
-and `P5` unrun. **`W4` remains the only result in this project recorded against
-no commit**, kept that way rather than backdated; it is to be re-run at
+nothing. Neither runs a line of the game's Lua, and **neither was re-run for this
+pass, because no code changed** — the last green run is still `60259dd`. The
+record documents for this pass are in the working tree, to be committed naming
 `60259dd`.
 
-The game's own Lua is now **160 lines** across four files — `cc_day` 7,
-`cc_mapgen` 17 + 36, `cc_security` **100** — counting neither blanks nor
-comments; the rescue rewrite added 21 to `cc_security` alone.
+**`G6` is done on both counts: 5/5 written and committed, 6/6 checked.** The
+author ran the whole `W` group at `60259dd` and reported `W4`, `W5`, `W6`, `W7`,
+`W8` and `W9` all pass, which resolves `B50` on both routes and leaves `A7`, `A8`,
+`A13` and `C21` as the only open findings. Twenty-five playtest checks, **twenty
+with a live result: eighteen pass**, `P1` and `R5` partial, and `L3`, `R8`, `P3`,
+`P4` and `P5` unrun. **No result in this project is recorded against a tree
+instead of a commit any more** — `W4` was the last, and it was re-run rather than
+backdated. Nothing was re-run for the playtest and nothing was owed: no code
+changed, and both gates were last green on `60259dd`.
 
-This file is **597 lines against its own "under roughly 150"**, up from 528
-before this pass, 499 before that, and 307 before `G6` was built. The question of
-splitting the decision log into a `DECISIONS.md` is with the author and **still
-unanswered**; nothing has been restructured. So is the question of lowering
-`mgflat_ground_level` so the bedrock floor is visible.
+The game's own Lua is **160 lines** across four files — `cc_day` 7,
+`cc_mapgen` 17 + 36, `cc_security` **100** — counting neither blanks nor
+comments.
+
+This file is **603 lines against its own "under roughly 150"**, up from 597
+before this pass, 528 before that and 307 before `G6` was built. It grew by six
+even though a milestone closed, because a `G6` that is finished still needs its
+decisions kept and its evidence named. **The question
+of splitting the decision log into a `DECISIONS.md` is now closed**: it was put to
+the author three times without an answer, so it is recorded under *deliberately
+not doing* as declined by silence and will not be raised again. Nothing has been
+restructured. The question of lowering `mgflat_ground_level` so the bedrock floor
+is visible is still genuinely open, and `W4` passing does not settle it — the
+check reaches the floor down a shaft a program cleared, which is exactly the
+route that makes it invisible in ordinary play.

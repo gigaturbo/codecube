@@ -24,21 +24,19 @@ renumbered; milestones here are lettered G1-G6, not the mod's phase numbers.
 - [x] cc_security: strip the six digging groups so the client stops predicting a dig (audit B48) - committed ec02760, R8 unverified
 - [x] cc_mapgen: alias the two flowers nodes default's log schematics name, so the boot log has no NodeResolver errors (audit B19) - P3 unverified
 - [x] default: rename the furnace's deprecated TileDef image field to name (audit B24) - P3 unverified
-- [x] bound the world: bedrock floor at y=0, bedrock wall at the edge, default 1024 (audit B50, roadmap G6) - committed f5f2385, the floor is seen and the wall is not
+- [x] bound the world: bedrock floor at y=0, bedrock wall at the edge, default 1024 (audit B50, roadmap G6) - committed f5f2385, W4-W9 all pass at 60259dd, B50 resolved
 - [x] game-root settingtypes.txt declaring mapgen_limit only (roadmap G6, extends C7)
 - [x] raise min_minetest_version 5.4 -> 5.9 for the mapgen environment (roadmap G6) - 5.7 was wrong, register_mapgen_script arrived in 5.9.0
-- [x] cc_security: catch a player found outside the world box, for the hole a program digs in the floor (audit B50, roadmap G6 decision 6) - committed f5f2385
-- [x] cc_security: repair the rescue destination before moving anyone - playing found the spawn column looping (roadmap G6, no finding id) - committed f5f2385, now the fallback path only
-- [x] cc_security: rescue the player into their own column instead of to spawn, lifting them to the nearest free space above (roadmap G6 decision 7, no finding id - the author asked for it after playing) - committed 60259dd
-- [x] PLAYTEST checks for the world limits (audit B50) - W4-W9; W4 partial, W5-W9 unchecked, W8 and W9 rewritten on 2026-09-07 and their passes retired with the destination they described
-- [ ] decide whether to lower mgflat_ground_level so the bedrock floor is visible; it is 8, so the floor is buried and only the wall is (roadmap G6 open question) - unanswered
+- [x] cc_security: catch a player found outside the world box, for the hole a program digs in the floor (audit B50, roadmap G6 decision 6) - committed f5f2385, W8 passes at 60259dd on both halves
+- [x] cc_security: repair the rescue destination before moving anyone - playing found the spawn column looping (roadmap G6, no finding id) - committed f5f2385, now the fallback path only, exercised by W9 case 4
+- [x] cc_security: rescue the player into their own column instead of to spawn, lifting them to the nearest free space above (roadmap G6 decision 7, no finding id - the author asked for it after playing) - committed 60259dd, W8 and W9 pass there
+- [x] PLAYTEST checks for the world limits (audit B50) - W4-W9 written, rewritten for the new rescue, and all six run: pass at 60259dd
+- [x] run W4-W9 at 60259dd - W5 closes route one of B50, W8 and W9 close route two, W6 and W7 were first runs, W4 re-run rather than backdated
+- [ ] decide whether to lower mgflat_ground_level so the bedrock floor is visible; it is 8, so the floor is buried and only the wall is (roadmap G6 open question) - unanswered, and W4 passing does not settle it
 - [ ] CONTENTDB.md and README.md: say the world is bounded, once G6 ships (audit B50)
 - [ ] vector3 declares max_minetest_version = 5.5, four minor versions below the 5.9 G6 needs (audit C21) - upstream or a re-pin
-- [ ] run W8 and W9 at 60259dd - both rewritten for the new rescue, W9 with two new cases: a column blocked by terrain, and one solid past the scan bound
-- [ ] re-run W4 at 60259dd - seen on an uncommitted tree, kept partial rather than backdated
-- [ ] run W5 - route one of B50, the wall, and the only check that closes the finding
-- [ ] run W6 and W7 - the drone's error naming 1024, and an old world re-bounded
-- [ ] run R8 at ec02760, with R1, R4, R6 and P3 beside it (audit B48)
+- [ ] run R8 at ec02760, with R1, R4, R6 and P3 beside it (audit B48) - the only checking left, and the next thing to do
+- [ ] re-run P2: G6 added two tracked files and nothing in CI reads .gitattributes (audit C15)
 - [ ] adopt a tagged CodeBlock release and update the game's documentation with it
 - [ ] fog distance
 
