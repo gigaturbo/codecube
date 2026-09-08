@@ -11,8 +11,8 @@
 -- Duplicating codeblock's lint here would report the same findings twice and
 -- make this repository's build status depend on a submodule bump.
 --
--- default, dye, wool and vector3 are vendored or third-party and are not ours
--- to lint.
+-- vector3 is a submodule with its own upstream and is not ours to lint. The
+-- default, dye and wool excludes went with those mods under A13.
 
 std = "lua51"
 cache = true
@@ -32,16 +32,13 @@ read_globals = {
     "ValueNoise", "ValueNoiseMap", "SecureRandom", "Settings", "AreaStore",
     "Raycast", "ItemStackMetaRef", "DEFAULT_ALLOW_MOVE", "INIT",
     -- published by mods this game ships
-    "codeblock", "vector3", "default", "dye", "wool"
+    "codeblock", "vector3"
 }
 
 exclude_files = {
     -- has its own repository, config, tests and CI
     "mods/codeblock/**",
-    -- vendored or third-party
-    "mods/default/**",
-    "mods/dye/**",
-    "mods/wool/**",
+    -- submodule with its own upstream
     "mods/vector3/**",
     -- toolchain, not source: gh-actions-luarocks installs into the workspace
     ".luarocks/**",

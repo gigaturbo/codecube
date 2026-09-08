@@ -82,14 +82,22 @@ A `fail` is not a finding — report it and let `AUDIT.md` allocate or widen an 
 
 | | |
 |---|---|
-| Entries | **30** |
-| Live checks | 30 |
-| Most recent result a `pass` | **23** |
+| Entries | **33** |
+| Live checks | 31 — `R6` and `R7` are unrunnable, not live |
+| Most recent result a `pass` | **23**, of which 2 are on entries that can never be re-run |
 | `partial` | 2 — `R5`, `P1` |
 | `fail` | 0 |
-| Unrun (`unchecked`) | **5** — `L3`, `R8`, `P3`, `P4`, `P5` |
+| Unrun (`unchecked`) | **8** — `L3`, `R8`, `R9`, `W15`, `W16`, `P3`, `P4`, `P5` |
 | Results retired | 2 — `W8` and `W9`, both at `f5f2385`, on 2026-09-07 |
 | Findings closed by a check | `B47`, `B49`, `B50`, `S8` |
+
+**`W15`, `W16` and `R9` are new on 2026-09-08 and have no commit to be run
+against**: `G3`'s code is not in the tree. **`R6` and `R7` become unrunnable with
+it** — each names a node only `default` registered — and are kept with their
+passes rather than deleted, because a deleted entry takes its evidence and its
+reasoning with it. **Every `W` result is owed a re-run** at the commit that lands
+`G3`, which rewrites both files the group exercises; the group's preamble says so
+once rather than the table saying it eleven times.
 
 **What needs action**, and it is the list — `TODO.md` points here rather than
 keeping a second copy.
@@ -97,28 +105,39 @@ keeping a second copy.
 | Check | State | Why it needs action |
 |---|---|---|
 | `W3` | pass, **method stale** | it passed by teleporting "several thousand nodes" out, which now lands outside a world whose limit is 1024. The pass is still what was seen at `7f649d8`; the instruction has to be re-read before it is re-run |
+| `W15` | unrun, **no commit yet** | one layer of grass over dirt at 128, the new surface. `G3`'s code is not in the tree |
+| `W16` | unrun, **no commit yet** | no unknown node anywhere: the three essential mapgen aliases `default` used to register. Run with `P3`, which is its log half |
+| `R9` | unrun, **no commit yet** | the drone against a palette that is entirely `codeblock:*`. Run with `R8` |
+| `R6` | pass, **unrunnable** | `default:bookshelf` is deleted with `G3` and no node left carries a formspec. The pass at `c042364` stands; there is no way to run it again |
+| `R7` | pass, **unrunnable** | its three cases and the ABMs they were about are all `default`'s. The pass at `d16f9bb` stands and is the only evidence the `action` replacement ever worked |
 | `W4` | pass, **re-run owed** | passes at `60259dd`, where `mgflat_ground_level` was 8; `d6e4a12` moved it to 128. **`W14` does not discharge it**: `W4`'s subject is **air, not stone**, under a removed floor tile, and a program being unable to take the plane by accident — which `W14` never reaches |
 | `W8` | pass, **re-run owed** | same depth change. **`W14` case 1 shares the setup and not the check**: `W8`'s pass includes walking the wall and standing on the exposed floor plane **unmoved**, which `W14` does not ask for |
 | `W9` | pass, **re-run owed** | same depth change. **`W14` covers neither case 1** — the spawn-column shaft, rescued **once**, with no second teleport — **nor case 3**, the no-op where only `(x, 0, z)` may have changed |
-| `L3` | unrun | gated on `A7`'s removal landing upstream in `codeblock` and being adopted here |
-| `R1` | pass, **re-run owed** | `B48`'s fix rewrites `groups` on every registered node, a far wider blast radius than the `diggable` field beside it |
+| `L3` | unrun | gated on adopting a `codeblock` release at or past their `6fea453`. **Not a removal** — the duplicate is behind `codeblock.config.flat_sky`, off by default, and this game must not set it |
+| `R1` | pass, **re-run owed**, **method rewritten** | `B48`'s fix rewrites `groups` on every registered node, a far wider blast radius than the `diggable` field beside it. Its method named a `wool` and a `default` node; both are gone with `G3` |
 | `R3` | pass, **re-run owed** | thirty seconds, and it is the whole of what keeps `R5` partial |
 | `R4` | pass, **re-run owed** | same blast radius as `R1` |
 | `R5` | **partial** | its drop half passed at `7dc764f`; the knockback half rests on `R3` not having been re-run |
-| `R6` | pass, **re-run owed** | same blast radius as `R1` |
-| `R8` | unrun | the whole of `B48`'s evidence, at `ec02760` |
+| `R8` | unrun, **subjects rewritten** | the whole of `B48`'s evidence, at `ec02760`. All three nodes it named are deleted with `G3`, and the `dig_immediate` case cannot be reproduced at all any more |
 | `P1` | **partial** | the clone half passed at `8b27f2f`; the boot half has never been run, and a working checkout booting does not discharge it |
 | `P2` | pass at `48cc63e`, **standing obligation** | re-run on 2026-09-08 and it stays here permanently: the entry says to run it **whenever a tracked file is added**, and nothing in either CI reads `.gitattributes` (`C15`, `C22`). Needed twice in two milestones — `G6`'s two files, then `G7`'s new directory, two textures and `menu/license.txt` |
-| `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence |
+| `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence — whose causes `G3` deletes, while adding three mapgen aliases whose absence shows up here |
 | `P4` | unrun | the main menu shows the game's name, artwork and icon |
 | `P5` | unrun | needs a release first — it is the ContentDB page as published |
 
-**One sitting covers nearly all of it, and `P2` is in neither** — it touches no
-engine and needs no world, so it is run from a shell whenever a tracked file is
-added. The sitting is `G4`'s: `R8` at `ec02760`, with `R1`, `R4`, `R6` and `P3`
-re-run beside it, plus `P4`, `P1`'s boot half, and the thirty seconds of `R3`
-that closes `R5`. The `W4`, `W8` and `W9` re-runs at the current depth fold into
-it or into a world of their own.
+**Two sittings now, and `P2` is in neither** — it touches no engine and needs no
+world, so it is run from a shell whenever a tracked file is added.
+
+- **`G4`'s, runnable today.** `R8` at `ec02760`, with `R1`, `R4` and `P3` re-run
+  beside it, plus `P4`, `P1`'s boot half, and the thirty seconds of `R3` that
+  closes `R5`. The `W4`, `W8` and `W9` re-runs at the current depth fold into it
+  or into a world of their own.
+- **`G3`'s, once the deletion is committed.** `W15`, `W16` and `R9`, with `P3`
+  beside `W16`, and the whole `W` group re-run. **Running `G4`'s sitting before
+  `G3` lands costs it**: `R1`, `R4` and `R8` all name nodes the deletion removes,
+  so a pass on the old palette would be owed a re-run immediately. Doing `G3`
+  first is cheaper, and it is the only ordering in which either sitting's results
+  survive.
 
 **The boot gap is real and narrower than it was.** `W10`–`W14` pass at
 `3479e25`, record-only over `48cc63e`, and none of those observations is possible
@@ -137,19 +156,31 @@ every other result in this document carries one.
 
 ## W · World and mapgen
 
-`mods/cc_mapgen/init.lua` settles the world's flags and its size, and
-`mapgen_env.lua` writes the bounds into each chunk on the emerge threads: nothing
-below `y = 0`, a bedrock plane at `y = 0`, and a barrier wall at the outermost
-generated column. `cc_security` holds the two that are about the player rather
-than the map — the clamp (`W8`) and the place it puts them (`W9`). `W4`–`W9` and
-`W14` are `B50`.
+`mods/cc_mapgen/init.lua` settles the world's flags, its size and the nodes it is
+made of, and `mapgen_env.lua` writes into each chunk on the emerge threads:
+nothing below `y = 0`, a bedrock plane at `y = 0`, one layer of grass at the
+surface, and a barrier wall at the outermost generated column. `cc_security` holds
+the two that are about the player rather than the map — the clamp (`W8`) and the
+place it puts them (`W9`). `W4`–`W9` and `W14` are `B50`; `W15` and `W16` are
+`A13`.
+
+**`G3` rewrites both of those files, so every result in this group is owed a
+re-run at the commit that lands it.** That is the rule about a result not
+surviving a change to the code it exercised, applied to a whole group at once
+rather than per check: the surface material changes, the fill node changes, and
+the mapgen aliases the engine needs move into `cc_mapgen`. The passes below stand
+as what was seen at the commits they name.
 
 Three facts about the world these checks run in, because each one changes a
 method below.
 
-- `mg_flags` carries `nobiomes`, so `mgflat` has no top or filler node and **the
-  surface is stone** — there is no dirt and no grass anywhere until a program
-  places some.
+- `mg_flags` carries `nobiomes`, so `mgflat` supplies no top node and no filler
+  node. **Until `G3` the surface was `default:stone` the whole way down; since
+  `G3` it is one layer of `cc_mapgen:grass` over `cc_mapgen:dirt`**, the grass
+  written by `mapgen_env.lua` and the dirt by the engine through `cc_mapgen`'s
+  `mapgen_stone` alias. There is still nothing else in the world until a program
+  places it. Every method below that says "stone" is a method written before
+  `G3`.
 - The surface stands at `mgflat_ground_level` and the plane stays at `y = 0`, so
   the plane is always underground: reaching it means having a program clear a
   shaft. **`mgflat_ground_level` was 8 at `60259dd` and is 128 since `d6e4a12`**;
@@ -546,14 +577,15 @@ observation. Engine version not given.
 **Why** — no finding id. `mgflat_ground_level` goes from the engine's 8 to 128 —
 declared in `settingtypes.txt`, defaulted in `minetest.conf`, and forced onto the
 world by `cc_mapgen`. The bedrock plane stays at `y = 0`, so the number is how
-much stone there is between the surface and the bottom of the world.
+much ground there is between the surface and the bottom of the world. **`W15` is
+what that ground is made of; this check is only its height.**
 
 **How** — create a **new** world with default settings, enter it, and read your
 own position with `/status` or the debug display, `F5`. Have a program clear a
 shaft and confirm the bottom of it is bedrock at `y = 0`. Then open Advanced
 settings → Content: Games → Codecube.
 
-**Pass** — you are standing on stone at `y` about **128.5**, with solid stone all
+**Pass** — you are standing at `y` about **128.5**, with solid ground all
 the way down to the bedrock plane at `y = 0` — the floor did not move, the surface
 did — and **Surface height** is offered at 128 beside **World half-extent** at
 1024, which is a server owner's route to it and the reason it is a setting rather
@@ -657,6 +689,87 @@ stood behind the `(ground or 8)` defect**, and it is now run rather than reasone
 about. Engine version not given, and the report was one word per check rather than
 three `y` values.
 
+### W15 · The surface is one layer of grass over dirt, at the right height [A13]
+
+**Why** — `mg_flags` carries `nobiomes`, so the engine supplies neither a top node
+nor a filler node: the grass layer exists only because `mapgen_env.lua` writes it,
+and the dirt only because `cc_mapgen` aliases `mapgen_stone` to it. Both are new
+with `G3` and each fails in a way the other hides — a missing alias gives a world
+of unknown nodes with grass on top, a missing grass write gives a correct-looking
+world of bare dirt. **One layer** is the specification: the author asked for
+*"grass above, dirt under"*, not a layer of topsoil.
+
+**How** — create a **new** world, then read node names rather than looking at
+colours. The debug overlay (`F5`) names the node under the crosshair, and that is
+the whole instrument.
+
+1. Point at the ground at your feet and read the name. Then have the drone cut a
+   step down beside you so the layers are exposed in a face you can point at:
+   right-click with the **Drone placer**, and run
+
+   ```lua
+   for i = 1, 4 do
+       move(1, 0, 0)
+       for j = 1, i do
+           move(0, -1, 0)
+           place(air)
+       end
+       move(0, i, 0)
+   end
+   ```
+
+   which leaves four holes, each one node deeper than the last. `move` takes
+   `n_right, n_up, n_forward` relative to the drone. **There is no `remove` in
+   the API at `fb75bc8`** — clearing a node is placing `air`, and `air` is a
+   plain name rather than a category.
+2. Point into each hole in turn and read the name at its bottom — the node one,
+   two, three and four below the surface.
+3. Step back ten nodes and look at the surface.
+
+**Pass** — exactly **one** node of `cc_mapgen:grass` at
+`y = mgflat_ground_level`, which is **128** by default, and `cc_mapgen:dirt` at
+every `y` below it down to the bedrock plane. Two or more grass nodes deep, or
+grass at 127 as well as 128, is the write covering a range instead of a layer.
+`default:stone` or `default:dirt` anywhere means the deletion did not land.
+**`unknown` or `ignore` in the column is `W16`, not this check** — but if you see
+it, stop and run `W16` instead, because a missing `mapgen_stone` alias makes every
+claim here meaningless. The grass also has to read as *green and light* from ten
+nodes away, which is what the author asked for; a texture that reads as another
+grey floor is a fail on the one part of this that no node name shows.
+
+Result: unchecked
+
+### W16 · No node in the world is unknown, anywhere in the column [A13]
+
+**Why** — `mods/default/mapgen.lua:7-9` was the only thing registering
+`mapgen_stone`, `mapgen_water_source` and `mapgen_river_water_source`, and
+`lua_api.md` lists all three as **essential for every non-V6 mapgen**. Deleting
+`default` takes them, and `cc_mapgen` re-registers them. A missing one does not
+stop the game booting: the engine resolves the alias to nothing and the mapgen
+writes `unknown`, which renders as the unknown-node texture and behaves like a
+solid block — a world that looks wrong and works, which is the failure this check
+exists to catch before a player meets it. The water aliases are the ones nobody
+will look at, because no water is ever generated at a surface height of 128.
+
+**How** — create a **new** world and read the boot log first, then the world.
+
+1. In the log for the world's creation, search for `Ignoring CONTENT_IGNORE`,
+   `Failed to resolve`, `NodeResolver` and `unknown`. `P3` is the general boot-log
+   check; this is the mapgen half of it and is worth doing in the same sitting.
+2. Turn on the debug overlay (`F5`) and walk about twenty nodes, watching the
+   node name under the crosshair change.
+3. Have the drone clear a shaft from the surface to `y = 1`, climb or teleport
+   into it, and read the wall of the shaft at three heights — near the surface,
+   halfway, and one node above the bedrock.
+
+**Pass** — no unresolved-alias or unknown-node line anywhere in the log, and no
+node named `unknown` at any height in the shaft or on the surface. The
+unknown-node texture is unmistakable once seen and easy to miss at a glance in a
+uniform world, which is why the shaft is read at three heights rather than
+sighted from above.
+
+Result: unchecked
+
 ---
 
 ## L · Light
@@ -699,20 +812,31 @@ after the first.
 Result: pass — `7f649d8` · engine 5.17.0 · 2026-09-01 — survives a rejoin.
 The second-player half was not exercised: singleplayer only.
 
-### L3 · Permanent noon still holds once the duplicate is removed [A7]
+### L3 · Permanent noon still holds when only `cc_day` is setting the sky [A7]
 
 **Why** — `codeblock` registers its own `on_joinplayer` calling the same five
-methods, annotated `-- TODO: TEMP fix`, and `A7` removes that copy, leaving
-`cc_day` the only thing setting the sky. Until this runs, `cc_day` being
-sufficient on its own is an assumption.
+methods, and until the adopted release it ran unconditionally, so `cc_day` being
+sufficient **on its own** has never been observed. Since their `6fea453` that copy
+is behind `codeblock.config.flat_sky`, **off by default**, and this game
+deliberately does not set it — so on the adopted release `cc_day` is the only
+thing setting the sky and this check is what says that is enough.
 
-**How** — run this **only once the game has adopted a `codeblock` release with
-the block removed**; the edit is upstream, so nothing in this repository will show
-that it has landed. Then re-run `L1` and `L2`, looking at dawn and dusk in
-particular: the one field that distinguishes the two copies is
-`sunrise_visible = false`, which only `cc_day` has.
+**How** — run this **only once the game has adopted a `codeblock` release at or
+past `6fea453`**; nothing in this repository changes for it, so read
+`mods/codeblock/lib/register.lua` for the `flat_sky` guard to confirm which
+release you have. First confirm `codeblock_flat_sky` is **not** set anywhere —
+`grep -rn flat_sky minetest.conf settingtypes.txt` must find nothing, and the
+advanced settings menu must show it off under Mods → codeblock. Then re-run `L1`
+and `L2`, looking at **dawn and dusk in particular**: the one field that
+distinguishes the two copies is `sunrise_visible = false`, which only `cc_day`
+has.
 
-**Pass** — `L1` and `L2` both still pass with the mod's copy gone.
+**Pass** — `L1` and `L2` both still pass with the mod's copy inert, dawn and dusk
+included. A sunrise glow appearing is the *opposite* of what a failure here would
+have looked like before: it would mean the mod's copy is running after all, so
+check the setting rather than `cc_day`. Setting `codeblock_flat_sky = true` to
+"help" is the thing not to do — it restores the duplicate in the version that
+lacks `B47`'s fix, which is why `ROADMAP.md` records declining it.
 
 Result: unchecked
 
@@ -741,18 +865,25 @@ with the rest of the world's bounds and are `W8` and `W9`, not here.
 
 **Why** — the override pass runs once at `on_mods_loaded` over
 `minetest.registered_nodes`, so a node registered later — by another mod, or by a
-future `default` trim — is not covered. And since `B48` an inner `pairs` over every
+node the game adds later — is not covered. And since `B48` an inner `pairs` over every
 node's `groups` runs in the same loop: if it errors on any single node,
 `register_on_mods_loaded` aborts and **every node after that point keeps
 `diggable = true`**. Table iteration order is not stable, so a partial failure hits
 a different set of nodes on every boot and one punch on one wall would miss it.
 
-**How** — punch and hold on the ground, on a wall the drone built, and on several
-different block types including one from `wool` and one from `default`. Try a
-block type the drone can place but you have not seen before, and try it in a fresh
-world rather than the one already open.
+**How** — punch and hold on the ground, on the surface layer, on a wall the drone
+built, and on **one of each of CodeBlock's three variants** — a solid block, a
+glass and a lamp, since they carry different `oddly_breakable_by_hand` levels.
+Include the barrier at the world's edge. Try a colour the drone can place but you
+have not seen before, and try it in a fresh world rather than the one already
+open.
 
 **Pass** — nothing breaks, anywhere, on any node.
+
+**Method rewritten 2026-09-08 for `G3`.** It said *"including one from `wool` and
+one from `default`"*; both mods are deleted, so every node a program can place is
+`codeblock:*` and the ground is `cc_mapgen`'s. The pass below was against the old
+set of nodes and is owed a re-run for that reason as well as for `B48`.
 
 Result: pass, with two things it turned up — `7f649d8` · engine 5.17.0 ·
 2026-09-01 — nothing breaks, anywhere, on any node tried. The rule holds. But:
@@ -881,6 +1012,15 @@ competes for it — but small is not none, and thirty seconds closes it.
 
 ### R6 · A bookshelf opens nothing you can use [S8]
 
+**Unrunnable since `G3`, 2026-09-08, and kept rather than deleted.** The check
+names `default:bookshelf` and `A13`'s deletion removes the mod that registered
+it; **no node left in the game carries a formspec of its own**, so there is
+nothing to open and no way to re-run this. The pass below stands as what was seen
+at `c042364`. `S8`'s fix is unaffected — it is the guard on the *player's* own
+inventory, which `R9` exercises from the other side — and `S8`'s residue, a panel
+that still opens, goes with the node. Nothing replaces this entry: the hazard it
+covered no longer exists.
+
 **Why** — `default:bookshelf` carries a node formspec containing
 `list[current_player;main]`, so it reaches around the blanked inventory formspec:
 it is a way into the player's own inventory even when nothing can be moved into
@@ -919,6 +1059,17 @@ is the check that earned its re-run**: the first fix would have been recorded as
 complete on the strength of the half that worked.
 
 ### R7 · The world does not change on its own [B49]
+
+**Unrunnable since `G3`, 2026-09-08, and kept rather than deleted.** All three
+cases name a `default` node — `dirt`, `dirt_with_grass`, `grass_3`, a sapling —
+and `A13`'s deletion removes the mod that registered them **and the six ABMs and
+ten `on_timer`s this check was about**. Nothing left in the game registers either,
+so `B49`'s fix walks empty sets and there is no behaviour left to observe. The
+pass below stands as what was seen at `d16f9bb`, and it is the only evidence there
+will ever be that mutating an ABM's `action` works — worth keeping for that
+reason, since the technique is undocumented and another game may need it.
+`cc_mapgen:grass` is not a spreading node and has no timer, so the defect cannot
+return through the new surface.
 
 **Why** — neutralising an ABM by replacing its `action` is not documented
 behaviour, because Luanti has no API to unregister one, so nothing but this says
@@ -965,27 +1116,83 @@ close enough to see the face clearly and with sound on. The fix is at `ec02760`,
 split out of `G6` so the `G4` fix stands separately; `f5f2385` carries it too and
 either names the same `cc_security` override pass.
 
-1. `wool`, any colour. Was `oddly_breakable_by_hand = 3`, and is the node that
-   produced the finding: it cracked through all five stages and then stayed.
-2. `default:leaves`. Was `dig_immediate = 3`, so before the fix it cracked
-   *instantly*, in a single frame. It is the fastest case and the one where a
-   partial strip would still show.
-3. `default:stone`. `cracky`, never hand-diggable, so it never cracked and must
-   still not. The control: a stone that now behaves differently means something
-   other than the digging groups was touched.
+1. A **solid** CodeBlock block, any colour — `place('red')`. Carries
+   `oddly_breakable_by_hand = 2`, the shallowest hand level in the game, so it is
+   the case a partial strip shows first.
+2. A **glass** block — `place('red_glass')`. `oddly_breakable_by_hand = 3`, which
+   is what `wool` was, and glass is where a crack overlay is easiest to see
+   through the node.
+3. `cc_mapgen:grass`, the ground you are standing on, and the barrier at the
+   world's edge. Neither carries any group at all, so neither ever cracked and
+   neither must start. The control: ground that now behaves differently means
+   something other than the digging groups was touched.
 
-Then confirm the strip did not cost anything else — wool must still show its
-colour and `leaves` must still look like leaves, because the fix keeps every
-non-dig group deliberately and colour, flammability, attachment and decay all ride
-on them. Run `R4` in the same session; this change edits the loop `R4` guards.
+Then confirm the strip did not cost anything else — every block must still show
+its colour, glass must still be see-through and a lamp must still light, because
+the fix keeps every non-dig group deliberately. Run `R4` and `R9` in the same
+session; this change edits the loop both guard.
+
+**Subjects rewritten 2026-09-08 for `G3`.** They were `wool`, `default:leaves`
+and `default:stone`, all deleted with `A13`. Two things are lost with them and are
+recorded rather than smoothed over: **there is no `dig_immediate` node left in the
+game**, so the instant-crack case — the fastest one, and the one a partial strip
+would still show — cannot be reproduced at all; and the hand's groupcaps no longer
+come from `mods/default/tools.lua` but from the engine's default item, so what the
+client predicts is a different calculation from the one the finding was diagnosed
+against. `B48` records both.
 
 **Pass** — on all three, **no cracking texture appears at any stage**, not stage
 one and not a single frame, and **no dig sound plays**. A block that does not
-break while the first crack stage still flashes on `leaves` is the whole defect
-reading as a pass, and only holding the punch and watching the face catches it; a
-`wool` that stops cracking while `leaves` still flashes means the group list is
+break while the first crack stage still flashes is the whole defect reading as a
+pass, and only holding the punch and watching the face catches it; a solid block
+that stops cracking while the glass still flashes means the group list is
 incomplete, not that the fix works. The nodes are also still there afterwards,
 which is `R1`'s claim and not this one.
+
+Result: unchecked
+
+### R9 · The drone places and removes CodeBlock's own blocks, and nothing else exists [A13]
+
+**Why** — the palette is entirely `codeblock:*` after `G3`, so **every block a
+program can name is a node registered by the mod rather than by a vendored
+one**, and that has never been played. Two ways it fails quietly: a program naming
+a colour that no longer resolves places the default block instead — the mod warns
+in chat once and carries on, so a wrong-coloured build looks like a working one —
+and `cc_security`'s override pass now runs over the mod's 105 nodes, which is
+where a `groups` rebuild would break the mod's own colour or light. `R4` says the
+drone still builds; this says it builds *the right blocks*, out of the only set
+there is.
+
+**How** — in a **new** world, run a program that touches all three variants and
+then takes them away again:
+
+```lua
+local names = {'red', 'green', 'blue', 'white', 'black'}
+for i, n in ipairs(names) do
+    move(1, 0, 0)
+    place(n)
+    move(0, 1, 0)
+    place(n .. '_glass')
+    move(0, 1, 0)
+    place(n .. '_lamp')
+    move(0, -2, 0)
+end
+```
+
+Look at the result, then run it again with every `place` argument replaced by
+`air`. Watch the chat while it runs. Then try a name that does not exist —
+`place('vermilion')` — deliberately.
+
+**Pass** — fifteen blocks in five colours and three materials: the solids show
+their colour, the glass is see-through and tinted, and **each lamp lights its
+surroundings**, which is the variant most likely to be broken by a `groups`
+rewrite. The second run leaves nothing behind. No chat warning at all during the
+first two runs — a *"no block named"* warning means a name the palette no longer
+carries, and the block placed will be the default one rather than nothing, so the
+build still looks plausible. The deliberate `vermilion` **must** produce that
+warning: a run with no warning means the misspelling report is not working and the
+first two runs proved less than they appear to. No `default:*` or `wool:*` node
+can be named at all.
 
 Result: unchecked
 
@@ -1086,6 +1293,14 @@ third-party file. `B48` makes this worth more than it was: `override_item` is no
 handed a rebuilt `groups` table rather than the one already there, so whatever the
 pass re-triggers, it re-triggers against something different.
 
+**`G3` changes what a clean log means here, 2026-09-08.** Both of the seven
+messages' causes are deleted with `mods/default`, so a re-appearance of either is
+now impossible rather than merely unexpected — which makes this check cheaper and
+narrower. What replaces them is the other direction: `cc_mapgen` now registers
+`mapgen_stone` and two water aliases, and a missing or misspelt one **is** a
+resolver error of exactly this shape. `W16` is written around it and this check is
+its log half; run the two together.
+
 Result: unchecked
 
 ### P4 · The main menu presents the game
@@ -1124,6 +1339,18 @@ Result: unchecked
 
 Newest first.
 
+- **2026-09-08, `5777dc0`, ahead of `G3`'s code.** `W15`, `W16` and `R9` added
+  for `A13`'s deletion — the new surface, the mapgen aliases `default` used to
+  register, and the drone against a palette that is entirely `codeblock:*` — all
+  three `unchecked` with **no commit to name**, because the code is being written
+  and nothing is committed. `R1`'s method and `R8`'s three subjects rewritten,
+  their nodes being deleted. **`R6` and `R7` marked unrunnable and kept**: each
+  names a node only `default` registered, and deleting the entries would take
+  their passes and their reasoning with them. `L3` rewritten — `A7` was settled
+  upstream by a setting off by default, not by the removal this document
+  predicted, and the check now says the game must not set it. The `W` preamble
+  carries the group-wide re-run owed once `G3` lands, rather than eleven table
+  rows saying it. No `Result:` line was changed.
 - **2026-09-08, `3479e25`, record-only over `48cc63e`.** `W10`–`W14` pass, so the
   counts move to **23 pass and 5 unrun**; `W4`, `W8` and `W9` stay owed re-runs,
   and the *what needs action* table now says why `W14` discharges none of the

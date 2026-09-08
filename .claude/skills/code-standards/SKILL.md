@@ -1,13 +1,13 @@
 ---
 name: code-standards
-description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is 177 lines of Lua across three mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, an index of the guards a change would re-break, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
+description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is 208 lines of Lua across three mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, an index of the guards a change would re-break, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
 when_to_use: Before editing mods/cc_day, mods/cc_mapgen, mods/cc_security, scripts/, game.conf, minetest.conf, .luacheckrc or .gitattributes; when auditing the game's own code; when deciding whether a change belongs to the game or to the mod; and whenever you are about to state that an engine function exists or behaves in a particular way.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
 # Writing code in Codecube
 
-**This game is 177 lines of Lua, and the craft here is almost entirely deciding
+**This game is 208 lines of Lua, and the craft here is almost entirely deciding
 what not to add.** Everything a player *does* belongs upstream in CodeBlock; what
 is left is the world, the light, the restrictions, the packaging, and a handful
 of engine behaviours that have each already cost a finding.
@@ -19,17 +19,27 @@ either.
 
 ## The first question is always *whose is this*
 
-The game owns **177 lines of Lua**, in four files — counted as lines that are
-neither blank nor a comment, recounted at `d6e4a12` on 2026-09-08 with the whole
-of `G7` in it, which is how the numbers below can be re-derived rather than
-trusted. Counting blanks and comments too it is 464 lines, so most of what is
-here is prose about why:
+The game owns **208 lines of Lua**, in four files — counted as lines that are
+neither blank nor a comment, recounted on 2026-09-08 with `G3` in the working
+tree, which is how the numbers below can be re-derived rather than trusted.
+Counting blanks and comments too it is 572 lines, so most of what is here is
+prose about why. The one-line recipe, and the one the numbers below come from:
+
+```bash
+grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l
+```
 
 | Mod | Lines | What it does |
 |---|---|---|
 | `cc_day` | 7 | Holds the world at noon, no sky objects |
-| `cc_mapgen` | 32 + 37 | `init.lua` sets `mg_flags`, the world's size and its depth, and registers the two nodes the bounds are made of — `cc_mapgen:bedrock`, the floor at `y = 0`, and `cc_mapgen:barrier`, a translucent `glasslike` wall; `mapgen_env.lua` writes both on the emerge threads. It is also the only `cc_*` mod with media: two 16×16 textures in `textures/`, licensed in its own `license.txt` |
+| `cc_mapgen` | 51 + 49 | `init.lua` sets `mg_flags`, the world's size and its depth, registers the four nodes the world is made of and the three mapgen aliases a non-V6 mapgen needs of a game; `mapgen_env.lua` writes three of those four on the emerge threads. It is also the only `cc_*` mod with media: four 16×16 textures in `textures/`, licensed in its own `license.txt` |
 | `cc_security` | 101 | Nothing diggable, no drops, no knockback, no inventory form, nothing growing or spreading, and the world-box clamp with the column rescue and its spawn fallback |
+
+The four nodes are `cc_mapgen:dirt`, the fill, which the engine writes itself
+through the `mapgen_stone` alias; `cc_mapgen:grass`, one layer at
+`mgflat_ground_level`; `cc_mapgen:bedrock`, the floor at `y = 0`; and
+`cc_mapgen:barrier`, a translucent `glasslike` wall at the outermost generated
+column.
 
 Everything a player *does* — the sandbox, the drone, the editor, the API and its
 limits — is CodeBlock's, upstream, in its own repository. So a feature-shaped
@@ -142,7 +152,7 @@ already cost findings. Answering from memory is how findings get here.
   engine's default is 8; this game's is 128**, set in `minetest.conf` and forced
   by `cc_mapgen`. This cost a defect in `G6`'s clamp before it shipped: a
   fallback spawn written as `y = 1` would have put a rescued player inside solid
-  stone, because the bedrock plane at `y = 0` is the whole surface height under
+  ground, because the bedrock plane at `y = 0` is the whole surface height under
   the ground a player walks on.
 - **Every `mgflat_*` parameter is stored per world in `map_meta.txt`**, exactly
   as `mapgen_limit` is — `MapgenFlatParams::writeParams` writes the lot, and a
@@ -155,7 +165,7 @@ already cost findings. Answering from memory is how findings get here.
 - **`walkable` defaults to true, and the Lua definition table keeps the
   omission.** The engine applies the default when it reads the definition, so
   `core.registered_nodes[name].walkable` is `nil` for ordinary solid nodes such
-  as `default:stone`. Test `def.walkable ~= false`; testing it for truthiness
+  as `cc_mapgen:dirt`. Test `def.walkable ~= false`; testing it for truthiness
   reads every solid node as walk-through.
 - **`core.get_node` answers `ignore` for an unloaded mapblock**, which is
   indistinguishable from a real node unless you look at the name. Use
@@ -163,36 +173,75 @@ already cost findings. Answering from memory is how findings get here.
   and `core.load_area` first when you intend to write — `core.set_node` into a
   non-resident block silently does nothing. All three spellings exist at the
   5.9 floor. (`B50`)
-- **The world's surface is stone.** `mg_flags` carries `nobiomes`, so `mgflat`
-  has no top or filler node and fills stone to `mgflat_ground_level`. There is no
-  dirt and no grass in a Codecube world until a program places some — `B49` is
-  about what `default` *registers*, not about what the mapgen produces.
+- **The world's surface is grass over dirt, and `cc_mapgen` writes the grass
+  itself.** `mg_flags` carries `nobiomes`, so `mgflat` has no top node and no
+  filler node: it fills `mapgen_stone` to `mgflat_ground_level` and puts nothing
+  on it. `mapgen_stone` is aliased to `cc_mapgen:dirt`, and `mapgen_env.lua`
+  overwrites the single top layer with `cc_mapgen:grass`. So a chunk holding
+  `mgflat_ground_level` cannot be skipped by that file's early return, and a
+  layer added there without a matching test in the early return is a layer that
+  appears in some chunks and not others.
+- **A game must register `mapgen_stone`, `mapgen_water_source` and
+  `mapgen_river_water_source` for any non-V6 mapgen.** `default` did until it was
+  dropped under `A13`; `cc_mapgen` does now. They are not cosmetic: with
+  `mapgen_stone` unresolved `MapgenBasic` writes *"Mapgen alias 'mapgen_stone' is
+  invalid"* to `errorstream` and `c_stone` stays `CONTENT_IGNORE`, so the world
+  fills with `ignore`. The two water names alias to `air`, because no water is
+  ever generated — `mgflat` writes water only at `y <= water_level`, default 1,
+  and this game's surface is 128 with `mgflat_spflags` at its own default
+  `nolakes,nohills,nocaverns`. Verified in `mapgen.cpp` and `mapgen_flat.cpp` at
+  5.9.0.
+- **`tiles` copies its *last* entry to every face it does not name**
+  (`c_content.cpp`, 5.9.0, "Copy last value to all remaining textures"), and the
+  order is `+Y, -Y, +X, -X, +Z, -Z`. So three tiles means top, bottom, and the
+  third on all four sides — which is what `cc_mapgen:grass` uses to show dirt
+  where a program has cut it.
 - **`glasslike_framed` is a trap for a see-through wall.** It draws its faces
   from the *second* tile, not the first, and on a one-node-thick wall it hides
   every frame edge lying in the plane of the wall, keeping only the four that run
   through its thickness — seen end-on, so a dot at each node corner rather than a
   grid of lines (`content_mapblock.cpp`, `drawGlasslikeFramedNode`, at 5.9.0).
-  Vendored `default_obsidian_glass_detail.png` is alpha 0 in every pixel, so
-  those faces draw nothing at all and the wall comes out near-invisible: the
-  `airlike` outcome, reached by accident. Plain `glasslike` puts tile 0 on every
-  face whose neighbour differs, so a texture that is a dark one-pixel border
-  around a transparent centre gives a wall a player can see. `cc_mapgen:barrier`
-  uses that drawtype and `cc_mapgen_barrier.png`, its own texture, for that
-  reason; `cc_mapgen` no longer borrows anything from `default`.
+  The trap was reached with `default_obsidian_glass_detail.png`, alpha 0 in
+  every pixel, so those faces drew nothing at all and the wall came out
+  near-invisible: the `airlike` outcome, by accident. That file is no longer in
+  the tree, and any fully transparent second tile behaves the same way. Plain
+  `glasslike` puts tile 0 on every face whose neighbour differs, so a texture
+  that is a dark one-pixel border around a transparent centre gives a wall a
+  player can see. `cc_mapgen:barrier` uses that drawtype and
+  `cc_mapgen_barrier.png`, its own texture, for that reason.
+- **`core.get_mapgen_setting` works in the mapgen environment**, and it is the
+  only way a number in `cc_mapgen/init.lua` reaches `mapgen_env.lua` — that
+  environment cannot see the main one's locals. Documented in the mapgen env's
+  API list at 5.9.0, and `ModApiMapgen::getEmergeManager` returns the same
+  `EmergeManager` on an emerge thread as on the server, so it reads the very
+  `MapSettingsManager` that `set_mapgen_setting(..., true)` wrote to. It returns
+  a **string**, and nothing there reports a nil: an emerge thread swallows it
+  silently, which is why `mapgen_env.lua`'s fallback is written out.
 - **`use_texture_alpha` takes a string** — `"opaque"`, `"clip"`, `"blend"`, since
   5.4.0. The boolean form is deprecated and costs a line in the boot log, which
   `B19` and `B24` exist to keep clean. The default is `"clip"` for every drawtype
   except normal, liquid, flowingliquid, mesh and nodebox.
 
-## The vendored mods are not ours
+## There are no vendored mods any more
 
-`default`, `dye` and `wool` come from Minetest Game and exist for their node
-definitions. They are excluded from `.luacheckrc` deliberately and are **not to
-be restyled, linted or refactored**. The one sanctioned change is **`A13`**:
-trimming `default` down to the nodes the game actually uses — 9,744 lines for 106
-node definitions — and that is a *deletion* job. It closes `B19` and `B24` with
-it. Deleting a node the palette tables in the mod's config name would break the
-drone, so check the names before removing anything.
+`mods/` holds exactly five directories: `cc_day`, `cc_mapgen`, `cc_security`,
+and the two submodules. **`default`, `dye` and `wool` were deleted outright
+under `A13`**, once CodeBlock started registering its own 105 nodes and stopped
+naming anything from Minetest Game — the condition the milestone had always been
+waiting on. `check_game.sh` prints `5 mods declared`; anything higher means a
+mod has come back into `mods/`, and putting one of these three back would be a
+whole-game decision about licensing and about 9,744 lines of code nobody here
+maintains.
+
+What went with them, so that a re-read of an old document does not put it back:
+the two `flowers:mushroom_*` aliases in `cc_mapgen` (`B19` — only `default`'s
+log schematics named them), the three `.luacheckrc` excludes and the
+`default`/`dye`/`wool` `read_globals`, and the three Minetest Game rows in
+`THIRD-PARTY-LICENSES.md`. **No LGPL-2.1+ or CC BY-SA 3.0 material is left in
+the game.** What did *not* go is `cc_security`'s ABM pass: nothing in the tree
+registers an ABM today, and the pass stays because it is unconditional over
+`core.registered_abms` and covers whatever the next CodeBlock release or a
+server owner's own mod adds.
 
 `mods/codeblock` and `mods/vector3` are submodules: pinned dependencies, never
 working copies. Do not edit, commit to, or lint them from this tree.
@@ -291,9 +340,13 @@ this is an index, not a second copy of either.
 | `paramtype = "light"` and `sunlight_propagates` are a pair: `light_propagates` is derived from `paramtype`, which defaults to `"none"`, so a see-through wall without them shadows for no visible reason | — | `cc_mapgen/init.lua` |
 | `pointable = false` is deliberately *not* set on the barrier — the client alone honours it, and pointing through would let a player place a node on its far side | — | `cc_mapgen/init.lua` |
 | `use_texture_alpha` takes the string form; the boolean is deprecated and costs a boot-log line | `B19`, `B24` | `cc_mapgen/init.lua` |
-| Neither bounds node carries a dig group, for the same reason as the override pass | `B48` | `cc_mapgen/init.lua` |
-| `flowers:mushroom_brown` and `_red` are aliased to `air`, so `default`'s log schematics resolve and the boot log opens clean | `B19` | `cc_mapgen/init.lua` |
+| No node this mod registers carries a dig group, for the same reason as the override pass | `B48` | `cc_mapgen/init.lua` |
+| `mapgen_stone`, `mapgen_water_source` and `mapgen_river_water_source` are all three registered; without `mapgen_stone` the world fills with `ignore`, and the two water names go to `air` because no water is generated | `A13` | `cc_mapgen/init.lua` |
+| `is_ground_content` is `true` on dirt and grass and `false` on bedrock and barrier: the ground may be carved, the bounds may not | — | `cc_mapgen/init.lua` |
 | `mapgen_env.lua` writes `minp..maxp` only, never the emerged shell, which belongs to the neighbouring chunks | — | `cc_mapgen/mapgen_env.lua` |
-| An interior chunk wholly above `y = 0` returns before `get_data`, which would otherwise be half a million nodes read and written on an emerge thread to change none of them | — | `cc_mapgen/mapgen_env.lua` |
+| `ground_level` is read with `get_mapgen_setting` inside the mapgen env, not passed from `init.lua` — that environment sees none of the main one's locals, and a nil there is silent | — | `cc_mapgen/mapgen_env.lua` |
+| A chunk that is interior, wholly above `y = 0` *and* clear of `mgflat_ground_level` returns before `get_data`, which would otherwise be half a million nodes read and written on an emerge thread to change none of them. Every layer the file writes needs a test in that condition | — | `cc_mapgen/mapgen_env.lua` |
+| The grass slab is written before the y loop, so the barrier wins at the wall and the bedrock floor wins if a server owner puts the ground level at or under 0 | — | `cc_mapgen/mapgen_env.lua` |
 | `sunrise_visible = false` is a field of its own — hiding the sun leaves the sunrise texture drawn | `B47` | `cc_day/init.lua` |
+| `codeblock_flat_sky` is **not** set in `minetest.conf`, whatever CodeBlock's roadmap asks: the mod's copy of those five calls lacks `sunrise_visible`, so turning it on both duplicates `cc_day` and restores `B47` | `A7`, `B47` | `cc_day/init.lua`, `minetest.conf` |
 | Every tracked document carries its own `export-ignore` line, or `git archive` ships it to a player | `C15` | `.gitattributes` |

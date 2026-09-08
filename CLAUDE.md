@@ -26,8 +26,8 @@ instructions.
 | | |
 |---|---|
 | `codeblock`, `vector3` | Submodules. Pinned dependencies, **not working copies.** |
-| `cc_day`, `cc_mapgen`, `cc_security` | The game's own mods: permanent daylight, a flat bounded clean mapgen, and the build restrictions. One Lua file each except `cc_mapgen`, which has a second, `mapgen_env.lua`, run in the mapgen environment on the emerge threads. **This is the only Lua this repository owns or lints.** `cc_mapgen` is also the only one with media: two 16×16 textures in `textures/`, for the bedrock floor and the barrier wall, licensed in its own `license.txt`. |
-| `default`, `dye`, `wool` | Vendored from Minetest Game for their nodes. Third-party, deliberately not linted and not ours to restyle. |
+| `cc_day`, `cc_mapgen`, `cc_security` | The game's own mods: permanent daylight, a flat bounded clean mapgen, and the build restrictions. One Lua file each except `cc_mapgen`, which has a second, `mapgen_env.lua`, run in the mapgen environment on the emerge threads. **This is the only Lua this repository owns or lints.** `cc_mapgen` is also the only one with media: 16×16 textures in `textures/`, licensed in its own `license.txt`. |
+| `default`, `dye`, `wool` | Vendored from Minetest Game for their nodes, and **being deleted under `G3`** — CodeBlock registers its own 105 nodes since its `F11` and depends on `vector3` alone, so nothing reachable came from them. Until the deletion is committed they are still there: third-party, deliberately not linted and not ours to restyle. |
 
 **CodeBlock is developed in its own sibling checkout, not here.** `mods/codeblock`
 exists so the game assembles and runs; it has its own repository, its own record,
@@ -133,7 +133,7 @@ own skill first. Their definitions are the long form; this is only the map.
 | Agent | Owns | Reads |
 |---|---|---|
 | `project-manager` | the record above, `README.md`, `CONTENTDB.md` and the `.cdb.json` generator over it, `.reports/`, and the `.claude/` definitions bar the two below | `build-feature` |
-| `code-expert` | `mods/cc_day`, `mods/cc_mapgen`, `mods/cc_security`, `scripts/`, `game.conf`, `minetest.conf`, the packaging and lint configuration, `THIRD-PARTY-LICENSES.md` and each mod's `license.txt`, and its own two files — `.claude/agents/code-expert.md` and `.claude/skills/code-standards/SKILL.md` | `code-standards`, `luanti-reference` |
+| `code-expert` | `mods/cc_day`, `mods/cc_mapgen`, `mods/cc_security`, `scripts/`, `game.conf`, `minetest.conf`, `settingtypes.txt`, the packaging and lint configuration, `THIRD-PARTY-LICENSES.md` and each mod's `license.txt`, and its own two files — `.claude/agents/code-expert.md` and `.claude/skills/code-standards/SKILL.md` | `code-standards`, `luanti-reference` |
 | `test-agent` | the two gates, the CI lookup, `PLAYTEST.md`'s result lines, and the evidence side of `AUDIT.md` | `run-checks`, `luanti-reference` |
 
 Two rules make the split work: **call the agent rather than doing its work**, and
@@ -187,8 +187,17 @@ you changed.
 
 ## Architecture
 
-`cc_mapgen` makes the world flat, clean and bounded, and it defines **two**
-nodes for that. `cc_mapgen:bedrock` is the floor at `y = 0`, including the
+`cc_mapgen` makes the world flat, clean and bounded, and it defines **four**
+nodes for that — two for the bounds and, since `G3`, two for the ground. It also
+registers the engine's three **essential** non-V6 mapgen aliases,
+`mapgen_stone`, `mapgen_water_source` and `mapgen_river_water_source`, which came
+from `mods/default/mapgen.lua` until that mod was deleted; the two water ones
+alias to `air`, because the surface stands far above `mgflat`'s water level and no
+water is ever generated. `mapgen_stone` aliases to `cc_mapgen:dirt`, which is
+therefore what the engine fills the world with, and `mapgen_env.lua` writes a
+**single** layer of `cc_mapgen:grass` at `mgflat_ground_level` on top of it —
+`mg_flags` carries `nobiomes`, so the engine supplies no top or filler node of its
+own. `cc_mapgen:bedrock` is the floor at `y = 0`, including the
 outermost column at that layer, so the wall stands on a one-node opaque skirt;
 it is also the node `cc_security`'s rescue writes back under a player.
 `cc_mapgen:barrier` is the wall at the outermost generated column, above the
@@ -203,14 +212,16 @@ the world box **into their own column** — clamping it inside the wall, making 
 floor whole under it and standing them on the first height in it they fit, and
 falling back to the spawn point only when nothing in that column fits. Those
 writes are **the one place this game writes to the map**; every other rule in
-`cc_security` denies. Four Lua files and two 16×16 textures. **177 lines** of code — `cc_day` 7,
-`cc_mapgen` 32 + 37, `cc_security` 101, counting neither blanks nor comments, and
-464 lines in all. That is the whole of this game's code.
+`cc_security` denies. Four Lua files, and the whole of this game's code:
+**208 lines** — `cc_day` 7, `cc_mapgen` 51 + 49, `cc_security` 101, counting
+neither blanks nor comments, and **572 lines in all**. `G3` is what moved it from
+177; read the files rather than trusting the number.
 
-**The surface is stone, and the bedrock floor is buried deep.** `mg_flags` carries
-`nobiomes`, so `mgflat` has no top or filler node — there is no dirt and no grass
-in the world until a program places some — and it fills stone up to
-`mgflat_ground_level`, which this game sets to **128**. So a player stands about
+**The bedrock floor is buried deep under the ground.** `mgflat` fills
+`mapgen_stone` — `cc_mapgen:dirt` — up to
+`mgflat_ground_level`, which this game sets to **128**, and `mapgen_env.lua` puts
+one layer of grass on top. Nothing else is in the world until a program places
+it. So a player stands about
 128 nodes up and the plane at `y = 0` is that far down, well out of sight in
 ordinary play: reaching it means having a program clear a shaft. **It was 8 until
 2026-09-07**, and a great deal of prose in this repository still reasons from

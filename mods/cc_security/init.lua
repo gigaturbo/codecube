@@ -24,18 +24,24 @@ minetest.register_allow_player_inventory_action(deny)
 
 -- Nothing is diggable, no node inventory accepts anything, and no node timer
 -- ever fires. The inventory rule is the node's side of the boundary the callback
--- above holds for the player, and either one closes the bookshelf by itself;
--- neither stops the formspec opening, since it lives in node metadata rather
--- than in the definition. (S8) The timer rule is what stops a sapling a program
--- placed from becoming a tree the program never wrote. (B49)
+-- above holds for the player: a node that carries an inventory -- a chest, a
+-- furnace, a bookshelf -- is closed by either rule on its own, and neither stops
+-- its formspec opening, since that lives in node metadata rather than in the
+-- definition. (S8) The timer rule is what stops a node a program placed from
+-- becoming something the program never wrote, a sapling into a tree. (B49)
 --
--- No ABM runs either. `default` registers six, and two of them rewrite a build:
--- `dirt` beside any `dirt_with_*` becomes that node, and any `spreading_dirt_type`
--- reverts to plain `dirt` as soon as something opaque covers it -- so roofing a
--- grass floor quietly destroys the grass. Luanti has no API to unregister an ABM,
--- so each action is replaced with a no-op instead. The table is deliberately not
--- cleared: the engine registers each ABM by position, and emptying it would leave
--- those registrations pointing at nothing. (B49)
+-- No ABM runs either. Nothing this game bundles registers one today: the six
+-- that mattered were `default`'s and went out with it under A13, two of them
+-- rewriting a build as they ran -- `dirt` beside any `dirt_with_*` became that
+-- node, and any `spreading_dirt_type` reverted to plain `dirt` as soon as
+-- something opaque covered it, so roofing a grass floor quietly destroyed the
+-- grass. The pass stays anyway, for the same reason the node loop above is
+-- unconditional: it costs one loop over a table that is usually empty, and it
+-- covers whatever the next codeblock release or a server owner's own mod
+-- registers. Luanti has no API to unregister an ABM, so each action is replaced
+-- with a no-op instead. The table is deliberately not cleared: the engine
+-- registers each ABM by position, and emptying it would leave those
+-- registrations pointing at nothing. (B49)
 --
 -- `diggable = false` is what enforces the restriction, but only on the server.
 -- The client predicts a dig from the node's groups and its own tool
@@ -112,16 +118,16 @@ local world_min, world_max = minetest.get_mapgen_edges()
 -- game's 5.9 floor has.
 --
 -- Without a static spawn point, the first air node over the mapgen's ground. The
--- bedrock plane at y = 0 is *not* the surface: mgflat fills stone up to and
--- including mgflat_ground_level, which this game sets to 128, so the plane sits
--- that far under it and a rescue to y = 1 would land the player inside stone.
+-- bedrock plane at y = 0 is *not* the surface: mgflat fills solid ground up to
+-- and including mgflat_ground_level, which this game sets to 128, so the plane
+-- sits that far under it and a rescue to y = 1 would land the player inside it.
 -- The setting is read rather than assumed because a server owner may change it
 -- -- game.conf does not disallow it -- and it comes back as a string.
 --
 -- The 128 guards a nil the engine should never return, cc_mapgen having forced
 -- the setting before this mod loads. It is the game's own default, from
 -- minetest.conf; the engine's own default of 8 would be a fallback into a
--- hundred and twenty nodes of solid stone.
+-- hundred and twenty nodes of solid ground.
 --
 -- `minetest.get_spawn_level` answers a similar question, but not here: it needs
 -- the emerge manager, which is initialised after every mod has run, and until
@@ -149,7 +155,7 @@ local body = {feet, head}
 --
 -- Every caller tests against `true` or `false` and never for truthiness, for two
 -- reasons. `walkable` defaults to true and node definitions leave it out, so the
--- field is `nil` on an ordinary solid node such as default:stone. And an
+-- field is `nil` on an ordinary solid node such as cc_mapgen:dirt. And an
 -- unanswerable node has to count as unusable in *both* directions: it cannot be
 -- relied on to hold the player, and it cannot be assumed to be clear.
 local function walkable(pos)
@@ -194,12 +200,12 @@ local function repair_spawn()
 end
 
 -- How far up a column a rescue looks for room to stand: the mapgen surface,
--- which is stone to mgflat_ground_level, plus 64 nodes of whatever a program has
--- built on top of it, and never past the top of the world. It is also the height
--- of the column load_area pulls into memory -- thirteen mapblocks, a little over
--- 200 kB, with the surface at 128. A player whose own column is solid the whole
--- way up goes to spawn instead: that is what the bound trades away, and the
--- spawn path is the one that cannot fail.
+-- which is dirt under one layer of grass to mgflat_ground_level, plus 64 nodes
+-- of whatever a program has built on top of it, and never past the top of the
+-- world. It is also the height of the column load_area pulls into memory --
+-- thirteen mapblocks, a little over 200 kB, with the surface at 128. A player
+-- whose own column is solid the whole way up goes to spawn instead: that is
+-- what the bound trades away, and the spawn path is the one that cannot fail.
 local scan_top = math.min(ground + 64, world_max.y - 1)
 
 -- Where to put a player who has left the world box: their own column, made

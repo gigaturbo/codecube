@@ -35,7 +35,21 @@ Nothing below can be closed by an agent.
 - [ ] `W4`, `W8` and `W9` are owed re-runs at the new depth: all three pass at
       `60259dd`, where `mgflat_ground_level` was 8, and all three exercise heights
       the rescue derives from that number. **`W14` discharges none of them** —
-      `PLAYTEST.md`'s *what needs action* table says why per check (audit B50)
+      `PLAYTEST.md`'s *what needs action* table says why per check (audit B50).
+      **G3 widens this to the whole `W` group**, since it rewrites both of the
+      files that group exercises
+- [ ] `W15`, `W16` and `R9` are new and have no commit to run against yet, and
+      `R1`'s method and `R8`'s subjects were rewritten because their nodes are
+      being deleted (roadmap G3). Do this sitting **before** G4's, or G4's results
+      are owed a re-run the moment the deletion lands
+- [ ] `code-expert`: with `default` gone nothing registers an ABM or an
+      `on_timer`, so `cc_security`'s two neutralising loops walk empty sets, and
+      `cc_mapgen`'s two `flowers:*` aliases have no schematics left to resolve.
+      Keep as defence or delete as dead code — a decision, not a finding (audit
+      B49, B19)
+- [ ] `P2` and the changelog's download figure: the deletion of three vendored
+      mods changes the archive size, and `CHANGELOG.md` still states 1.93 MB
+      measured at `48cc63e`. Re-measure at release (audit C15)
 - [ ] one playtest sitting for what G4 left: see the *what needs action* table in
       `PLAYTEST.md` rather than a second list here (audit B48, B19, B24)
 - [ ] `check_game.sh`: nothing reads a media file, so a texture or menu image
@@ -46,9 +60,11 @@ Nothing below can be closed by an agent.
       file ships or does not with nothing failing (audit C15, C22). It passed at
       `48cc63e` on 2026-09-08 and has been needed twice in two milestones
 - [ ] `cc_day`: drop the duplicate of a block `codeblock` already runs (audit A7)
-      — upstream edit, closes at adoption
-- [ ] trim vendored `default` down to the nodes the game actually uses (audit
-      A13) — deferred, not pending: `codeblock` is expected to take the blocks
+      — settled upstream as a setting off by default, not a removal; closes at
+      adoption on `L3`, and the game must **not** set `codeblock_flat_sky`
+- [ ] delete `mods/default`, `mods/dye` and `mods/wool`, and give `cc_mapgen` the
+      three mapgen aliases and the grass/dirt surface that go with it (audit A13,
+      roadmap G3) — no longer deferred: `codeblock` took the blocks (its F11)
 - [ ] `vector3` declares `max_minetest_version = 5.5`, four minor versions below
       the 5.9 G6 needs (audit C21) — upstream or a re-pin
 - [ ] adopt a tagged CodeBlock release and update the game's documentation with
@@ -73,7 +89,9 @@ Nothing below can be closed by an agent.
 
 These are the mod's defects, read while working on the game. They get no
 `B`/`S`/`C`/`A` id in `AUDIT.md`; they are hand-offs to the other repository.
-Both were read, neither was run.
+Both were read, neither was run. **Both re-read at `fb75bc8` on 2026-09-08 and
+both still apply** — `check_inside_world` is still position-only and the bound is
+still the raw `mapgen_limit` setting, at `lib/commands.lua:53` and `:92`.
 
 - [ ] codeblock: `check_inside_world` is applied to the drone's position only,
       never to a shape's extent — `lib/commands.lua:82-87`, called at `:130`,

@@ -181,8 +181,9 @@ that carried meaning has to have become words.
 ### 8. Licensing and packaging
 
 - Every bundled mod carries a licence file, or is named in
-  `THIRD-PARTY-LICENSES.md`. That includes vendored `default`, `dye` and `wool`,
-  which are third-party, and the two submodules.
+  `THIRD-PARTY-LICENSES.md`. **Read `mods/` rather than a list**: which mods are
+  bundled changes, and `G3` deletes the vendored `default`, `dye` and `wool` that
+  this gate used to name. The two submodules count.
 - **Licensing reaches media, not just code.** Every image and every texture that
   ships has a stated licence somewhere a player can find. Two classes exist here:
   `menu/`'s images, which the main menu reads, and `mods/cc_mapgen/textures/`'s

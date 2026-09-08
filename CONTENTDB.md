@@ -18,8 +18,8 @@ somewhere worth building.
   bounded by the same edge, so it can never build where you cannot walk.
 - **A floor you cannot fall through.** Under the world is bedrock at `y = 0`
   with nothing generated below it, and the surface stands 128 nodes above that —
-  solid stone the whole way down, so the world is something to dig into as well
-  as to build on. If a program removes a floor tile and you drop through it, you
+  a layer of grass over dirt the whole way down, so the world is something to dig
+  into as well as to build on. If a program removes a floor tile and you drop through it, you
   are put back into your own column on the first free space in it, rather than
   sent to the spawn point. Both numbers are settings a server owner can change,
   under Content: Games → Codecube: `mapgen_limit` is half the world's width, and
@@ -76,6 +76,10 @@ worlds you have already played in.
   out of it. An existing world is re-bounded when you open it, but only ground
   that has not been generated yet gets a wall or the new surface height, so an
   old world has a step where the two meet.
+- The blocks a program places are the CodeBlock mod's own — 35 colours in solid,
+  glass and lamp — so the game no longer bundles Minetest Game's `default`,
+  `wool` and `dye` for their nodes. The ground is the game's own too: grass on
+  top, dirt underneath.
 - The drone's limits were rewritten around what a program costs the server —
   running time, blocks written, map held — instead of counts of calls. Nothing
   bounds a shape's size or how far the drone may fly from home any more.

@@ -10,21 +10,18 @@ Each carries its licence text in its own directory.
 |-----|---------|-----------|------|
 | `codeblock` | AGPL-3.0-only | giga-turbo | `mods/codeblock/LICENSE` (submodule, carries its own) |
 | `vector3` | see file | ISs25u / giga-turbo | `mods/vector3/LICENSE` (submodule, carries its own) |
-| `default` | LGPL-2.1+ / CC BY-SA 3.0 | Minetest Game contributors | `mods/default/license.txt` |
-| `dye` | LGPL-2.1+ / CC BY-SA 3.0 | Minetest Game contributors | `mods/dye/license.txt` |
-| `wool` | LGPL-2.1+ / CC BY-SA 3.0 | Minetest Game contributors | `mods/wool/license.txt` |
 | `cc_day`, `cc_mapgen`, `cc_security` | AGPL-3.0-only (code; `cc_mapgen`'s textures are CC-BY-SA-4.0) | giga-turbo | each mod's `license.txt` |
 
 ## Media
 
 Code and media are licensed separately by convention, and a licence file covering
-source code does not cover the textures beside it. This table is the game's own
-media; the vendored mods' textures are covered by the *License of media* sections
-of their own `license.txt` files, listed above.
+source code does not cover the textures beside it. Since the three Minetest Game
+copies were dropped, every texture and image in this game is its own work, and
+this table is all of it.
 
 | Files | Licence | Copyright | Text |
 |-------|---------|-----------|------|
-| `mods/cc_mapgen/textures/cc_mapgen_bedrock.png`, `cc_mapgen_barrier.png` | CC-BY-SA-4.0 | giga-turbo | `mods/cc_mapgen/license.txt`, *License of media* |
+| `mods/cc_mapgen/textures/cc_mapgen_grass.png`, `cc_mapgen_dirt.png`, `cc_mapgen_bedrock.png`, `cc_mapgen_barrier.png` | CC-BY-SA-4.0 | giga-turbo | `mods/cc_mapgen/license.txt`, *License of media* |
 | `menu/background.png`, `menu/header.png`, `menu/icon.png` | CC-BY-SA-4.0 | giga-turbo | `menu/license.txt` |
 
 **All of the game's own media is CC-BY-SA-4.0, and all of its code stays
@@ -59,12 +56,22 @@ Brett O'Donnell, ShadowNinja) was removed in v1.0.0. Only four shape functions
 were ever reachable from it; they are now `mods/codeblock/lib/shapes.lua`. Listed
 here so the history stays legible — nothing in the game bundles it any more.
 
-`mods/default`, `mods/dye` and `mods/wool` are copies from Minetest Game. Of
-`default`, only its node definitions are reachable: **106** of them, out of 9,744
-lines. `wool` supplies 15 more and `dye` is there because `wool` requires it —
-nothing in the game names a dye. The count was 108 here until it was checked by
-extracting every `default:` and `wool:` name from CodeBlock's palette and sorting
-it unique; the audit records that correction under `A13`.
+`mods/default`, `mods/dye` and `mods/wool` (copies from Minetest Game;
+LGPL-2.1+ code, CC BY-SA 3.0 media, Minetest Game contributors) were removed
+under `A13`. They were bundled only for the node definitions CodeBlock's palette
+named — **106** of `default`'s, out of 9,744 lines, plus 15 of `wool`'s, with
+`dye` there only because `wool` required it. CodeBlock now registers its own 105
+nodes and names nothing from any of the three, so all three went out whole
+rather than being trimmed. Listed here so the history stays legible — nothing in
+the game bundles them any more, and no LGPL-2.1+ or CC BY-SA 3.0 material
+remains in it.
+
+What is left is **no vendored copy of anything**: the game bundles its own three
+`cc_*` mods, and two submodules that carry their own licence files and are
+updated from their own upstreams rather than copied in here. So the second route
+in `scripts/check_game.sh`'s licence check — a mod covered by this document
+instead of by a licence file of its own — again has no user, and is kept only as
+a mechanism for the next submodule that needs it.
 
 `mods/formspecs` (ActiveFormspecs, MIT, by Leslie E. Krause) was removed in
 v1.0.0. Its formspec session handling is now `mods/codeblock/lib/forms.lua`,

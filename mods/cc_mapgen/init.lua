@@ -1,9 +1,16 @@
 -- The world: flat, bounded, and clean of everything a mapgen would otherwise
--- put in it. The bounds themselves -- a bedrock floor at y = 0 and a translucent
--- barrier wall at the outermost generated column -- are written by
--- mapgen_env.lua, on the emerge threads; this file settles the number they are
--- measured from and the two nodes they are made of.
+-- put in it. Four nodes make the whole of it -- dirt for the fill, one layer of
+-- grass on top, a bedrock floor at y = 0, and a translucent barrier wall at the
+-- outermost generated column. The engine writes the dirt itself, through the
+-- mapgen_stone alias below; mapgen_env.lua writes the other three on the emerge
+-- threads. This file settles the numbers all of that is measured from and
+-- registers the nodes it is made of.
 
+-- `nobiomes` is what makes the grass layer this game's job rather than the
+-- engine's: without biomes mgflat has no top node and no filler node, so it
+-- fills mapgen_stone to the surface and puts nothing on it. The other flags
+-- keep the world clean -- no caves, no dungeons, no decorations, no ores -- and
+-- `light` is left on so the sky lights the surface.
 minetest.set_mapgen_setting("mg_flags",
                             "nocaves,nodungeons,light,nodecorations, nobiomes, noores",
                             true)
@@ -24,9 +31,10 @@ local mapgen_limit = tonumber(minetest.settings:get("mapgen_limit")) or 1024
 
 minetest.set_mapgen_setting("mapgen_limit", mapgen_limit, true)
 
--- How high the stone surface stands over the bedrock floor, and so the height a
--- player walks about at: mgflat fills stone from the bottom of the world up to
--- and including this y, and mapgen_env.lua clears everything under y = 0 again.
+-- How high the ground stands over the bedrock floor, and so the height a player
+-- walks about at: mgflat fills mapgen_stone -- this game's dirt -- from the
+-- bottom of the world up to and including this y, mapgen_env.lua turns that top
+-- layer into grass, and it clears everything under y = 0 again.
 -- settingtypes.txt declares it; the game's minetest.conf carries the real
 -- default.
 --
@@ -43,16 +51,71 @@ local ground_level = tonumber(minetest.settings:get("mgflat_ground_level")) or
 
 minetest.set_mapgen_setting("mgflat_ground_level", ground_level, true)
 
--- The two edges of the world, and nothing else. Neither is in any inventory,
--- neither drops anything, and neither carries a dig group -- so the client does
--- not predict a dig on them either (B48). Being registered nodes, both are
--- covered by cc_security's override pass for free. Both textures are this mod's
--- own, 16x16 and near-black, so the floor and the wall read as one material and
--- nothing here depends on `default` for its appearance.
+-- Every node below shares four fields, for one reason each. None is in any
+-- inventory and none drops anything, because a player is not meant to hold the
+-- world's own material. None carries a dig group, so the client does not
+-- predict a dig on it either (B48). And each says `diggable = false` even
+-- though cc_security's register_on_mods_loaded pass sets it on every registered
+-- node whatever is written here: the field states the intent, and leaving it
+-- out would read as a node this game meant to be dug, of which it has none.
+--
+-- All four textures are this mod's own and 16x16. The three mottled ones --
+-- grass, dirt and bedrock -- are drawn so their noise wraps at every edge, so a
+-- large flat area of any of them shows no tiling grid. The barrier is a border
+-- rather than a field, and tiles by construction.
+
+-- The ground the mapgen fills the world with, and the one layer on top of it.
+-- Three tiles, not one: +Y, -Y, then the last entry copied to all four sides,
+-- so a grass node exposed by a program shows dirt where it was cut.
+--
+-- `is_ground_content` is the default `true` here and `false` on the two bounds
+-- below, and that contrast is the point. These two *are* the mapgen's ground
+-- and there is nothing to protect in them; the floor and the wall must never be
+-- carved through, whatever generates. Moot while mg_flags carries nocaves and
+-- nodungeons, and still the honest answer if that ever changes.
+minetest.register_node("cc_mapgen:dirt", {
+    description = "Dirt",
+    tiles = {"cc_mapgen_dirt.png"},
+    is_ground_content = true,
+    diggable = false,
+    drop = "",
+    groups = {not_in_creative_inventory = 1}
+})
+
+minetest.register_node("cc_mapgen:grass", {
+    description = "Grass",
+    tiles = {
+        "cc_mapgen_grass.png", "cc_mapgen_dirt.png", "cc_mapgen_dirt.png"
+    },
+    is_ground_content = true,
+    diggable = false,
+    drop = "",
+    groups = {not_in_creative_inventory = 1}
+})
+
+-- The three mapgen aliases every non-V6 mapgen requires of a game. `default`
+-- registered them until it was dropped, and they are not optional: with
+-- mapgen_stone unresolved the engine writes "Mapgen alias 'mapgen_stone' is
+-- invalid" to errorstream and fills the world with `ignore`, which is not a
+-- node and cannot be stood on.
+--
+-- The two water aliases point at `air` rather than at a water node, because
+-- this game has no water and generates none. mgflat writes water only where the
+-- surface falls to or below `water_level`, whose default is 1, and this game's
+-- surface stands at 128 with mgflat_spflags left at its own default of
+-- `nolakes,nohills,nocaverns` -- which game.conf's disallowed_mapgen_settings
+-- keeps the world creation dialog from changing. `air` is a registered node, so
+-- both aliases resolve and the boot log stays clean; omitting them costs an
+-- errorstream line and a warningstream line at every mapgen init. (B19)
+minetest.register_alias("mapgen_stone", "cc_mapgen:dirt")
+minetest.register_alias("mapgen_water_source", "air")
+minetest.register_alias("mapgen_river_water_source", "air")
+
+-- The two edges of the world. Both are near-black, so the floor and the wall
+-- read as one material and neither is mistaken for ground.
 --
 -- Bedrock is the floor at y = 0, and the node cc_security's rescue writes back
--- under a player. Its texture is a mottled near-black grey whose noise wraps at
--- every edge, so a floor of it shows no tiling grid.
+-- under a player. Its texture is a mottled near-black grey.
 minetest.register_node("cc_mapgen:bedrock", {
     description = "Bedrock",
     tiles = {"cc_mapgen_bedrock.png"},
@@ -99,18 +162,8 @@ minetest.register_node("cc_mapgen:barrier", {
     groups = {not_in_creative_inventory = 1}
 })
 
--- The floor and the wall are written where the chunk already is: in the
--- VoxelManip the mapgen hands to the emerge threads. Needs Luanti 5.9, which is
--- what min_minetest_version in game.conf claims.
+-- The grass, the floor and the wall are written where the chunk already is: in
+-- the VoxelManip the mapgen hands to the emerge threads. Needs Luanti 5.9,
+-- which is what min_minetest_version in game.conf claims.
 minetest.register_mapgen_script(minetest.get_modpath("cc_mapgen") ..
                                     "/mapgen_env.lua")
-
--- Four of `default`'s log schematics embed `flowers:mushroom_brown` and
--- `flowers:mushroom_red`, and no `flowers` mod is vendored, so the node resolver
--- prints five errors on every world load. Nothing is broken by them: decorations
--- are off above, so those schematics never place anything. Aliasing the two
--- missing names to `air` gives the resolver something to resolve and the log
--- opens clean. Deleting the schematics instead would mean editing vendored
--- binaries; this survives `default` being trimmed or dropped. (B19)
-minetest.register_alias("flowers:mushroom_brown", "air")
-minetest.register_alias("flowers:mushroom_red", "air")

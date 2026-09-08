@@ -30,23 +30,27 @@ Target is **v1.0.0**, major because several changes break saved player programs.
 
 ## Now
 
-**Play `G4`'s restrictions sitting.** `G7`'s went in on 2026-09-08 and all five
-of `W10`–`W14` passed, so both open milestones are now done on both counts and
-everything outstanding is *checking*: five of the thirty checks in `PLAYTEST.md`
-have never been run, and seven passes are owed re-runs. The sitting is `R8` at
-`ec02760` with `R1`, `R4`, `R6` and `P3` beside it, plus `P4`, `P1`'s boot half
-and the thirty seconds of `R3` that closes `R5`; the `W4`, `W8` and `W9` re-runs
-at the new depth fold in beside it, and `W14` discharges none of them.
+**Finish `G3`, whose deferral ended on 2026-09-08.** CodeBlock at `fb75bc8`
+registers its own 105 nodes and depends on `vector3` alone, which is the exact
+condition `A13`'s deferral named — so `mods/default`, `mods/dye` and `mods/wool`
+are **deleted outright** rather than trimmed, and `cc_mapgen` takes over the three
+essential mapgen aliases and the world's surface material. The world's fill
+becomes `cc_mapgen:grass` over `cc_mapgen:dirt` on the author's instruction. The
+code is `code-expert`'s and is being written; nothing of it is committed, and the
+record below, `README.md`, `CONTENTDB.md` and `CHANGELOG.md` describe the change
+rather than the tree.
+
+**Then the two playtest sittings, which the deletion has made larger.** `G4`'s
+was already owed — `R8` at `ec02760` with `R1`, `R4` and `P3` beside it, `P4`,
+`P1`'s boot half and the thirty seconds of `R3` that closes `R5`, plus the `W4`,
+`W8` and `W9` re-runs at the new depth. `G3` adds `W15`, `W16` and `R9` and
+rewrites the method of `R1` and `R8`, whose subjects were `default` and `wool`
+nodes; it also leaves `R6` and `R7` **unrunnable**, their subjects deleted.
 `PLAYTEST.md` holds the list; it is not restated here.
 
-**The boot is narrower rather than confirmed.** The `G7` passes are unobservable
-without the game booting and a world being entered, so the author's own checkout
-boots; what is unrun is `P1`'s boot half, which is a *fresh recursive clone* whose
-submodule objects nobody has locally, and `P3`, the boot log.
-
-Nothing else can move without the author: `A7`'s edit is upstream, `A13` waits on
-a decision in `codeblock`, and `C21` is a submodule's metadata. `C22` closed on
-2026-09-08 — the licence question is answered.
+Nothing else can move without the author: `A7` is settled and closes at adoption,
+and `C21` is a submodule's metadata. `C22` closed on 2026-09-08 — the licence
+question is answered.
 
 ## Milestones
 
@@ -58,7 +62,7 @@ whatever is opened after it.
 |---|---|---|---|---|
 | `G1` | Ship an honest, installable package | done | 5/5 | — |
 | `G2` | Check the game, not the mod | done | 4/4 | — |
-| `G3` | Trim what the game vendors | one part done, the rest deferred | 1/2 | 1/1 |
+| `G3` | Delete what the game vendors | **unblocked 2026-09-08**; the deletion is being written | 1/5 | 1/2 |
 | `G4` | Make the game's own mods behave | done here; the fifth item is `G5`'s | 4/5 | 3/4 |
 | `G6` | Bound the world | **done on both counts** | 5/5 | 6/6 |
 | `G7` | Make the world something to be in | **done on both counts** | 3/3 | 5/5 |
@@ -97,25 +101,62 @@ mod's Phase 3.
 - [x] Fix `gen_cdb_json.sh` producing different output by line ending.
 - [x] Add `cc_mapgen` (flat clean world) and `cc_day` (permanent noon).
 
-### G3. Trim what the game vendors — one part done, the rest deferred (1/2)
+### G3. Delete what the game vendors — unblocked 2026-09-08 (1/5)
 
-Scoped 2026-09-02, and the scoping is what changed it: reading `default` against
-the palette turned up a behaviour defect nobody had looked for and made the case
-for the trim weaker, not stronger. The palette is **122 nodes — 106 from
-`default`, 15 from `wool`, plus `air`**, corrected from 124 and 108 while
-scoping; all 106 are in `nodes.lua`, so the removable set is whole files.
+**The deferral ended, and the answer is deletion rather than trimming.**
+CodeBlock at `fb75bc8` registers **its own 105 nodes** in `lib/nodes.lua` — 35
+colours × solid/glass/lamp, `codeblock:<short>`, `codeblock:<short>_glass`,
+`codeblock:<short>_lamp` — and `mods/codeblock/mod.conf` now reads
+`depends = vector3` only. Their finding for it is `F11` and its reason is that
+`default` and `wool` are Minetest Game's and ship with almost no other game. That
+is exactly what `A13`'s deferral was waiting for, in as many words: *"CodeBlock is
+expected to integrate the blocks it needs, at which point `default` is deleted
+rather than trimmed."* So the 9,744-lines-for-106-nodes framing is spent, and what
+is left is a removal plus two consequences.
+
+The palette is no longer the game's contract at all: every block a program can
+name is `codeblock:*`, so nothing here has to be kept in step with it.
 
 - [x] Stop the world changing on its own — two `default` ABMs rewriting palette
   nodes, and ten saplings growing over what a program built. `R7` passes. (`B49`)
-- [ ] Trim vendored `default` itself. **Deferred, not pending**; grounds under
-  *deliberately not doing*. It carries nothing: `B19` and `B24` were closed
-  directly rather than left waiting behind it. (`A13`)
+- [ ] Delete `mods/default`, `mods/dye` and `mods/wool`. (`A13`)
+- [ ] Register `mapgen_stone`, `mapgen_water_source` and
+  `mapgen_river_water_source` in `cc_mapgen` — decision 1. `W16`.
+- [ ] Add `cc_mapgen:grass` and `cc_mapgen:dirt`, grass one layer thick at
+  `mgflat_ground_level` and dirt below it — decision 2. `W15`.
+- [ ] Rewrite the `PLAYTEST.md` methods that name a `default` or `wool` node, and
+  mark the two checks the deletion leaves unrunnable. **Written 2026-09-08 and
+  uncommitted with the rest**: `R1` and `R8` rewritten, `W15`, `W16` and `R9`
+  added, `R6` and `R7` unrunnable. The box closes with the commit.
+
+**Two decisions, both 2026-09-08.**
+
+1. **`cc_mapgen` supplies the three essential mapgen aliases**, because
+   `mods/default/mapgen.lua:7-9` was the only thing in the tree registering them
+   and `lua_api.md` lists all three as **essential for every non-V6 mapgen**.
+   Nothing in the record anticipated this, and it is the real cost of the
+   deletion. `mapgen_water_source` and `mapgen_river_water_source` alias to
+   **`air`**: the surface stands at 128, far above `mgflat`'s water level, so no
+   water is ever generated and there is nothing for a water node to be.
+2. **The surface is grass over dirt, not stone.** Asked what the 128-node fill
+   should be made of once `default:stone` was gone, the author answered *"a new
+   grass-like block (green, light texture)"*, and asked whether that was the whole
+   fill or a skin, *"grass above, dirt under"*. So `cc_mapgen:grass` is a **single
+   top layer** at `mgflat_ground_level`, written by `mapgen_env.lua` because
+   `mg_flags` carries `nobiomes` and the engine therefore has no top or filler
+   node of its own, and `cc_mapgen:dirt` is the fill `mapgen_stone` aliases to.
+   The bedrock floor at `y = 0` and the barrier wall are unchanged. This
+   **reverses `G6` decision 1's "that fill is stone"** and the "no dirt and no
+   grass until a program places some" claim that followed from it, which was true
+   only while the world borrowed `default`'s nodes.
 
 ### G4. Make the game's own mods behave — done here (4/5)
 
 The first playtest added three of these five and all three are fixed. **Nothing
-left here can be acted on**: the one open item is `A7`, whose edit is upstream and
-whose game-side half is `G5`'s. What is outstanding is *checking*.
+left here can be acted on**: the one open item is `A7`, which is settled upstream
+and whose game-side half is adopting the release and running `L3` — `G5`'s. What
+is outstanding is *checking*, and `G5` owns that check rather than this
+milestone.
 
 - [x] `cc_day`: hide the sunrise texture too. `L1` passes. (`B47`)
 - [x] Close the bookshelf, twice — the second fix denies every player-initiated
@@ -125,9 +166,13 @@ whose game-side half is `G5`'s. What is outstanding is *checking*.
   finding stays open for the every-node table walk. (`A8`)
 - [x] Strip six digging groups so the client stops predicting a dig. Committed
   `ec02760`, **unverified** — `R8` closes it. (`B48`)
-- [ ] Drop `cc_day`'s duplicate of a block `codeblock` already runs. **The edit is
-  upstream** and nothing in this repository changes; the game's half is adopting
-  the release and running `L3`. Untidiness only. (`A7`)
+- [ ] Drop `cc_day`'s duplicate of a block `codeblock` already runs. **Settled
+  upstream on different terms than this record predicted, 2026-09-08**: the block
+  was not deleted but put behind `codeblock.config.flat_sky`, a setting **off by
+  default** (their `C18`, at their `6fea453`). The outcome is the one predicted —
+  `cc_day` is the copy that survives and nothing in this repository changes — and
+  **the game must not set the flag**; see *deliberately not doing*. The game's
+  half is adopting the release and running `L3`. Untidiness only. (`A7`)
 
 ### G6. Bound the world — done: 5/5 written at `60259dd`, 6/6 checked
 
@@ -172,8 +217,10 @@ playing it, the eighth about this record.**
 1. **A thin slab, not a solid block.** Bedrock plane at `y = 0`, air below,
    `mgflat`'s ordinary fill above; keeping the fill and only adding walls
    generates thousands of nodes nobody reaches and leaves the floor invisible.
-   That fill is **stone**: `mg_flags` carries `nobiomes`, so `mgflat` has no top
-   or filler node and no dirt or grass exists until a program places some.
+   That fill was **`default:stone`**, and **`G3` decision 2 replaced it** on
+   2026-09-08 with `cc_mapgen:grass` over `cc_mapgen:dirt`. `mg_flags` carries
+   `nobiomes` either way, so the engine supplies no top or filler node and
+   `mapgen_env.lua` writes the grass layer by hand.
 2. **One number, not two.** The world is ±N on every axis and N is
    `mapgen_limit`, because **CodeBlock already reads it** as the drone's bound. A
    second game-side number would let the drone build where the player cannot
@@ -181,7 +228,15 @@ playing it, the eighth about this record.**
    Accepted cost: the world cannot be wide and shallow, since the floor is pinned
    at `y = 0`.
 3. **A game-root `settingtypes.txt`**, for `mapgen_limit` only. A world size is
-   the game's own subject, exactly like the light and the restrictions.
+   the game's own subject, exactly like the light and the restrictions. **The
+   file's ownership was settled on 2026-09-08 and it is `code-expert`'s**, in the
+   same sense as `game.conf` and `minetest.conf`: it declares `mapgen_limit` and
+   `mgflat_ground_level` and nothing else. It appeared in no agent's scope list
+   because `G6` created it *after* those lists were written, so the gap was an
+   omission and not an exclusion — `code-expert` raised it rather than granting
+   itself the permission, which is the behaviour the split exists to produce.
+   Written into `CLAUDE.md`'s agent table; `.claude/agents/project-manager.md`
+   already named it in both of its lists.
 4. **The mapgen environment, not the main thread**, and therefore
    `min_minetest_version` **5.9**. Taken as 5.7 on the author's instruction and
    **corrected the same day on evidence**: `register_mapgen_script` is absent from
@@ -315,9 +370,13 @@ it goes back on the track. Read both numbers from `git ls-tree HEAD
 mods/codeblock` and `git tag` inside the submodule, **never from upstream's
 `HEAD`**.
 
-The working tree's `mods/codeblock` is at `7dbe18f`, ahead of the committed
-pointer and deliberately left unstaged. `git status` showing it modified is the
-normal resting state.
+**The working tree is at `fb75bc8`, deliberately unstaged, and it is what `G3` is
+being built against.** It was moved there on 2026-09-08 to test a bump ahead of
+CodeBlock's 1.0.0; the author chose to test with it and **commit nothing until
+there is a pushed tag to adopt**, so `git status` showing `mods/codeblock`
+modified is the normal resting state. `fb75bc8` is **139 commits ahead of
+`v0.7.3`**, which is still upstream's newest tag. `bash scripts/check_game.sh` was
+green at that pointer before `G3`'s work started.
 
 ## What ships broken
 
@@ -330,8 +389,9 @@ normal resting state.
   visited. `W7` confirms the *limit* moves; the missing wall is what nothing
   covers.
 - **An existing world's surface moves only where it has not been generated.** Same
-  mechanism, from `G7`. A world played at ground level 8 gets a step where the old
-  ground meets the new. `W13` is the nearest check.
+  mechanism, from `G7`, and `G3`'s change of material rides on it: a world played
+  at ground level 8, or one played on stone, gets a step where the old ground meets
+  the new and keeps its old material behind it. `W13` is the nearest check.
 - **No check reads a media file, so a texture or menu image added with no licence
   line fails nothing** — locally or in CI. `C22` closed the gap the game has;
   this is the silence that let it open, and it is `C15`'s hazard in a second
@@ -344,16 +404,28 @@ normal resting state.
   versions below what `G6` requires. The engine does not read it, so it blocks
   nothing at load; it is ContentDB metadata on a pinned submodule. (`C21`)
 - **`default` supplies 106 node definitions out of ~9,700 lines**, plus six ABMs,
-  3 LBMs and 101 craft recipes nothing can reach. Deferred, not pending. (`A13`)
+  3 LBMs and 101 craft recipes nothing can reach. **No longer deferred** —
+  `G3`'s deletion is being written, and this line comes out when it lands.
+  (`A13`)
+- **`R6` and `R7` become unrunnable with the deletion.** Both pass, and both name
+  a node only `default` registered — a bookshelf and a dirt/grass/sapling patch.
+  Their passes stand as what was seen; there is no way to re-run either. `S8`'s
+  residue goes with the bookshelf and `B49`'s fix stops being exercised by
+  anything. (`S8`, `B49`)
 - **`.gitattributes` decides what reaches a player and no CI checks it.** `P2` is
   the only thing that would catch a file shipping by accident, and it has to be
   re-run every time a tracked file is added — `G6` added two and `G7` a directory
   and two more. (`C15`)
 - **A bookshelf still opens and shows the player their own inventory.** Nothing
   can be moved and `R6` confirms it, but the formspec is metadata on the placed
-  node, not a field `cc_security` can override away. (`S8`)
-- **Fixed but unseen: the wool crack.** Committed `ec02760`; `R8` has a sha and
-  nobody has watched a punch since. (`B48`)
+  node, not a field `cc_security` can override away. **Goes with `G3`'s
+  deletion**: no node in the game will carry a formspec of its own. (`S8`)
+- **Fixed but unseen: the dig-animation strip.** Committed `ec02760`; `R8` has a
+  sha and nobody has watched a punch since. The node that produced the finding
+  was `wool`, so `R8`'s method is rewritten against `codeblock:*`, which carries
+  `cracky` and `oddly_breakable_by_hand`. **No `dig_immediate` node is left in the
+  game after `G3`**, so the fastest case the check was written around cannot be
+  reproduced. (`B48`)
 - **Untested by choice: that `last_mod` is honoured at all.** Confirming it needs
   a second mod assigning the same globals and none ships. Decided 2026-09-02;
   recorded so it does not read as an oversight. (`A8`)
@@ -368,15 +440,24 @@ proposed again.
 
 ### Scope — what is the mod's, not the game's
 
-- **Trimming vendored `default` down to the palette.** Decided 2026-09-02 by the
-  author and **re-declined 2026-09-07 on fuller information**: CodeBlock is
-  expected to integrate the blocks it needs, at which point `default` is deleted
-  rather than trimmed. Trimming first means hand-curating 9,744 lines against a
-  contract the other repository owns. Asked whether `default`, `wool` and `dye`
-  could go outright, the author answered **"leave it for now"** —
-  `mods/codeblock/mod.conf` hard-depends on `default` and `wool`, and `dye` is
-  there because `wool` requires it. *What would change it:* CodeBlock deciding
-  **not** to take the blocks. (`A13`)
+- **Trimming vendored `default` down to the palette — this entry is spent and is
+  kept only as the record of why it stood.** It was declined 2026-09-02 and
+  re-declined 2026-09-07, both times because CodeBlock was expected to take the
+  blocks, and its *what would change it* line read "CodeBlock deciding **not** to
+  take the blocks". **CodeBlock took them** (`F11`, at `fb75bc8`), so the question
+  is closed the other way and the work is a deletion under `G3` rather than an
+  omission here. (`A13`)
+- **Setting `codeblock_flat_sky = true` in the game's `minetest.conf`.** Declined
+  2026-09-08, and it is declined against upstream's own instruction: both
+  CodeBlock's `ROADMAP.md` and its `CHANGELOG.md` tell a game bundling it to set
+  the flag. **`cc_day` already makes all five sky calls and adds
+  `sunrise_visible = false`**, which is the `B47` fix and which the mod's copy
+  still lacks — so setting the flag would restore the exact duplicate `A7` exists
+  to remove, and restore it in the *worse* of the two versions. Permanent daylight
+  is the game's subject, `cc_day` is where it lives, and the flag being off by
+  default is what makes that free. *What would change it:* `cc_day` being deleted
+  in favour of the mod's block, which would mean losing `B47`'s fix or landing it
+  upstream first. (`A7`)
 - **A `settingtypes.txt` entry for anything the drone does.** Every drone setting
   is CodeBlock's, and CodeBlock is its own ContentDB package. `G6` adds a
   game-root file for `mapgen_limit` **only**, which extends this rather than
@@ -393,7 +474,8 @@ proposed again.
 - **Duplicating CodeBlock's lint and tests here.** It has its own repo, CI and
   `.luacheckrc`. The two go red independently — check the repository you changed.
 - **Restyling or linting `default`, `dye` and `wool`.** Vendored from Minetest
-  Game; CI lints only the three `cc_*` mods.
+  Game; CI lints only the three `cc_*` mods. **Moot once `G3`'s deletion lands** —
+  all three go, and the `.luacheckrc` excludes with them.
 - **Bumping the submodule on every mod commit.** The pointer names the release
   this game has adopted. Moving it is a decision, taken with the documentation
   update that goes with it.
@@ -501,11 +583,19 @@ proposed again.
 
 ---
 
-2026-09-08 · codecube `3479e25`, record-only over `48cc63e`, on branch
-**`g6-world-limits`**, **unpushed**, with no CI run on the branch — the latest
-is on `578b364`, which predates it. `codeblock` `2647228`, a commit off `master`
-and not a tag; `mods/codeblock` is deliberately unstaged at `7dbe18f`, which is
-its normal resting state.
+2026-09-08 · codecube `5777dc0`, on branch **`g6-world-limits`**, **unpushed**,
+with no CI run on the branch — the latest is on `578b364`, which predates it.
+`codeblock` `2647228` in the commit, a commit off `master` and not a tag;
+`mods/codeblock` is deliberately unstaged at `fb75bc8`, 139 commits past `v0.7.3`,
+and that is what `G3` is being built against.
+
+**`G3`'s code is not committed.** At `5777dc0` all three vendored mods are still
+there and `cc_mapgen` registers two nodes rather than four. This file, `AUDIT.md`, `PLAYTEST.md`,
+`README.md`, `CONTENTDB.md`, `.cdb.json` and `CHANGELOG.md` were brought into
+line with the agreed change in the same turn, so they land in the same commit as
+the code — which is the only arrangement in which the player-facing prose is never
+wrong about the world. **Until that commit exists, every `G3` claim here is a
+decision and not evidence.**
 
 **The media licence change is committed**, at `48cc63e` — a new
 `menu/license.txt`, `mods/cc_mapgen/license.txt`, `THIRD-PARTY-LICENSES.md`,
@@ -522,11 +612,15 @@ Lua. Two things did not close with them: `W4`, `W8` and `W9` are still owed
 re-runs at the new depth, and the boot is **narrower rather than confirmed** —
 `P1`'s boot half is a fresh recursive clone and `P3` is unrun.
 
-The game's own Lua is **177 lines** across four files — `cc_day` 7, `cc_mapgen`
-32 + 37, `cc_security` 101 — counting neither blanks nor comments, and **464
-lines in all**.
+The game's own Lua is **208 lines** across four files — `cc_day` 7, `cc_mapgen`
+51 + 49, `cc_security` 101 — counting neither blanks nor comments, and **572
+lines in all**. Measured in the working tree with `G3` written and uncommitted,
+so it will be the figure at that commit and is not one for `5777dc0`, where the
+same count was 177 and 464. **The 464 was off by one**: `cc_day/init.lua` had no
+trailing newline, which `.editorconfig` requires, and `code-expert` has added
+it.
 
-This file is **529 lines against its own "under roughly 150"**, down from 968
+This file is **617 lines against its own "under roughly 150"**, down from 968
 three passes ago. It got there by moving reasoning to `AUDIT.md` under its finding id
 and settled questions into *deliberately not doing*, not by deleting either — and
 it grew again here, because a decision was taken and this is where a decision is

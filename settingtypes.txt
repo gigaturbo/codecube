@@ -9,9 +9,9 @@
 [Codecube]
 
 #    Half-extent of the world, in nodes, measured from the origin on every axis.
-#    1024 gives a 2048 x 2048 field with a bedrock floor at y = 0 and a bedrock
-#    wall around it. It bounds the drone as well as the player, so a program
-#    cannot build past the wall either.
+#    1024 gives a 2048 x 2048 field with a bedrock floor at y = 0 and a
+#    see-through barrier wall around it. It bounds the drone as well as the
+#    player, so a program cannot build past the wall either.
 #
 #    The engine stores this per world, so changing it moves the edge of an
 #    existing world: raise it and the old wall stays where it was generated,
@@ -23,9 +23,9 @@
 #    little short of it.
 mapgen_limit (World half-extent) int 1024 80 31007
 
-#    Y of the stone surface, and so the height a player stands at. The bedrock
+#    Y of the grass surface, and so the height a player stands at. The bedrock
 #    floor stays at y = 0 whatever this is, so the number is also how deep the
-#    stone under the surface goes: 128 buries the floor well out of sight, and 8,
+#    dirt under the surface goes: 128 buries the floor well out of sight, and 8,
 #    the engine's own default, leaves it a few steps down.
 #
 #    The engine stores this per world too, so changing it moves the surface of an

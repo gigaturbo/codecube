@@ -26,12 +26,14 @@ Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 
 Copyright (C) 2026 giga-turbo
 
+textures/cc_mapgen_grass.png
+textures/cc_mapgen_dirt.png
 textures/cc_mapgen_bedrock.png
 textures/cc_mapgen_barrier.png
 
-Both are original work for this game, made for it and taken from nowhere else.
-You may share and adapt them, including commercially, provided you give credit
-and license your adaptations under the same terms:
+All four are original work for this game, made for it and taken from nowhere
+else. You may share and adapt them, including commercially, provided you give
+credit and license your adaptations under the same terms:
 https://creativecommons.org/licenses/by-sa/4.0/
 
 This is not the license of the source code above. The media of this game is

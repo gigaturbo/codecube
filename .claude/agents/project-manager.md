@@ -58,8 +58,10 @@ submodule pinned to an adopted release, with its own repository, its own record
 and its own `project-manager`. Do not read its documents to build a picture of
 its progress, do not restate its roadmap or its findings, and do not report on
 it. The only fact about it that belongs in your reports is *which release this
-game has adopted* and whether that is current. `mods/vector3`, `mods/default`,
-`mods/dye` and `mods/wool` are likewise not yours.
+game has adopted* and whether that is current. `mods/vector3` is likewise not
+yours, and nor were `mods/default`, `mods/dye` and `mods/wool` while they were
+vendored — `G3` deletes all three, and reading them is `code-expert`'s job either
+way.
 
 There is a user-level `CLAUDE.md` at `~/.claude/CLAUDE.md` holding the response,
 editing, coding and helper conventions shared with the author's other projects.

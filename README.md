@@ -32,9 +32,10 @@ program.
   it.** You cannot fall out of the world: if a program removes a floor tile and
   you drop through it, you are put back into your own column, on the first free
   space in it, rather than sent to the spawn point.
-- **The surface stands 128 nodes above that floor**, and the whole of it is
-  stone. So the world is something to dig down into as well as to build up from,
-  and you meet the floor only where a program has cleared a shaft to it.
+- **The surface stands 128 nodes above that floor.** It is one layer of grass
+  over dirt all the way down, so the world is something to dig down into as well
+  as to build up from, and you meet the floor only where a program has cleared a
+  shaft to it.
 - **The drone shares the same edge**, so it can never build where you cannot
   walk.
 
@@ -50,7 +51,7 @@ A server owner can change both of the world's numbers from the main menu, under
 | Setting | Default | What it does |
 |---|---|---|
 | `mapgen_limit` | `1024` | Half the world's width. The walls stand at ±this on both horizontal axes, and it is the drone's bound too |
-| `mgflat_ground_level` | `128` | How far the stone surface is above the bedrock floor. The floor itself stays at `y = 0` whatever this is |
+| `mgflat_ground_level` | `128` | How far the ground surface is above the bedrock floor. The floor itself stays at `y = 0` whatever this is |
 
 Both are forced onto a world when it opens, so changing one re-bounds a world
 you have already played — though only ground that has not been generated yet
