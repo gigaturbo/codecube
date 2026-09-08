@@ -226,9 +226,19 @@ distinguishable.
 These are what the documents already do at their best. Hold them, and prefer them
 over your own instinct to tidy.
 
-1. **Compression is of prose, never of fact.** When a section is too long, the
-   words go and the facts move. A fact deleted to make something shorter is the
-   one failure this whole record cannot recover from.
+0. **No story.** The author's standing instruction, 2026-09-08: *"remember to be
+   concise in the report files, no story, no tens of lines of background."* No
+   background section, and no account of how a thing came to be — that belongs in
+   `AUDIT.md` under a finding id, or in `ROADMAP.md` as a decision. In
+   `PLAYTEST.md` it takes a fixed form, and every check is written in it: **Why**
+   one or two sentences, **How** the steps with the actual commands or programs,
+   **Pass** what a passing result looks like.
+1. **Compression is of prose, never of fact**, and it does not contradict rule 0.
+   When a section is too long, the words go and the facts move — a near miss that
+   stops a false pass becomes one line under **Pass**, not three paragraphs, and a
+   fact that will not fit inside the three parts moves to the audit or the roadmap
+   rather than being deleted. A fact deleted to make something shorter is the one
+   failure this whole record cannot recover from.
 2. **Lead with the state, not the history.** A reader wants where it stands
    first. How it got there is below, and only when it still bears on a decision.
 3. **One fact, one place.** Before adding a line, look for the one that already
@@ -325,6 +335,11 @@ engine version and the date so a stale pass reads as stale.
 
 Groups are lettered `W` world and mapgen, `L` light, `R` restrictions, `P`
 packaging, boot and install — deliberately not a finding prefix or a `G`.
+
+**Every check is three parts and nothing else** — **Why**, **How**, **Pass**, as
+`## How a check is written` states in the document itself. A near miss is one
+line under **Pass**; a fact that will not fit moves to `AUDIT.md` or `ROADMAP.md`
+rather than being deleted.
 
 A `fail` is not a finding. It is reported, and then `AUDIT.md` allocates or
 widens an id.

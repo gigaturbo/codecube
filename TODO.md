@@ -29,17 +29,13 @@ Nothing below can be closed by an agent.
 
 ## To do
 
-- [ ] **nothing has confirmed the game boots at `48cc63e`** — `P1`'s boot half and
-      `P3` are unrun across three commits that added two nodes, a setting, a new
-      mapgen depth, two textures and a licence file. One world, about an hour,
-      settles the boot as a by-product of the sitting below
-- [ ] run `W10`–`W14`, which now have a sha: `d6e4a12` committed the whole of G7
-      (roadmap G7). `W13` and `W14` first — an existing world's surface actually
-      moving, and the rescue reading the new depth — then `W10`–`W12` and the
-      `W4`/`W8`/`W9` re-runs
-- [ ] `W4`, `W8` and `W9` are owed re-runs at `d6e4a12`: all three pass at
+- [ ] `P1`'s boot half and `P3` are unrun. Narrower than it was — `W10`–`W14`
+      passing proves the author's own checkout boots — but `P1` is a **fresh
+      recursive clone**, whose submodule objects nobody has locally
+- [ ] `W4`, `W8` and `W9` are owed re-runs at the new depth: all three pass at
       `60259dd`, where `mgflat_ground_level` was 8, and all three exercise heights
-      the rescue derives from that number (audit B50)
+      the rescue derives from that number. **`W14` discharges none of them** —
+      `PLAYTEST.md`'s *what needs action* table says why per check (audit B50)
 - [ ] one playtest sitting for what G4 left: see the *what needs action* table in
       `PLAYTEST.md` rather than a second list here (audit B48, B19, B24)
 - [ ] `check_game.sh`: nothing reads a media file, so a texture or menu image

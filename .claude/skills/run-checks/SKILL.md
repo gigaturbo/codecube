@@ -125,6 +125,12 @@ Do not ask the author to run the two gates. Those are yours.
 
 ## What a good check looks like here
 
+**It is three parts and nothing else** — **Why** in one or two sentences, **How**
+with the actual commands or programs to paste, **Pass** with what a passing result
+looks like. `PLAYTEST.md`'s `## How a check is written` is the statement of it,
+and it is where a new check is added. No background section and no account of how
+the thing came to be; a near miss is one line under **Pass**.
+
 - **It reaches something reading cannot settle.** A check restating what a
   six-line file plainly says is a check that will always pass.
 - **One observation per check.** A check asserting four things reports the first

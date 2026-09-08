@@ -30,16 +30,19 @@ Target is **v1.0.0**, major because several changes break saved player programs.
 
 ## Now
 
-**Play the game, and `G7`'s sitting first.** Everything outstanding is *checking*,
-not building: ten of the thirty checks in `PLAYTEST.md` have never been run and
-six passes are owed re-runs. **Nothing has confirmed the game boots at
-`48cc63e`** — three commits added two nodes, a setting, a new mapgen depth, two
-textures and a licence file, and `P1`'s boot half and `P3` are unrun — which makes
-an hour in one world the cheapest evidence available and settles the boot as a
-by-product. Take `W13` and `W14` first, then `W10`–`W12` and the `W4`/`W8`/`W9`
-re-runs the new depth made owed. `G4`'s restrictions sitting (`R8` with `R1`,
-`R4`, `R6` and `P3` beside it) is second. `PLAYTEST.md` holds the list; it is not
-restated here.
+**Play `G4`'s restrictions sitting.** `G7`'s went in on 2026-09-08 and all five
+of `W10`–`W14` passed, so both open milestones are now done on both counts and
+everything outstanding is *checking*: five of the thirty checks in `PLAYTEST.md`
+have never been run, and seven passes are owed re-runs. The sitting is `R8` at
+`ec02760` with `R1`, `R4`, `R6` and `P3` beside it, plus `P4`, `P1`'s boot half
+and the thirty seconds of `R3` that closes `R5`; the `W4`, `W8` and `W9` re-runs
+at the new depth fold in beside it, and `W14` discharges none of them.
+`PLAYTEST.md` holds the list; it is not restated here.
+
+**The boot is narrower rather than confirmed.** The `G7` passes are unobservable
+without the game booting and a world being entered, so the author's own checkout
+boots; what is unrun is `P1`'s boot half, which is a *fresh recursive clone* whose
+submodule objects nobody has locally, and `P3`, the boot log.
 
 Nothing else can move without the author: `A7`'s edit is upstream, `A13` waits on
 a decision in `codeblock`, and `C21` is a submodule's metadata. `C22` closed on
@@ -58,7 +61,7 @@ whatever is opened after it.
 | `G3` | Trim what the game vendors | one part done, the rest deferred | 1/2 | 1/1 |
 | `G4` | Make the game's own mods behave | done here; the fifth item is `G5`'s | 4/5 | 3/4 |
 | `G6` | Bound the world | **done on both counts** | 5/5 | 6/6 |
-| `G7` | Make the world something to be in | committed, unchecked | 3/3 | 0/5 |
+| `G7` | Make the world something to be in | **done on both counts** | 3/3 | 5/5 |
 | `G5` | Adopt CodeBlock 1.0.0 and ship | started | 1/5 | — |
 
 Findings by milestone: `G1` (`C1`, `C2`, `C3`, `C4`, `C5`, `C15`, `C20`); `G2`
@@ -146,7 +149,7 @@ decision 8.
 >   height of map configurable (mapgen?)
 
 Four requirements: *stop the player* and *settings (map size)* are `G6`, done and
-checked; *visible* and *configurable height* are `G7`, committed and unchecked.
+checked; *visible* and *configurable height* are `G7`, done and checked.
 The *floor* being visible went the other way — see *deliberately not doing*.
 
 - [x] Ship the bounded slab: a mapgen script clears everything below `y = 0`, lays
@@ -217,13 +220,16 @@ playing it, the eighth about this record.**
    simply not followed**, so nothing was added to `CLAUDE.md` for it. *What would
    change it:* the same failure recurring, which would make it a pattern.
 
-### G7. Make the world something to be in — committed `d6e4a12`, 0/5 checked
+### G7. Make the world something to be in — done, `d6e4a12`, 5/5 checked
 
 Opened 2026-09-07 after `G6` closed, and **no finding is allocated for it**: the
 wall `G6` built is a correct barrier and `W5` proves it stands. What the author
 wanted changed is what it *looks* like, which is a new goal. Widened the same day
 from one item to three, on the grounds that all three are appearance-and-feel,
 none is a defect, and they are one tree that has to be checked together.
+**`W10`–`W14` all pass at `3479e25` on 2026-09-08**, reported by the author from
+one sitting; the engine version was not given, and the report was one word per
+check rather than a part-by-part account.
 
 - [x] Split the bounds in two: `cc_mapgen:bedrock` stays the floor at `y = 0`,
   including the outermost column at that layer so the wall stands on a one-node
@@ -495,8 +501,8 @@ proposed again.
 
 ---
 
-2026-09-08 · codecube `48cc63e` on branch **`g6-world-limits`**, **20 commits
-ahead of `origin/main` and unpushed**, with no CI run on the branch — the latest
+2026-09-08 · codecube `3479e25`, record-only over `48cc63e`, on branch
+**`g6-world-limits`**, **unpushed**, with no CI run on the branch — the latest
 is on `578b364`, which predates it. `codeblock` `2647228`, a commit off `master`
 and not a tag; `mods/codeblock` is deliberately unstaged at `7dbe18f`, which is
 its normal resting state.
@@ -509,12 +515,12 @@ said `C22`'s closure held only once `menu/license.txt` was tracked; it is tracke
 and `P2` at `48cc63e` confirms by listing the archive that it reaches a player, so
 **the condition is met**.
 
-**`G6` is done on both counts and `G7` on one.** `G7`'s three changes are
-committed with both gates green, and **neither gate runs a line of this game's
-Lua**, so green means the game assembles and says nothing about how the world
-looks, how deep it is, or where a rescue puts anybody. `W10`–`W14` have had a sha
-since `d6e4a12` and are unrun. **And nothing has confirmed the game boots at
-`48cc63e` at all** — `P1`'s boot half and `P3` are unrun.
+**`G6` and `G7` are both done on both counts.** `W10`–`W14` all pass at
+`3479e25`, so how the world looks, how deep it is and where a rescue puts anybody
+are observed rather than inferred from two gates that run no line of this game's
+Lua. Two things did not close with them: `W4`, `W8` and `W9` are still owed
+re-runs at the new depth, and the boot is **narrower rather than confirmed** —
+`P1`'s boot half is a fresh recursive clone and `P3` is unrun.
 
 The game's own Lua is **177 lines** across four files — `cc_day` 7, `cc_mapgen`
 32 + 37, `cc_security` 101 — counting neither blanks nor comments, and **464

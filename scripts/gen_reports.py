@@ -8,7 +8,7 @@ Dev tooling. It never ships (`scripts` carries a wholesale `export-ignore` line
 in `.gitattributes`) and no gate reads it: `check_game.sh` does not know about it
 and luacheck does not read Python.
 
-Four constraints, each of which a plausible edit would break silently:
+Five constraints, each of which a plausible edit would break silently:
 
 * **No external fonts, scripts or stylesheets, and no third-party module.**
   The files are opened over `file://`, so everything is inline and the standard
@@ -24,6 +24,11 @@ Four constraints, each of which a plausible edit would break silently:
   dates the commit it describes, not the render.
 * **Escape before you emit.** These documents quote Lua and shell containing
   `<`, `>` and `&`.
+* **The page never scrolls sideways.** Both bars are `position: sticky`, which
+  sticks vertically only, so a document one pixel wider than the viewport slides
+  them out of view and clips their left edge — the symptom looks like broken
+  chrome and is really an overflow anywhere on the page. `lint_layout` below
+  holds the four rules that keep it from happening and runs on every render.
 
 The parser handles the Markdown these three files use and no more: ATX
 headings, paragraphs, bullet and ordered lists with indented continuations,
@@ -38,6 +43,7 @@ import os
 import re
 import subprocess
 import sys
+from html.parser import HTMLParser
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, ".reports")
@@ -597,8 +603,22 @@ CSS_DARK = """
 CSS_BODY = """
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
+/* Nothing here may make the *page* scroll sideways; the two sticky bars stick
+   vertically only, so a horizontal page scroll clips their left edge and reads
+   as broken chrome. Three rules keep the whole class away, and lint_layout
+   checks all three:
+   1. anything that can genuinely be wider than its column scrolls inside its
+      own box — `pre` and `.tablewrap`, never the body;
+   2. no unbreakable text run can be wider than a line box — `overflow-wrap`
+      below is on `body`, so it reaches paths, URLs and `C++::symbols` in plain
+      text and not only the ones inside `code`;
+   3. every flex and grid item that carries document text can shrink below its
+      content. `min-width` is `auto` for a flex or grid item, and a bare `1fr`
+      track is `minmax(auto,1fr)`, so one long token in one cell otherwise
+      widens a whole layout. `overflow-wrap` does not help there: `break-word`
+      is defined not to affect a min-content size. */
 body{margin:0;background:var(--bg);color:var(--fg);
-  font:16px/1.65 var(--serif);}
+  font:16px/1.65 var(--serif);overflow-wrap:break-word}
 :root{--sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --serif:Charter,"Bitstream Charter","Iowan Old Style","Palatino Linotype",Palatino,
     "Book Antiqua",Georgia,"Times New Roman",serif;
@@ -610,7 +630,7 @@ a{color:var(--link)}
 a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{
   outline:2px solid var(--focus);outline-offset:2px;border-radius:3px}
 code{font-family:var(--mono);font-size:.86em;background:var(--code-bg);
-  padding:.08em .3em;border-radius:3px;overflow-wrap:break-word}
+  padding:.08em .3em;border-radius:3px}
 pre{background:var(--sunk);border:1px solid var(--rule);border-radius:6px;
   padding:.8rem 1rem;overflow-x:auto;font-size:.86rem;line-height:1.5}
 pre code{background:none;padding:0;font-size:1em}
@@ -619,6 +639,11 @@ blockquote{margin:1.2rem 0;padding:.2rem 0 .2rem 1rem;border-left:3px solid var(
   color:var(--dim)}
 blockquote>:first-child{margin-top:0}blockquote>:last-child{margin-bottom:0}
 
+/* Rule 3 above, in one place: every child of a flex or grid container on this
+   page. The three that need a floor set it with an id or `flex:0 0`, which win
+   on specificity or on shrink factor. */
+.topbar>*,.filters>*,.entry>summary>*,.chips>*,.side .e-link>*{min-width:0}
+
 /* chrome */
 .skip{position:absolute;left:-9999px;top:0;background:var(--panel);padding:.5rem .8rem;z-index:60}
 .skip:focus{left:.5rem;top:.5rem}
@@ -626,8 +651,10 @@ blockquote>:first-child{margin-top:0}blockquote>:last-child{margin-bottom:0}
   min-height:var(--topbar);padding:.4rem .9rem;background:var(--panel);
   border-bottom:1px solid var(--rule);box-shadow:var(--sh);
   font-family:var(--sans);flex-wrap:wrap}
+/* One line, and it ellipsises rather than overflowing: a `nowrap` flex item
+   wider than its line is an overflow the wrapping cannot absorb. */
 .topbar .doc{font-weight:650;letter-spacing:-.015em;font-size:1rem;white-space:nowrap;
-  font-family:var(--sans);margin:0}
+  font-family:var(--sans);margin:0;overflow:hidden;text-overflow:ellipsis}
 .topbar .tally{color:var(--dim);font-size:.82rem;letter-spacing:.005em}
 .topbar .tally b{color:var(--fg);font-weight:650}
 .spacer{flex:1 1 auto}
@@ -655,7 +682,7 @@ blockquote>:first-child{margin-top:0}blockquote>:last-child{margin-bottom:0}
 .toggle[aria-pressed="true"].t-wontfix{color:var(--wontfix-fg);background:var(--wontfix-bg)}
 .toggle.t-prior[aria-pressed="true"]{border-style:dashed;color:var(--dim)}
 .toggle[aria-pressed="false"]{opacity:.55;text-decoration:line-through}
-.sep{width:1px;align-self:stretch;background:var(--rule);margin:0 .3rem}
+.sep{flex:0 0 auto;width:1px;align-self:stretch;background:var(--rule);margin:0 .3rem}
 
 /* layout */
 .layout{display:grid;grid-template-columns:16.5rem minmax(0,1fr);gap:2.5rem;
@@ -728,16 +755,18 @@ tbody tr:hover{background:var(--sunk)}
 .entry[open]>summary::before{content:"\\25BE"}
 .entry[open]>summary{border-bottom:1px solid var(--rule)}
 .eid{font-weight:700;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
-.etitle{font-weight:500;letter-spacing:-.01em;flex:1 1 18rem;min-width:0}
+.etitle{font-weight:500;letter-spacing:-.01em;flex:1 1 18rem}
 .etitle.lead{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   font-weight:400;color:var(--dim);font-family:var(--serif)}
 .entry[open] .etitle.lead{white-space:normal;overflow:visible;color:var(--fg)}
 .erefs{font-size:.78rem;color:var(--faint);font-variant-numeric:tabular-nums}
 .chips{display:flex;gap:.3rem;flex-wrap:wrap;margin-left:auto}
+/* `nowrap` needs the clamp: a state here is a clause, and a chip is the one
+   box on the page whose text has no other way to fit. */
 .chip{font-size:.7rem;letter-spacing:.03em;text-transform:uppercase;
   padding:.12rem .42rem;border-radius:999px;white-space:nowrap;
+  max-width:26rem;overflow:hidden;text-overflow:ellipsis;
   background:var(--idle-bg);color:var(--idle-fg)}
-.chip.state,.chip.sev{max-width:26rem;overflow:hidden;text-overflow:ellipsis}
 /* a state is a clause in these documents, not a word: uppercase would shout */
 .chip.state{text-transform:none;letter-spacing:0;font-size:.74rem}
 .st-ok .chip.state{background:var(--ok-bg);color:var(--ok-fg)}
@@ -767,7 +796,7 @@ h2:target,h3:target,h4:target{background:var(--tint);border-radius:4px;
 .result.r-open{border-left-color:var(--open-line)}
 .result.prior{color:var(--dim);font-size:.8rem;opacity:.9}
 ul.tasks{list-style:none;padding-left:0}
-ul.tasks>li.task{display:grid;grid-template-columns:1.3rem 1fr;align-items:start}
+ul.tasks>li.task{display:grid;grid-template-columns:1.3rem minmax(0,1fr);align-items:start}
 li.task .tick{font-family:var(--sans);color:var(--ok-fg);font-weight:700}
 li.task.todo .tick{color:var(--faint)}
 li.task.todo>p:first-of-type{color:var(--dim)}
@@ -809,6 +838,25 @@ JS = r"""
   }
   window.addEventListener('resize',measure);
   measure();
+  // The page is generated where no browser exists, so it names its own
+  // horizontal overflow instead of leaving it to be read off a screenshot:
+  // the deepest boxes reaching past the viewport, in the console.
+  function reportOverflow(){
+    var w=root.clientWidth;
+    if(root.scrollWidth<=w+1){return;}
+    var over=[],all=document.querySelectorAll('body *');
+    for(var i=0;i<all.length;i++){
+      var r=all[i].getBoundingClientRect();
+      if(r.width>0&&r.right>w+1){over.push(all[i]);}
+    }
+    var deepest=over.filter(function(el){
+      return !over.some(function(o){return o!==el&&el.contains(o);});
+    });
+    console.warn('This page scrolls sideways by '+(root.scrollWidth-w)
+      +'px. Widest boxes past the viewport:',deepest);
+  }
+  window.addEventListener('resize',reportOverflow);
+  reportOverflow();
   var tbtn=document.getElementById('theme'), modes=['auto','light','dark'];
   function setMode(m){
     if(m==='auto'){root.removeAttribute('data-theme');}else{root.setAttribute('data-theme',m);}
@@ -1252,6 +1300,104 @@ REPORTS = (("ROADMAP.md", "roadmap.html", build_roadmap),
            ("PLAYTEST.md", "playtest.html", build_playtest))
 
 
+# ------------------------------------------------- the page must not scroll
+# Everything here is about one symptom the generator cannot see: the two bars
+# are `position: sticky`, which sticks vertically only, so *any* horizontal
+# overflow slides them out of view and clips their left edge. Each rule below
+# is stated as what the CSS must say, because none of it can be observed here.
+
+
+def _rules(css):
+    """(selector, declarations) for each rule, at-rule wrappers flattened."""
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    css = re.sub(r"@[a-z-]+[^{]*\{", "", css)
+    for m in re.finditer(r"([^{}]+)\{([^{}]*)\}", css):
+        yield m.group(1).strip(), m.group(2)
+
+
+class _LooseTables(HTMLParser):
+    """Tables with no `.tablewrap` ancestor. A table is the one box on these
+    pages that is routinely wider than the column it sits in, so it has to be
+    the thing that scrolls."""
+
+    VOID = ("br", "hr", "img", "input", "meta", "link", "col", "wbr")
+
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self.open = []
+        self.loose = []
+
+    def handle_starttag(self, tag, attrs):
+        cls = dict(attrs).get("class", "")
+        if tag == "table" and not any("tablewrap" in c for _t, c in self.open):
+            self.loose.append(self.getpos()[0])
+        if tag not in self.VOID:
+            self.open.append((tag, cls))
+
+    def handle_endtag(self, tag):
+        for i in range(len(self.open) - 1, -1, -1):
+            if self.open[i][0] == tag:
+                del self.open[i:]
+                return
+
+
+def lint_layout(pages):
+    """Every way the page could come to scroll sideways, as a list of failures.
+
+    `pages` maps a filename to its rendered HTML. Deliberately not a check that
+    the rules are *present*: each one is phrased so that removing the guard it
+    describes makes it fail."""
+    bad = []
+
+    # 1. wide content scrolls in its own box
+    scrolls = set(s for s, d in _rules(CSS_BODY)
+                  if re.search(r"overflow-x\s*:\s*auto", d))
+    for sel in ("pre", ".tablewrap"):
+        if sel not in scrolls:
+            bad.append("`%s` does not scroll its own content, so a wide fence "
+                       "or table makes the page scroll instead" % sel)
+    for name, html_text in sorted(pages.items()):
+        p = _LooseTables()
+        p.feed(re.sub(r"<script.*?</script>", "", html_text, flags=re.S))
+        for line in p.loose:
+            bad.append("%s line %d: a <table> outside .tablewrap" % (name, line))
+
+    # 2. and the page is never itself what scrolls or hides
+    for sel, decl in _rules(CSS_BODY):
+        if re.search(r"(?:^|,)\s*(?:html|body)\s*(?:,|$)", sel) and \
+                re.search(r"overflow(?:-x)?\s*:\s*(?:hidden|clip)", decl):
+            bad.append("`%s` hides horizontal overflow, which makes wide "
+                       "content unreachable rather than scrollable" % sel)
+    if not any(re.search(r"overflow-wrap\s*:\s*break-word", d)
+               for s, d in _rules(CSS_BODY) if s == "body"):
+        bad.append("body sets no overflow-wrap, so one long path or URL in "
+                   "plain text overflows its line box")
+
+    # 3. no viewport-width unit: it counts the scrollbar, and a box sized in it
+    #    overflows by exactly the scrollbar's width
+    for sel, decl in _rules(CSS_BODY):
+        if re.search(r"\b[\d.]+v(?:w|min|max)\b", decl):
+            bad.append("`%s` sizes a box in viewport-width units" % sel)
+
+    # 4. every flex or grid item that carries text can shrink below it
+    floors = " ".join(s for s, d in _rules(CSS_BODY)
+                      if re.search(r"min-width\s*:\s*0", d))
+    for sel, decl in _rules(CSS_BODY):
+        if re.search(r"display\s*:\s*flex", decl) and sel + ">*" not in floors:
+            bad.append("`%s` is a flex container with no `%s>*{min-width:0}`: "
+                       "min-width is auto for a flex item, so one long token "
+                       "widens the whole layout" % (sel, sel))
+    for _sel, decl in _rules(CSS_BODY):
+        for value in re.findall(r"grid-template-columns\s*:([^;}]+)", decl):
+            if re.search(r"\bauto\b", value) or \
+                    re.search(r"(?<!minmax\(0,)\b[\d.]*fr\b", value):
+                bad.append("unbounded grid track in `%s`: a bare 1fr is "
+                           "minmax(auto,1fr), whose minimum is its content, "
+                           "and overflow-wrap does not reduce a min-content "
+                           "size" % value.strip())
+    return bad
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--check", action="store_true",
@@ -1261,12 +1407,14 @@ def main():
     if not args.check:
         os.makedirs(OUT_DIR, exist_ok=True)
     drift = []
+    rendered = {}
     for source, target, build in REPORTS:
         path = os.path.join(ROOT, source)
         with open(path, encoding="utf-8") as fh:
             text = fh.read()
         doc = build(parse_blocks(text.replace("\r\n", "\n").split("\n")))
         html = page(doc, provenance(source))
+        rendered[target] = html
         out = os.path.join(OUT_DIR, target)
         if args.check:
             old = ""
@@ -1281,12 +1429,18 @@ def main():
         print("%-13s -> .reports/%-14s %3d entries, %d sections, %d KiB"
               % (source, target, len(doc.entries), len(doc.sections),
                  len(html.encode("utf-8")) // 1024))
+    layout = lint_layout(rendered)
+    for failure in layout:
+        print("layout: " + failure)
+    if not layout:
+        print("layout invariants hold: nothing here can make the page scroll "
+              "sideways")
     if args.check:
         if drift:
             print("stale: " + ", ".join(drift))
             return 1
         print("all three renderings are up to date")
-    return 0
+    return 1 if layout else 0
 
 
 if __name__ == "__main__":
