@@ -44,11 +44,11 @@ ever been renumbered and nothing dropped.
 |---|---|---|---|---|
 | `B` bugs | 7 | 7 | 0 | 0 |
 | `S` sandbox and security | 1 | 1 | 0 | 0 |
-| `C` compliance and packaging | 8 | 6 | 2 | 0 |
+| `C` compliance and packaging | 8 | 7 | 1 | 0 |
 | `A` architecture and performance | 4 | 1 | 3 | 0 |
-| **Total** | **20** | **15** | **5** | **0** |
+| **Total** | **20** | **16** | **4** | **0** |
 
-**No open finding is critical or high.** Three are medium and two are low.
+**No open finding is critical or high.** Three are medium and one is low.
 
 | Id | Sev | State | What | Waiting on |
 |---|---|---|---|---|
@@ -56,7 +56,6 @@ ever been renumbered and nothing dropped.
 | `A8` | medium | open | the every-node table walk that expresses one rule | a decision on whether Luanti offers anything better than the walk. The drop chain half is confirmed by `R2` |
 | `A13` | medium | open, deferred | `default` is 9,744 lines to supply 106 node definitions | `codeblock` deciding whether to take the blocks itself. Deferred by the author twice, 2026-09-02 and 2026-09-07 |
 | `C21` | low | open | `mods/vector3/mod.conf` declares `max_minetest_version = 5.5`, four minor versions under this game's floor | upstream `vector3` or a re-pin. Not this repository's to edit |
-| `C22` | low | open | three menu images ship to every player with no licence stated anywhere | **the author choosing a licence**, then `code-expert` writing it into a `license.txt`, `THIRD-PARTY-LICENSES.md` and `scripts/gen_cdb_json.sh` |
 
 **Three findings are resolved in committed code and unverified in a world**, which
 is a weaker state than resolved and is tracked here because nothing else tracks
@@ -99,14 +98,15 @@ the `ROADMAP.md` entry — `G6` for the first two, `G7` for the third. `W14` cas
 asks pointedly about the number 9. The rescue's reversal at `60259dd` is not a
 defect either: it is what the author asked for after playing.
 
-**`C22` is new on 2026-09-07 and is the only finding here that has been true
-since the project began.** The game's three menu images ship to every player and
-no file anywhere states a licence for them, while every bundled mod has a
-`license.txt` and a row in `THIRD-PARTY-LICENSES.md`. It was turned up sideways,
-by `G7` giving `cc_mapgen` its own textures and a *License of media* section with
-them: the game now names a licence for two 16×16 files and none for 655 kB of
-artwork seen before anyone enters a world. Raised by `code-expert` as suspected
-and **verified here by reading all four files**.
+**`C22` is resolved on 2026-09-08, one day after it was filed, and it was the
+only finding here that had been true since the project began.** The author
+decided the split — **code stays AGPL-3.0-only, all of the game's own media is
+CC BY-SA 4.0** — and it is written into a new `menu/license.txt`, both media rows
+of `THIRD-PARTY-LICENSES.md`, and a `media_license` field in
+`scripts/gen_cdb_json.sh`. The decision is `ROADMAP.md` `G7`, *The media licence*. What
+the closure does **not** cover is that nothing enforces it: a media file added
+tomorrow with no licence line fails no gate, which is `C15`'s standing hazard in
+a second form — see `C22`'s `Keep`.
 
 `C21` is the other finding new on 2026-09-07, from shaping the same feature: a
 version ceiling in a bundled submodule, and the only one here the game cannot fix
@@ -150,56 +150,13 @@ finding here to arrive from reading a published rule rather than from a defect,
 and was filed and fixed in one change at `9ad884c`. The adopted `codeblock`
 pointer is `2647228`, which is **a commit off `master` and not a tagged
 release** — see `ROADMAP.md` `G5`, which is where it is put back on the release
-track. CI's most recent run is on `578b364`; **branch `g6-world-limits` has 18
+track. CI's most recent run is on `578b364`; **branch `g6-world-limits` has 19
 unpushed commits and no CI run at all**.
 
 ## Open findings
 
 In full, and they are the reason to read this document. `A7`, `A8` and `A13` are
-medium; `C21` and `C22` are low. Nothing here is critical or high.
-
-### C22 · low · open — three original images ship to every player with no licence stated anywhere
-
-`menu/background.png`, `menu/header.png`, `menu/icon.png`
-
-The game's own menu artwork. **All three reach every player** — `P2` at `8b27f2f`
-lists them by name in the release archive, and `.gitattributes` keeps them there
-deliberately, because `menu/*.png` is what the main menu reads. **No licence is
-stated for them in any file.** `THIRD-PARTY-LICENSES.md` has no media row and no
-mention of `menu/` at all; there is no `menu/license.txt`; the root `LICENSE` is
-the bare AGPL-3.0 text with no statement of what it covers here; and `.cdb.json`
-carries `"license": "AGPL-3.0-only"` and **no `media_license`**, though
-ContentDB's package config accepts one — `.claude/skills/luanti-reference/references/contentdb-package-config.txt:84`,
-*"media_license : A license name, see /api/licenses/"*.
-
-**Verified rather than taken on report.** `code-expert` raised it as suspected; it
-was checked here by reading all four files. `menu/background.svg`, `header.svg`
-and `icon.svg` are the sources beside them and are `export-ignore`d by the `*.svg`
-rule, so they do not ship — the PNGs do.
-
-**Low, and the reason is worth stating because it argues both ways.** The root
-`LICENSE` plausibly covers the whole repository, so this is not a legal void; it
-is an unstated one, and the licence named on the package page describes the
-*code*. What makes it worth filing anyway is that this project already answers
-the question everywhere else: every bundled mod has a `license.txt`, every one is
-catalogued in `THIRD-PARTY-LICENSES.md`, and `C3`, `C4` and `C5` exist because
-that cataloguing was done deliberately rather than by accident. The one directory
-of original media the game ships is the one place the convention was not applied.
-
-**Sharpened on 2026-09-07 by `G7`, which is what turned it up.** `cc_mapgen` now
-ships two textures of its own, and `mods/cc_mapgen/license.txt` gained a *License
-of media* section naming both files and their licence. So the game now states a
-media licence for two 16×16 textures and none for three images totalling 655 kB
-that every player sees before they enter a world. That contrast is the finding.
-
-**Not fixed here.** The fix is `code-expert`'s in all three of its parts: a media
-licence statement, a `THIRD-PARTY-LICENSES.md` row, and a `media_license` field
-in `scripts/gen_cdb_json.sh` — `.cdb.json` is generated and must never be
-hand-edited. **Which licence to state is the author's**, not either agent's, and
-it is the same question `G7`'s texture decision raises: AGPL-3.0-only keeps the
-package single-licence, CC BY-SA 4.0 is the convention for game art and lets the
-artwork be reused. `ROADMAP.md` `G7` records that decision and flags it
-reversible.
+medium; `C21` is low. Nothing here is critical or high.
 
 ### C21 · low · open — a bundled submodule carries the version ceiling this game's own check forbids
 
@@ -946,10 +903,11 @@ as well and a reader meeting it twice should meet the correction twice.
 
 ## Resolved — C compliance and packaging
 
-**8 findings, 6 resolved.** `C21` and `C22` are open and in full above.
+**8 findings, 7 resolved.** `C21` is open and in full above.
 
 | Id | Sev | Was | Fixed by | Where it stands |
 |---|---|---|---|---|
+| `C22` | low | three menu images shipped to every player with no licence stated anywhere | a new `menu/license.txt`, two media rows in `THIRD-PARTY-LICENSES.md`, and `media_license` in the generator | media licence decided 2026-09-08; **not enforced by any gate** |
 | `C20` | medium | the ContentDB long description was `README.md` verbatim, breaking six of ContentDB's page rules | `CONTENTDB.md` written for its own reader, and the generator repointed at it | `9ad884c`; **unseen**, `P5` needs a release |
 | `C15` | low | the release archive shipped `.claude/`, the record documents and the art sources | `.* export-ignore` plus rules by name | `8d18e8b`; confirmed by `P2` at `8b27f2f` |
 | `C5` | medium | the three `cc_*` mods had no licence file | a `license.txt` each, enforced by `check_game.sh` | — |
@@ -959,6 +917,48 @@ as well and a reader meeting it twice should meet the correction twice.
 
 `C1` is not in this document: it is the same defect in the mod's `mod.conf` and
 belongs to the mod's audit.
+
+- **C22 · low · resolved** — `menu/background.png`, `menu/header.png` and
+  `menu/icon.png` reach every player and **no file anywhere stated a licence for
+  them**: `THIRD-PARTY-LICENSES.md` had no media row and no mention of `menu/`,
+  there was no `menu/license.txt`, the root `LICENSE` is the bare AGPL-3.0 text
+  with no statement of what it covers, and `.cdb.json` carried
+  `"license": "AGPL-3.0-only"` and no `media_license`. Filed 2026-09-07, turned up
+  sideways by `G7` giving `cc_mapgen` two textures of its own *and* a *License of
+  media* section with them — so the game named a licence for two 16×16 files and
+  none for 655 kB of artwork every player sees before entering a world. That
+  contrast was the finding; the root `LICENSE` plausibly covered the repository,
+  so it was an unstated licence rather than a legal void, which is why it was low.
+  Raised by `code-expert` as suspected and verified by reading all four files.
+  **Fixed 2026-09-08** once the author decided the split — code AGPL-3.0-only,
+  all of the game's own media CC BY-SA 4.0 — in four places: a new
+  `menu/license.txt` covering the three PNGs and naming the three `.svg` sources
+  as the same works under the same licence; `mods/cc_mapgen/license.txt`, whose
+  *License of media* section had claimed the textures were "covered by the same
+  license as the source code above" and now says explicitly that they are not;
+  two media rows in `THIRD-PARTY-LICENSES.md`; and
+  `"media_license": "CC-BY-SA-4.0"` in `scripts/gen_cdb_json.sh`, with
+  `.cdb.json` regenerated. The decision and its grounds are `ROADMAP.md` `G7`,
+  *The media licence*. **Uncommitted at the time of writing** — the closure holds only
+  once `menu/license.txt` is committed, since an untracked licence file ships to
+  nobody, and that is the mistake this project has made before (see *the
+  corrections*).
+
+  **Keep — three things this fix does not do, and the third is the live one.**
+  (1) The root `LICENSE` is still bare AGPL-3.0 with no scope statement, and that
+  is deliberate: the AGPL text is meant to be distributed verbatim, so the scope
+  line lives in `README.md`'s licence line instead — *code AGPL-3.0-only, media
+  CC BY-SA 4.0*. (2) `menu/license.txt` must **not** gain an `export-ignore`
+  rule: it is the only statement of the licence a player receives, and it has to
+  travel beside the images it covers, which is `THIRD-PARTY-LICENSES.md`'s reason
+  for shipping too. (3) **Nothing enforces any of it.** `check_game.sh` requires
+  a `license.txt` or a `THIRD-PARTY-LICENSES.md` row per *mod* (`C3`, `C5`); no
+  check reads a media file at all, so a texture or a menu image added with no
+  licence line fails nothing, locally or in CI, and the omission is invisible
+  until somebody reads the archive. That is `C15`'s standing hazard in a second
+  form — the same silence over `.gitattributes` — and it is **not a finding**,
+  because there is no defect in committed code: every media file the game ships
+  is now covered. It is a wanted check, and it is a `TODO.md` line.
 
 - **C20 · medium · resolved in `9ad884c`** — the ContentDB long
   description was `README.md` verbatim: `scripts/gen_cdb_json.sh` embedded the
@@ -1281,6 +1281,20 @@ shape shows up**, and this one was not visible from any amount of reading
 `minetest.conf`.
 
 ---
+
+Revised 2026-09-08 at `6a0258a`, on the licence decision. **`C22` is resolved and
+the counts move to 20 findings, 16 resolved, 4 open** — `A7`, `A8`, `A13` and
+`C21`. The author chose code AGPL-3.0-only and all of the game's own media
+CC BY-SA 4.0; `code-expert` wrote it into a new `menu/license.txt`,
+`mods/cc_mapgen/license.txt`, `THIRD-PARTY-LICENSES.md` and
+`scripts/gen_cdb_json.sh`, and `.cdb.json` was regenerated.
+`CC-BY-SA-4.0` — hyphenated — is ContentDB's own spelling and was confirmed
+against `https://content.luanti.org/api/licenses/` here as well as by
+`code-expert`. **The fix is in the working tree and not committed**, so the
+closure holds only once `menu/license.txt` is tracked. **No finding was filed for
+the gap the fix leaves** — no gate reads a media file, so a media file added with
+no licence line fails nothing — because there is no defect in committed code;
+it is in `C22`'s `Keep` and as a `TODO.md` line.
 
 Revised 2026-09-08 at `d6e4a12`, on `G7` being committed and on this document
 being reorganised. **No finding was filed, none changed state, and the counts are

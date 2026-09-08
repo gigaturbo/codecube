@@ -14,7 +14,7 @@ for the full list.
 
 ## Breaking
 
-- [x] **BREAKING** relicensed to AGPL-3.0-only throughout; `codeblock` moved from GPL-3.0-only to match
+- [x] **BREAKING** the game's code is relicensed to AGPL-3.0-only, and `codeblock` moved from GPL-3.0-only to match. The game's own artwork is **CC BY-SA 4.0** rather than AGPL, so it can be reused in another game on the same share-alike terms
 - [x] **BREAKING** removed `max_minetest_version`, which was pinned at 5.5 and hid the game on ContentDB
 - [x] **BREAKING** removed the bundled WorldEdit fork: `codeblock` now places its four shapes itself, so nothing needed it
 - [x] **BREAKING** removed the `formspecs` submodule; `codeblock` no longer depends on it
@@ -32,6 +32,7 @@ for the full list.
 - [x] Server owners can set the world's size **and the height of its surface** from the settings menu, under Content: Games → Codecube. The surface height is how much stone there is between where you stand and the bedrock floor, which stays at `y = 0` whatever it is set to
 - [x] Server owners can change every drone limit from the settings menu, under Mods → codeblock, instead of editing the mod's source
 - [x] Every bundled mod now carries its own licence, catalogued in `THIRD-PARTY-LICENSES.md`
+- [x] The game's own artwork now states its licence where you receive it: `menu/license.txt` covers the three main-menu images and `mods/cc_mapgen/license.txt` the two world-edge textures, all five CC BY-SA 4.0, and both are listed in `THIRD-PARTY-LICENSES.md`. The ContentDB page shows the media licence beside the code licence
 - [x] Added `title` and `author` metadata to the bundled mods
 - [x] Added CI: `scripts/check_game.sh` verifies the game assembles; `codeblock` lints and tests itself
 

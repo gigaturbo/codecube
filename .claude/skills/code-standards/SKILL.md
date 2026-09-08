@@ -212,6 +212,16 @@ table.
 | behaviour in a running world | a `PLAYTEST.md` entry — nothing else here reaches it | nothing. `project-manager` writes it |
 | a finding fixed | its state and commit in `AUDIT.md` | nothing. Report it; `project-manager` files it |
 
+**A file added under a directory that already carries `export-ignore` needs no
+rule of its own, and `git check-attr` will not tell you so.** The exclusion is
+applied to the *directory* entry — `scripts` and `.*` are directory patterns —
+so `git archive` never walks inside, while
+`git check-attr export-ignore -- scripts/anything` answers `unspecified`,
+because attributes do not inherit to children in that command's model. The only
+honest check is the archive itself:
+`git archive --format=tar HEAD | tar -t | grep '^scripts'` returns nothing.
+Verified at `6a0258a`: 493 entries, none under `scripts/`, no dotfile. (`C15`)
+
 Regenerating `.cdb.json` is part of the change, not a follow-up. The generator's
 header holds ContentDB's page rules and is the thing to read before adding to
 `CONTENTDB.md` — the long description is not a README, and using one as the other

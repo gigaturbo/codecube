@@ -80,10 +80,13 @@ can read it: `git log`, `git status`, `git diff`, `git show`,
 API. Never `commit`, `push`, `add`, `checkout`, `reset`, `rm`, `mv`, or anything
 that installs.
 
-**One generator is yours**, because its source is: `bash scripts/gen_cdb_json.sh`,
-after a `CONTENTDB.md` edit — run it in the same turn, or the shipped description
-is the old one and `check_game.sh` goes red. The two gates are `test-agent`'s;
-call it, or give the command, rather than running them yourself.
+**Two generators are yours**, because their sources are.
+`bash scripts/gen_cdb_json.sh` after a `CONTENTDB.md` edit — run it in the same
+turn, or the shipped description is the old one and `check_game.sh` goes red. And
+`python scripts/gen_reports.py` after editing `ROADMAP.md`, `AUDIT.md` or
+`PLAYTEST.md`, which rebuilds the three renderings; nothing fails if it is
+skipped, because `.reports/` is gitignored. Neither is a gate. The two gates are
+`test-agent`'s; call it, or give the command, rather than running them yourself.
 
 You may also **write** through `Bash` — a `sed` pass over a document, an `awk`
 rewrite — where a shell command genuinely does the job better than an edit, which
@@ -379,14 +382,30 @@ Three files in `.reports/`, one per tracked document — the roadmap, the audit 
 the playtest checklist. Each is self-contained, no external assets, and opens in a
 browser from a `file://` URL.
 
+**They are generated, not hand-built.** `python scripts/gen_reports.py` writes all
+three; `python scripts/gen_reports.py --check` reports drift without writing. The
+generator is tracked, standard-library only, and reproducible — two runs are
+byte-identical — so anyone can rebuild them, not only you. Run it after editing a
+record document, and **check the entry count it prints against that document's own
+status table**: a count that has dropped is an entry heading that stopped parsing,
+which is the one failure the generator does not announce.
+
+**It recognises an entry only in the heading shapes the documents currently
+use** — `B50 · medium · resolved… — title`, `W4 · title [B50]`,
+`G6. title — state`, and a bullet opening `**<id> · sev · state** —`. Change one
+of those shapes and the entry silently degrades to a title-only card with no id,
+no chip and no sidebar row. **Nothing errors.** That is a real constraint on how
+you may reformat a record document.
+
 **They hold no fact that is not in the Markdown.** `.reports/` is gitignored and
 must cost nothing to lose: it is presentation — better organised, tabulated,
-coloured, with a summary strip and anchors the Markdown cannot carry — and you
-regenerate it from the `.md`. Never park detail there.
+coloured, with navigation and anchors the Markdown cannot carry. Never park
+detail there.
 
-Each gets, in this order: a **summary strip** small enough to learn the shape of
-the project in five seconds; then the document's own content, grouped as the
-Markdown groups it, with anchors matching the ids so a link resolves.
+Order is **header → sidebar → the document's own content in its own order**. The
+header's counts are **computed from the entries**, not authored, so each
+document's own status table stays the single authored source and the two cannot
+drift; if they disagree, the document is right and an entry has stopped parsing.
 
 **None of the three has a next-step panel**, following the decision taken in the
 sibling `codeblock` project on 2026-09-03 and adopted here. **The document's own
@@ -399,8 +418,23 @@ Style: legible over decorative. A readable measure for prose, monospace for code
 and file paths, colour used only to carry severity and state. Respect
 `prefers-color-scheme`. No external fonts, scripts or stylesheets.
 
-Put the generation timestamp, the commit hash it describes, and the adopted
-`codeblock` release in each footer, so a stale report is obvious.
+**The footer is generated, so leave it alone.** It names the commit the rendering
+describes and that commit's date, `HEAD` with its subject and ahead-count, the
+adopted `codeblock` pointer, and *"with uncommitted changes over `<sha>`"* when
+the tree differs — which is what makes a stale report obvious. There is
+deliberately **no generation timestamp**: it would break byte-identical output,
+and the render clock is the less useful fact. Anything that is a *judgement*
+rather than provenance — that the pointer is off the release track, what the
+newest upstream tag is — belongs in `ROADMAP.md`, not in a footer no longer
+written by hand.
+
+**State them as "generated, never rendered" until someone has looked.** There is
+no browser and no JS engine on this machine, so the layout, the dark palette, the
+theme toggle, the filter, the chips, the collapse defaults and the narrow-viewport
+drawer are unexercised. What is verified is structural: balanced tags, no
+duplicate ids, every internal `href` resolving, escaping against hostile input,
+computed contrast ratios, and entry counts matching each document's own numbers.
+Never write about them in a way that implies they have been seen working.
 
 ## Keeping the guidance current
 

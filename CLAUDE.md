@@ -89,10 +89,19 @@ and the HTML renderings:
   bundles, code and media. It is the one record document that **ships to a
   player**: it carries no `export-ignore` line, deliberately, because a licence
   notice has to travel with what it licenses. `check_game.sh` reads it — a mod
-  either carries its own licence file or is named here (C3).
+  either carries its own licence file or is named here (C3). The game's **code is
+  AGPL-3.0-only and all of its own media is CC BY-SA 4.0**, decided 2026-09-08;
+  the machine-readable spelling is ContentDB's own, `CC-BY-SA-4.0` (C22).
+  `menu/license.txt` ships for the same reason this file does.
 - `.reports/*.html` — gitignored browsable renderings of `ROADMAP.md`, `AUDIT.md`
-  and `PLAYTEST.md`. Presentation only: they hold no fact the Markdown does not,
-  so a deleted `.reports/` costs nothing.
+  and `PLAYTEST.md`, built by `python scripts/gen_reports.py` and reproducible:
+  two runs give byte-identical output, and `--check` reports drift without
+  writing. Presentation only: they hold no fact the Markdown does not, so a
+  deleted `.reports/` costs nothing. **The generator recognises an entry only in
+  the heading shapes the documents already use** — `B50 · medium · resolved… —
+  title`, `W4 · title [B50]`, `G6. title — state`, and a bullet opening
+  `**<id> · sev · state** —`. Change one and the entry degrades to a title-only
+  card with no id and no sidebar row, and **nothing errors**.
 
 `AUDIT.md`, `PLAYTEST.md` and `CONTENTDB.md` each carry their own `export-ignore`
 line in `.gitattributes`, so none of them ships to a player.
@@ -102,9 +111,11 @@ Finding ids — `B` bugs, `S` sandbox and security, `C` compliance and packaging
 gap in a sequence is a finding held by the mod's own audit, from when the two
 projects shared one record. The mod's `F` feature series is its own.
 
-The `project-manager` agent owns all seven, plus `README.md` and this file, the
-renderings, and the `.claude/` definitions beside them; edit one by hand only for
-something that agent cannot know.
+The `project-manager` agent owns all of them except
+`THIRD-PARTY-LICENSES.md`, which is `code-expert`'s because it moves with a mod,
+a licence file or a media file rather than with the record — plus `README.md` and
+this file, the renderings, and the `.claude/` definitions beside them; edit one by
+hand only for something that agent cannot know.
 
 **One exception, and it is deliberate.** `code-expert` writes its own definition,
 `.claude/agents/code-expert.md`, and the skill it reads,
@@ -122,7 +133,7 @@ own skill first. Their definitions are the long form; this is only the map.
 | Agent | Owns | Reads |
 |---|---|---|
 | `project-manager` | the record above, `README.md`, `CONTENTDB.md` and the `.cdb.json` generator over it, `.reports/`, and the `.claude/` definitions bar the two below | `build-feature` |
-| `code-expert` | `mods/cc_day`, `mods/cc_mapgen`, `mods/cc_security`, `scripts/`, `game.conf`, `minetest.conf`, the packaging and lint configuration, and its own two files — `.claude/agents/code-expert.md` and `.claude/skills/code-standards/SKILL.md` | `code-standards`, `luanti-reference` |
+| `code-expert` | `mods/cc_day`, `mods/cc_mapgen`, `mods/cc_security`, `scripts/`, `game.conf`, `minetest.conf`, the packaging and lint configuration, `THIRD-PARTY-LICENSES.md` and each mod's `license.txt`, and its own two files — `.claude/agents/code-expert.md` and `.claude/skills/code-standards/SKILL.md` | `code-standards`, `luanti-reference` |
 | `test-agent` | the two gates, the CI lookup, `PLAYTEST.md`'s result lines, and the evidence side of `AUDIT.md` | `run-checks`, `luanti-reference` |
 
 Two rules make the split work: **call the agent rather than doing its work**, and
@@ -147,6 +158,18 @@ bash scripts/check_game.sh    # the game assembles: metadata, submodules, deps, 
 luacheck mods/cc_day mods/cc_mapgen mods/cc_security --formatter plain --codes
 bash scripts/gen_cdb_json.sh  # regenerate after a CONTENTDB.md edit; check_game.sh diffs it
 ```
+
+One more generator, and it is **neither a gate nor something CI runs** — nothing
+fails if it is skipped, because `.reports/` is gitignored:
+
+```bash
+python scripts/gen_reports.py          # rebuild the three HTML renderings
+python scripts/gen_reports.py --check  # report drift without writing
+```
+
+Run it after editing `ROADMAP.md`, `AUDIT.md` or `PLAYTEST.md`, and check the
+entry count it prints against that document's own status table — a count that has
+dropped is an entry heading that stopped parsing.
 
 The game has **no test suite of its own**, and no automated check reaches its
 behaviour at all — `check_game.sh` verifies that the game *assembles*. Say so

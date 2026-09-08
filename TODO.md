@@ -24,13 +24,8 @@ milestones here are lettered `G1`–`G7`, not the mod's phase numbers.
 
 Nothing below can be closed by an agent.
 
-- DECIDE: which licence the three menu images ship under — `menu/background.png`,
-  `header.png` and `icon.png` reach every player and no file states one (C22).
-  AGPL-3.0-only keeps the package single-licence; CC BY-SA 4.0 is the convention
-  for game art and lets it be reused
-- DECIDE: whether the two `cc_mapgen` textures stay AGPL-3.0-only or move to
-  CC BY-SA 4.0 — the same question as above and best answered with it. AGPL was
-  chosen to keep the game single-licence, and it is reversible (roadmap G7)
+*Nothing at present.* The media licence was the last one and was answered on
+2026-09-08 — code AGPL-3.0-only, media CC BY-SA 4.0 (roadmap G7, audit C22).
 
 ## To do
 
@@ -42,10 +37,14 @@ Nothing below can be closed by an agent.
       the rescue derives from that number (audit B50)
 - [ ] one playtest sitting for what G4 left: see the *what needs action* table in
       `PLAYTEST.md` rather than a second list here (audit B48, B19, B24)
+- [ ] `check_game.sh`: nothing reads a media file, so a texture or menu image
+      added with no licence line fails no gate — the same silence as
+      `.gitattributes` (audit C22 `Keep`, C15). A wanted check, not a finding
 - [ ] re-run `P2`: G6 added two tracked files and G7 a new directory and two
       more (`mods/cc_mapgen/textures/`), and nothing in CI reads `.gitattributes`
       (audit C15) — `code-expert` confirmed both textures by hand with
-      `git check-attr`, which is one manual run and not a gate
+      `git check-attr`, which is one manual run and not a gate. `menu/license.txt`
+      is a fifth file and the only one that must be **present** in the archive
 - [ ] `cc_day`: drop the duplicate of a block `codeblock` already runs (audit A7)
       — upstream edit, closes at adoption
 - [ ] trim vendored `default` down to the nodes the game actually uses (audit

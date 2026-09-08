@@ -2,7 +2,8 @@ Codecube
 =========================
 
 [![CI](https://github.com/gigaturbo/codecube/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gigaturbo/codecube/actions/workflows/ci.yml)
-![License](https://img.shields.io/badge/License-AGPLv3-blue.svg)
+![License](https://img.shields.io/badge/code-AGPL--3.0--only-blue.svg)
+![Media license](https://img.shields.io/badge/media-CC%20BY--SA%204.0-blue.svg)
 [![ContentDB](https://content.luanti.org/packages/giga-turbo/codecube/shields/downloads/)](https://content.luanti.org/packages/giga-turbo/codecube/)
 
 **Codecube allows to use `lua` code in Luanti to build anything you want**
@@ -11,7 +12,7 @@ The programming itself — the drone, the in-game Lua editor, the sandbox and th
 
 **For the Lua API, the drone commands, the block lists and the `codelevel` limits, read the [CodeBlock documentation](https://github.com/gigaturbo/codeblock/blob/master/doc/api.md#lua-api)** — it is the reference, and it is generated from the mod's own source. This page stays general.
 
-**License:** AGPLv3   
+**License:** code AGPL-3.0-only, media CC BY-SA 4.0 — see [`THIRD-PARTY-LICENSES.md`](THIRD-PARTY-LICENSES.md)   
 **Credits:** inspired by [Gnancraft](http://gnancraft.net/), [ComputerCraft](http://www.computercraft.info/), [Visual Bots](https://content.luanti.org/packages/Nigel/vbots/), [TurtleMiner](https://content.luanti.org/packages/BirgitLachner/turtleminer/), [basic_robot](https://github.com/ac-minetest/basic_robot)
 
 ![screenshot](https://raw.githubusercontent.com/gigaturbo/codecube/main/screenshot.png)

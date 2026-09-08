@@ -21,6 +21,11 @@
 # image that carries meaning has to become words - the drone tool icons the
 # README used inline in its instructions are why that rule has teeth here.
 #
+# license and media_license must be spelled exactly as ContentDB names them in
+# https://content.luanti.org/api/licenses/ - "AGPL-3.0-only" for the code and
+# "CC-BY-SA-4.0", hyphenated, for the game's own media. A name it does not know
+# is rejected when it reads this file, and nothing local fails.
+#
 # CRLF is normalised to LF before escaping. Without that the output depends on
 # the checkout's line endings: on Windows the file arrives as CRLF and the raw
 # CR bytes survive into the JSON string, so the file differs from one generated
@@ -38,6 +43,7 @@ printf \
         "education"
     ],
     "license": "AGPL-3.0-only",
+    "media_license": "CC-BY-SA-4.0",
     "repo": "https://github.com/gigaturbo/codecube.git",
     "issue_tracker": "https://github.com/gigaturbo/codecube/issues"
 }' "$(perl -0777 -pe 's|\r\n|\n|gs; s|\n|\\n|gs' CONTENTDB.md)" > .cdb.json

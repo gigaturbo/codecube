@@ -124,7 +124,7 @@ keeping a second copy.
 | `R6` | pass, **re-run owed** | same blast radius as `R1` |
 | `R8` | unrun | the whole of `B48`'s evidence, at `ec02760` |
 | `P1` | **partial** | the clone half passed at `8b27f2f`; the boot half has never been run |
-| `P2` | pass, **re-run owed** | `G6` added two tracked files and `G7` a new directory and two more, and nothing in either CI reads `.gitattributes` (`C15`) |
+| `P2` | pass, **re-run owed** | `G6` added two tracked files, `G7` a new directory and two more, and the media licence a fifth — `menu/license.txt`, the one added file that must be *present*. Nothing in either CI reads `.gitattributes` (`C15`, `C22`) |
 | `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence |
 | `P4` | unrun | the main menu shows the game's name, artwork and icon |
 | `P5` | unrun | needs a release first — it is the ContentDB page as published |
@@ -1168,8 +1168,13 @@ says it is playable is still unchecked.
 
 **Pass:** no `.claude/`, `.reports/`, `.github/`, `scripts/`, no art sources, and
 none of `CLAUDE.md`, `ROADMAP.md`, `TODO.md`, `AUDIT.md`, `PLAYTEST.md` or
-`CONTENTDB.md`. `menu/*.png` **is** present — the main menu reads it. Note the
-total size; the last measurement was 2.75 MB, down from 4.94 MB.
+`CONTENTDB.md`. Four things **are** present and their absence is a fail:
+`menu/*.png`, because the main menu reads it; `menu/license.txt` beside them and
+`mods/cc_mapgen/license.txt` with its two textures, because a licence notice has
+to travel with what it licenses and nothing else in the archive states the media
+licence (`C22`); and `THIRD-PARTY-LICENSES.md`, for the same reason. A missing
+`menu/license.txt` most likely means the file was never committed. Note the total
+size; the last measurement was 1.93 MB zipped, by `git archive --format=zip`.
 
 **This is the half of `C15` that reading cannot settle**, and the reason it stays
 worth running: `.gitattributes` decides what reaches a player and **nothing in
@@ -1251,6 +1256,12 @@ does not show you.
 Result: unchecked
 
 ---
+
+Revised 2026-09-08 at `6a0258a` plus the uncommitted media licence change: `P2`
+now names the four things that must be **present** in the archive, not only what
+must be absent, because the licence decision added `menu/license.txt` and a
+licence notice that does not ship states nothing (`C22`). No result line was
+changed and no check was added; `P2`'s pass at `8b27f2f` predates the file.
 
 Written 2026-08-30 at `54a2b7e`. Revised 2026-09-01 across three rounds: `P2` and
 half of `P1` at `8b27f2f`; the `W`, `L` and `R` groups at `7f649d8`; then `L1`

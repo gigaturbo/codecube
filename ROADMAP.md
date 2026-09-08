@@ -38,8 +38,8 @@ restrictions (`R8` with `R1`, `R4`, `R6` and `P3` beside it). `PLAYTEST.md` hold
 the list; it is not restated here.
 
 Nothing else can move without the author: `A7`'s edit is upstream, `A13` waits on
-a decision in `codeblock`, `C21` is a submodule's metadata, and `C22` needs a
-licence chosen.
+a decision in `codeblock`, and `C21` is a submodule's metadata. `C22` closed on
+2026-09-08 — the licence question is answered.
 
 ## Milestones
 
@@ -55,7 +55,7 @@ whatever is opened after it.
 | `G4` | Make the game's own mods behave | done here; the fifth item is `G5`'s | 4/5 | 3/4 |
 | `G6` | Bound the world | **done on both counts** | 5/5 | 6/6 |
 | `G7` | Make the world something to be in | committed, unchecked | 3/3 | 0/5 |
-| `G5` | Adopt CodeBlock 1.0.0 and ship | not started | 0/5 | — |
+| `G5` | Adopt CodeBlock 1.0.0 and ship | started | 1/5 | — |
 
 Findings by milestone: `G1` (`C1`, `C2`, `C3`, `C4`, `C5`, `C15`, `C20`); `G2`
 (`A14`, `B20`); `G3` (`B49`, `A13`); `G4` (`B47`, `B48`, `S8`, `A7`, `A8`); `G5`
@@ -256,13 +256,27 @@ single `or 128`. It was never committed, so it is the change being wrong and its
 record is this line; `W14` is what would have caught it in a world. Third
 application of the same rule; `AUDIT.md` names all three.
 
-**The two textures are AGPL-3.0-only and that is reversible.** Chosen to keep the
-game single-licence, so `THIRD-PARTY-LICENSES.md`'s `cc_*` row stays true without
-qualification. The convention for game art is **CC BY-SA 4.0**, which would let
-other games reuse them. The choice is the author's — it is about what other people
-may do with the game's media — and it is the same question `C22` raises.
+**The media licence — decided 2026-09-08 by the author, and it settles `C22`
+too.** The game's **code stays AGPL-3.0-only and all of its own media is
+CC BY-SA 4.0**: `G7`'s two `cc_mapgen` textures, which had shipped AGPL-3.0-only
+to keep the game single-licence, and the three `menu/*.png` that had no stated
+licence at all. One question, one answer, because the two are the same question
+and the choice is the author's — it is about what other people may do with the
+game's art. CC BY-SA 4.0 is the convention for Luanti game art and lets another
+game reuse it under the same terms; the cost accepted is that the package is no
+longer single-licence, so `THIRD-PARTY-LICENSES.md`'s `cc_*` row now has to
+qualify code against media.
 
-### G5. Adopt CodeBlock 1.0.0 and ship — not started (0/5)
+Three things a later change would get wrong. **The machine-readable spelling is
+`CC-BY-SA-4.0`, hyphenated** — it is ContentDB's own name, listed with
+`is_foss: true` at `https://content.luanti.org/api/licenses/`, and a name
+ContentDB does not know is rejected at its end with nothing failing locally; the
+long form is for prose only. **The root `LICENSE` stays bare** — see
+*deliberately not doing*. And **nothing enforces any of it**: no check reads a
+media file, so a texture or menu image added with no licence line fails no gate.
+That is `AUDIT.md` `C22`'s `Keep`, and the wanted check is a `TODO.md` line.
+
+### G5. Adopt CodeBlock 1.0.0 and ship — started (1/5)
 
 The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
 `release-codecube` skill owns the procedure and `release-check` gates it.
@@ -270,8 +284,10 @@ The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
 - [ ] Move `mods/codeblock` to a **tagged** release. See *which release is
   adopted* below: the pointer is currently off the release track, not merely
   behind it.
-- [ ] Choose the licence for the game's media and write it into a `license.txt`,
-  `THIRD-PARTY-LICENSES.md` and `scripts/gen_cdb_json.sh`. (`C22`)
+- [x] State the licence for the game's media, in `menu/license.txt`,
+  `mods/cc_mapgen/license.txt`, `THIRD-PARTY-LICENSES.md` and
+  `scripts/gen_cdb_json.sh`. Decided 2026-09-08 — see *The media licence* under
+  `G7`. (`C22`)
 - [ ] Re-pin or wait out `vector3`'s `max_minetest_version = 5.5`. (`C21`)
 - [ ] Update `README.md`, `CHANGELOG.md` and `CONTENTDB.md` in the same commit,
   and regenerate `.cdb.json` — `check_game.sh` diffs it.
@@ -306,9 +322,10 @@ normal resting state.
 - **An existing world's surface moves only where it has not been generated.** Same
   mechanism, from `G7`. A world played at ground level 8 gets a step where the old
   ground meets the new. `W13` is the nearest check.
-- **Three original images ship with no licence stated anywhere.**
-  `menu/background.png`, `header.png` and `icon.png` reach every player and
-  `.cdb.json` carries no `media_license`. (`C22`)
+- **No check reads a media file, so a texture or menu image added with no licence
+  line fails nothing** — locally or in CI. `C22` closed the gap the game has;
+  this is the silence that let it open, and it is `C15`'s hazard in a second
+  form. Not a finding: nothing in committed code is wrong.
 - **`mapgen_limit` appears twice in the advanced settings menu** — under Mapgen
   from builtin, showing 4096, and under Content: Games → Codecube, showing 1024.
   Both write the same key. Inherent to decision 3; the alternative was not
@@ -430,6 +447,20 @@ proposed again.
   fallback, because the ordinary path moves the player *up* instead and destroys
   nothing a program placed.
 
+### Licensing
+
+- **Putting a scope statement in the root `LICENSE`.** Declined 2026-09-08 with
+  the media decision: the AGPL-3.0 text is meant to be distributed verbatim, so a
+  line saying what it covers here would be an edit to a licence document. The
+  scope lives in `README.md`'s licence line — *code AGPL-3.0-only, media
+  CC BY-SA 4.0* — in `THIRD-PARTY-LICENSES.md`, and in each `license.txt`.
+  *What would change it:* a separate `NOTICE`-style file, which nobody has asked
+  for. (`C22`)
+- **An `export-ignore` line for `menu/license.txt`.** Never: it is the only
+  statement of the licence a player receives and has to travel beside the images
+  it covers, exactly as `THIRD-PARTY-LICENSES.md` does. `git check-attr`
+  confirmed it is not excluded. (`C22`)
+
 ### Evidence and the record
 
 - **Backdating a playtest result onto a later commit.** Decided 2026-09-07 and
@@ -460,14 +491,17 @@ proposed again.
 
 ---
 
-2026-09-08 · codecube `d6e4a12` on branch **`g6-world-limits`**, **18 commits
+2026-09-08 · codecube `6a0258a` on branch **`g6-world-limits`**, **19 commits
 ahead of `origin/main` and unpushed**, with no CI run on the branch — the latest
 is on `578b364`, which predates it. `codeblock` `2647228`, a commit off `master`
 and not a tag; `mods/codeblock` is deliberately unstaged at `7dbe18f`, which is
 its normal resting state.
 
-The working tree over `d6e4a12` carries this record pass and one comment change
-in `mods/cc_security/init.lua`; no behaviour changed with it.
+The working tree over `6a0258a` carries the media licence change — a new
+`menu/license.txt`, `mods/cc_mapgen/license.txt`, `THIRD-PARTY-LICENSES.md`,
+`scripts/gen_cdb_json.sh` and the regenerated `.cdb.json` — the new
+`scripts/gen_reports.py`, and this record pass. **None of it is committed**, and
+`C22`'s closure holds only once `menu/license.txt` is tracked.
 
 **`G6` is done on both counts and `G7` on one.** `G7`'s three changes are
 committed with both gates green, and **neither gate runs a line of this game's
@@ -479,9 +513,10 @@ The game's own Lua is **177 lines** across four files — `cc_day` 7, `cc_mapgen
 32 + 37, `cc_security` 101 — counting neither blanks nor comments, and **464
 lines in all**.
 
-This file is **487 lines against its own "under roughly 150"**, down from 968
-before this pass — roughly half. It got there by moving reasoning to `AUDIT.md` under its
-finding id and settled questions into *deliberately not doing*, not by deleting
-either. The remaining excess is the decision log, which is this file's second job
+This file is **521 lines against its own "under roughly 150"**, down from 968 two
+passes ago. It got there by moving reasoning to `AUDIT.md` under its finding id
+and settled questions into *deliberately not doing*, not by deleting either — and
+it grew again here, because a decision was taken and this is where a decision is
+recorded. The remaining excess is the decision log, which is this file's second job
 and the one nothing else does; the `DECISIONS.md` split that would fix it stays
 closed, declined by silence.

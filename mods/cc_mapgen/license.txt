@@ -22,12 +22,17 @@ root directory.
 License of media
 ----------------
 
-GNU Affero General Public License, version 3 only (AGPL-3.0-only)
+Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 
 Copyright (C) 2026 giga-turbo
 
 textures/cc_mapgen_bedrock.png
 textures/cc_mapgen_barrier.png
 
-Both are original work for this game, made for it and taken from nowhere else,
-and are covered by the same license as the source code above.
+Both are original work for this game, made for it and taken from nowhere else.
+You may share and adapt them, including commercially, provided you give credit
+and license your adaptations under the same terms:
+https://creativecommons.org/licenses/by-sa/4.0/
+
+This is not the license of the source code above. The media of this game is
+licensed separately from its code.
