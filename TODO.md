@@ -29,9 +29,14 @@ Nothing below can be closed by an agent.
 
 ## To do
 
+- [ ] **nothing has confirmed the game boots at `48cc63e`** — `P1`'s boot half and
+      `P3` are unrun across three commits that added two nodes, a setting, a new
+      mapgen depth, two textures and a licence file. One world, about an hour,
+      settles the boot as a by-product of the sitting below
 - [ ] run `W10`–`W14`, which now have a sha: `d6e4a12` committed the whole of G7
       (roadmap G7). `W13` and `W14` first — an existing world's surface actually
-      moving, and the rescue reading the new depth
+      moving, and the rescue reading the new depth — then `W10`–`W12` and the
+      `W4`/`W8`/`W9` re-runs
 - [ ] `W4`, `W8` and `W9` are owed re-runs at `d6e4a12`: all three pass at
       `60259dd`, where `mgflat_ground_level` was 8, and all three exercise heights
       the rescue derives from that number (audit B50)
@@ -40,11 +45,10 @@ Nothing below can be closed by an agent.
 - [ ] `check_game.sh`: nothing reads a media file, so a texture or menu image
       added with no licence line fails no gate — the same silence as
       `.gitattributes` (audit C22 `Keep`, C15). A wanted check, not a finding
-- [ ] re-run `P2`: G6 added two tracked files and G7 a new directory and two
-      more (`mods/cc_mapgen/textures/`), and nothing in CI reads `.gitattributes`
-      (audit C15) — `code-expert` confirmed both textures by hand with
-      `git check-attr`, which is one manual run and not a gate. `menu/license.txt`
-      is a fifth file and the only one that must be **present** in the archive
+- [ ] **standing:** re-run `P2` whenever a tracked file is added — not only at a
+      release. Nothing in either CI reads `.gitattributes`, so the next tracked
+      file ships or does not with nothing failing (audit C15, C22). It passed at
+      `48cc63e` on 2026-09-08 and has been needed twice in two milestones
 - [ ] `cc_day`: drop the duplicate of a block `codeblock` already runs (audit A7)
       — upstream edit, closes at adoption
 - [ ] trim vendored `default` down to the nodes the game actually uses (audit

@@ -124,16 +124,25 @@ keeping a second copy.
 | `R6` | pass, **re-run owed** | same blast radius as `R1` |
 | `R8` | unrun | the whole of `B48`'s evidence, at `ec02760` |
 | `P1` | **partial** | the clone half passed at `8b27f2f`; the boot half has never been run |
-| `P2` | pass, **re-run owed** | `G6` added two tracked files, `G7` a new directory and two more, and the media licence a fifth — `menu/license.txt`, the one added file that must be *present*. Nothing in either CI reads `.gitattributes` (`C15`, `C22`) |
+| `P2` | pass at `48cc63e`, **standing obligation** | re-run on 2026-09-08 and it stays in this table permanently rather than closing: the entry says to run it **whenever a tracked file is added**, and nothing in either CI reads `.gitattributes`, so the next tracked file ships or does not with nothing failing (`C15`, `C22`). It has been needed twice in two milestones — `G6`'s two files, then `G7`'s new directory, two textures and `menu/license.txt` |
 | `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence |
 | `P4` | unrun | the main menu shows the game's name, artwork and icon |
 | `P5` | unrun | needs a release first — it is the ContentDB page as published |
 
-**Two sittings cover all of it.** One is `G4`'s and it is small: `R8` at
-`ec02760`, with `R1`, `R4`, `R6` and `P3` re-run beside it, plus `P4`, `P1`'s
-boot half, the thirty seconds of `R3` that closes `R5`, and `P2`. The other is
-`G7`'s: `W13` and `W14` first, then `W10`, `W11`, `W12`, and the `W4`, `W8` and
-`W9` re-runs the new depth made owed.
+**Two sittings cover all of it, and `P2` is in neither** — it touches no engine
+and needs no world, so it is run from a shell whenever a tracked file is added.
+One sitting is `G4`'s and it is small: `R8` at `ec02760`, with `R1`, `R4`, `R6`
+and `P3` re-run beside it, plus `P4`, `P1`'s boot half, and the thirty seconds of
+`R3` that closes `R5`. The other is `G7`'s: `W13` and `W14` first, then `W10`,
+`W11`, `W12`, and the `W4`, `W8` and `W9` re-runs the new depth made owed.
+
+**Nothing has confirmed the game boots at `48cc63e`, and that is the largest gap
+this document holds.** `P1`'s boot half has never been run and `P3` is unrun,
+while three commits have added two nodes, a setting, a new mapgen depth, two
+textures and a licence file. Every claim about any of it rests on both gates,
+which prove that the game assembles and run no line of its Lua. The cheapest
+evidence available is `G7`'s sitting — one world, about an hour — and running it
+settles the boot as a by-product of entering a world at all.
 
 **The whole `W4`–`W9` group passed at `60259dd`, and it is the largest piece of
 evidence this project has ever held.** All six are `B50`: the floor at `y = 0`
@@ -1181,6 +1190,19 @@ worth running: `.gitattributes` decides what reaches a player and **nothing in
 either CI checks it**, so a file added to the repository ships unless a rule
 excludes it, and nothing fails locally when one does. Run this whenever a tracked
 file is added, not only at a release.
+
+Result: pass — `48cc63e` · engine n/a, this check touches no engine ·
+2026-09-08 — 494 entries, **1.95 MB zipped** by `git archive --format=zip`. Every
+clause checked, not inferred. Absent, zero entries each: `.claude/`, `.reports/`,
+`.github/`, `scripts/`, `*.svg`, `*.xcf`, `*.blend*`, every top-level dotfile,
+and all six record documents including `CLAUDE.md`. Present, all four: the three
+`menu/*.png`; `menu/license.txt` beside them; `mods/cc_mapgen/license.txt` with
+`cc_mapgen_bedrock.png` and `cc_mapgen_barrier.png`; `THIRD-PARTY-LICENSES.md`.
+**The size is noted, not accounted for** — 1.93 → 1.95 MB is more than the two
+16×16 textures (a few hundred bytes) and the two licence files (about 2 kB)
+explain, and the remainder was not tracked down. This settles `C15`'s
+archive half **for this commit only**: nothing in either CI reads
+`.gitattributes`, so the next tracked file ships or not with nothing failing.
 
 Result: pass — `8b27f2f` · 2026-09-01 — 488 entries, **1.93 MB zipped**
 (2.26 MB uncompressed). Nothing hidden, no art source, no `scripts/`, and none of

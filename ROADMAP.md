@@ -30,12 +30,16 @@ Target is **v1.0.0**, major because several changes break saved player programs.
 
 ## Now
 
-**Play the game.** Everything outstanding is *checking*, not building: ten of the
-thirty checks in `PLAYTEST.md` have never been run and six passes are owed
-re-runs. Two sittings cover all of it — `G7`'s world (`W13` and `W14` first, then
-`W10`–`W12` and the `W4`/`W8`/`W9` re-runs the new depth made owed) and `G4`'s
-restrictions (`R8` with `R1`, `R4`, `R6` and `P3` beside it). `PLAYTEST.md` holds
-the list; it is not restated here.
+**Play the game, and `G7`'s sitting first.** Everything outstanding is *checking*,
+not building: ten of the thirty checks in `PLAYTEST.md` have never been run and
+six passes are owed re-runs. **Nothing has confirmed the game boots at
+`48cc63e`** — three commits added two nodes, a setting, a new mapgen depth, two
+textures and a licence file, and `P1`'s boot half and `P3` are unrun — which makes
+an hour in one world the cheapest evidence available and settles the boot as a
+by-product. Take `W13` and `W14` first, then `W10`–`W12` and the `W4`/`W8`/`W9`
+re-runs the new depth made owed. `G4`'s restrictions sitting (`R8` with `R1`,
+`R4`, `R6` and `P3` beside it) is second. `PLAYTEST.md` holds the list; it is not
+restated here.
 
 Nothing else can move without the author: `A7`'s edit is upstream, `A13` waits on
 a decision in `codeblock`, and `C21` is a submodule's metadata. `C22` closed on
@@ -491,30 +495,33 @@ proposed again.
 
 ---
 
-2026-09-08 · codecube `6a0258a` on branch **`g6-world-limits`**, **19 commits
+2026-09-08 · codecube `48cc63e` on branch **`g6-world-limits`**, **20 commits
 ahead of `origin/main` and unpushed**, with no CI run on the branch — the latest
 is on `578b364`, which predates it. `codeblock` `2647228`, a commit off `master`
 and not a tag; `mods/codeblock` is deliberately unstaged at `7dbe18f`, which is
 its normal resting state.
 
-The working tree over `6a0258a` carries the media licence change — a new
+**The media licence change is committed**, at `48cc63e` — a new
 `menu/license.txt`, `mods/cc_mapgen/license.txt`, `THIRD-PARTY-LICENSES.md`,
-`scripts/gen_cdb_json.sh` and the regenerated `.cdb.json` — the new
-`scripts/gen_reports.py`, and this record pass. **None of it is committed**, and
-`C22`'s closure holds only once `menu/license.txt` is tracked.
+`scripts/gen_cdb_json.sh`, the regenerated `.cdb.json` and
+`scripts/gen_reports.py`. The previous pass, written over an uncommitted tree,
+said `C22`'s closure held only once `menu/license.txt` was tracked; it is tracked,
+and `P2` at `48cc63e` confirms by listing the archive that it reaches a player, so
+**the condition is met**.
 
 **`G6` is done on both counts and `G7` on one.** `G7`'s three changes are
 committed with both gates green, and **neither gate runs a line of this game's
 Lua**, so green means the game assembles and says nothing about how the world
 looks, how deep it is, or where a rescue puts anybody. `W10`–`W14` have had a sha
-since `d6e4a12` and are unrun.
+since `d6e4a12` and are unrun. **And nothing has confirmed the game boots at
+`48cc63e` at all** — `P1`'s boot half and `P3` are unrun.
 
 The game's own Lua is **177 lines** across four files — `cc_day` 7, `cc_mapgen`
 32 + 37, `cc_security` 101 — counting neither blanks nor comments, and **464
 lines in all**.
 
-This file is **521 lines against its own "under roughly 150"**, down from 968 two
-passes ago. It got there by moving reasoning to `AUDIT.md` under its finding id
+This file is **529 lines against its own "under roughly 150"**, down from 968
+three passes ago. It got there by moving reasoning to `AUDIT.md` under its finding id
 and settled questions into *deliberately not doing*, not by deleting either — and
 it grew again here, because a decision was taken and this is where a decision is
 recorded. The remaining excess is the decision log, which is this file's second job

@@ -150,8 +150,15 @@ finding here to arrive from reading a published rule rather than from a defect,
 and was filed and fixed in one change at `9ad884c`. The adopted `codeblock`
 pointer is `2647228`, which is **a commit off `master` and not a tagged
 release** — see `ROADMAP.md` `G5`, which is where it is put back on the release
-track. CI's most recent run is on `578b364`; **branch `g6-world-limits` has 19
+track. CI's most recent run is on `578b364`; **branch `g6-world-limits` has 20
 unpushed commits and no CI run at all**.
+
+**Nothing has confirmed the game boots at `48cc63e`.** `P1`'s boot half has never
+been run and `P3` is unrun, across three commits that added two nodes, a setting,
+a new mapgen depth, two textures and a licence file. Both gates are green there
+and neither runs a line of this game's Lua, so `B19` and `B24` above are not the
+only thing waiting on `P3` — the boot itself is. `PLAYTEST.md` `G7`'s sitting is
+the cheapest evidence available and settles it as a by-product.
 
 ## Open findings
 
@@ -907,9 +914,9 @@ as well and a reader meeting it twice should meet the correction twice.
 
 | Id | Sev | Was | Fixed by | Where it stands |
 |---|---|---|---|---|
-| `C22` | low | three menu images shipped to every player with no licence stated anywhere | a new `menu/license.txt`, two media rows in `THIRD-PARTY-LICENSES.md`, and `media_license` in the generator | media licence decided 2026-09-08; **not enforced by any gate** |
+| `C22` | low | three menu images shipped to every player with no licence stated anywhere | a new `menu/license.txt`, two media rows in `THIRD-PARTY-LICENSES.md`, and `media_license` in the generator | `48cc63e`; `menu/license.txt` confirmed shipped by `P2` there; **not enforced by any gate** |
 | `C20` | medium | the ContentDB long description was `README.md` verbatim, breaking six of ContentDB's page rules | `CONTENTDB.md` written for its own reader, and the generator repointed at it | `9ad884c`; **unseen**, `P5` needs a release |
-| `C15` | low | the release archive shipped `.claude/`, the record documents and the art sources | `.* export-ignore` plus rules by name | `8d18e8b`; confirmed by `P2` at `8b27f2f` |
+| `C15` | low | the release archive shipped `.claude/`, the record documents and the art sources | `.* export-ignore` plus rules by name | `8d18e8b`; confirmed by `P2` at `8b27f2f`, re-confirmed at `48cc63e` |
 | `C5` | medium | the three `cc_*` mods had no licence file | a `license.txt` each, enforced by `check_game.sh` | — |
 | `C4` | medium | licence metadata disagreed between the game and the mod inside it | unified on AGPL-3.0-only | — |
 | `C3` | medium | bundled AGPL and MIT code shipped without its licence text | the text, or a `THIRD-PARTY-LICENSES.md` row, enforced by `check_game.sh` | — |
@@ -939,10 +946,14 @@ belongs to the mod's audit.
   two media rows in `THIRD-PARTY-LICENSES.md`; and
   `"media_license": "CC-BY-SA-4.0"` in `scripts/gen_cdb_json.sh`, with
   `.cdb.json` regenerated. The decision and its grounds are `ROADMAP.md` `G7`,
-  *The media licence*. **Uncommitted at the time of writing** — the closure holds only
-  once `menu/license.txt` is committed, since an untracked licence file ships to
-  nobody, and that is the mistake this project has made before (see *the
-  corrections*).
+  *The media licence*. **The closure condition is met.** It was written
+  uncommitted, and held only once `menu/license.txt` was committed, since an
+  untracked licence file ships to nobody — the mistake this project has made
+  before (see *the corrections*). `P2` at `48cc63e` on 2026-09-08 listed the
+  archive and found `menu/license.txt` beside the three PNGs and
+  `mods/cc_mapgen/license.txt` beside its two textures, so the statement reaches
+  a player. Nothing about this is conditional any more; what remains unenforced
+  is `Keep` (3).
 
   **Keep — three things this fix does not do, and the third is the live one.**
   (1) The root `LICENSE` is still bare AGPL-3.0 with no scope statement, and that
@@ -1101,6 +1112,18 @@ belongs to the mod's audit.
 clone; luacheck is silent on the three `cc_*` mods; the `.claude/` size quoted in
 `C15` (993 kB, measured here); `C20`'s counts, read out of `README.md` — nine
 images, four `dp.png`, one `ds.png`, two links to the game's own ContentDB page.
+
+**Verified from the outside, at `48cc63e`:** `P2` re-run on 2026-09-08 after
+`G6`, `G7` and the media licence added five tracked files — 494 entries,
+**1.95 MB zipped** by `git archive --format=zip`. Nothing hidden, no art source,
+no `scripts/`, none of the six record documents; present and checked one by one:
+the three `menu/*.png`, `menu/license.txt`, `mods/cc_mapgen/license.txt` with
+`cc_mapgen_bedrock.png` and `cc_mapgen_barrier.png`, and
+`THIRD-PARTY-LICENSES.md`. That is `C22`'s closure condition met and `C15`'s
+archive half re-settled — **for that commit only**, since nothing in either CI
+reads `.gitattributes`. The 1.93 → 1.95 MB step is **noted, not accounted for**:
+the two textures and two licence files are a few kB between them, and the
+remainder was not tracked down.
 
 **Verified from the outside, at `8b27f2f`:** `.gitattributes` excludes what it
 intends to. `P2` built the archive and listed it — 488 entries, nothing hidden,
@@ -1282,6 +1305,22 @@ shape shows up**, and this one was not visible from any amount of reading
 
 ---
 
+Revised 2026-09-08 at `48cc63e`, on `P2` being re-run. **No finding was filed,
+none changed state, and the counts are unchanged: 20 findings, 16 resolved,
+4 open** — `A7`, `A8`, `A13` and `C21`. What moved is evidence, not state.
+**`C22`'s closure is no longer conditional**: it was written while
+`menu/license.txt` sat untracked in the working tree, and `P2` at `48cc63e`
+confirms by listing the archive that the file reaches a player, so the condition
+the revision above held open is met. `C15`'s archive half is confirmed for that
+commit and for no other — 494 entries, 1.95 MB zipped, every clause checked
+rather than inferred — and the standing hazard is unchanged, because nothing in
+either CI reads `.gitattributes`. `P2` is therefore recorded in `PLAYTEST.md` as a
+**standing obligation** rather than a closed action: its own instructions say to
+run it whenever a tracked file is added, and it has been needed twice in two
+milestones. **Still no finding for the gap** — no committed code is defective —
+and it stays a `TODO.md` line under `C22`'s `Keep`. `PLAYTEST.md`'s counts were
+recomputed and hold: 30 entries, 18 pass, 2 partial, 0 fail, 10 unchecked.
+
 Revised 2026-09-08 at `6a0258a`, on the licence decision. **`C22` is resolved and
 the counts move to 20 findings, 16 resolved, 4 open** — `A7`, `A8`, `A13` and
 `C21`. The author chose code AGPL-3.0-only and all of the game's own media
@@ -1290,8 +1329,10 @@ CC BY-SA 4.0; `code-expert` wrote it into a new `menu/license.txt`,
 `scripts/gen_cdb_json.sh`, and `.cdb.json` was regenerated.
 `CC-BY-SA-4.0` — hyphenated — is ContentDB's own spelling and was confirmed
 against `https://content.luanti.org/api/licenses/` here as well as by
-`code-expert`. **The fix is in the working tree and not committed**, so the
-closure holds only once `menu/license.txt` is tracked. **No finding was filed for
+`code-expert`. The fix was in the working tree and uncommitted when this was
+written, so the closure held only once `menu/license.txt` was tracked; it
+committed in `48cc63e` and `P2` confirmed there that it reaches a player, so
+**the condition is met**. **No finding was filed for
 the gap the fix leaves** — no gate reads a media file, so a media file added with
 no licence line fails nothing — because there is no defect in committed code;
 it is in `C22`'s `Keep` and as a `TODO.md` line.
