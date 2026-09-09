@@ -481,7 +481,11 @@ The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
 
 - [ ] Move `mods/codeblock` to a **tagged** release. See *which release is
   adopted* below: the pointer is currently off the release track, not merely
-  behind it.
+  behind it. **In the same piece of work, write the `CHANGELOG.md` *Changed*
+  entry naming the release adopted**: it said the mod was adopted as a tagged
+  release rather than followed commit by commit, and it was deleted on
+  2026-09-09 because the pointer was still `fb75bc8`, a commit off `master`. It
+  is true only once this line is done, so it is written then and not before.
 - [x] State the licence for the game's media, in `menu/license.txt`,
   `mods/cc_mapgen/license.txt`, `THIRD-PARTY-LICENSES.md` and
   `scripts/gen_cdb_json.sh`. Decided 2026-09-08 — see *The media licence* under
@@ -512,6 +516,13 @@ gone with it. `git status` is now clean on `mods/codeblock`, and the old resting
 state no longer applies. `P1`'s clone half passed on `2647228` at `8b27f2f` and
 **has not been re-run since the pointer moved**, so nothing has confirmed that a
 fresh recursive clone can fetch `fb75bc8`.
+
+**Deleted from `CHANGELOG.md` on 2026-09-09:** a *Changed* entry claiming the mod
+was already adopted as a tagged release rather than followed commit by commit.
+The pointer above shows it had not happened, the file's boxes mean done or known
+limitation and never pending, and it forbids an entry for work in progress. The
+obligation to write that entry now sits on `G5`'s first line, where it will be
+read when the pointer actually moves.
 
 ## What ships broken
 
