@@ -1,13 +1,13 @@
 ---
 name: code-standards
-description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is 208 lines of Lua across three mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, an index of the guards a change would re-break, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
+description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is 209 lines of Lua across three mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, an index of the guards a change would re-break, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
 when_to_use: Before editing mods/cc_day, mods/cc_mapgen, mods/cc_security, scripts/, game.conf, minetest.conf, .luacheckrc or .gitattributes; when auditing the game's own code; when deciding whether a change belongs to the game or to the mod; and whenever you are about to state that an engine function exists or behaves in a particular way.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
 # Writing code in Codecube
 
-**This game is 208 lines of Lua, and the craft here is almost entirely deciding
+**This game is 209 lines of Lua, and the craft here is almost entirely deciding
 what not to add.** Everything a player *does* belongs upstream in CodeBlock; what
 is left is the world, the light, the restrictions, the packaging, and a handful
 of engine behaviours that have each already cost a finding.
@@ -19,11 +19,12 @@ either.
 
 ## The first question is always *whose is this*
 
-The game owns **208 lines of Lua**, in four files — counted as lines that are
-neither blank nor a comment, recounted on 2026-09-08 with `G3` in the working
-tree, which is how the numbers below can be re-derived rather than trusted.
-Counting blanks and comments too it is 572 lines, so most of what is here is
-prose about why. The one-line recipe, and the one the numbers below come from:
+The game owns **209 lines of Lua**, in four files — counted as lines that are
+neither blank nor a comment, recounted on 2026-09-09 with `G3`, `G7` and `A19`'s
+fix in the working tree, which is how the numbers below can be re-derived rather
+than trusted. Counting blanks and comments too it is 591 lines, so most of what
+is here is prose about why. The one-line recipe, and the one the numbers below
+come from:
 
 ```bash
 grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l
@@ -31,8 +32,8 @@ grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l
 
 | Mod | Lines | What it does |
 |---|---|---|
-| `cc_day` | 7 | Holds the world at noon, no sky objects |
-| `cc_mapgen` | 51 + 49 | `init.lua` sets `mg_flags`, the world's size and its depth, registers the four nodes the world is made of and the three mapgen aliases a non-V6 mapgen needs of a game; `mapgen_env.lua` writes three of those four on the emerge threads. It is also the only `cc_*` mod with media: four 16×16 textures in `textures/`, licensed in its own `license.txt` |
+| `cc_day` | 8 | Holds the world at noon: the light level, a plain sky, no sky objects |
+| `cc_mapgen` | 51 + 49 | `init.lua` sets `mg_flags`, the world's size and its depth, registers the four nodes the world is made of and the three mapgen aliases a non-V6 mapgen needs of a game; `mapgen_env.lua` writes three of those four on the emerge threads. It is also the only `cc_*` mod with media: four 16×16 textures in `textures/`, drawn by `scripts/gen_textures.py` and licensed in its own `license.txt` |
 | `cc_security` | 101 | Nothing diggable, no drops, no knockback, no inventory form, nothing growing or spreading, and the world-box clamp with the column rescue and its spawn fallback |
 
 The four nodes are `cc_mapgen:dirt`, the fill, which the engine writes itself
@@ -221,6 +222,23 @@ already cost findings. Answering from memory is how findings get here.
   5.4.0. The boolean form is deprecated and costs a line in the boot log, which
   `B19` and `B24` exist to keep clean. The default is `"clip"` for every drawtype
   except normal, liquid, flowingliquid, mesh and nodebox.
+- **`override_day_night_ratio` pins everything about the sky except one thing,
+  and that one thing is the horizon.** Traced through `sky.cpp` and `game.cpp` at
+  both 5.9.0 and 5.17.0 for `A19`. `time_brightness` is
+  `decode_light_f(day_night_ratio / 1000)` and the ratio override feeds it, so a
+  pinned ratio pins `m_brightness` *and* keeps `Sky::update` in its day branch
+  for ever — the dawn and night entries of `sky_color` are unreachable, and
+  pinning all eleven of them fixes nothing. What still moves is
+  `m_horizon_blend()`, a function of the raw time of day alone: it mixes a
+  sun/moon tint into `m_bgcolor` by up to `0.5` and into `m_skycolor` by up to
+  `0.25`, peaking around `/time 5000` and flat zero from `/time 6000` to
+  `/time 18000`. It is gated on the client-side `directional_colored_fog`, on by
+  default, so a game cannot switch it off. **`type = "plain"` is the only sky a
+  game can ask for that is immune**: the client sets `m_visible = false`, so
+  `getBgColor`, `getSkyColor` and `getFogColor` all return the constant
+  `base_color`, `Sky::render` draws nothing at all — sun, moon, stars and the
+  sunrise glow included — and the handler disables the directional tint itself.
+  A plain sky is therefore flat: no day gradient and no `indoors` shift either.
 
 ## There are no vendored mods any more
 
@@ -258,6 +276,7 @@ table.
 | `CONTENTDB.md` | `.cdb.json`, regenerated with `bash scripts/gen_cdb_json.sh` — never hand-edited | `check_game.sh` diffs it, CRs stripped |
 | a `game.conf` key | ContentDB's reading of it, and `check_game.sh`'s expectations | `check_game.sh`, for `title` and `max_minetest_version` only |
 | what a player sees or may do | `README.md` and `CONTENTDB.md` if it is player-facing | nothing |
+| a texture under `mods/cc_mapgen/textures/` | a filename row in that mod's own `license.txt`, **no** `export-ignore` — a player needs it at runtime — and a redraw through `python scripts/gen_textures.py`, which owns all four; plus a `PLAYTEST.md` entry, because nothing here renders a pixel | nothing |
 | behaviour in a running world | a `PLAYTEST.md` entry — nothing else here reaches it | nothing. `project-manager` writes it |
 | a finding fixed | its state and commit in `AUDIT.md` | nothing. Report it; `project-manager` files it |
 
@@ -343,10 +362,12 @@ this is an index, not a second copy of either.
 | No node this mod registers carries a dig group, for the same reason as the override pass | `B48` | `cc_mapgen/init.lua` |
 | `mapgen_stone`, `mapgen_water_source` and `mapgen_river_water_source` are all three registered; without `mapgen_stone` the world fills with `ignore`, and the two water names go to `air` because no water is generated | `A13` | `cc_mapgen/init.lua` |
 | `is_ground_content` is `true` on dirt and grass and `false` on bedrock and barrier: the ground may be carved, the bounds may not | — | `cc_mapgen/init.lua` |
+| All four textures are **generated, not hand-drawn**: `python scripts/gen_textures.py` redraws every one of them, so a hand edit is undone the next time it runs, and the palettes and seeds live in its table. The look is a flat base colour plus sparse non-touching specks, three or four colours in the tile, following Soothing32 — a value-noise version of the same palettes was drawn and **rejected as grain**, so per-pixel jitter is the thing not to add back | — | `scripts/gen_textures.py`, `cc_mapgen/init.lua` |
 | `mapgen_env.lua` writes `minp..maxp` only, never the emerged shell, which belongs to the neighbouring chunks | — | `cc_mapgen/mapgen_env.lua` |
 | `ground_level` is read with `get_mapgen_setting` inside the mapgen env, not passed from `init.lua` — that environment sees none of the main one's locals, and a nil there is silent | — | `cc_mapgen/mapgen_env.lua` |
 | A chunk that is interior, wholly above `y = 0` *and* clear of `mgflat_ground_level` returns before `get_data`, which would otherwise be half a million nodes read and written on an emerge thread to change none of them. Every layer the file writes needs a test in that condition | — | `cc_mapgen/mapgen_env.lua` |
 | The grass slab is written before the y loop, so the barrier wins at the wall and the bedrock floor wins if a server owner puts the ground level at or under 0 | — | `cc_mapgen/mapgen_env.lua` |
 | `sunrise_visible = false` is a field of its own — hiding the sun leaves the sunrise texture drawn | `B47` | `cc_day/init.lua` |
+| The sky is `type = "plain"`, which is what makes it immune to the time of day; a `"regular"` sky cannot be, whatever `sky_color` holds. The four sky-object calls beside it are redundant under a plain sky and stay so that going back to `"regular"` cannot silently restore the sun, the moon, the stars and the sunrise | `A19`, `B47` | `cc_day/init.lua` |
 | `codeblock_flat_sky` is **not** set in `minetest.conf`, whatever CodeBlock's roadmap asks: the mod's copy of those five calls lacks `sunrise_visible`, so turning it on both duplicates `cc_day` and restores `B47` | `A7`, `B47` | `cc_day/init.lua`, `minetest.conf` |
 | Every tracked document carries its own `export-ignore` line, or `git archive` ships it to a player | `C15` | `.gitattributes` |

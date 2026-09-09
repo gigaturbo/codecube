@@ -34,7 +34,7 @@ ContentDB's own spelling, **`CC-BY-SA-4.0`** — hyphenated, and listed as FOSS 
 
 Three places carry the statement, and each has one reader:
 
-- `mods/cc_mapgen/license.txt`, *License of media* — the two textures, beside the
+- `mods/cc_mapgen/license.txt`, *License of media* — the four textures, beside the
   mod that ships them, in the same shape as every other mod's licence file.
 - `menu/license.txt` — the three menu images and their `.svg` sources. `menu/` is
   deliberately not export-ignored, because the main menu reads `menu/*.png` at

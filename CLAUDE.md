@@ -26,8 +26,13 @@ instructions.
 | | |
 |---|---|
 | `codeblock`, `vector3` | Submodules. Pinned dependencies, **not working copies.** |
-| `cc_day`, `cc_mapgen`, `cc_security` | The game's own mods: permanent daylight, a flat bounded clean mapgen, and the build restrictions. One Lua file each except `cc_mapgen`, which has a second, `mapgen_env.lua`, run in the mapgen environment on the emerge threads. **This is the only Lua this repository owns or lints.** `cc_mapgen` is also the only one with media: 16×16 textures in `textures/`, licensed in its own `license.txt`. |
-| `default`, `dye`, `wool` | Vendored from Minetest Game for their nodes, and **being deleted under `G3`** — CodeBlock registers its own 105 nodes since its `F11` and depends on `vector3` alone, so nothing reachable came from them. Until the deletion is committed they are still there: third-party, deliberately not linted and not ours to restyle. |
+| `cc_day`, `cc_mapgen`, `cc_security` | The game's own mods: permanent daylight, a flat bounded clean mapgen, and the build restrictions. One Lua file each except `cc_mapgen`, which has a second, `mapgen_env.lua`, run in the mapgen environment on the emerge threads. **This is the only Lua this repository owns or lints.** `cc_mapgen` is also the only one with media: 16×16 textures in `textures/`, drawn by `scripts/gen_textures.py` and licensed in its own `license.txt`. |
+**`mods/default`, `mods/dye` and `mods/wool` were deleted at `50fd05f`** under
+`G3`: CodeBlock registers its own 105 nodes since its `F11` and depends on
+`vector3` alone, so nothing reachable came from them. `mods/` holds the five
+directories above and nothing else — do not re-vendor a Minetest Game mod for a
+node, and note that the engine's three essential mapgen aliases moved into
+`cc_mapgen` with the deletion.
 
 **CodeBlock is developed in its own sibling checkout, not here.** `mods/codeblock`
 exists so the game assembles and runs; it has its own repository, its own record,
@@ -159,17 +164,26 @@ luacheck mods/cc_day mods/cc_mapgen mods/cc_security --formatter plain --codes
 bash scripts/gen_cdb_json.sh  # regenerate after a CONTENTDB.md edit; check_game.sh diffs it
 ```
 
-One more generator, and it is **neither a gate nor something CI runs** — nothing
-fails if it is skipped, because `.reports/` is gitignored:
+Two more generators, and **neither is a gate nor something CI runs**:
 
 ```bash
 python scripts/gen_reports.py          # rebuild the three HTML renderings
 python scripts/gen_reports.py --check  # report drift without writing
+python scripts/gen_textures.py         # redraw cc_mapgen's four 16x16 textures
 ```
 
-Run it after editing `ROADMAP.md`, `AUDIT.md` or `PLAYTEST.md`, and check the
-entry count it prints against that document's own status table — a count that has
-dropped is an entry heading that stopped parsing.
+Run `gen_reports.py` after editing `ROADMAP.md`, `AUDIT.md` or `PLAYTEST.md`, and
+check the entry count it prints against that document's own status table — a
+count that has dropped is an entry heading that stopped parsing. Nothing fails if
+it is skipped, because `.reports/` is gitignored.
+
+`gen_textures.py` draws grass, dirt, bedrock and the barrier from the palettes and
+seeds in its own table, byte-identically on every run. The PNGs are **committed
+artefacts**, so nothing fails if it is never run again: `check_game.sh` does not
+know about the script and luacheck does not read Python. It exists so the palettes
+and the seeds do not rot in a comment. The style is deliberate and is not noise —
+`ROADMAP.md` `G7`, *The texture rework*, says why, and `PLAYTEST.md` `W11` and
+`W15` are what judge it in a world.
 
 The game has **no test suite of its own**, and no automated check reaches its
 behaviour at all — `check_game.sh` verifies that the game *assembles*. Say so
@@ -206,16 +220,23 @@ can see past rather than the inside of a box. Both are written from
 `mapgen_env.lua` on the emerge threads, which is what `min_minetest_version =
 5.9` in `game.conf` is for. Both draw from `cc_mapgen`'s own
 textures in `mods/cc_mapgen/textures/`, not from `default` — the bounds used to
-borrow two of its textures and no longer do. `cc_day` holds the world at noon. `cc_security`
+borrow two of its textures and no longer do. `cc_day` holds the world at noon —
+the light level, the sky objects, and since `A19` the sky itself, declared as a
+`plain` sky whose one `base_color` is both the sky and the fog. `plain` is the
+only type the engine excludes from the time-of-day tint it mixes into a
+gradient sky, so the flatness is what buys the pinning, not a style choice.
+`cc_security`
 restricts what a player may break or place, and rescues a player found outside
 the world box **into their own column** — clamping it inside the wall, making the
 floor whole under it and standing them on the first height in it they fit, and
 falling back to the spawn point only when nothing in that column fits. Those
 writes are **the one place this game writes to the map**; every other rule in
 `cc_security` denies. Four Lua files, and the whole of this game's code:
-**208 lines** — `cc_day` 7, `cc_mapgen` 51 + 49, `cc_security` 101, counting
-neither blanks nor comments, and **572 lines in all**. `G3` is what moved it from
-177; read the files rather than trusting the number.
+**209 lines** — `cc_day` 8, `cc_mapgen` 51 + 49, `cc_security` 101, counting
+neither blanks nor comments, and **591 lines in all**. `G3` is what moved it from
+177; read the files rather than trusting the number. Both numbers are the working
+tree over `50fd05f`, which was 208 and 579: `A19` added the one `set_sky` line
+and eleven lines of comment beside it.
 
 **The bedrock floor is buried deep under the ground.** `mgflat` fills
 `mapgen_stone` — `cc_mapgen:dirt` — up to

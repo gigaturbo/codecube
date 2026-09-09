@@ -33,13 +33,14 @@ for the full list.
 - [x] Server owners can set the world's size **and the height of its surface** from the settings menu, under Content: Games → Codecube. The surface height is how much ground there is between where you stand and the bedrock floor, which stays at `y = 0` whatever it is set to
 - [x] Server owners can change every drone limit from the settings menu, under Mods → codeblock, instead of editing the mod's source
 - [x] Every bundled mod now carries its own licence, catalogued in `THIRD-PARTY-LICENSES.md`
-- [x] The game's own artwork now states its licence where you receive it: `menu/license.txt` covers the three main-menu images and `mods/cc_mapgen/license.txt` the two world-edge textures, all five CC BY-SA 4.0, and both are listed in `THIRD-PARTY-LICENSES.md`. The ContentDB page shows the media licence beside the code licence
+- [x] The game's own artwork now states its licence where you receive it: `menu/license.txt` covers the three main-menu images and `mods/cc_mapgen/license.txt` the four textures the world is made of, all seven CC BY-SA 4.0, and both are listed in `THIRD-PARTY-LICENSES.md`. The ContentDB page shows the media licence beside the code licence
 - [x] Added `title` and `author` metadata to the bundled mods
 - [x] Added CI: `scripts/check_game.sh` verifies the game assembles; `codeblock` lints and tests itself
 
 ## Changed
 
-- [x] The bedrock floor and the barrier wall are drawn with the game's own textures. They used to borrow two textures from the bundled `default` mod; they are the game's own now, so nothing about how the world's edges are drawn depends on a mod that may later be removed
+- [x] Every surface in the world is drawn with the game's own artwork: grass, dirt, the bedrock floor and the barrier wall. The floor and the wall used to borrow two textures from the bundled `default` mod, and the ground came from it entirely; nothing about how the world is drawn depends on a mod any more. All four are flat colours with a few flecks in them rather than fine-grained noise, so a large area reads as one calm surface instead of static
+- [x] **The sky is now a single flat colour** rather than a gradient from a pale horizon up to a deeper blue. That is what makes permanent noon reach the sky at all - the gradient is what the engine was tinting - and it is a trade: there is no depth to the sky any more, and the sky and the haze no longer turn grey when you stand inside something you have built
 - [x] The bundled `codeblock` mod is now adopted as a tagged release rather than followed commit by commit; the game's documentation is brought up to date at the same time
 - [x] Reframed the documentation: the README presents the game, its features and its settings, and points at the `codeblock` package for the programming API and the detailed instructions. The game's own record is `ROADMAP.md`, `TODO.md`, `AUDIT.md` and `PLAYTEST.md`; none of them ships to a player
 - [x] The ContentDB page is now written for someone reading it on ContentDB, rather than being `README.md` verbatim. The README's badges, licence line and repository links were noise on a page the reader is already on, and its nine images - five of them tool icons used inline in the instructions - are not visible at all to anyone browsing from inside Luanti, which is where the instructions were most needed
@@ -57,6 +58,7 @@ for the full list.
 - [x] Fixed the breaking animation on nodes that cannot be broken: punching wool used to crack it through all five stages before the block stayed put. No node carries a digging group any more, so the client no longer guesses ahead of the server
 - [x] Fixed errors in the log when the game starts: two unresolved node names and one deprecated field in a bundled mod
 - [x] Fixed the sun showing at dawn and dusk: the sky hid the sun itself but not the sunrise glow drawn behind it
+- [x] **Fixed the sky still changing with the time of day.** Permanent noon held the light level and hid the sun, moon, stars and clouds, but the sky's own colour and the haze over distant ground were still the engine's, so the horizon carried a sunrise tint and shifted as you turned on the spot. A new world started at that tinted hour, so it was the game's default look rather than something you had to set the time to see
 - [x] Fixed a way into your own inventory. A bookshelf from the old bundled blocks could be opened, a drone tool dragged out of the hotbar into a row below it, and that row is one the game otherwise keeps shut - so the tool looked lost. Nothing can be moved anywhere now, in a node or in your own inventory, and no block in the game opens a panel of its own any more
 - [x] Fixed `scripts/gen_cdb_json.sh` producing different output depending on line endings
 - [x] Repointed image URLs from `master` to `main`

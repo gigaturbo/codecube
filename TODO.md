@@ -29,19 +29,30 @@ Nothing below can be closed by an agent.
 
 ## To do
 
-- [ ] `P1`'s boot half and `P3` are unrun. Narrower than it was — `W10`–`W14`
-      passing proves the author's own checkout boots — but `P1` is a **fresh
+- [ ] `P1`'s boot half and `P3` are unrun. Narrower than it was — `W10` and
+      `W12`–`W14` passing proves the author's own checkout boots — but `P1` is a **fresh
       recursive clone**, whose submodule objects nobody has locally
 - [ ] `W4`, `W8` and `W9` are owed re-runs at the new depth: all three pass at
       `60259dd`, where `mgflat_ground_level` was 8, and all three exercise heights
       the rescue derives from that number. **`W14` discharges none of them** —
       `PLAYTEST.md`'s *what needs action* table says why per check (audit B50).
-      **G3 widens this to the whole `W` group**, since it rewrites both of the
-      files that group exercises
-- [ ] `W15`, `W16` and `R9` are new and have no commit to run against yet, and
-      `R1`'s method and `R8`'s subjects were rewritten because their nodes are
-      being deleted (roadmap G3). Do this sitting **before** G4's, or G4's results
-      are owed a re-run the moment the deletion lands
+      **G3 widened this to the whole `W` group at `50fd05f`**, having rewritten
+      both of the files that group exercises
+- [x] ~~`cc_day`: pin the sky's own colours and fog, so the horizon stops
+      blending with the time of day~~ — written 2026-09-09 and uncommitted, one
+      `set_sky{type = "plain", ...}`. **`L4` is unrun**, and it is now the
+      cheapest evidence owed (audit A19, roadmap G4)
+- [ ] **`R1` and `R2`'s drop half, off one temporary hand override** — nothing in
+      the game is hand-diggable since `G3`, so `R1` would pass with `cc_security`
+      deleted outright and `R2`'s drop half is unreachable. The setup is in
+      `PLAYTEST.md`'s `R` preamble: hand override, empty hotbar slot 3-8, then the
+      two comments, **three things to undo**. No code change — the game is not
+      shipping a hand definition (audit A20)
+- [ ] `R9` is **partial** at `50fd05f`, 2026-09-09 — its fifteen blocks pass and
+      its misspelling step, corrected against the mod at `fb75bc8`, has never run;
+      it is `A13`'s last check. `W15` and `W16` pass there. `W11`'s pass was
+      retired when the textures were redrawn — run it beside `W15`, which now
+      judges the look as well as the geometry (roadmap G3, G7)
 - [ ] `code-expert`: with `default` gone nothing registers an ABM or an
       `on_timer`, so `cc_security`'s two neutralising loops walk empty sets, and
       `cc_mapgen`'s two `flowers:*` aliases have no schematics left to resolve.
@@ -51,7 +62,9 @@ Nothing below can be closed by an agent.
       mods changes the archive size, and `CHANGELOG.md` still states 1.93 MB
       measured at `48cc63e`. Re-measure at release (audit C15)
 - [ ] one playtest sitting for what G4 left: see the *what needs action* table in
-      `PLAYTEST.md` rather than a second list here (audit B48, B19, B24)
+      `PLAYTEST.md` rather than a second list here (audit A20, B19, B24) — `R8`
+      and `R3` passed on 2026-09-09, so `B48` is closed and the sitting's priority
+      is the `R1`/`R2` pair above
 - [ ] `check_game.sh`: nothing reads a media file, so a texture or menu image
       added with no licence line fails no gate — the same silence as
       `.gitattributes` (audit C22 `Keep`, C15). A wanted check, not a finding
@@ -60,11 +73,9 @@ Nothing below can be closed by an agent.
       file ships or does not with nothing failing (audit C15, C22). It passed at
       `48cc63e` on 2026-09-08 and has been needed twice in two milestones
 - [ ] `cc_day`: drop the duplicate of a block `codeblock` already runs (audit A7)
-      — settled upstream as a setting off by default, not a removal; closes at
-      adoption on `L3`, and the game must **not** set `codeblock_flat_sky`
-- [ ] delete `mods/default`, `mods/dye` and `mods/wool`, and give `cc_mapgen` the
-      three mapgen aliases and the grass/dirt surface that go with it (audit A13,
-      roadmap G3) — no longer deferred: `codeblock` took the blocks (its F11)
+      — settled upstream as a setting off by default, not a removal. **`L3` passed
+      on 2026-09-09**, so this closes at adoption alone; the game must **not** set
+      `codeblock_flat_sky`
 - [ ] `vector3` declares `max_minetest_version = 5.5`, four minor versions below
       the 5.9 G6 needs (audit C21) — upstream or a re-pin
 - [ ] adopt a tagged CodeBlock release and update the game's documentation with
@@ -83,7 +94,14 @@ Nothing below can be closed by an agent.
       space and leaves a player on an invisible dark ledge. That replaced a wrong
       claim and is **itself unverified** — neither read out of the engine source
       nor seen in a world. See `AUDIT.md`, *verified, committed, claimed*
-- [ ] fog distance
+- [ ] fog distance — **the author's decision, and still open.** `code-expert`
+      declined to take it with `A19`: `fog.fog_distance` is not a colour, any
+      value `>= 0` caps the client's `viewing_range`, disables `range_all` and
+      stops a player disabling fog with F3. Today `viewing_range = 300` in
+      `minetest.conf` is a courtesy a player can raise; `fog_distance` would make
+      it a rule, and what the game imposes is the author's call. One field away
+      if wanted — `fog = {fog_distance = 300}` in the existing `set_sky` — and it
+      needs no restructuring
 
 ## To raise in CodeBlock's own audit, not here
 

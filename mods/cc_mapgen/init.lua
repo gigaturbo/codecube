@@ -59,9 +59,15 @@ minetest.set_mapgen_setting("mgflat_ground_level", ground_level, true)
 -- node whatever is written here: the field states the intent, and leaving it
 -- out would read as a node this game meant to be dug, of which it has none.
 --
--- All four textures are this mod's own and 16x16. The three mottled ones --
--- grass, dirt and bedrock -- are drawn so their noise wraps at every edge, so a
--- large flat area of any of them shows no tiling grid. The barrier is a border
+-- All four textures are this mod's own and 16x16, and all four are drawn by
+-- scripts/gen_textures.py rather than by hand, which is where their palettes and
+-- seeds are written down. Grass, dirt and bedrock are a flat base colour with a
+-- handful of one-to-three-pixel specks in darker or lighter shades of it -- two
+-- to four colours in the whole tile, and better than 240 of its 256 pixels
+-- identical. Deliberately not a noise field: a mottled version of the same
+-- palettes was drawn and rejected as grain. Each speck is placed modulo the
+-- tile, so a large flat area shows no tiling grid, and none of them touch, which
+-- is what keeps the tile from reading as noise again. The barrier is a border
 -- rather than a field, and tiles by construction.
 
 -- The ground the mapgen fills the world with, and the one layer on top of it.
@@ -115,7 +121,8 @@ minetest.register_alias("mapgen_river_water_source", "air")
 -- read as one material and neither is mistaken for ground.
 --
 -- Bedrock is the floor at y = 0, and the node cc_security's rescue writes back
--- under a player. Its texture is a mottled near-black grey.
+-- under a player. Its texture is a flat near-black grey with six specks, one
+-- shade darker and one lighter.
 minetest.register_node("cc_mapgen:bedrock", {
     description = "Bedrock",
     tiles = {"cc_mapgen_bedrock.png"},

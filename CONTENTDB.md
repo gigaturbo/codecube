@@ -24,7 +24,8 @@ somewhere worth building.
   sent to the spawn point. Both numbers are settings a server owner can change,
   under Content: Games → Codecube: `mapgen_limit` is half the world's width, and
   `mgflat_ground_level` is how far the surface stands above the floor.
-- **Permanent daylight.** No sun, no moon, no stars, no clouds, no night. Your
+- **Permanent daylight.** No sun, no moon, no stars, no clouds, no night, and one
+  flat colour of sky rather than a gradient that shifts with the hour. Your
   structure is lit the same at every hour and there is nothing to look away for.
 - **Nothing to break.** No node is diggable, blocks never drop as items, the
   inventory is empty and knockback is off. Every block that appears was placed

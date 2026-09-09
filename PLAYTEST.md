@@ -82,22 +82,38 @@ A `fail` is not a finding — report it and let `AUDIT.md` allocate or widen an 
 
 | | |
 |---|---|
-| Entries | **33** |
-| Live checks | 31 — `R6` and `R7` are unrunnable, not live |
-| Most recent result a `pass` | **23**, of which 2 are on entries that can never be re-run |
-| `partial` | 2 — `R5`, `P1` |
+| Entries | **34** — unchanged; `L4` added 2026-09-09 |
+| Live checks | 32 — `R6` and `R7` are unrunnable, not live |
+| Most recent result a `pass` | **29**, of which 2 are on entries that can never be re-run |
+| `partial` | **1** — `P1` |
 | `fail` | 0 |
-| Unrun (`unchecked`) | **8** — `L3`, `R8`, `R9`, `W15`, `W16`, `P3`, `P4`, `P5` |
-| Results retired | 2 — `W8` and `W9`, both at `f5f2385`, on 2026-09-07 |
-| Findings closed by a check | `B47`, `B49`, `B50`, `S8` |
+| Unrun (`unchecked`) | **4** — `W11`, `P3`, `P4`, `P5` |
+| Results retired | 3 — `W8` and `W9` at `f5f2385` on 2026-09-07, `W11` at `3479e25` on 2026-09-08 |
+| Findings closed by a check | `B47`, `B48`, `B49`, `B50`, `S8` |
+| A pass that proves nothing | **0** — `R1`'s run of 2026-09-09 carries the hand override and could have failed. `R8`'s pass still cannot *distinguish* its cause, which is a weaker thing and is recorded in its entry |
+| Results that name no commit that carries the code | **3** — `L1`, `L2` and `L4`, all against `A19`'s uncommitted `set_sky` line. Owed a re-run when it lands |
+| Passes composed from other entries rather than reported | **2** — `L3` and `R5`. Each entry says so in its own result line |
 
-**`W15`, `W16` and `R9` are new on 2026-09-08 and have no commit to be run
-against**: `G3`'s code is not in the tree. **`R6` and `R7` become unrunnable with
-it** — each names a node only `default` registered — and are kept with their
-passes rather than deleted, because a deleted entry takes its evidence and its
-reasoning with it. **Every `W` result is owed a re-run** at the commit that lands
-`G3`, which rewrites both files the group exercises; the group's preamble says so
-once rather than the table saying it eleven times.
+**Counted 2026-09-09 from the first `Result:` line of all 34 entries**, not
+adjusted by hand: 29 pass, 1 partial, 0 fail, 4 unchecked. Six results moved in
+the third sitting of the day — `R1`, `R2`, `R9`, `L1`, `L2` and `L4` — and two
+more were composed from them, `R5` and `L3`.
+
+**`G3` landed at `50fd05f` on 2026-09-08**, so `W15`, `W16` and `R9` have a commit
+to be run against, and all three were run on 2026-09-09: **`W15`, `W16` and `R9`
+all pass.** `R9` took two sittings — its fifteen blocks passed in the first, its
+misspelling step was found to have been written against the wrong code path and
+was corrected, and the two corrected one-line programs passed in the third.
+**`R6` and `R7` are
+unrunnable with it** — each names a node only `default` registered — and are kept
+with their passes rather than deleted, because a deleted entry takes its evidence
+and its reasoning with it. **Every `W` result is owed a re-run at `50fd05f`**,
+which rewrites both files the group exercises; the group's preamble says so once
+rather than the table saying it eleven times.
+
+**`W11`'s pass was retired on 2026-09-08** because `cc_mapgen`'s bedrock and
+barrier textures were redrawn after it, and because it had passed against wording
+the textures can no longer meet. Its entry carries the retired line and why.
 
 **What needs action**, and it is the list — `TODO.md` points here rather than
 keeping a second copy.
@@ -105,41 +121,55 @@ keeping a second copy.
 | Check | State | Why it needs action |
 |---|---|---|
 | `W3` | pass, **method stale** | it passed by teleporting "several thousand nodes" out, which now lands outside a world whose limit is 1024. The pass is still what was seen at `7f649d8`; the instruction has to be re-read before it is re-run |
-| `W15` | unrun, **no commit yet** | one layer of grass over dirt at 128, the new surface. `G3`'s code is not in the tree |
-| `W16` | unrun, **no commit yet** | no unknown node anywhere: the three essential mapgen aliases `default` used to register. Run with `P3`, which is its log half |
-| `R9` | unrun, **no commit yet** | the drone against a palette that is entirely `codeblock:*`. Run with `R8` |
+| `W11` | **retired, unrun** | the bedrock and barrier textures were redrawn on 2026-09-08 in a flat-base-plus-specks style, and the old pass named a *"black mottled rock"* and a *"wrapping blur"* that no longer exist. **`W15` was run on 2026-09-09 without it**, so the bedrock and barrier redraws are now the only unjudged part of the texture rework, and the cheapest thing left in this group |
+| `W15` | **pass at `50fd05f`, 2026-09-09** | the grass-over-dirt surface and its two textures are judged. Nothing owed here; `W11`, which it was to be run beside, was not run |
+| `W16` | **pass at `50fd05f`, 2026-09-09** | the three essential mapgen aliases resolve and nothing in the column is `unknown`. It does **not** discharge `P3`, which asks for a log with nothing in it at all rather than four strings absent |
+| `R9` | **pass at `50fd05f`, 2026-09-09** | nothing owed. The two corrected one-line programs were run in the third sitting: `place(colors.vermilion)` warns once, carries on and leaves a default-coloured block, and `place('vermilion')` stops the program and places nothing. **What was not read back** is the default-coloured block itself, which is the quiet path's whole pass condition |
 | `R6` | pass, **unrunnable** | `default:bookshelf` is deleted with `G3` and no node left carries a formspec. The pass at `c042364` stands; there is no way to run it again |
 | `R7` | pass, **unrunnable** | its three cases and the ABMs they were about are all `default`'s. The pass at `d16f9bb` stands and is the only evidence the `action` replacement ever worked |
 | `W4` | pass, **re-run owed** | passes at `60259dd`, where `mgflat_ground_level` was 8; `d6e4a12` moved it to 128. **`W14` does not discharge it**: `W4`'s subject is **air, not stone**, under a removed floor tile, and a program being unable to take the plane by accident — which `W14` never reaches |
 | `W8` | pass, **re-run owed** | same depth change. **`W14` case 1 shares the setup and not the check**: `W8`'s pass includes walking the wall and standing on the exposed floor plane **unmoved**, which `W14` does not ask for |
 | `W9` | pass, **re-run owed** | same depth change. **`W14` covers neither case 1** — the spawn-column shaft, rescued **once**, with no second teleport — **nor case 3**, the no-op where only `(x, 0, z)` may have changed |
-| `L3` | unrun | gated on adopting a `codeblock` release at or past their `6fea453`. **Not a removal** — the duplicate is behind `codeblock.config.flat_sky`, off by default, and this game must not set it |
-| `R1` | pass, **re-run owed**, **method rewritten** | `B48`'s fix rewrites `groups` on every registered node, a far wider blast radius than the `diggable` field beside it. Its method named a `wool` and a `default` node; both are gone with `G3` |
-| `R3` | pass, **re-run owed** | thirty seconds, and it is the whole of what keeps `R5` partial |
+| `L4` | **pass, both halves, 2026-09-09**, **re-run owed on the commit** | the first run of the entry and **the whole of `A19`'s in-world evidence**: nothing moves across `/time 0`, `5000`, `10000` and `22000`, turning changes nothing, indoors matches outdoors, and none of the three over-applied signals appeared, so `#90d3f6` stays. **The code under test is committed nowhere** — the `set_sky` line is working-tree only — so this result names no sha that carries it and is owed a re-run when it lands. A bare *pass* covered four steps and two halves; nothing was read back |
+| `L3` | **pass, composed, 2026-09-09** | nothing owed but its own re-run when `A19`'s line is committed. Composed from `L1` and `L2` passing in the same world with the mod's copy inert, plus `L4` closing the residual at the two times it was seen at; the precondition is read, not run — nothing sets `codeblock_flat_sky` and the adopted `fb75bc8` still guards its copy. **The `sunrise_visible = false` half can never be re-established**: a `plain` sky draws no mesh, so that evidence is frozen in the retained `partial` |
+| `L1` | **pass at the current tree, 2026-09-09**, **re-run owed on the commit** | the owed re-run beside `L4` is done: full daylight and no sky objects under the `plain` sky. Two limits stay — the code is uncommitted, and **the four-object half no longer distinguishes its cause**, because a `plain` sky draws no sky mesh at all; that the four calls do their own work now rests on the retained 2026-09-01 pass under a `"regular"` sky |
+| `L2` | **pass at the current tree, 2026-09-09**, **re-run owed on the commit** | the rejoin holds with `set_sky` as a sixth per-player call, which is the one this could have dropped. The **second-player half is still unexercised** — singleplayer only, since 2026-09-01 — and nothing here would catch a sky applied to whoever joined first |
+| `R1` | **pass at `50fd05f`, 2026-09-09, and the first falsifiable run** | the priority of this document is discharged (`A20`). The temporary hand override was in place — corroborated by the working tree, which had both `cc_security` lines restored and the override gone — so the pass is a restriction refusing a hand that **could** have dug. **What is still owed is breadth**: a bare *pass* named none of the seven subjects the method asks for, and the entry's *Why* — a partial override pass covering a different set of nodes on every boot — is reached only by breadth |
+| `R2` | **pass, both halves, at `50fd05f`, 2026-09-09** | **no longer blocked**: the drop half ran for the first time since `7dc764f` and the first time ever under the corrected method, and no item appeared. So `A20` is confirmed in a world rather than only traced, and the empty drop list reaching the captured handler is on the current tree. **What was not read back** is the pass observation itself — the hotbar's slot 3 and the dug position — which this method was corrected on 2026-09-09 to name |
+| `R3` | **pass, re-run done 2026-09-09** | nothing owed. It was the knockback half of `R5`, and that half is now on the current tree |
 | `R4` | pass, **re-run owed** | same blast radius as `R1` |
-| `R5` | **partial** | its drop half passed at `7dc764f`; the knockback half rests on `R3` not having been re-run |
-| `R8` | unrun, **subjects rewritten** | the whole of `B48`'s evidence, at `ec02760`. All three nodes it named are deleted with `G3`, and the `dig_immediate` case cannot be reproduced at all any more |
+| `R5` | **pass, composed, 2026-09-09** | nothing owed. Both halves are now on the same tree — `R3` re-run and `R2`'s drop half run under the hand override — which is exactly the composition the `partial` pre-authorised in writing. `A8`'s **`last_mod` half stays untested by choice**, as its own paragraph records: it needs a second mod assigning the same globals and none ships here |
+| `R8` | **pass 2026-09-09**, with a second explanation | nothing owed. It is the whole of `B48`'s in-world evidence, and the `dig_immediate` case stays unreproducible — `G3` deleted the last such node. **The pass no longer distinguishes its cause** (`A20`): empty hand groupcaps suppress the crack overlay and the dig sound on their own. Only a run with the hand override would separate them, and nobody has done that |
 | `P1` | **partial** | the clone half passed at `8b27f2f`; the boot half has never been run, and a working checkout booting does not discharge it |
 | `P2` | pass at `48cc63e`, **standing obligation** | re-run on 2026-09-08 and it stays here permanently: the entry says to run it **whenever a tracked file is added**, and nothing in either CI reads `.gitattributes` (`C15`, `C22`). Needed twice in two milestones — `G6`'s two files, then `G7`'s new directory, two textures and `menu/license.txt` |
 | `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence — whose causes `G3` deletes, while adding three mapgen aliases whose absence shows up here |
 | `P4` | unrun | the main menu shows the game's name, artwork and icon |
 | `P5` | unrun | needs a release first — it is the ContentDB page as published |
 
-**Two sittings now, and `P2` is in neither** — it touches no engine and needs no
-world, so it is run from a shell whenever a tracked file is added.
+**Three sittings on 2026-09-09, and `P2` is in none of them** — it touches no
+engine and needs no world, so it is run from a shell whenever a tracked file is
+added.
 
-- **`G4`'s, runnable today.** `R8` at `ec02760`, with `R1`, `R4` and `P3` re-run
-  beside it, plus `P4`, `P1`'s boot half, and the thirty seconds of `R3` that
-  closes `R5`. The `W4`, `W8` and `W9` re-runs at the current depth fold into it
-  or into a world of their own.
-- **`G3`'s, once the deletion is committed.** `W15`, `W16` and `R9`, with `P3`
-  beside `W16`, and the whole `W` group re-run. **Running `G4`'s sitting before
-  `G3` lands costs it**: `R1`, `R4` and `R8` all name nodes the deletion removes,
-  so a pass on the old palette would be owed a re-run immediately. Doing `G3`
-  first is cheaper, and it is the only ordering in which either sitting's results
-  survive.
+- **`G4`'s is done.** `R8`, `R3`, `R1` and `R2` all passed on 2026-09-09, the last
+  two off the one temporary hand override in the `R` preamble, which was the
+  priority of the whole document and is now spent: `R1` is falsifiable and passed,
+  `R2`'s drop half ran, and `R5` closes with it. **What is left of the `R` group is
+  `R4`'s re-run** — the widening control, owed for `B48`'s blast radius over
+  `groups` — and, if anyone wants it, a re-run of `R8` **with** the hand override,
+  the only thing that would separate its two explanations.
+- **`L`'s is done and is owed once more.** `L1`, `L2` and `L4` passed and `L3`
+  composes from them, so `A19` has in-world evidence for the first time. But all
+  three name **no commit that carries the code** — the `set_sky` line is
+  working-tree only — so the group is owed a re-run when it lands. That re-run is
+  four `/time` commands, a circle turned at each, and a rejoin.
+- **`G3`'s, and it is mostly done: `W15`, `W16` and `R9` all pass.** What is left
+  of it is **`W11`** — which was to be run beside `W15` and was not, and is now
+  the only unjudged part of the texture rework — `P3` beside `W16`, and the whole
+  `W` group re-run.
+- **What no sitting has touched:** `P3`, `P4`, `P1`'s boot half, and the `W4`,
+  `W8` and `W9` re-runs at the current depth. `P5` needs a release first.
 
-**The boot gap is real and narrower than it was.** `W10`–`W14` pass at
+**The boot gap is real and narrower than it was.** `W10` and `W12`–`W14` pass at
 `3479e25`, record-only over `48cc63e`, and none of those observations is possible
 without the game booting and a world being entered — so **the author's own
 checkout boots**. What is still unrun is `P1`'s boot half, which is a **fresh
@@ -149,8 +179,19 @@ has criteria that the working-checkout boot alone satisfies**, and `P1` is
 deliberately not widened to cover it: a clone that already holds the objects does
 not test what `P1` exists for.
 
-**The five 2026-09-08 results name no engine version.** It was not given, and
-every other result in this document carries one.
+**The four surviving 2026-09-08 results name no engine version.** It was not
+given, and every other result in this document carries one — including all of
+2026-09-09's, which the author confirmed as 5.17.0. There were five; `W11`'s is
+retired.
+
+**A different gap opened on 2026-09-09, and it is the sharper one.** `L1`, `L2`
+and `L4` carry an engine version and a date but **no commit that holds the code
+they exercised**: `A19`'s fix is one `set_sky` line in `mods/cc_day/init.lua` in
+the working tree. A result whose code is committed nowhere cannot be reproduced by
+anyone, and it is the one shape of result this document has no rule for — so the
+rule is written here. Such a line names the tree it was run against, says the code
+is uncommitted, and is **owed a re-run on the commit**. It is not retired in the
+meantime: the code has not changed, it has only not been written down.
 
 ---
 
@@ -164,12 +205,12 @@ the two that are about the player rather than the map — the clamp (`W8`) and t
 place it puts them (`W9`). `W4`–`W9` and `W14` are `B50`; `W15` and `W16` are
 `A13`.
 
-**`G3` rewrites both of those files, so every result in this group is owed a
-re-run at the commit that lands it.** That is the rule about a result not
-surviving a change to the code it exercised, applied to a whole group at once
-rather than per check: the surface material changes, the fill node changes, and
-the mapgen aliases the engine needs move into `cc_mapgen`. The passes below stand
-as what was seen at the commits they name.
+**`G3` rewrote both of those files at `50fd05f`, so every result in this group is
+owed a re-run at that commit.** That is the rule about a result not surviving a
+change to the code it exercised, applied to a whole group at once rather than per
+check: the surface material changed, the fill node changed, and the mapgen aliases
+the engine needs moved into `cc_mapgen`. The passes below stand as what was seen
+at the commits they name.
 
 Three facts about the world these checks run in, because each one changes a
 method below.
@@ -531,11 +572,12 @@ they were looked for.
 ### W11 · The floor and the wall are the game's own artwork, and the floor does not tile
 
 **Why** — no finding id, nothing defective: the author asked for bedrock *"more
-black like in minecraft"*, and `cc_mapgen` now ships its own two 16×16 textures
-instead of borrowing `default_obsidian.png` and `default_obsidian_glass.png`.
-Before this ran, neither file had ever been rendered — both had only been decoded
-back as bytes, which says nothing about what a wall or a floor of them looks like
-from three nodes away.
+black like in minecraft"*, `cc_mapgen` ships its own 16×16 textures instead of
+borrowing `default_obsidian.png` and `default_obsidian_glass.png`, and on
+2026-09-08 both were redrawn in the Soothing32 style — a flat base colour plus a
+few sparse specks, not a noise field. **The look is the whole subject**, and only
+a world says whether a near-black flat base with six specks in 256 pixels reads
+as rock rather than as a flat fill.
 
 **How** — have a program clear a shaft to the bedrock plane at `y = 0` and then
 clear a **wide** expanse of it, twenty nodes on a side at least and more is
@@ -545,32 +587,43 @@ directly above, so looking down at your feet and calling it clean is how this is
 missed. Then go to the world's edge and look at the wall beside the floor where
 the two meet.
 
-**Pass**, and the second part is the one worth the trip.
+**Pass**, and the first part is the one the redraw is for.
 
-- **The floor reads as black mottled rock**, distinctly darker and less blue than
-  the obsidian it replaced. Anyone who remembers the old floor should be able to
-  say which is which.
+- **The floor reads as a near-black rock with a few flecks in it** — a flat base
+  of `#28282D` with sparse single pixels and pairs of `#1C1C20` and `#3C3C44`,
+  and nothing between them. Darker and less blue than the obsidian it replaced,
+  so anyone who remembers the old floor can say which is which. **Fail: grain.**
+  Per-pixel variation across the whole tile is the construction the author
+  rejected on 2026-09-08 — *"soothing has less features, less grain and reduces
+  palette"* — and a mottle that reads as static rather than as a few specks is a
+  fail here however dark it is.
 - **No tiling grid across the expanse, at any angle** — no repeating shape, no
-  seam every sixteenth node, no line where one texture meets the next. This is
-  what the wrapping blur exists for and the thing most likely to look wrong: a
-  non-wrapping blur darkens or lightens the four edges of the tile, and a large
-  floor turns into visible graph paper.
+  seam every sixteenth node, no line where one texture meets the next. Seamless
+  is by construction rather than by treatment: every cell of a speck is placed
+  modulo the tile, so a cluster running off one edge reappears on the opposite
+  one. What a grid would mean now is that the committed PNG is not what
+  `scripts/gen_textures.py` draws.
 - **The floor and the wall read as one material**, dark and of a piece, rather
-  than two nodes that happen to be adjacent.
+  than two nodes that happen to be adjacent. The barrier's border is a single
+  tone, `#101010`, since 2026-09-08; it was two near-blacks eight steps apart,
+  which is the same rejected construction at a separation nobody can see.
 
 A regular grid on the *wall* is `W10`'s pass; a regular grid on the *floor* is a
 fail here. The two are next to each other and easy to conflate.
 
-Result: pass — `3479e25`, record-only over `48cc63e` · **engine version not
-stated** · 2026-09-08 — reported by the author from a sitting in a world, against
-the check as written: the floor reads as black mottled rock, there is no tiling
-grid across a wide expanse of it at a shallow angle, and the floor and the wall
-read as one material. **The first rendering of either texture** — both had only
-ever been decoded back as bytes. The last commit to touch this game's media or
-Lua is `d6e4a12`. **Limit of the evidence:** one word per check was reported, not
-a part-by-part account, so the shallow-angle look that this entry says is worth
-the trip is covered by the steps having been followed rather than by a separate
-observation. Engine version not given.
+Result: unchecked — **owed a re-run, and run it with `W15`**, whose textures were
+redrawn in the same pass.
+
+**A pass was retired here on 2026-09-08 rather than carried forward.** The author
+ran this check at `3479e25`, record-only over `48cc63e`, on 2026-09-08 and
+reported a pass of the whole entry: black mottled rock, no tiling grid at a
+shallow angle, floor and wall one material. It was the first rendering of either
+texture. The line is removed for two reasons and either would be enough — the
+bedrock and barrier PNGs have both been redrawn since, so it is a result carried
+across a change to the media it exercised; and it passed against wording this
+entry no longer has, *"black mottled rock"* and a seamlessness attributed to a
+*"wrapping blur"*, neither of which the textures are made of any more. A check
+that passes on a criterion the code cannot meet is worse than an unrun one.
 
 ### W12 · A new world puts you 128 nodes above the floor
 
@@ -733,11 +786,33 @@ grass at 127 as well as 128, is the write covering a range instead of a layer.
 `default:stone` or `default:dirt` anywhere means the deletion did not land.
 **`unknown` or `ignore` in the column is `W16`, not this check** — but if you see
 it, stop and run `W16` instead, because a missing `mapgen_stone` alias makes every
-claim here meaningless. The grass also has to read as *green and light* from ten
-nodes away, which is what the author asked for; a texture that reads as another
-grey floor is a fail on the one part of this that no node name shows.
+claim here meaningless.
 
-Result: unchecked
+**The look is a pass condition too, and it is the part no node name shows.** The
+grass has to read as *green and light* from ten nodes away, which is what the
+author asked for; a texture that reads as another grey floor is a fail. Both
+textures are the Soothing32 style the author asked for on 2026-09-08 — a **flat
+base colour with a few sparse specks**, grass `#9CC43C` with flecks of `#78A32F`,
+`#5F913E` and `#4E8568`, dirt `#8B6547` with `#704E36` — so **grain is a fail**:
+per-pixel variation across the tile is the construction that was rejected, and
+*"less features, less grain and reduces palette"* is the directive verbatim. The
+dirt is two colours as printed and that is deliberate, not a texture that failed
+to draw. Look at the surface at a shallow angle and at a cut face, where the dirt
+shows.
+
+Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
+2026-09-09 — reported by the author from a sitting in a
+world, against the check as written, so the pass covers both halves of the entry:
+exactly **one** node of `cc_mapgen:grass` at `y = 128` with `cc_mapgen:dirt` at
+every height below it, no `default:*` node and no `unknown` in the column — and
+**the look**, the grass reading green and light from ten nodes away and both
+textures reading as a flat base with a few sparse specks rather than as grain.
+This is the first run of the surface `G3` introduced, and the first judgement of
+either of the two new textures in a world. **Limits:** the report
+was the single word *pass*, so no node name and no `y` value was read back to me,
+and the pass is against the check as written rather than against values quoted.
+**`W11` was not run with it** and stays retired and unrun, so the bedrock and
+barrier redraws are still unjudged — this pass covers the grass and the dirt only.
 
 ### W16 · No node in the world is unknown, anywhere in the column [A13]
 
@@ -768,13 +843,26 @@ unknown-node texture is unmistakable once seen and easy to miss at a glance in a
 uniform world, which is why the shaft is read at three heights rather than
 sighted from above.
 
-Result: unchecked
+Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
+2026-09-09 — reported by the author from a sitting in a
+world, against the check as written: no unresolved-alias or unknown-node line in
+the log for the world's creation, and no node named `unknown` on the surface or at
+any of the three heights in the shaft. So `cc_mapgen`'s three essential mapgen
+aliases resolve, and deleting `default` did not take `mapgen_stone` with it — the
+failure that would have given a world that looks wrong and works. **`P3` is not
+discharged by this.** Step 1 here searches the log for four specific strings;
+`P3` asks for **nothing at all**, red or yellow, from a cold start, and it is
+still `unchecked`. **Limit:** the report was the single word *pass*, so no log
+line was quoted back to me.
 
 ---
 
 ## L · Light
 
-`mods/cc_day/init.lua` is one `on_joinplayer` calling five player methods.
+`mods/cc_day/init.lua` is one `on_joinplayer` calling six player methods. `L1`
+and `L2` are the light level and the sky objects; `L3` is those two holding with
+the mod's own copy inert; `L4` is the sky's own colour, which is the sixth call
+and the newest.
 
 ### L1 · Permanent noon, no sky objects [A7]
 
@@ -786,7 +874,25 @@ to say which of the two failed.
 including `/time 5000`, which is dawn.
 
 **Pass** — full daylight regardless of the time of day; no sun, no moon, no
-stars, no clouds, and no sunrise or sunset glow.
+stars, no clouds, and no sunrise or sunset glow. The **colour** of the sky, the
+horizon band and the fog are `L4`'s and are not judged here — that division is
+why the residual `A19` names came back as a partial rather than a fail.
+
+Result: pass — `50fd05f` plus the uncommitted texture rework **and `A19`'s
+uncommitted `set_sky` line in `mods/cc_day/init.lua`** · engine 5.17.0 ·
+2026-09-09 — re-run beside `L4` against the `plain` sky, which is what the
+2026-09-08 owed re-run was for: full daylight at every hour, and no sun, moon,
+stars, clouds, sunrise or sunset glow. **The code under test is committed
+nowhere** — `player:set_sky({type = "plain", base_color = "#90d3f6"})` exists
+only in the working tree, so this result is not reproducible from any sha and
+must be re-run when the line lands. **Limits.** The report was the single word
+*pass*, so no time of day and no observation was read back; the pass is against
+the check as written. And **the four-object half no longer distinguishes its
+cause**: under a `plain` sky the client draws no sky mesh at all, so *no sun, no
+moon, no stars, no sunrise* is what the sky type alone would produce, with or
+without the four calls and `B47`'s `sunrise_visible = false`. That the four calls
+do their own work rests on the 2026-09-01 pass below, taken under a `"regular"`
+sky, which is why that line is kept. Same shape as `R8`'s second explanation.
 
 Result: pass — `b9bf82b` · engine 5.17.0 · 2026-09-01 — full daylight at
 every hour, and no sun, moon, stars or clouds at any time of day. No sunrise or
@@ -808,6 +914,17 @@ would catch a setting applied to whoever joined first.
 after the first.
 
 **Pass** — the same for both, every time.
+
+Result: pass — `50fd05f` plus the uncommitted texture rework **and `A19`'s
+uncommitted `set_sky` line in `mods/cc_day/init.lua`** · engine 5.17.0 ·
+2026-09-09 — re-run beside `L1` and `L4`: the flat sky and the pinned light level
+survive a rejoin. **The code under test is committed nowhere** and the result is
+not reproducible from any sha. This matters more than a repeat of 2026-09-01
+looks, because `set_sky` is a **sixth** per-player call in the same
+`on_joinplayer` and a per-player sky is exactly what a rejoin drops. **Limits.**
+The single word *pass* was reported. The **second-player half is still not
+exercised** — singleplayer only, as in 2026-09-01 — so nothing here would catch a
+sky applied to whoever joined first.
 
 Result: pass — `7f649d8` · engine 5.17.0 · 2026-09-01 — survives a rejoin.
 The second-player half was not exercised: singleplayer only.
@@ -838,7 +955,149 @@ check the setting rather than `cc_day`. Setting `codeblock_flat_sky = true` to
 "help" is the thing not to do — it restores the duplicate in the version that
 lacks `B47`'s fix, which is why `ROADMAP.md` records declining it.
 
-Result: unchecked
+Result: pass — `50fd05f` plus the uncommitted texture rework **and `A19`'s
+uncommitted `set_sky` line in `mods/cc_day/init.lua`** · engine 5.17.0 ·
+2026-09-09 — **composed from three reported runs in one sitting, not separately
+reported**, and that is the one weakness of this line. This entry's *How* is *"re-run
+`L1` and `L2`"* with the mod's copy inert and nothing else, and **both were run
+and both passed** in the world above; the residual that held it `partial` is what
+`L4` passed on at `/time 5000` and `/time 10000`, the two times the residual was
+seen at. The precondition is **read, not run**: nothing in this repository sets
+`codeblock_flat_sky` — `grep -rn flat_sky minetest.conf settingtypes.txt
+game.conf` finds nothing, checked 2026-09-09 — and the adopted `mods/codeblock`
+is still `fb75bc8`, whose `lib/register.lua:246` carries the
+`if codeblock.config.flat_sky then` guard. So `cc_day` **on its own** is
+sufficient for the flat sky, the four sky objects and the pinned light level,
+across a rejoin, which is the whole reason this entry exists.
+
+**Two limits, and either is a reason to re-run it as itself.** The author did not
+report `L3`, so no advanced-settings menu was looked at and no `y`-value or chat
+line was read back; if the composition above is wrong about what was in the
+world, this line is wrong with it. And the **`sunrise_visible = false` half can
+never be re-established** — under a `plain` sky the client draws no sky mesh, so
+the field `cc_day` alone carries is no longer observable; that half's only
+evidence is the `partial` below, taken under a `"regular"` sky, and that is why
+the line is kept rather than replaced. (`git submodule status` describes
+`fb75bc8` as `v0.4.0-208-gfb75bc8` where the line below says
+`v0.7.3-139-gfb75bc8`; same commit, a different set of tags fetched, and neither
+describe changes which code was adopted.)
+
+Previously partial — `50fd05f` plus the uncommitted texture rework · engine
+5.17.0 ·
+2026-09-09 — **the sky-object half passes; the "regardless
+of the time of day" half does not.** With the mod's copy inert — the adopted
+`mods/codeblock` is `fb75bc8` (`v0.7.3-139-gfb75bc8`), whose `lib/register.lua:246`
+carries the `if codeblock.config.flat_sky then` guard, and nothing in this
+repository sets `codeblock_flat_sky` — the author reports **no sun, no moon, no
+stars and no sunrise**, in their words *"in codeblock it is disabled"*. That is
+the first observation that `cc_day` is sufficient **on its own** for all four,
+which is the whole reason this entry exists, and it includes the one field only
+`cc_day` has, `sunrise_visible = false`. **`L2`'s half is covered too**: the
+sitting included leaving the world and rejoining, and the flat sky held across it,
+so "it survives a rejoin with the mod's copy inert" is run. The second-player half
+of `L2` remains as `L2` records it — singleplayer only.
+
+**The residual is the sole remaining gap, and it is a shortfall in the game rather
+than in this entry's wording.** The author reports *"only luminosity far away
+(horizon) changes a bit between time 10000 and time 5000"*, so something on screen
+still tracks the time of day, and `L1`'s pass condition — *full daylight
+regardless of the time of day* — is not met. The author's decision on 2026-09-09
+is that **the game should pin the sky colours**, so neither `L1`'s nor this
+entry's pass condition is being loosened to expect a residual blend: this stays
+`partial` until the fix lands, and then it is re-run. The author's *"only"* puts
+the change at the distant horizon, so nothing reported suggests the **light level**
+moved — no darkening of the ground, of a built wall or of the drone's work — and
+`override_day_night_ratio(1)` is what holds that.
+
+**A likely cause, not a demonstrated one.** `override_day_night_ratio` is
+documented at 5.17.0 as *"controlling sunlight to a specific amount"* and nothing
+more; the sky's own colours and its fog belong to `set_sky`, whose `sky_color`
+table carries **separate** `day_horizon` and `dawn_horizon` entries and a
+`fog_sun_tint`. `cc_day` calls no `set_sky` at all, so the client keeps deriving
+the horizon and the fog from the time of day, and `/time 5000` (0.208) sits near
+enough to dawn to carry some of that blend while `/time 10000` (0.417) is full
+day. That is consistent with the API and with what was seen and is **not proved** —
+pinning `sky_color`'s entries, or a `plain` sky, is what would both settle it and
+fix it, and the re-run of this entry is what would confirm it.
+
+**Corrected 2026-09-09, and only the cause**: the dawn branch is unreachable
+under a pinned day-night ratio and the mover is `m_horizon_blend`, which
+`sky_color` does not reach. The observation above stands. `AUDIT.md` `A19`.
+
+### L4 · The sky's own colour and the fog do not move with the time of day, or with where you look [A19]
+
+**Why** — `override_day_night_ratio(1)` pins the light level and nothing else;
+the sky's colour and the fog were the engine's, mixed with a sun tint on a curve
+of the time of day and by the player's **yaw**. `cc_day` now declares a `plain`
+sky, which is the one type the engine excludes from that mix — at the cost of the
+gradient. So this check has two jobs: that the shift is gone, and that what
+replaced it is worth looking at. **A fresh world will look plainly bluer than it
+used to, and that is the fix working**, not a regression: a new world starts at
+`time_of_day = 5250` with `time_speed = 0`, so the old sunrise tint was the
+game's default look rather than something `/time` had to be typed for.
+
+**How** — enter a world and stand somewhere with a long view: the top of a tall
+build, or facing the barrier across open ground.
+
+1. `/time 5000`, then `/time 10000`. Look at the horizon band, the haze over
+   distant ground, and the sky overhead at each.
+2. `/time 0`, then `/time 22000`. The blend peaks at **4800 and 19200**, so 5000
+   is near one peak only; these two exercise the other side, and the branch that
+   used to choose night colours.
+3. **Turn a full circle** at each of the four times.
+4. Have the drone build something you can stand inside — a room with a roof —
+   walk in, then walk out.
+
+**Pass** — nothing on screen changes across all four times: the horizon band, the
+haze over distant terrain and the sky overhead are one unchanging colour, and the
+light level does not move either. Turning changes nothing — **a sky that shifts
+as you turn means the `plain` type did not take**, because yaw fed the old blend
+and nothing else did. Inside the structure and outside it are the same colour;
+under the old sky the inside went grey.
+
+**Pass, second half, and it is a judgement rather than a measurement:** the flat
+sky has to be worth its cost. **Over-applied** reads as a flat pale ceiling with
+no depth, a terrain-to-sky transition that looks like haze rather than distance,
+and a view past the translucent barrier that reads as a wall of colour rather
+than open space. If that is what you see, the lever is one hex constant in
+`cc_day`: a deeper blue such as `#7ac4f5` reads more like sky, at the cost of
+deepening the distant fog with it, since a plain sky uses one colour for both.
+**Going back to a gradient is not available** — the residual returns with it
+(`ROADMAP.md`, *deliberately not doing*).
+
+One note for whoever writes the result line: under a `plain` sky the client draws
+no sky mesh at all, so `L3`'s *"no sun, no moon, no stars, no sunrise"* now
+passes for **two** reasons. The four original calls stay in `cc_day` precisely so
+a future return to `"regular"` cannot silently restore them.
+
+Result: pass, both halves — `50fd05f` plus the uncommitted texture rework **and
+`A19`'s uncommitted `set_sky` line in `mods/cc_day/init.lua`** · engine 5.17.0 ·
+2026-09-09 — **the first run of this entry and the whole of `A19`'s in-world
+evidence.** Reported by the author from a sitting in a world, against the check as
+written, so the pass covers all four steps: the horizon band, the haze over
+distant terrain and the sky overhead are one unchanging colour across `/time 0`,
+`5000`, `10000` and `22000` — which takes in both blend peaks, 4800 and 19200 —
+turning a full circle changes nothing, so the `plain` type took, and inside a
+drone-built room reads the same as outside rather than going grey. The light level
+does not move either. **The second half is a judgement and it went the author's
+way**: none of the three over-applied signals is reported, so `#90d3f6` stays and
+the one hex constant is not moved.
+
+**The code under test is committed nowhere.** `player:set_sky({type = "plain",
+base_color = "#90d3f6"})` exists only in `mods/cc_day/init.lua` in the working
+tree, so this result names no sha that carries it and **is not reproducible from
+any commit**. It is owed a re-run the moment the line lands, under the rule that a
+result does not survive a change to the code it exercised — here the code has not
+changed, it has not yet been written down.
+
+**Limits.** The report was the single word *pass* for an entry with four steps and
+two halves, so **nothing was read back**: not which of the four times were typed,
+not whether the circle was turned at all four rather than at one, not whether the
+room was built and walked into. Each of those is a sub-condition that fails
+quietly — a sky that shifts only at `22000`, or only as you turn, or only indoors,
+is exactly what one time and one heading would miss — and the pass rests on the
+runner having followed the steps. The three over-applied signals are the same:
+their absence is inferred from a bare *pass*, not from a described view.
 
 ---
 
@@ -861,7 +1120,64 @@ Since `60259dd` it writes **one node** on the ordinary path — the floor tile u
 the rescued column — and only the spawn fallback clears anything. Those two read
 with the rest of the world's bounds and are `W8` and `W9`, not here.
 
-### R1 · Nothing is diggable
+**Making the two digging checks able to fail — the setup `R1` and `R2` share
+(`A20`).** Since `50fd05f` the engine's builtin hand has **empty `groupcaps`**:
+`mods/default/tools.lua` was the only hand override in the tree and `G3` deleted
+it, so **no node in this game is hand-diggable, with or without `cc_security`**.
+Neither `R1` nor `R2`'s drop half can fail as written, and `R1` would pass with
+`cc_security` deleted outright. Both are run from one sitting with the setup
+below, which is **three things to undo, not two**. It is written once here rather
+than twice in the entries.
+
+**The order matters, because the two checks want different states.** `R1` wants a
+hand that *could* dig meeting a restriction that is still on; `R2`'s drop half
+wants that hand meeting a restriction that is off. So the hand override goes in
+first, `R1` is run against it, and only then are the two `cc_security` lines
+commented out for `R2`.
+
+1. Add a hand override at file scope in `mods/cc_security/init.lua`. **Run once,
+   on 2026-09-09, and it works** — it is what made `R1` falsifiable and reached
+   `R2`'s drop half in the same sitting:
+
+   ```lua
+   minetest.override_item("", {tool_capabilities = {full_punch_interval = 1, max_drop_level = 0,
+       groupcaps = {oddly_breakable_by_hand = {times = {[1]=0.5,[2]=0.5,[3]=0.5}, uses = 0}}}})
+   ```
+
+   Overriding `""` is documented — `lua_api.md` 5.17.0 lines 2324-2327 — and
+   works at 5.9.0, this game's floor.
+2. Fully restart the server. Then **select an empty hotbar slot, 3 to 8, before
+   punching anything.** `codeblock:poser` and `codeblock:setter` are put in slots
+   1 and 2 on join and both are `usable`, so with either wielded a left-click
+   **runs your program instead of digging** and nothing happens — which reads
+   exactly like a pass. This trap is independent of everything else here. **`R1`
+   is run at this point**, and this is the only state in which it can fail.
+3. Then, for `R2`'s drop half only, comment out **two** lines in the same file's
+   `override_item` call — `diggable = false` and `groups = groups`. **Before
+   restarting, count the comment markers: there must be two.** With only the first
+   commented out the groups are still stripped, so no node has a groupcap even
+   this hand can beat, and what you see is *"cannot dig"* rather than a failure.
+   Restart again.
+
+**Undo all three afterwards** — the hand override and the two comments — and
+check `git diff mods/cc_security/init.lua` is empty before finishing. **Three
+things to undo, and the count is the safeguard**, exactly as the two-comment count
+is.
+
+**That final `git diff` earned itself on the first run.** After the 2026-09-09
+sitting all three were undone and the file still differed: **two blank lines were
+left at file scope** where the hand override had sat. Harmless — luacheck was
+silent either way — but it is the same residue a *half*-undone override would
+leave, and the only thing that distinguishes the two is reading the diff. The
+blank lines were removed and the file is byte-identical to `50fd05f`. Read the
+diff; do not assume the undo was complete because you remember doing it.
+
+Chosen on 2026-09-09 over a `core.dig_node` chat command, which was considered
+and declined: this setup reaches `R1`'s real subject, a hand that *could* dig,
+and `R2`'s drop half in the same sitting, where a scripted `dig_node` reaches only
+the second.
+
+### R1 · Nothing is diggable [A20]
 
 **Why** — the override pass runs once at `on_mods_loaded` over
 `minetest.registered_nodes`, so a node registered later — by another mod, or by a
@@ -871,22 +1187,82 @@ node's `groups` runs in the same loop: if it errors on any single node,
 `diggable = true`**. Table iteration order is not stable, so a partial failure hits
 a different set of nodes on every boot and one punch on one wall would miss it.
 
-**How** — punch and hold on the ground, on the surface layer, on a wall the drone
+**And since `50fd05f` this check cannot fail at all without the shared setup
+above** — the hand has empty `groupcaps`, so **`R1` would pass with `cc_security`
+deleted outright** (`A20`). A restriction check that cannot fail is exactly what
+this document exists to prevent, so the run that counts is the one with the
+temporary hand override in place; a run without it says only that a hand which
+could not dig anything did not dig anything.
+
+**How** — apply steps 1 and 2 of the shared setup above and **not step 3**: the
+hand override added, the server restarted, an **empty hotbar slot (3-8)**
+selected, and `cc_security`'s two lines left exactly as they are. Then punch and
+hold on the ground, on the surface layer, on a wall the drone
 built, and on **one of each of CodeBlock's three variants** — a solid block, a
 glass and a lamp, since they carry different `oddly_breakable_by_hand` levels.
 Include the barrier at the world's edge. Try a colour the drone can place but you
 have not seen before, and try it in a fresh world rather than the one already
-open.
+open. Remove the hand override afterwards.
 
-**Pass** — nothing breaks, anywhere, on any node.
+**Pass** — nothing breaks, anywhere, on any node, **with the hand override in
+place**: that is the restriction refusing a hand that could otherwise dig, and it
+is the only version of this check that is evidence. A run with no hand override is
+not a result — nothing was exercised, because nothing could have been dug. If a
+node does break, the override pass covered fewer nodes than it should and the
+finding is `A8`'s walk, not this setup.
+
+**Method rewritten again 2026-09-09 for `A20`, and this is the bigger casualty of
+`G3`.** The *Why* above rested on a partial override pass leaving nodes with
+`diggable = true`; a node in that state is **still not diggable by hand** since
+`50fd05f`, so the whole check had become unfalsifiable and the 2026-09-01 pass
+below says nothing about today's code beyond it not crashing. The hand override is
+what restores the check; the change is to this document and it carries no id of
+its own — `A20` is the defect in committed code that made it necessary.
 
 **Method rewritten 2026-09-08 for `G3`.** It said *"including one from `wool` and
 one from `default`"*; both mods are deleted, so every node a program can place is
 `codeblock:*` and the ground is `cc_mapgen`'s. The pass below was against the old
 set of nodes and is owed a re-run for that reason as well as for `B48`.
 
-Result: pass, with two things it turned up — `7f649d8` · engine 5.17.0 ·
-2026-09-01 — nothing breaks, anywhere, on any node tried. The rule holds. But:
+Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
+2026-09-09 — **the first run of this check that could have failed**, and that is
+the whole of what makes it worth more than the line below. The temporary hand
+override from this group's preamble was in place, so the punch came from a hand
+with a usable `oddly_breakable_by_hand` groupcap, and **nothing broke**. That is
+`cc_security`'s override pass refusing a hand that could otherwise dig, which is
+the claim this entry has been unable to make since `50fd05f` (`A20`).
+
+**The setup is corroborated by the working tree and not only by the report.**
+Before anything was recorded, `mods/cc_security/init.lua` was inspected: `groups =
+groups` and `diggable = false` were **restored**, the `override_item("", …)` hand
+override was **gone**, and two stray blank lines sat at file scope exactly where
+it had been. So all three things were really added and really undone — this is
+not a report against an unmodified tree, which is the failure mode that would make
+a *pass* here worthless a second time. The blank lines have since been removed and
+`cc_security` is byte-identical to `50fd05f`, with luacheck silent.
+
+**Limits, and they are the whole of the entry's breadth.** The report was the
+single word *pass*, so **none of the subjects was read back**: not the ground, not
+the surface layer, not a drone-built wall, not one of each of CodeBlock's three
+variants — the solid, the glass and the lamp carry different
+`oddly_breakable_by_hand` levels and are the reason the entry names three — not
+the barrier at the world's edge, not a colour the author had not seen before, and
+not whether a **fresh** world was used as well as the one already open. The
+entry's *Why* is a partial override pass leaving a different set of nodes
+`diggable` on every boot, and only breadth of subject reaches that; one punch on
+one wall passes this line as written. Nor was the empty-hotbar-slot trap read back
+— with `codeblock:poser` or `codeblock:setter` wielded a left-click runs the
+program instead of digging and reads exactly like a pass.
+
+Previously pass, with two things it turned up — `7f649d8` · engine 5.17.0 ·
+2026-09-01 — **superseded, and kept because it is where `B48` and `S8` were
+found.** It predates `G3` on both sides: the nodes it punched are deleted, and
+`mods/default/tools.lua` still gave the hand its groupcaps, so it was *not* an
+unfalsifiable run at the time — the wool observation below is a node the client
+believed a hand could break. What the status table has been counting is narrower
+than "proves nothing": it is that **re-running the check as it then stood, on
+today's code, could not fail**, so this line says nothing about the current tree.
+Nothing breaks, anywhere, on any node tried. The rule holds. But:
 
 - **Wool plays the breakage animation and then the block stays.** The world's own
   ground does not. Cosmetic, and filed as `B48`: `diggable = false` is enforced
@@ -907,28 +1283,78 @@ is the fallback for the one gap `R1` names, a node registered after the override
 pass. **A check that cannot be run reads exactly like one that passed**, so the
 drop half has to reproduce that gap deliberately. Ruled out against the 5.17.0
 reference on 2026-09-02: no built-in chat command digs a node — `/give` and
-`/giveme` put an item in an inventory, a different path, and nothing exposes
-`core.dig_node`; privileges do not help, because `diggable = false` is a node
-property, *"if false, can never be dug"*, so `node_dig` refuses before drops are
-computed however privileged the player; and the drone writes with `set_node` and
-`VoxelManip` (`lib/commands.lua`, `lib/shapes.lua`), neither of which computes
-drops, so `R4` does not exercise this either.
+`/giveme` put an item in an inventory, a different path; privileges do not help,
+because `diggable = false` is a node property, *"if false, can never be dug"*, so
+`node_dig` refuses before drops are computed however privileged the player; and
+the drone writes with `set_node` and `VoxelManip` (`lib/commands.lua`,
+`lib/shapes.lua`), neither of which computes drops, so `R4` does not exercise this
+either.
 
-**How** — open the inventory. Then, to reach the drop half, comment out **both**
-the `diggable = false` line and the `groups = groups` line in
-`mods/cc_security/init.lua`'s `override_item` call, restart the server, dig a node
-by hand, and revert both lines. Both are needed since `B48`: the hand digs by
-groupcap, so with the groups stripped `diggable = true` on its own may leave
-nothing the hand can break and the check would silently do nothing instead of
-failing. This is not cheating the check — an uncovered node is exactly the
-situation the guard exists for.
+**Corrected 2026-09-09: this said *"nothing exposes `core.dig_node`"*, and the
+engine does expose it.** `core.dig_node(pos[, digger])` — `lua_api.md` 5.17.0
+line 6964 — and the `digger` argument is honoured from 5.9.0 onward via the
+`node_interaction_actor` feature flag (line 6223), which is exactly this game's
+floor. So a chat command calling it was a real route to the drop half and is
+recorded as **considered and declined** the same day, in favour of the hand
+override in the group preamble: `dig_node` reaches the drop chain but never `R1`'s
+subject, and the override reaches both in one sitting. The correction is kept
+rather than deleted because the wrong claim is what made the drop half look
+unreachable by any means.
 
-**Pass** — the inventory formspec is blank; the node dug with the lines commented
-out disappears and **no item appears**, none on the ground and none in the
-inventory. `handle_node_drops` passes an empty list to whatever it captured, so
+**How** — open the inventory. Then, to reach the drop half, apply **all three**
+steps of the shared setup in this group's preamble: the hand override, an empty
+hotbar slot (3-8) selected, and the two `cc_security` lines commented out. Dig a
+node by hand, then **undo all three**. Nothing less reaches this half — with the
+lines commented out and no hand override the hand still has no groupcap to dig
+with, which is what the 2026-09-09 re-attempt hit.
+
+Commenting out both lines is not cheating the check: an uncovered node is exactly
+the situation the guard exists for, and the hand override only supplies the
+capable hand `mods/default` used to.
+
+**Pass** — the inventory formspec is blank; the node dug with the setup in place
+disappears and **no item appears**. The observation is that **nothing appears in
+the hotbar and no item entity appears at the dug position** — not "open the
+inventory", which was this entry's old wording and is the wrong place to look:
+builtin's `handle_node_drops` does `inv:add_item("main", item)`
+(`item.lua:465-491`), the guard from `S8` is a
+`register_allow_player_inventory_action` and does not see a Lua-side `add_item`,
+and the first free `main` slot is **slot 3**, which is in the hotbar and visible
+without opening anything. `creative_mode = true` does not make this pass for free
+either: there is **no creative-mode gate on drops** anywhere in builtin's
+`node_dig`. `handle_node_drops` passes an empty list to whatever it captured, so
 nothing is ever handed out. (`A8`)
 
-Result: pass, both halves — `7dc764f` · engine 5.17.0 · 2026-09-02 — the
+Result: pass, both halves — `50fd05f` plus the uncommitted texture rework ·
+engine 5.17.0 · 2026-09-09 — **no longer blocked, and the drop half is now
+repeatable in a way it was not this morning.** The first run of this entry since
+`7dc764f` on 2026-09-02, and the first ever under the corrected method: all three
+steps of the group's shared setup in place — the hand override, an empty hotbar
+slot, and **both** `cc_security` lines commented out — a node dug by hand
+disappeared and **no item appeared**. So `previous_drops` is not `nil`, the chain
+fires, and the empty list reaches the captured handler (`A8`). The inventory half
+passes with it: the formspec is blank.
+
+**Which half the pass covers, and why the drop half is the one that counts.** The
+inventory-formspec half has passed since 2026-09-01 and could be re-observed by
+opening a panel; the drop half is what has been unrunnable all day. The setup that
+reaches it is corroborated by the working tree rather than by the report alone —
+before anything was recorded, `mods/cc_security/init.lua` had `groups = groups`
+and `diggable = false` **restored**, the hand override **gone**, and two stray
+blank lines at file scope where it had sat. Both comments were therefore really
+made and really undone, which is also the two-comment count the method warns
+about being met. The blank lines have since been removed; `cc_security` is
+byte-identical to `50fd05f` and luacheck is silent.
+
+**Limits.** The report was the single word *pass*, so **the pass observation
+itself was not read back**: the entry asks for the **hotbar** — slot 3, the first
+free `main` slot — and the **dug position**, and neither was described. That
+matters more here than in most entries, because this method was corrected on
+2026-09-09 away from *"open the inventory"*, and a runner working from memory of
+the old wording would look in the wrong place and see nothing either way. Nor was
+it said which node was dug.
+
+Previously pass, both halves — `7dc764f` · engine 5.17.0 · 2026-09-02 — the
 inventory formspec is blank, and **the drop half ran for the first time**: with
 `diggable = false` commented out and the server restarted, a node dug by hand
 disappeared and no item appeared, on the ground or in the inventory. The line was
@@ -937,6 +1363,41 @@ empty list reaches the captured handler — the one thing `A8` changed that coul
 have failed silently. What this still does not establish is that no inventory is
 *reachable*: `R1` found a bookshelf's own formspec shows the player's `main` list
 (`S8`).
+
+**A re-attempt on 2026-09-09 could not dig anything at all, and it was not a
+method slip.** At `50fd05f` plus the
+uncommitted texture rework, on engine 5.17.0, the author commented out **both**
+lines and **did fully restart the server**, and still could not dig — confirmed
+with them directly. So the two-comment trap is **not** the explanation for this
+run: the setup was right and something else refused. **No evidence was produced
+either way** — this is not a `fail`, not a `partial` and not a regression, and the
+2026-09-02 pass above is untouched, because a run that exercises nothing cannot
+contradict one that did. The comment count is still written into the shared setup,
+because it remains a real trap that someone will hit — just not the one hit here.
+
+**Diagnosed on 2026-09-09, and it was the third hypothesis: the engine's default
+hand has no usable groupcap since `G3` deleted `mods/default/tools.lua`.** Traced
+read-only through the engine at both 5.9.0 and 5.17.0 and through the adopted
+`mods/codeblock` at `fb75bc8`, and **not run in a world** — the finding is `A20`,
+which holds the trace. Two layers refuse, and either alone explains the sitting:
+the builtin hand's `groupcaps` are empty, so `getDigParams` returns
+`diggable = false` and no dig packet is ever sent; and slot 1 holds
+`codeblock:poser`, which is `usable`, so a left-click sends `INTERACT_USE` and
+runs the program instead of pointing at the node. The other two hypotheses are
+**ruled out**: `codeblock` protects nothing — no `is_protected`, no `can_dig`, no
+`on_dig` — and nothing in `cc_security` refuses a dig independently of `diggable`
+and the groups. So the drop half **was impossible as written**, which makes it a
+defect in this document; it is fixed above by the shared setup rather than by any
+change to the game.
+
+**Closed out the same day: the diagnosis was right and the fix works.** The drop
+half ran and passed at `50fd05f` plus the uncommitted texture rework, with the
+hand override in place — see the top result — so the refusal was the hand's empty
+`groupcaps` and nothing else, and `A20` is confirmed in a world rather than only
+traced. The two paragraphs above are kept rather than compressed away, because
+what they record is a **run that produced no evidence**, which is the case this
+document is most likely to meet again and hardest to recognise while it is
+happening: correct setup, a confident report, and nothing exercised.
 
 Previously pass on the inventory half only — `7f649d8` · engine 5.17.0 ·
 2026-09-01 — nothing was dug, because nothing could be.
@@ -949,7 +1410,11 @@ Previously pass on the inventory half only — `7f649d8` · engine 5.17.0 ·
 
 **Pass** — you are not moved.
 
-Result: pass — `7f649d8` · engine 5.17.0 · 2026-09-01 — no knockback.
+Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
+2026-09-09 — no knockback, re-run at the current tree. This is the thirty seconds
+the *what needs action* table had been holding `R5` open for.
+
+Previously pass — `7f649d8` · engine 5.17.0 · 2026-09-01 — no knockback.
 
 ### R4 · The drone can still build [R1 must not have broken it]
 
@@ -1003,12 +1468,50 @@ drop handler matters only once something has already re-enabled digging, at whic
 point the owner has deliberately changed the game. Decided by the author on
 2026-09-02.
 
-Result: partial — `7dc764f` · engine 5.17.0 · 2026-09-02 — **the half that could
-have broken is done.** `R2`'s drop method passed: the chain fires, hands an empty
+Result: pass, both halves — `50fd05f` plus the uncommitted texture rework ·
+engine 5.17.0 · 2026-09-09 — **composed from two reported runs, not separately
+reported**, which the entry pre-authorised in writing: its *How* is *"re-run `R3`,
+and run `R2` by its drop method"* and nothing else, and the `partial` below said
+in as many words that this becomes a pass the moment `R2`'s drop half runs at the
+current tree. Both halves are now on the same tree — `R3` passed on 2026-09-09,
+nothing pushes you; `R2`'s drop half passed on 2026-09-09 under the hand override,
+no item appears. So `previous_drops` is the engine default, the chain fires, the
+empty list reaches it, and the one thing `A8` changed that could have failed
+silently did not. **Limits.** Nobody reported running `R5` as itself, so this line
+is only as good as the two it composes and inherits both their limits — chiefly
+that `R2`'s pass observation, the hotbar and the dug position, was not read back.
+And `A8`'s **`last_mod` half remains untested by choice**, exactly as the
+paragraph above records: it needs a second mod that assigns the same globals and
+none ships here.
+
+Previously partial — `7dc764f` · engine 5.17.0 · 2026-09-02 — **the half that
+could have broken is done.** `R2`'s drop method passed: the chain fires, hands an empty
 list to the captured handler, and nothing drops. `R3` was not re-run on current
 code, so the knockback half is still resting on its 2026-09-01 pass. The risk
 there is small — `A8` left `calculate_knockback` byte-identical and nothing
 competes for it — but small is not none, and thirty seconds closes it.
+
+**The gap that line names was closed on 2026-09-09 and another opened in its
+place, so this stays `partial` and no result is moved.** `R3` was re-run at
+`50fd05f` plus the uncommitted texture rework and passed, so the knockback half no
+longer rests on 2026-09-01. But `R2`'s drop half was re-attempted the same day and
+**exercised nothing** — correctly set up, both lines commented out and the server
+restarted, and still nothing could be dug — so that half's evidence is still the
+2026-09-02 pass at `7dc764f`. Nobody ran `R5` itself today; this note records what
+the two halves stand on, and the entry is a pass the moment `R2`'s drop half runs
+at the current tree.
+
+**That re-run is no longer blocked, 2026-09-09.** The refusal is diagnosed as
+`A20` — the hand has had no groupcaps since `G3` — and `R2`'s method now carries
+the temporary hand override that reaches the chain. `A8`'s drop half therefore
+still rests on `7dc764f`, and the run that would move it is one sitting away
+rather than waiting on a diagnosis.
+
+**That sitting happened, later the same day.** `R2`'s drop half ran under the hand
+override and passed at `50fd05f` plus the uncommitted texture rework, so `A8`'s
+drop half no longer rests on `7dc764f` and this entry is the composed pass at the
+top. The two paragraphs above are kept because they are the record of how the half
+came to be blocked and unblocked in one day.
 
 ### R6 · A bookshelf opens nothing you can use [S8]
 
@@ -1149,7 +1652,31 @@ that stops cracking while the glass still flashes means the group list is
 incomplete, not that the fix works. The nodes are also still there afterwards,
 which is `R1`'s claim and not this one.
 
-Result: unchecked
+Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
+2026-09-09 — **no cracking texture at any stage and no dig sound, on all three
+subjects.** This is the first in-world judgement of `B48`'s fix, and the whole of
+its evidence: until now the claim that the client stops predicting a dig rested on
+reading the `groups` rebuild in `cc_security`'s override pass. **Limits.** The
+report was the single word *pass*, so nothing was read back about which subject
+was watched, for how long, or whether the solid and the glass were compared
+against each other — the pass is against the check as written, whose steps ask for
+a full two seconds each with sound on. And the **instant-crack case is
+unreproducible**: `G3` deleted the last `dig_immediate` node, so the fastest case,
+the one a partial strip would still show, is gone from the game and no run can
+recover it. `B48` records that.
+
+**That pass has a second explanation, found on 2026-09-09 and recorded here
+rather than allowed to be re-derived.** The hand has had **empty `groupcaps`**
+since `G3` (`A20`), and the client suppresses the crack overlay outright for a
+node no hand can dig — `// Don't show cracks if not diggable`,
+`game.cpp:3330-3331` at 5.17.0 — with the dig sound gated the same way. So a
+blank screen and silence are what the empty groupcaps alone would produce, with or
+without the group strip this check exists for. **The pass stands and `B48` stays
+closed**: the fix is correct and nothing observed contradicts it. What this check
+can no longer do is *distinguish* the two causes, and it will not be able to until
+the game has a hand definition — which it is deliberately not getting. Run with
+the hand override from this group's preamble, this check would separate them; it
+was not run that way and nobody has done so.
 
 ### R9 · The drone places and removes CodeBlock's own blocks, and nothing else exists [A13]
 
@@ -1180,8 +1707,38 @@ end
 ```
 
 Look at the result, then run it again with every `place` argument replaced by
-`air`. Watch the chat while it runs. Then try a name that does not exist —
-`place('vermilion')` — deliberately.
+`air`. Watch the chat while it runs. Then run **two separate one-line programs**
+for a name that does not exist, because they reach two different code paths and
+only the first is the quiet failure this check exists for.
+
+```lua
+place(colors.vermilion)   -- the quiet path: a table lookup that misses
+```
+
+```lua
+place('vermilion')        -- the loud path: a string that is not a block
+```
+
+**The two are not interchangeable, and the step above said the wrong one until
+2026-09-09.** This was corrected by reading the adopted `mods/codeblock` at
+`fb75bc8` (`v0.7.3-139-gfb75bc8`), so it is checked against that release and no
+other:
+
+- `lib/sandbox.lua:159` defines `unknown_block`, and `:332` installs it as the
+  miss handler on every block category — the three are `colors`, `glass` and
+  `lamps`. So the *"no block named"* warning fires on a **lookup into a
+  category**, `colors.vermilion`, which reads as `nil` and lets `place` fall back
+  to the drone's default block. That is the silent wrong-colour build.
+- `place('vermilion')` never reaches that handler. The string goes straight to
+  `lib/commands.lua:110`, `if not real_block then error(S('Cannot place this
+  block'), 4) end` — French *"Impossible de placer ce bloc"* — which is a **hard
+  error that stops the program**. The same message is raised from `:581` when a
+  program sets a bad default block.
+
+**The warning is said once per run.** `warned` is an upvalue of the environment
+`getScriptEnv` builds fresh for each run, so a second misspelling in the same
+program is silent **by design** and must not be read as a failure here. Put each
+misspelling in its own run.
 
 **Pass** — fifteen blocks in five colours and three materials: the solids show
 their colour, the glass is see-through and tinted, and **each lamp lights its
@@ -1191,10 +1748,79 @@ first two runs — a *"no block named"* warning means a name the palette no long
 carries, and the block placed will be the default one rather than nothing, so the
 build still looks plausible. The deliberate `vermilion` **must** produce that
 warning: a run with no warning means the misspelling report is not working and the
-first two runs proved less than they appear to. No `default:*` or `wool:*` node
-can be named at all.
+first two runs proved less than they appear to. The two misspelling runs have
+**different** pass conditions and both are required:
 
-Result: unchecked
+- `place(colors.vermilion)` — the chat says *"no block named 'vermilion', the
+  default block is used instead"*, **the program carries on**, and a block of the
+  drone's default colour is left behind. That block being there is the point: it
+  is what a wrong-coloured build looks like from the inside.
+- `place('vermilion')` — the program **stops** with *"Cannot place this block"* /
+  *"Impossible de placer ce bloc"*, and **nothing is placed**. A fallback block
+  appearing here instead would mean a misspelt string silently builds something,
+  which is the defect the hard error prevents.
+
+No `default:*` or `wool:*` node can be named at all.
+
+Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
+2026-09-09 — **the quiet path is run and this clears to a full pass**, the second
+sitting of the day on the same tree. The `partial` below named exactly one thing
+owed — *"two one-line programs, `place(colors.vermilion)` and
+`place('vermilion')`, per the corrected method. Nothing else in this entry is
+owed"* — so a *pass* reported against this entry cannot be a pass of the cheap
+half: the fifteen blocks were already passed below and were not what was
+outstanding. That asymmetry is why a bare word clears this entry and does not
+clear `L4` or `R1`, whose several parts are all live at once.
+
+**What the two paths now stand on.** `place(colors.vermilion)` — the quiet path,
+`lib/sandbox.lua:159` and `:332` at `fb75bc8` — warns *"no block named
+'vermilion'"* once, the program carries on, and a **default-coloured block** is
+left behind, which is what a wrong-coloured build looks like from the inside and
+is the failure mode `A13`'s palette change could have introduced silently.
+`place('vermilion')` — the loud path, `lib/commands.lua:110` — **stops the
+program** with *"Impossible de placer ce bloc"* and places nothing; that half was
+already observed in the first sitting and is pinned as a pass condition of its
+own. **The warning is said once per run by design** — `warned` is a per-run
+upvalue of the environment `getScriptEnv` builds — so a second misspelling going
+silent is not a failure here, and putting each misspelling in its own run is what
+the method asks for.
+
+**Limits.** The report was the single word *pass*, so **the distinguishing
+artefact was not read back**: nobody described the chat warning, and nobody
+described the default-coloured block being left where `colors.vermilion` was
+placed. That block is the pass condition, not the warning — a run that saw the
+warning and no block would be a different outcome and would read the same in a
+one-word report. Nor was it confirmed the two programs were run separately rather
+than as one. The paragraphs below belong to the superseded `partial` and are kept
+because they hold why the step was wrong before it was corrected.
+
+Previously partial — `50fd05f` plus the uncommitted texture rework · engine
+5.17.0 ·
+2026-09-09 — **the fifteen blocks pass and the quiet-fallback step has still never
+been run.** What was established: fifteen blocks in five colours and three
+materials, the solids showing their colour, the glass see-through and tinted, each
+lamp lighting its surroundings — the variant a `groups` rewrite would break first —
+and the `air` run leaving nothing behind. So `cc_security`'s override pass runs
+over the mod's 105 nodes without costing colour or light, and the palette a program
+can name is entirely `codeblock:*`. That is the first time any of it has been
+played.
+
+**Why `partial` and not a pass with a gap named.** The entry's *Why* gives **two**
+quiet failure modes and the misspelling fallback is one of them — a wrong-coloured
+build that looks like a working one. The author's `place('vermilion')` produced the
+hard error *"Impossible de placer ce bloc"*, which is `lib/commands.lua:110` and
+**not** the warning this check asks for, so the quiet path was never exercised and
+the step as written could not exercise it. An unrun half reads as `partial` in this
+document — the same rule `W8` and `L3` are recorded under — and calling it a pass
+would put the entry's headline claim above its evidence. The **loud** path is now
+observed and is pinned as a pass condition of its own above, because a misspelt
+string stopping the program is desirable behaviour worth keeping.
+
+**What to re-run**, and it is two one-line programs: `place(colors.vermilion)` and
+`place('vermilion')`, per the corrected method. Nothing else in this entry is
+owed. — **Run in the second sitting of 2026-09-09 and passed; see the top
+result.** This paragraph is what makes that pass readable as covering the quiet
+path and nothing less.
 
 ---
 
@@ -1339,6 +1965,126 @@ Result: unchecked
 
 Newest first.
 
+- **2026-09-09, `50fd05f` plus the uncommitted texture rework and `A19`'s
+  uncommitted `set_sky` line, third sitting — the largest batch this document has
+  taken.** Six results moved and two more composed from them, so the counts go to
+  **29 pass, 1 partial, 0 fail and 4 unrun**, recounted from the first `Result:`
+  line of all 34 entries rather than adjusted by hand. `R1` **pass, and the first
+  run of it that could have failed**: the hand override from the `R` preamble was
+  in place, which the working tree corroborates — both `cc_security` lines
+  restored, the override gone, two stray blank lines where it had sat — so this is
+  not a report against an unmodified tree, and the *pass that proves nothing* row
+  goes to **0**. `R2` **pass, both halves**, the drop half for the first time
+  since `7dc764f` and the first ever under the corrected method, which confirms
+  `A20` in a world rather than only traced and closes out the morning's
+  unexplained refusal; the two paragraphs recording that refusal are **kept**,
+  because a correctly set-up run that produces no evidence is the hardest case
+  here to recognise while it is happening. `R9` **clears to a full pass**: the
+  entry named exactly two one-line programs as owed, so a bare *pass* cannot be a
+  pass of the fifteen blocks that had already passed — an asymmetry that does not
+  hold for `L4` or `R1`, whose parts are all live at once, and the reason those two
+  carry longer limits. `L1`, `L2` and `L4` **pass**, the first in-world judgement
+  of `A19`, `L4` on its first run and covering both blend peaks; **none of the
+  three names a commit that carries the code**, and the rule for that shape of
+  result is written into *Where it stands* rather than left to the next reader.
+  `L1` gains a second limit of the same kind as `R8`'s: a `plain` sky draws no sky
+  mesh, so *no sun, no moon, no stars, no sunrise* no longer distinguishes the four
+  calls from the sky type, and the 2026-09-01 pass under a `"regular"` sky is kept
+  as the only evidence that can. **`L3` and `R5` move to pass by composition**, not
+  by report — `R5` because its `partial` said in writing that it becomes a pass
+  when `R2`'s drop half runs at the current tree, and `L3` because its whole *How*
+  is *re-run `L1` and `L2`* and both were run in that world, with its residual
+  closed by `L4` at the two times it was seen at and its precondition **read**:
+  nothing sets `codeblock_flat_sky` and the adopted `fb75bc8` still guards the
+  mod's copy. Both lines say they are composed, and both are the author's to
+  reverse. No result was moved on reading alone.
+- **2026-09-09, record-only over `50fd05f`: `R2`'s refusal diagnosed as `A20`,
+  and `R1` turns out to be the bigger casualty.** No result moved and nothing was
+  run — the diagnosis is read from the engine source at **both 5.9.0 and 5.17.0**
+  and from `mods/codeblock` at `fb75bc8`, and **nothing in it is verified in a
+  world**. The hand has had **empty `groupcaps`** since `G3` deleted
+  `mods/default/tools.lua`, so no node in the game is hand-diggable: `R1` **would
+  pass with `cc_security` deleted outright** and `R2`'s drop half was impossible
+  as written. The fix is to this document, not to the game — a **shared temporary
+  setup** in the `R` preamble, written once for both checks: a hand override, an
+  **empty hotbar slot (3-8)** because `codeblock:poser` in slot 1 makes a
+  left-click run the program instead of digging, and then the two comments for
+  `R2` only. **Three things to undo.** `R1` gains `[A20]`, the *why it cannot
+  fail* paragraph and a pass condition that requires the override; `R2`'s pass
+  observation moves from *"open the inventory"* to **the hotbar and the dug
+  position** — the first free `main` slot is slot 3 and there is no creative-mode
+  gate on drops — and its *Why* is **corrected**: it said *"nothing exposes
+  `core.dig_node`"* and the engine does, `lua_api.md` 5.17.0 line 6964, with
+  `digger` honoured from 5.9.0; that route was considered and declined in favour
+  of the hand override. `R8`'s pass gains its **second explanation** and stands.
+  `R5` is no longer *blocked*, only owed. Counts unchanged: 34 entries, 5 unrun,
+  and one pass — `R1`'s — that proves nothing.
+- **2026-09-09, record-only over `50fd05f`: `L4` added for `A19`'s fix.** No
+  result moved and nothing was run — the fix is one `set_sky` line in the working
+  tree, uncommitted. `L4` exists because **neither `L1` nor `L3` asked about the
+  horizon or the fog**, which is why the residual came back as a partial rather
+  than a fail, and that gap is now closed in the criteria rather than left to the
+  runner. `L1`'s Pass gained one line handing the sky's *colour* to `L4`, and
+  `L1` is marked owed a re-run beside it: its subject did not change but the sky
+  it passed against did. `L3`'s hypothesis paragraph carries a one-line
+  correction — the mover is `m_horizon_blend`, not `sky_color`'s dawn entries —
+  and its **observation and its `partial` are untouched**. Counts: 34 entries, 5
+  unrun.
+- **2026-09-09, `50fd05f` plus the uncommitted texture rework, second sitting.**
+  `R3` and `R8` **pass** and `R9` is **partial**, so the counts move to **25 pass,
+  4 partial and 4 unrun**. `R8` is the first and whole of `B48`'s in-world
+  evidence. `R3` is a re-run, which puts `R5`'s knockback half on the current tree
+  and moves what holds `R5` open to its other half. **`R9`'s misspelling step was
+  written against the wrong code path**, found by reading the adopted mod at
+  `fb75bc8`: the *"no block named"* warning the entry demands is installed as the
+  miss handler on a block **category**, so it fires on `colors.vermilion` and
+  never on `place('vermilion')`, which raises a hard error from
+  `lib/commands.lua:110` instead. The step is corrected into two one-line
+  programs with **different** pass conditions, the hard error is pinned as a pass
+  condition of its own now that it has been seen, and the warning being said
+  **once per run** — `warned` is a per-run upvalue — is written down so a silent
+  second misspelling is not read as a failure. `R9` is `partial` because the
+  quiet fallback is one of the two failure modes its own *Why* names and it has
+  still never been exercised. **A re-attempt at `R2`'s drop half exercised nothing
+  and is recorded as a note, not a result line**: both lines were commented out
+  and the server was restarted — confirmed with the author — and nothing could be
+  dug anyway, so it was an **unexplained refusal** at the time of this pass —
+  diagnosed later the same day as `A20`, see the entry above — and not the
+  two-line trap the method's prose warns of. Its 2026-09-02 pass is untouched,
+  because a run that exercises nothing cannot contradict one that did. The method
+  is now numbered steps with a count of comment markers, kept because that trap is
+  real, and is otherwise **not rewritten until the cause is known** — if the
+  engine's default hand has no usable groupcap since `G3`, the drop half is
+  impossible as written rather than fragile, which would be a defect in this
+  document.
+- **2026-09-09, `50fd05f` plus the uncommitted texture rework, first sitting.**
+  `W15` and `W16`
+  **pass** and `L3` is **partial**, so the counts moved to **24 pass, 3 partial and
+  6 unrun**. `W15` is the first judgement of the `G3` surface and of two of the
+  four new textures; `W16` is the first evidence that the mapgen aliases `default`
+  used to register resolve from `cc_mapgen`, and it is written down as **not**
+  discharging `P3`. `L3` is deliberately not a `pass`: the four sky objects are
+  gone with the mod's copy inert and the rejoin held, which is what the entry
+  existed for, but the distant horizon's luminosity still moves between
+  `/time 5000` and `/time 10000`, which `L1`'s *full daylight regardless of the
+  time of day* does not allow and which `override_day_night_ratio` does not
+  govern. **That residual is the entry's sole remaining gap, and the author
+  settled it the same day as a shortfall in the game rather than a defect in this
+  document** — so neither `L1`'s nor `L3`'s pass condition was loosened to expect
+  it, `cc_day` is to pin the sky colours, and `L3` stays `partial` until that
+  lands and it is re-run. The residual's cause is recorded as **likely and
+  unproved**, with the fix and the proof being the same experiment.
+- **2026-09-08, `50fd05f` plus an uncommitted texture rework.** `W11`'s pass
+  **retired**, so the counts move to **22 pass and 9 unrun**: the bedrock and
+  barrier PNGs were redrawn after it, and it had passed on wording the textures
+  cannot meet — *"black mottled rock"* and a seamlessness credited to a *"wrapping
+  blur"*. Both are gone from the entry, replaced by the flat-base-plus-specks
+  construction with its palette, and **grain is now written in as a fail** in both
+  `W11` and `W15`. `W15` gains the look as a pass condition beside the geometry,
+  because that is what the author judges on. `G3` having landed at `50fd05f` is
+  written through the status table, the action table and the `W` preamble, all of
+  which still said the code was not in the tree. No `Result:` line was moved
+  **to** a pass.
 - **2026-09-08, `5777dc0`, ahead of `G3`'s code.** `W15`, `W16` and `R9` added
   for `A13`'s deletion — the new surface, the mapgen aliases `default` used to
   register, and the drone against a palette that is entirely `codeblock:*` — all

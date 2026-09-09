@@ -21,10 +21,10 @@ not to summarise back.
 
 ## The first thing you say is often *this is not ours*
 
-The game owns **208 lines of Lua**: `mods/cc_day/init.lua` (7),
+The game owns **209 lines of Lua**: `mods/cc_day/init.lua` (8),
 `mods/cc_mapgen/init.lua` (51), `mods/cc_mapgen/mapgen_env.lua` (49) and
 `mods/cc_security/init.lua` (101) — neither blanks nor comments, recounted on
-2026-09-08 with `G3` in it; 572 lines counting those too. It owns four 16×16
+2026-09-09 with `G3`, `G7` and `A19`'s fix in it; 591 lines counting those too. It owns four 16×16
 textures as well, `mods/cc_mapgen/textures/`, its only media. Everything a
 player actually does — the sandbox, the drone, the editor, the API and its
 limits — is the CodeBlock mod's, developed in its own sibling checkout with its
