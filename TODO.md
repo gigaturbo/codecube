@@ -31,28 +31,19 @@ Nothing below can be closed by an agent.
 
 - [ ] `P1`'s boot half and `P3` are unrun. Narrower than it was — `W10` and
       `W12`–`W14` passing proves the author's own checkout boots — but `P1` is a **fresh
-      recursive clone**, whose submodule objects nobody has locally
+      recursive clone**, whose submodule objects nobody has locally. **Its clone
+      half is stale too**: it passed at `8b27f2f` on `codeblock` `2647228`, and
+      the pointer moved to `fb75bc8` at `50fd05f`, so nothing has confirmed the
+      current one is fetchable
 - [ ] `W4`, `W8` and `W9` are owed re-runs at the new depth: all three pass at
       `60259dd`, where `mgflat_ground_level` was 8, and all three exercise heights
       the rescue derives from that number. **`W14` discharges none of them** —
       `PLAYTEST.md`'s *what needs action* table says why per check (audit B50).
       **G3 widened this to the whole `W` group at `50fd05f`**, having rewritten
       both of the files that group exercises
-- [x] ~~`cc_day`: pin the sky's own colours and fog, so the horizon stops
-      blending with the time of day~~ — written 2026-09-09 and uncommitted, one
-      `set_sky{type = "plain", ...}`. **`L4` is unrun**, and it is now the
-      cheapest evidence owed (audit A19, roadmap G4)
-- [ ] **`R1` and `R2`'s drop half, off one temporary hand override** — nothing in
-      the game is hand-diggable since `G3`, so `R1` would pass with `cc_security`
-      deleted outright and `R2`'s drop half is unreachable. The setup is in
-      `PLAYTEST.md`'s `R` preamble: hand override, empty hotbar slot 3-8, then the
-      two comments, **three things to undo**. No code change — the game is not
-      shipping a hand definition (audit A20)
-- [ ] `R9` is **partial** at `50fd05f`, 2026-09-09 — its fifteen blocks pass and
-      its misspelling step, corrected against the mod at `fb75bc8`, has never run;
-      it is `A13`'s last check. `W15` and `W16` pass there. `W11`'s pass was
-      retired when the textures were redrawn — run it beside `W15`, which now
-      judges the look as well as the geometry (roadmap G3, G7)
+- [ ] `W11` — the redrawn bedrock and barrier. Its pass was retired when the
+      textures were redrawn, `W15` was run without it, and it is the only unjudged
+      part of the texture rework and the cheapest evidence owed (roadmap G7)
 - [ ] `code-expert`: with `default` gone nothing registers an ABM or an
       `on_timer`, so `cc_security`'s two neutralising loops walk empty sets, and
       `cc_mapgen`'s two `flowers:*` aliases have no schematics left to resolve.
@@ -61,10 +52,10 @@ Nothing below can be closed by an agent.
 - [ ] `P2` and the changelog's download figure: the deletion of three vendored
       mods changes the archive size, and `CHANGELOG.md` still states 1.93 MB
       measured at `48cc63e`. Re-measure at release (audit C15)
-- [ ] one playtest sitting for what G4 left: see the *what needs action* table in
-      `PLAYTEST.md` rather than a second list here (audit A20, B19, B24) — `R8`
-      and `R3` passed on 2026-09-09, so `B48` is closed and the sitting's priority
-      is the `R1`/`R2` pair above
+- [ ] `R4`'s re-run — the last of `B48`'s blast-radius controls, and it needs
+      `A20`'s temporary hand override like `R1` did. A re-run of `R8` **with** the
+      override is worth it too: it is the only thing that would separate the group
+      strip from the hand's empty groupcaps (audit B48, A20)
 - [ ] `check_game.sh`: nothing reads a media file, so a texture or menu image
       added with no licence line fails no gate — the same silence as
       `.gitattributes` (audit C22 `Keep`, C15). A wanted check, not a finding

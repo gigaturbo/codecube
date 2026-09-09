@@ -234,9 +234,9 @@ writes are **the one place this game writes to the map**; every other rule in
 `cc_security` denies. Four Lua files, and the whole of this game's code:
 **209 lines** — `cc_day` 8, `cc_mapgen` 51 + 49, `cc_security` 101, counting
 neither blanks nor comments, and **591 lines in all**. `G3` is what moved it from
-177; read the files rather than trusting the number. Both numbers are the working
-tree over `50fd05f`, which was 208 and 579: `A19` added the one `set_sky` line
-and eleven lines of comment beside it.
+177; read the files rather than trusting the number. Both numbers are `dd83b99`,
+where `A19` and the texture rework landed; at `50fd05f` they were 208 and 579,
+the difference being one `set_sky` line and eleven lines of comment beside it.
 
 **The bedrock floor is buried deep under the ground.** `mgflat` fills
 `mapgen_stone` — `cc_mapgen:dirt` — up to

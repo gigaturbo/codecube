@@ -23,48 +23,38 @@ Two numbering conventions, so a commit message always resolves:
   messages, so this file never says "Phase N" for anything of its own.
 - **Finding ids are shared** with the mod's audit — a `B`, `S`, `C` or `A` number
   is allocated once across both, so it never means two things and is never
-  renumbered. The twenty in `AUDIT.md` are the game's; the rest are the mod's, as
+  renumbered. The 22 in `AUDIT.md` are the game's; the rest are the mod's, as
   is the `F` feature series.
 
 Target is **v1.0.0**, major because several changes break saved player programs.
 
 ## Now
 
-**`A19` is written and uncommitted, and what it needs is a world.** Filed and
-fixed on 2026-09-09: one `set_sky{type = "plain", base_color = "#90d3f6"}` in
-`cc_day`, in the working tree over `50fd05f`. It changes what the sky looks like
-for every player, and **nothing here can judge that** — `PLAYTEST.md` `L4` was
-written for it and is unrun, so this is the cheapest evidence outstanding in the
-project. The `TODO.md` *fog distance* line is **not** bundled with it after all;
-it is a decision about what the game imposes and it is the author's.
+**No finding is waiting on code, and what is left is checking.** `dd83b99`
+committed `A19`'s `plain` sky and the texture rework, and six checks passed
+against that tree on 2026-09-09 — `R1`, `R2`, `R9`, `L1`, `L2` and `L4` — which
+closes `A19` on `L4` and `A13` on `R9`. **`G3` and `G4` are now done and
+checked**, and every open item in this file is either the author's or a release's.
 
-**`G3` is written and committed at `50fd05f` and now mostly checked**: `W15` and
-`W16` pass on 2026-09-09, so the grass-over-dirt surface at 128 and the absence
-of any unknown node are evidence rather than the author's report. `R9` is the
-last one owed, and it is `A13`'s remaining verification **alone** — `B48` closed
-on `R8` on its own, 2026-09-09. `R9` itself is **partial**: its fifteen blocks
-pass, and its misspelling-fallback step was written against the wrong code path
-and has still never run.
+**`W11` is the cheapest evidence outstanding**: the redrawn bedrock and barrier,
+whose earlier pass was retired with the textures it described, and the one
+unjudged part of `G7`. Behind it, in the order they cost least: `R4`'s re-run for
+`B48`'s blast radius, `P3` and `P4`, `P1`'s boot half, and the `W4`, `W8` and
+`W9` re-runs at the new depth. `R6` and `R7` are **unrunnable**, their subjects
+deleted. `PLAYTEST.md` holds the list; it is not restated here.
 
-**Then the playtest sitting still owed** — `R9`'s remaining half with `P3` beside
-it, `P4`, `P1`'s boot half, and the `W4`, `W8` and `W9` re-runs at the new depth,
-with `W11` after the texture rework retired its pass. `R1` and `R4` are owed
-re-runs for the same `groups`-rewrite reason. `R6` and
-`R7` are **unrunnable**, their subjects deleted. `PLAYTEST.md` holds the list; it
-is not restated here.
+**`A20` is settled and is not work.** Filed 2026-09-09 from a read-only trace —
+`G3` took the hand's `groupcaps` with `mods/default`, so nothing in the game is
+hand-diggable — and closed the same day as **won't fix**: the author declined a
+game hand definition, and the obligation the finding created is discharged
+because `R1` ran falsifiably under the temporary hand override and passed, with
+`R2`'s drop half beside it. What it leaves is a setup cost on `R1`, `R4` and `R8`
+for ever, written into `PLAYTEST.md`'s `R` preamble. Do not re-propose the hand.
 
-**`R1` and `R2` are the priority in that sitting, and `A20` is why.** Filed
-2026-09-09 from a read-only trace: `G3` took the hand's `groupcaps` with
-`mods/default`, so **nothing in the game is hand-diggable** and `R1` would pass
-with `cc_security` deleted outright. **No code change follows** — the author
-declined a game hand definition the same day — and the fix is a temporary hand
-override written into `PLAYTEST.md`'s `R` preamble, which makes `R1` able to fail
-and reaches `R2`'s drop half in the same sitting. Nothing in the diagnosis has
-been run in a world.
-
-Nothing else can move without the author: `A7` is settled and closes at adoption
-alone now `L3` has passed, and `C21` is a submodule's metadata. `C22` closed on
-2026-09-08 — the licence question is answered.
+Then `G5`: adopting a tagged CodeBlock release, which is what `A7` and `C21` both
+wait on and the only thing on this file's critical path. `C22` closed on
+2026-09-08 — the licence question is answered. The `TODO.md` *fog distance* line
+is the author's and stays open; `viewing_range` is deliberately a courtesy.
 
 ## Milestones
 
@@ -76,10 +66,10 @@ whatever is opened after it.
 |---|---|---|---|---|
 | `G1` | Ship an honest, installable package | done | 5/5 | — |
 | `G2` | Check the game, not the mod | done | 4/4 | — |
-| `G3` | Delete what the game vendors | written and committed `50fd05f`; `W15` and `W16` pass, `R9` still owed for `A13` | 5/5 | 3/4 |
-| `G4` | Make the game's own mods behave | reopened 2026-09-09 by `A19` and **written the same day, uncommitted**; `A7` is `G5`'s | 5/6 | 4/5 |
+| `G3` | Delete what the game vendors | **done on both counts** — committed `50fd05f`, `W15`, `W16` and `R9` all pass | 5/5 | 4/4 |
+| `G4` | Make the game's own mods behave | **done on both counts** — `A19` committed `dd83b99` and `L4` passes; `A7` is `G5`'s | 5/6 | 5/5 |
 | `G6` | Bound the world | **done on both counts** | 5/5 | 6/6 |
-| `G7` | Make the world something to be in | written; `W11` owed a re-run after the texture rework | 3/3 | 4/5 |
+| `G7` | Make the world something to be in | done, the texture rework committed `dd83b99`; `W11` still owed | 3/3 | 4/5 |
 | `G5` | Adopt CodeBlock 1.0.0 and ship | started | 1/5 | — |
 
 Findings by milestone: `G1` (`C1`, `C2`, `C3`, `C4`, `C5`, `C15`, `C20`); `G2`
@@ -87,7 +77,9 @@ Findings by milestone: `G1` (`C1`, `C2`, `C3`, `C4`, `C5`, `C15`, `C20`); `G2`
 `A19`); `G5`
 (`C21`, `C22`); `G6` (`B50`); `G7` (none — an appearance the author wanted
 changed is not a defect). `C22` was turned up sideways by `G7` and is scheduled
-under `G5`, because it is what makes the package honest to ship.
+under `G5`, because it is what makes the package honest to ship. **`A20` belongs
+to no milestone**: it is a consequence of `G3` that costs evidence rather than
+behaviour, no item was written for it, and it is won't fix.
 
 ### G1. Ship an honest, installable package — done (5/5)
 
@@ -116,7 +108,7 @@ mod's Phase 3.
 - [x] Fix `gen_cdb_json.sh` producing different output by line ending.
 - [x] Add `cc_mapgen` (flat clean world) and `cc_day` (permanent noon).
 
-### G3. Delete what the game vendors — written, `50fd05f` (5/5), 3/4 checked
+### G3. Delete what the game vendors — done, `50fd05f` (5/5), 4/4 checked
 
 **The deferral ended, and the answer is deletion rather than trimming.**
 CodeBlock at `fb75bc8` registers **its own 105 nodes** in `lib/nodes.lua` — 35
@@ -132,12 +124,16 @@ is left is a removal plus two consequences.
 The palette is no longer the game's contract at all: every block a program can
 name is `codeblock:*`, so nothing here has to be kept in step with it.
 
+**The 4/4 counts the four distinct checks these items name** — `R7`, `W15`, `W16`
+and `R9` — all passing. `R7`'s pass is at `d16f9bb` and the check is now
+**unrunnable**, its subjects deleted; that is what was seen and there is no way
+to see it again.
+
 - [x] Stop the world changing on its own — two `default` ABMs rewriting palette
   nodes, and ten saplings growing over what a program built. `R7` passes. (`B49`)
 - [x] Delete `mods/default`, `mods/dye` and `mods/wool`. Committed `50fd05f`;
-  `W15` and `W16` both pass there on 2026-09-09, so what is left is **`R9`'s
-  remaining half** — the drone against an all-`codeblock:*` palette, `partial` on
-  2026-09-09 with the fifteen blocks passing. (`A13`)
+  `W15`, `W16` and `R9` all pass on 2026-09-09, so the drone against an
+  all-`codeblock:*` palette is observed and this closes. (`A13`)
 - [x] Register `mapgen_stone`, `mapgen_water_source` and
   `mapgen_river_water_source` in `cc_mapgen` — decision 1. `W16`.
 - [x] Add `cc_mapgen:grass` and `cc_mapgen:dirt`, grass one layer thick at
@@ -167,28 +163,37 @@ name is `codeblock:*`, so nothing here has to be kept in step with it.
    grass until a program places some" claim that followed from it, which was true
    only while the world borrowed `default`'s nodes.
 
-### G4. Make the game's own mods behave — written (5/6), 4/5 checked
+### G4. Make the game's own mods behave — done, `dd83b99` (5/6), 5/5 checked
 
 The first playtest added three of these six and all three are fixed. **Reopened
-on 2026-09-09 by `A19` and written the same day**, uncommitted over `50fd05f`:
-one `set_sky` call declaring a `plain` sky. `A7` is settled upstream and closes
-at adoption, which is `G5`'s — and its `L3` half is now discharged, because `L3`
-passed in the same sitting that found `A19`.
+on 2026-09-09 by `A19`, written, committed at `dd83b99` and checked the same
+day**: one `set_sky` call declaring a `plain` sky, with `L4` passing on it. `A7`
+is settled upstream and closes at adoption, which is `G5`'s — and its `L3` half
+is now discharged, because `L3` passed in the same sitting that found `A19`.
+
+**The 5/5 counts the five written items' own checks**, one each: `B47` on `L1`,
+`S8` on `R6` and `R4`, `A8` on `R2`, `B48` on `R8`, `A19` on `L4`. `A7` is the
+sixth item and is neither written here nor checkable here. `R4`'s re-run for
+`B48`'s blast radius is still owed and moves no fraction — it is a widening
+control, not the check of an item.
 
 - [x] `cc_day`: hide the sunrise texture too. `L1` passes. (`B47`)
 - [x] Close the bookshelf, twice — the second fix denies every player-initiated
   inventory action. `R6` and `R4` both pass. (`S8`)
 - [x] Stop `cc_security` clobbering two engine callbacks by direct assignment.
-  Drops chain to the captured handler with an empty list; `R2` confirms it, at
-  `7dc764f` and **not repeatably** — see the `A20` paragraph below. The finding
-  stays open for the every-node table walk. (`A8`)
+  Drops chain to the captured handler with an empty list; `R2` confirms it at
+  `dd83b99`, both halves, its drop half run under `A20`'s hand override. The
+  finding stays open for the every-node table walk, and `last_mod` stays untested
+  by choice. (`A8`)
 - [x] Strip six digging groups so the client stops predicting a dig. Committed
-  `ec02760`; **`R8` passes** — `50fd05f` plus the uncommitted texture rework,
+  `ec02760`; **`R8` passes** at `dd83b99`'s tree,
   engine 5.17.0, 2026-09-09: no cracking texture at any stage and no dig sound on
   a solid block, a glass one and `cc_mapgen:grass` with the barrier as control.
-  Two limits on what that pass covers, in `R8`'s result line and `AUDIT.md`
-  `B48`: the author's report was the single word *pass*, and the instant-crack
-  case is gone from the game for good. (`B48`)
+  Three limits on what that pass covers, in `R8`'s result line and `AUDIT.md`
+  `B48`: the author's report was the single word *pass*, the instant-crack
+  case is gone from the game for good, and **`R8` was not re-run with `A20`'s hand
+  override**, so the pass does not separate the strip from the empty groupcaps.
+  (`B48`)
 - [ ] Drop `cc_day`'s duplicate of a block `codeblock` already runs. **Settled
   upstream on different terms than this record predicted, 2026-09-08**: the block
   was not deleted but put behind `codeblock.config.flat_sky`, a setting **off by
@@ -198,25 +203,28 @@ passed in the same sitting that found `A19`.
   half is adopting the release and running `L3` — **`L3` passed on 2026-09-09**,
   so adoption is all that is left. Untidiness only. (`A7`)
 - [x] `cc_day`: pin the sky's own colour and fog, so permanent noon reaches the
-  horizon. One `set_sky{type = "plain", base_color = "#90d3f6"}`, **written and
-  uncommitted** over `50fd05f`; `L4` is what says it worked and it is unrun.
-  (`A19`)
+  horizon. One `set_sky{type = "plain", base_color = "#90d3f6"}`, committed
+  `dd83b99`; **`L4` passes** on it, engine 5.17.0, 2026-09-09 — four `/time`
+  positions including both blend peaks, a circle turned at each, indoors matching
+  outdoors, and none of the three over-applied signals, so `#90d3f6` stays. Three
+  limits are in `AUDIT.md` `A19`, and the first is that a one-word *pass* covered
+  four steps and two halves. (`A19`)
 
-**`A20` was filed on 2026-09-09 and `4/5 checked` holds — decided here so it is
-not re-argued.** `A13`'s deletion took the hand's `groupcaps` with it, so nothing
-in the game is hand-diggable and `PLAYTEST.md` `R1` **would pass with
-`cc_security` deleted outright**. That does not withdraw the credit above:
-`R2`'s drop half passed at `7dc764f`, when `mods/default` still supplied the
-hand, and **a run at its own commit is not retroactively invalidated** — the same
-rule that retired `W8` and `W9` protects this one, because nothing in the code
-`R2` exercised has changed. What changed is that `R2`'s method as written on
-2026-09-02 **no longer describes a runnable check**, so the evidence is real and
-unrepeatable, exactly like `B48`'s instant-crack case. The fraction counts runs
-that happened; the limit on this one is recorded in `AUDIT.md` `A8` and `A20` and
-in `R2`'s own entry, and it is the reason `R1` — which is worth nothing as it
-stands — is now the priority of the whole playtest document. `A20` is a finding of
-its own and does not belong to this item's fraction: it costs evidence, not
-behaviour, and **no code change follows from it**.
+**`A20` is won't fix, decided 2026-09-09 and recorded here so it is not
+re-argued.** `A13`'s deletion took the hand's `groupcaps` with it, so nothing
+in the game is hand-diggable and `PLAYTEST.md` `R1` **would have passed with
+`cc_security` deleted outright**. Three things follow and none of them is work.
+The credit above stands: `R2`'s drop half passed at `7dc764f` when `mods/default`
+still supplied the hand, and **a run at its own commit is not retroactively
+invalidated** — the same rule that retired `W8` and `W9` protects it. That
+evidence is also **repeatable again**, because `R2` ran both halves at `dd83b99`
+under the temporary hand override, which is what made `R1` falsifiable and is why
+`R2` digging is now the in-world confirmation of `A20`'s diagnosis rather than a
+trace of the engine's source. And `A20` never belonged to this item's fraction:
+it costs evidence, not behaviour, and **no code change follows from it** — the
+author declined the game's own hand definition, see *deliberately not doing*.
+What is left is a setup, permanently: `R1`, `R4` and `R8` exercise nothing
+without the override in `PLAYTEST.md`'s `R` preamble.
 
 **The decision behind the `A19` item — 2026-09-09, and it was a choice between
 three readings.** The author ran `L3` and its own half passed outright for the
@@ -245,9 +253,11 @@ are `AUDIT.md` `A19`. **The cost is stated there too**: a plain sky is one flat
 colour, so the day gradient and the `indoors` grey shift both go, and going back
 to a gradient means the residual returns.
 
-**Verification is `PLAYTEST.md` `L4`**, written on 2026-09-09 for this fix,
-because neither `L1` nor `L3` asked about the horizon or the fog — which is why
-the residual came back as a partial rather than a fail. The `TODO.md` *fog
+**Verification is `PLAYTEST.md` `L4`, written on 2026-09-09 for this fix and
+passed the same day.** Neither `L1` nor `L3` asked about the horizon or the fog —
+which is why the residual came back as a partial rather than a fail — so `L4` is
+the only check in the project that reaches the subject, and there is nothing to
+corroborate it with. The `TODO.md` *fog
 distance* line was expected to ride on the same `set_sky` call and does not:
 `fog_distance` is not a colour, it caps the client's viewing range, and that is
 the author's decision rather than this item's.
@@ -353,7 +363,7 @@ playing it, the eighth about this record.**
    simply not followed**, so nothing was added to `CLAUDE.md` for it. *What would
    change it:* the same failure recurring, which would make it a pattern.
 
-### G7. Make the world something to be in — done, `d6e4a12`, 4/5 checked
+### G7. Make the world something to be in — done, `d6e4a12` and `dd83b99`, 4/5 checked
 
 Opened 2026-09-07 after `G6` closed, and **no finding is allocated for it**: the
 wall `G6` built is a correct barrier and `W5` proves it stands. What the author
@@ -379,7 +389,11 @@ rework*.
   mirroring `mapgen_limit`. This is the fourth line of the brief. `W12`, `W13`,
   `W14`.
 
-**The texture rework — decided 2026-09-08, after the author played `50fd05f`.**
+**The texture rework — decided 2026-09-08, after the author played `50fd05f`,
+and committed at `dd83b99` on 2026-09-09** with `scripts/gen_textures.py` beside
+the four PNGs. `W15` passes on the grass and dirt; **`W11` is the bedrock and
+barrier and is the one thing in `G7` nobody has looked at**, its earlier pass
+retired with the textures it described.
 The world worked and the **look** was rejected. Given a Soothing32 screenshot, the
 directive was verbatim: *"soothing has less features, less grain and reduces
 palette. Adapt grass, dirt and bedrock."* So all three were redrawn, and the
@@ -480,31 +494,27 @@ The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
 
 ## Which CodeBlock release is adopted
 
-**`2647228`, and it is a commit off `master`, not a tag.** The policy is that the
+**`fb75bc8`, and it is a commit off `master`, not a tag.** The policy is that the
 pointer names the release this game has *adopted*, so lagging upstream is
-correct; this is a different thing — it was pinned before the project settled on
-following releases. Upstream's newest tag is **`v0.7.3`**. Nothing is broken by
-it: the game assembles and `P1`'s clone half passed on this pointer. `G5` is where
+correct; this is a different thing — the pointer is **off the release track**, not
+merely behind it. Upstream's newest tag is **`v0.7.3`** and `fb75bc8` is 139
+commits past it. Nothing is broken by
+it: the game assembles and both gates are green on it. `G5` is where
 it goes back on the track. Read both numbers from `git ls-tree HEAD
 mods/codeblock` and `git tag` inside the submodule, **never from upstream's
 `HEAD`**.
 
-**The working tree is at `fb75bc8`, deliberately unstaged, and it is what `G3` is
-being built against.** It was moved there on 2026-09-08 to test a bump ahead of
-CodeBlock's 1.0.0; the author chose to test with it and **commit nothing until
-there is a pushed tag to adopt**, so `git status` showing `mods/codeblock`
-modified is the normal resting state. `fb75bc8` is **139 commits ahead of
-`v0.7.3`**, which is still upstream's newest tag. `bash scripts/check_game.sh` was
-green at that pointer before `G3`'s work started.
+**Corrected 2026-09-09: this section named `2647228` for two passes and that
+stopped being true at `50fd05f`.** `git ls-tree 50fd05f mods/codeblock` gives
+`fb75bc8`, so the move that `G3` forced was **committed** with the deletion, and
+the paragraph describing `fb75bc8` as a deliberately unstaged working tree is
+gone with it. `git status` is now clean on `mods/codeblock`, and the old resting
+state no longer applies. `P1`'s clone half passed on `2647228` at `8b27f2f` and
+**has not been re-run since the pointer moved**, so nothing has confirmed that a
+fresh recursive clone can fetch `fb75bc8`.
 
 ## What ships broken
 
-- **The distant horizon still blends with the time of day — in committed code.**
-  Observed by `L3` on 2026-09-09, and worse than that reads: a fresh world starts
-  at `time_of_day = 5250` with `time_speed = 0`, so the sunrise tint is the
-  default look and not something `/time` has to be typed for. **Fixed in the
-  working tree and uncommitted**, so it ships broken until that commit lands, and
-  unverified until `L4` runs. (`A19`)
 - **A rescued player is left standing in the shaft they fell down.** The design,
   not a defect — decision 7. Getting out needs a working program.
 - **A player whose own column is solid for 72 nodes is still sent to spawn.**
@@ -542,19 +552,30 @@ green at that pointer before `G3`'s work started.
   node, not a field `cc_security` can override away. **Gone with `G3`'s deletion
   at `50fd05f`**: no node in the game carries a formspec of its own, and `R6` is
   unrunnable for the same reason. (`S8`)
-- **Nothing in the game is hand-diggable, so the digging restriction is
-  unfalsifiable by any check that still works.** `G3` deleted the only hand
+- **Nothing in the game is hand-diggable, so the digging restriction can only be
+  checked with a setup.** `G3` deleted the only hand
   override in the tree and the engine's own hand has empty `groupcaps`, so
   `PLAYTEST.md` `R1` would pass with `cc_security` deleted outright. Not a defect
-  a player meets — every node was already undiggable — but the game's headline
-  restriction now reads green with nothing behind it, and the only route back is a
-  temporary hand override in a playtest sitting. The game is **deliberately not**
-  shipping a hand definition. (`A20`)
-- **The dig-animation strip's fastest case can never be checked again.** The fix
-  itself is now seen: `R8` passes on 2026-09-09. But **no `dig_immediate` node is
+  a player meets — every node was already undiggable — and **`R1` has now been run
+  falsifiably**, under the temporary hand override, and passed on 2026-09-09. What
+  ships is the permanent cost: `R1`, `R4` and `R8` exercise nothing unless whoever
+  runs them installs that override first. The game is **deliberately not**
+  shipping a hand definition, and the finding is **won't fix**, not open. (`A20`)
+- **The dig-animation strip's fastest case can never be checked again, and its
+  pass has two explanations.** The fix
+  itself is seen: `R8` passes on 2026-09-09. But **no `dig_immediate` node is
   left in the game after `G3`**, so the instant-crack case — the one a partial
-  group strip would still show — is unreproducible for good, and no future run
-  can recover it. Not a defect; a permanent gap in the evidence. (`B48`)
+  group strip would still show — is unreproducible for good. And `R8` was **not**
+  re-run with `A20`'s hand override, which is the only thing that would separate
+  the strip from the empty groupcaps; nobody has done it. Not a defect; a
+  permanent gap and an unresolved one in the evidence. (`B48`, `A20`)
+- **`sunrise_visible = false` is no longer observable in any world.** `A19`'s
+  `plain` sky draws no sky mesh at all, so there is nothing for a sunrise glow to
+  be painted on and no future run can distinguish the fix working from the sky
+  type hiding it. Its only evidence is `L1`'s pass at `b9bf82b` and `L3`'s
+  retained 2026-09-01 `partial`, both under a `"regular"` sky, which is why that
+  line is kept. Not a defect; the call stays in `cc_day` so a return to
+  `"regular"` cannot silently restore the glow. (`B47`, `A19`)
 - **Untested by choice: that `last_mod` is honoured at all.** Confirming it needs
   a second mod assigning the same globals and none ships. Decided 2026-09-02;
   recorded so it does not read as an oversight. (`A8`)
@@ -620,9 +641,11 @@ proposed again.
   precisely what `B48` was filed to remove, and registering a hand would restore
   the feedback **and** the misleading crack. Nothing a player can reach is worse
   than before, because every node was already undiggable. And the cost is
-  accepted: `PLAYTEST.md` `R1` and `R2`'s drop half need a **temporary** hand
-  override to be runnable, written into that document's `R` preamble as setup
-  rather than into the game. *What would change it:* the author wanting a
+  accepted **and now paid once**: `PLAYTEST.md` `R1` and `R2`'s drop half need a
+  **temporary** hand override to be runnable, written into that document's `R`
+  preamble as setup rather than into the game, and both passed under it at
+  `dd83b99` on 2026-09-09. `A20` is **won't fix** on the strength of this
+  decision. *What would change it:* the author wanting a
   left-click to say something, at which point `B48` returns and `cc_security`'s
   group strip is the only thing holding it. (`A20`, `B48`)
 - **Lowering `mgflat_ground_level` so the bedrock floor is visible.** Put to the
@@ -743,50 +766,50 @@ proposed again.
 
 ---
 
-2026-09-09 · codecube `50fd05f`, on branch **`g6-world-limits`**. **The branch is
-pushed except its tip**: `origin/g6-world-limits` is at `5777dc0`, so `50fd05f`
-is the only local-only commit of the 23 the branch carries. **No commit on the
+2026-09-09 · codecube `dd83b99`, on branch **`g6-world-limits`**. **The branch is
+pushed except its last two commits**: `origin/g6-world-limits` is at `5777dc0`,
+so `50fd05f` and `dd83b99` are local-only. **The branch carries 14 commits over
+`main`, not the 23 written here for two passes** — corrected 2026-09-09 from
+`git rev-list --count main..HEAD`, with `main` at `578b364`. **No commit on the
 branch has a CI run**; the newest run of any kind is `main` at `35fa2a1`,
-success, 2026-09-01. Both facts corrected here on 2026-09-08 — this file said the
+success, 2026-09-01, re-read from the Actions API on 2026-09-09. Both facts
+corrected here on 2026-09-08 — this file said the
 branch was unpushed and that the latest run was on `578b364`, which was never
 pushed. `codeblock` `fb75bc8` in the commit, a commit off `master` and not a tag, 139
 commits past `v0.7.3`; moving it was forced by `G3`, because the old pointer hard
 depends on `default` and `wool`. `G5` is where it goes back on the release track.
 
-**`G3`'s code is committed at `50fd05f`** — all three vendored mods deleted,
-`cc_mapgen` registering four nodes and the three mapgen aliases — **and `W15` and
-`W16` pass there on 2026-09-09**, so the surface and the absence of unknown nodes
-are evidence. `R9` is `partial` there — its fifteen blocks pass and its
-misspelling fallback has never run — so that half is the one `G3` claim still
-resting on committed code alone.
+**`dd83b99` is `A19`'s `set_sky` line, the four redrawn textures with
+`scripts/gen_textures.py`, and every record edit of 2026-09-09.** Both gates were
+green immediately before it — `check_game.sh` ending `all game integration checks
+passed` with `.cdb.json` matching `CONTENTDB.md`, and luacheck silent — and
+neither runs a line of this game's Lua. `git status` is clean on it, including
+`mods/codeblock`.
 
-**`L3` passed on 2026-09-09, engine 5.17.0, at `50fd05f` with the working tree's
-`mods/codeblock` at `fb75bc8`** — no sun, no moon, no stars, no sunrise, with
-`codeblock.config.flat_sky` off, and a rejoin in the same sitting. That
-discharges `A7`'s game-side half and `L2`'s. The sitting also produced **`A19`**,
-the residual horizon blend, and the decision to treat it as a shortfall in
-`cc_day` rather than as a defect in `L1`/`L3`'s wording — under `G4`.
+**Six checks passed against that tree, engine 5.17.0, 2026-09-09** — `R1`, `R2`,
+`R9`, `L1`, `L2` and `L4`, each reported as the single word *pass*. `L4` closes
+`A19` and `R9` closes `A13`, so **`G3` and `G4` are done and checked**; `R1` is
+the first falsifiable run of the digging restriction in the project and `R2`'s
+drop half its first since `7dc764f`, both off one temporary hand override. The
+`R` setup is corroborated by the tree: `cc_security` in `dd83b99` is
+byte-identical to `50fd05f`, both restrictions restored and the override gone.
+**A one-word report is the standing limit on all six**, and `AUDIT.md` carries it
+per finding.
 
-**`A19` is written and uncommitted**, over `50fd05f`: one `set_sky` line in
-`mods/cc_day/init.lua`, plus `AUDIT.md`, this file, `CHANGELOG.md`, `TODO.md`,
-`CLAUDE.md` and `PLAYTEST.md`'s new `L4`. **No result line moved** — `L3` stays
-`partial` and `L1` keeps its pass, because nothing has been run in a world. Its
-stated cause was **wrong in mechanism and corrected in the same pass**; `AUDIT.md`
-`A19` keeps the wrong version beside the right one.
+**`L3` passed on 2026-09-09, engine 5.17.0** — no sun, no moon, no stars, no
+sunrise, with `codeblock.config.flat_sky` off, and a rejoin in the same sitting.
+That discharges `A7`'s game-side half and `L2`'s. The sitting also produced
+**`A19`**, the residual horizon blend, and the decision to treat it as a
+shortfall in `cc_day` rather than as a defect in `L1`/`L3`'s wording — under
+`G4`. Its stated cause was **wrong in mechanism and corrected in the same pass**;
+`AUDIT.md` `A19` keeps the wrong version beside the right one.
 
-**`A20` is record-only, over `50fd05f`, and nothing in it was run.** Filed
-2026-09-09 from a read-only trace of the engine at **both 5.9.0 and 5.17.0** and
-of `mods/codeblock` at `fb75bc8`: the hand has empty `groupcaps` since `G3`, so
-nothing in the game is hand-diggable and `R1` cannot fail. **No code changed and
-neither gate was run** — the touched files are `AUDIT.md`, `PLAYTEST.md`, this
-file and `TODO.md`. `R1` keeps its pass and `R2` keeps both of its result lines;
-what changed is the two methods and the reasoning, and `B48` gained a note rather
-than being reopened.
-
-**The texture rework is written and uncommitted**, over `50fd05f`: four redrawn
-PNGs, `mods/cc_mapgen/init.lua`, `THIRD-PARTY-LICENSES.md`, a new
-`scripts/gen_textures.py`, and this file, `AUDIT.md` and `PLAYTEST.md` brought
-into line in the same turn so they land in the same commit as the media.
+**`A20` was filed and closed as won't fix on 2026-09-09**, from a read-only trace
+of the engine at **both 5.9.0 and 5.17.0** and of `mods/codeblock` at `fb75bc8`:
+the hand has empty `groupcaps` since `G3`, so nothing in the game is
+hand-diggable. **No code changed for it, then or now** — the author declined the
+game's own hand definition the same day — and `R2` digging under the override is
+the in-world confirmation the trace lacked.
 
 **The media licence change is committed**, at `48cc63e` — a new
 `menu/license.txt`, `mods/cc_mapgen/license.txt`, `THIRD-PARTY-LICENSES.md`,
@@ -806,7 +829,8 @@ clone and `P3` is unrun.
 
 The game's own Lua is **209 lines** across four files — `cc_day` 8, `cc_mapgen`
 51 + 49, `cc_security` 101 — counting neither blanks nor comments, and **591
-lines in all**, measured in the working tree. At `5777dc0` the same counts were
+lines in all**, measured at `dd83b99` — the tree is clean, so the numbers are the
+commit's. At `5777dc0` the same counts were
 177 and 464. **Two corrections to the counts, both 2026-09-08:** the 464 was off
 by one, `cc_day/init.lua` having lacked the trailing newline `.editorconfig`
 requires; and **572 was the total written for `50fd05f` and it is 579** — the
@@ -814,9 +838,10 @@ texture rework added seven lines of comment to `cc_mapgen/init.lua` and no code.
 `A19` is what moved 208 to 209 and 579 to 591: one `set_sky` call in `cc_day`
 and eleven lines of comment beside it, in the one file it touched.
 
-This file is **824 lines against its own "under roughly 150"**, up from 769 last
-pass; 824 is `wc -l` here. `A20` is what this pass added — the `G4` fraction
-decision, the declined hand definition and one *ships broken* line. It got there by moving reasoning to `AUDIT.md` under its finding id
+This file is **849 lines against its own "under roughly 150"**, up from 824 last
+pass; 849 is `wc -l` here. This pass added `A20`'s terminal state, `A19`'s
+in-world evidence and one *ships broken* line, and removed another — the six
+passes let *Now* shrink and nothing else. It got there by moving reasoning to `AUDIT.md` under its finding id
 and settled questions into *deliberately not doing*, not by deleting either — and
 it grew again here, because a decision was taken and this is where a decision is
 recorded. The remaining excess is the decision log, which is this file's second job

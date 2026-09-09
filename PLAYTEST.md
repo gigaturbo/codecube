@@ -91,13 +91,23 @@ A `fail` is not a finding — report it and let `AUDIT.md` allocate or widen an 
 | Results retired | 3 — `W8` and `W9` at `f5f2385` on 2026-09-07, `W11` at `3479e25` on 2026-09-08 |
 | Findings closed by a check | `B47`, `B48`, `B49`, `B50`, `S8` |
 | A pass that proves nothing | **0** — `R1`'s run of 2026-09-09 carries the hand override and could have failed. `R8`'s pass still cannot *distinguish* its cause, which is a weaker thing and is recorded in its entry |
-| Results that name no commit that carries the code | **3** — `L1`, `L2` and `L4`, all against `A19`'s uncommitted `set_sky` line. Owed a re-run when it lands |
+| Results that name no commit that carries the code | **0** — it was 3 on the morning of 2026-09-09, `L1`, `L2` and `L4` against `A19`'s then-uncommitted `set_sky` line. `dd83b99` committed that tree unchanged the same day and all three now name it |
 | Passes composed from other entries rather than reported | **2** — `L3` and `R5`. Each entry says so in its own result line |
 
 **Counted 2026-09-09 from the first `Result:` line of all 34 entries**, not
 adjusted by hand: 29 pass, 1 partial, 0 fail, 4 unchecked. Six results moved in
 the third sitting of the day — `R1`, `R2`, `R9`, `L1`, `L2` and `L4` — and two
 more were composed from them, `R5` and `L3`.
+
+**Every 2026-09-09 result now names `dd83b99`.** That commit was made the same
+day with `git add -A` over the tree all three sittings were played against, and
+its only difference from that tree is two stray blank lines removed from
+`mods/cc_security/init.lua`, leaving the file byte-identical to `50fd05f`. So the
+shas above carry the exact bytes that were run. **One line deliberately does not
+name it**: `L3`'s retained `partial`, which was taken in the first sitting before
+`A19`'s `set_sky` line existed and whose whole subject is the sky, so it still
+names `50fd05f` plus the texture rework. Every other 2026-09-09 result is about
+`cc_mapgen`, `cc_security` or the mod, none of which that line touches.
 
 **`G3` landed at `50fd05f` on 2026-09-08**, so `W15`, `W16` and `R9` have a commit
 to be run against, and all three were run on 2026-09-09: **`W15`, `W16` and `R9`
@@ -107,9 +117,10 @@ was corrected, and the two corrected one-line programs passed in the third.
 **`R6` and `R7` are
 unrunnable with it** — each names a node only `default` registered — and are kept
 with their passes rather than deleted, because a deleted entry takes its evidence
-and its reasoning with it. **Every `W` result is owed a re-run at `50fd05f`**,
-which rewrites both files the group exercises; the group's preamble says so once
-rather than the table saying it eleven times.
+and its reasoning with it. **Every `W` result is owed a re-run at
+`50fd05f` or later** — the tip is `dd83b99` — because `50fd05f` rewrites both
+files the group exercises; the group's preamble says so once rather than the table
+saying it eleven times.
 
 **`W11`'s pass was retired on 2026-09-08** because `cc_mapgen`'s bedrock and
 barrier textures were redrawn after it, and because it had passed against wording
@@ -122,20 +133,20 @@ keeping a second copy.
 |---|---|---|
 | `W3` | pass, **method stale** | it passed by teleporting "several thousand nodes" out, which now lands outside a world whose limit is 1024. The pass is still what was seen at `7f649d8`; the instruction has to be re-read before it is re-run |
 | `W11` | **retired, unrun** | the bedrock and barrier textures were redrawn on 2026-09-08 in a flat-base-plus-specks style, and the old pass named a *"black mottled rock"* and a *"wrapping blur"* that no longer exist. **`W15` was run on 2026-09-09 without it**, so the bedrock and barrier redraws are now the only unjudged part of the texture rework, and the cheapest thing left in this group |
-| `W15` | **pass at `50fd05f`, 2026-09-09** | the grass-over-dirt surface and its two textures are judged. Nothing owed here; `W11`, which it was to be run beside, was not run |
-| `W16` | **pass at `50fd05f`, 2026-09-09** | the three essential mapgen aliases resolve and nothing in the column is `unknown`. It does **not** discharge `P3`, which asks for a log with nothing in it at all rather than four strings absent |
-| `R9` | **pass at `50fd05f`, 2026-09-09** | nothing owed. The two corrected one-line programs were run in the third sitting: `place(colors.vermilion)` warns once, carries on and leaves a default-coloured block, and `place('vermilion')` stops the program and places nothing. **What was not read back** is the default-coloured block itself, which is the quiet path's whole pass condition |
+| `W15` | **pass at `dd83b99`, 2026-09-09** | the grass-over-dirt surface and its two textures are judged. Nothing owed here; `W11`, which it was to be run beside, was not run |
+| `W16` | **pass at `dd83b99`, 2026-09-09** | the three essential mapgen aliases resolve and nothing in the column is `unknown`. It does **not** discharge `P3`, which asks for a log with nothing in it at all rather than four strings absent |
+| `R9` | **pass at `dd83b99`, 2026-09-09** | nothing owed. The two corrected one-line programs were run in the third sitting: `place(colors.vermilion)` warns once, carries on and leaves a default-coloured block, and `place('vermilion')` stops the program and places nothing. **What was not read back** is the default-coloured block itself, which is the quiet path's whole pass condition |
 | `R6` | pass, **unrunnable** | `default:bookshelf` is deleted with `G3` and no node left carries a formspec. The pass at `c042364` stands; there is no way to run it again |
 | `R7` | pass, **unrunnable** | its three cases and the ABMs they were about are all `default`'s. The pass at `d16f9bb` stands and is the only evidence the `action` replacement ever worked |
 | `W4` | pass, **re-run owed** | passes at `60259dd`, where `mgflat_ground_level` was 8; `d6e4a12` moved it to 128. **`W14` does not discharge it**: `W4`'s subject is **air, not stone**, under a removed floor tile, and a program being unable to take the plane by accident — which `W14` never reaches |
 | `W8` | pass, **re-run owed** | same depth change. **`W14` case 1 shares the setup and not the check**: `W8`'s pass includes walking the wall and standing on the exposed floor plane **unmoved**, which `W14` does not ask for |
 | `W9` | pass, **re-run owed** | same depth change. **`W14` covers neither case 1** — the spawn-column shaft, rescued **once**, with no second teleport — **nor case 3**, the no-op where only `(x, 0, z)` may have changed |
-| `L4` | **pass, both halves, 2026-09-09**, **re-run owed on the commit** | the first run of the entry and **the whole of `A19`'s in-world evidence**: nothing moves across `/time 0`, `5000`, `10000` and `22000`, turning changes nothing, indoors matches outdoors, and none of the three over-applied signals appeared, so `#90d3f6` stays. **The code under test is committed nowhere** — the `set_sky` line is working-tree only — so this result names no sha that carries it and is owed a re-run when it lands. A bare *pass* covered four steps and two halves; nothing was read back |
-| `L3` | **pass, composed, 2026-09-09** | nothing owed but its own re-run when `A19`'s line is committed. Composed from `L1` and `L2` passing in the same world with the mod's copy inert, plus `L4` closing the residual at the two times it was seen at; the precondition is read, not run — nothing sets `codeblock_flat_sky` and the adopted `fb75bc8` still guards its copy. **The `sunrise_visible = false` half can never be re-established**: a `plain` sky draws no mesh, so that evidence is frozen in the retained `partial` |
-| `L1` | **pass at the current tree, 2026-09-09**, **re-run owed on the commit** | the owed re-run beside `L4` is done: full daylight and no sky objects under the `plain` sky. Two limits stay — the code is uncommitted, and **the four-object half no longer distinguishes its cause**, because a `plain` sky draws no sky mesh at all; that the four calls do their own work now rests on the retained 2026-09-01 pass under a `"regular"` sky |
-| `L2` | **pass at the current tree, 2026-09-09**, **re-run owed on the commit** | the rejoin holds with `set_sky` as a sixth per-player call, which is the one this could have dropped. The **second-player half is still unexercised** — singleplayer only, since 2026-09-01 — and nothing here would catch a sky applied to whoever joined first |
-| `R1` | **pass at `50fd05f`, 2026-09-09, and the first falsifiable run** | the priority of this document is discharged (`A20`). The temporary hand override was in place — corroborated by the working tree, which had both `cc_security` lines restored and the override gone — so the pass is a restriction refusing a hand that **could** have dug. **What is still owed is breadth**: a bare *pass* named none of the seven subjects the method asks for, and the entry's *Why* — a partial override pass covering a different set of nodes on every boot — is reached only by breadth |
-| `R2` | **pass, both halves, at `50fd05f`, 2026-09-09** | **no longer blocked**: the drop half ran for the first time since `7dc764f` and the first time ever under the corrected method, and no item appeared. So `A20` is confirmed in a world rather than only traced, and the empty drop list reaching the captured handler is on the current tree. **What was not read back** is the pass observation itself — the hotbar's slot 3 and the dug position — which this method was corrected on 2026-09-09 to name |
+| `L4` | **pass, both halves, at `dd83b99`, 2026-09-09** | nothing owed. The first run of the entry and **the whole of `A19`'s in-world evidence**: nothing moves across `/time 0`, `5000`, `10000` and `22000`, turning changes nothing, indoors matches outdoors, and none of the three over-applied signals appeared, so `#90d3f6` stays. The `set_sky` line was uncommitted when this ran and `dd83b99` carries it byte-identically, so **the owed re-run is dropped**. A bare *pass* covered four steps and two halves; nothing was read back |
+| `L3` | **pass, composed, at `dd83b99`, 2026-09-09** | nothing owed. Composed from `L1` and `L2` passing in the same world with the mod's copy inert, plus `L4` closing the residual at the two times it was seen at; the precondition is read, not run — nothing sets `codeblock_flat_sky` and the adopted `fb75bc8` still guards its copy. **The `sunrise_visible = false` half can never be re-established**: a `plain` sky draws no mesh, so that evidence is frozen in the retained `partial` |
+| `L1` | **pass at `dd83b99`, 2026-09-09** | the owed re-run beside `L4` is done: full daylight and no sky objects under the `plain` sky. One limit stays — **the four-object half no longer distinguishes its cause**, because a `plain` sky draws no sky mesh at all; that the four calls do their own work now rests on the retained 2026-09-01 pass under a `"regular"` sky |
+| `L2` | **pass at `dd83b99`, 2026-09-09** | the rejoin holds with `set_sky` as a sixth per-player call, which is the one this could have dropped. The **second-player half is still unexercised** — singleplayer only, since 2026-09-01 — and nothing here would catch a sky applied to whoever joined first |
+| `R1` | **pass at `dd83b99`, 2026-09-09, and the first falsifiable run** | the priority of this document is discharged (`A20`). The temporary hand override was in place — corroborated by the working tree, which had both `cc_security` lines restored and the override gone — so the pass is a restriction refusing a hand that **could** have dug. **What is still owed is breadth**: a bare *pass* named none of the seven subjects the method asks for, and the entry's *Why* — a partial override pass covering a different set of nodes on every boot — is reached only by breadth |
+| `R2` | **pass, both halves, at `dd83b99`, 2026-09-09** | **no longer blocked**: the drop half ran for the first time since `7dc764f` and the first time ever under the corrected method, and no item appeared. So `A20` is confirmed in a world rather than only traced, and the empty drop list reaching the captured handler is on the current tree. **What was not read back** is the pass observation itself — the hotbar's slot 3 and the dug position — which this method was corrected on 2026-09-09 to name |
 | `R3` | **pass, re-run done 2026-09-09** | nothing owed. It was the knockback half of `R5`, and that half is now on the current tree |
 | `R4` | pass, **re-run owed** | same blast radius as `R1` |
 | `R5` | **pass, composed, 2026-09-09** | nothing owed. Both halves are now on the same tree — `R3` re-run and `R2`'s drop half run under the hand override — which is exactly the composition the `partial` pre-authorised in writing. `A8`'s **`last_mod` half stays untested by choice**, as its own paragraph records: it needs a second mod assigning the same globals and none ships here |
@@ -157,11 +168,13 @@ added.
   `R4`'s re-run** — the widening control, owed for `B48`'s blast radius over
   `groups` — and, if anyone wants it, a re-run of `R8` **with** the hand override,
   the only thing that would separate its two explanations.
-- **`L`'s is done and is owed once more.** `L1`, `L2` and `L4` passed and `L3`
-  composes from them, so `A19` has in-world evidence for the first time. But all
-  three name **no commit that carries the code** — the `set_sky` line is
-  working-tree only — so the group is owed a re-run when it lands. That re-run is
-  four `/time` commands, a circle turned at each, and a rejoin.
+- **`L`'s is done, and nothing in it is owed.** `L1`, `L2` and `L4` passed and
+  `L3` composes from them, so `A19` has in-world evidence for the first time. All
+  three were run against the uncommitted `set_sky` line and **`dd83b99` carries
+  that tree unchanged**, so they name a sha and the re-run this group was owed on
+  2026-09-09 is **dropped**: it would execute the same bytes. The only unexercised
+  thing left in the group is `L2`'s **second player**, singleplayer-only since
+  2026-09-01.
 - **`G3`'s, and it is mostly done: `W15`, `W16` and `R9` all pass.** What is left
   of it is **`W11`** — which was to be run beside `W15` and was not, and is now
   the only unjudged part of the texture rework — `P3` beside `W16`, and the whole
@@ -184,14 +197,20 @@ given, and every other result in this document carries one — including all of
 2026-09-09's, which the author confirmed as 5.17.0. There were five; `W11`'s is
 retired.
 
-**A different gap opened on 2026-09-09, and it is the sharper one.** `L1`, `L2`
-and `L4` carry an engine version and a date but **no commit that holds the code
-they exercised**: `A19`'s fix is one `set_sky` line in `mods/cc_day/init.lua` in
-the working tree. A result whose code is committed nowhere cannot be reproduced by
-anyone, and it is the one shape of result this document has no rule for — so the
-rule is written here. Such a line names the tree it was run against, says the code
-is uncommitted, and is **owed a re-run on the commit**. It is not retired in the
-meantime: the code has not changed, it has only not been written down.
+**A rule for a result run against an uncommitted tree, currently with no live
+instance.** A result whose code is committed nowhere cannot be reproduced by
+anyone, which is the one shape of result this document had no rule for. It arose
+once, on 2026-09-09, when `L1`, `L2` and `L4` were run against `A19`'s `set_sky`
+line while it was working-tree only. The rule: such a line **names the tree it was
+run against and says the code is uncommitted**, and it is **not retired** — the
+code has not changed, it has only not been written down. When the tree is
+committed unchanged, the line is **re-pointed at that sha and no re-run is owed**,
+because a re-run would execute identical bytes and could only produce identical
+output; a re-run is owed when the code changed under a result, not when it was
+merely written down. That is what happened at `dd83b99`, which committed the whole
+tree of 2026-09-09 with `git add -A` and differs from it only by two stray blank
+lines removed from `mods/cc_security/init.lua` — whitespace at file scope in a
+file whose one executable difference from `50fd05f` had already been reverted.
 
 ---
 
@@ -206,7 +225,7 @@ place it puts them (`W9`). `W4`–`W9` and `W14` are `B50`; `W15` and `W16` are
 `A13`.
 
 **`G3` rewrote both of those files at `50fd05f`, so every result in this group is
-owed a re-run at that commit.** That is the rule about a result not surviving a
+owed a re-run at that commit or later — the tip is `dd83b99`.** That is the rule about a result not surviving a
 change to the code it exercised, applied to a whole group at once rather than per
 check: the surface material changed, the fill node changed, and the mapgen aliases
 the engine needs moved into `cc_mapgen`. The passes below stand as what was seen
@@ -800,9 +819,9 @@ dirt is two colours as printed and that is deliberate, not a texture that failed
 to draw. Look at the surface at a shallow angle and at a cut face, where the dirt
 shows.
 
-Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
-2026-09-09 — reported by the author from a sitting in a
-world, against the check as written, so the pass covers both halves of the entry:
+Result: pass — `dd83b99` · engine 5.17.0 · 2026-09-09 — reported by the author
+from a sitting in a world, against the check as written, so the pass covers both
+halves of the entry:
 exactly **one** node of `cc_mapgen:grass` at `y = 128` with `cc_mapgen:dirt` at
 every height below it, no `default:*` node and no `unknown` in the column — and
 **the look**, the grass reading green and light from ten nodes away and both
@@ -843,9 +862,9 @@ unknown-node texture is unmistakable once seen and easy to miss at a glance in a
 uniform world, which is why the shaft is read at three heights rather than
 sighted from above.
 
-Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
-2026-09-09 — reported by the author from a sitting in a
-world, against the check as written: no unresolved-alias or unknown-node line in
+Result: pass — `dd83b99` · engine 5.17.0 · 2026-09-09 — reported by the author
+from a sitting in a world, against the check as written: no unresolved-alias or
+unknown-node line in
 the log for the world's creation, and no node named `unknown` on the surface or at
 any of the three heights in the shaft. So `cc_mapgen`'s three essential mapgen
 aliases resolve, and deleting `default` did not take `mapgen_stone` with it — the
@@ -878,14 +897,13 @@ stars, no clouds, and no sunrise or sunset glow. The **colour** of the sky, the
 horizon band and the fog are `L4`'s and are not judged here — that division is
 why the residual `A19` names came back as a partial rather than a fail.
 
-Result: pass — `50fd05f` plus the uncommitted texture rework **and `A19`'s
-uncommitted `set_sky` line in `mods/cc_day/init.lua`** · engine 5.17.0 ·
-2026-09-09 — re-run beside `L4` against the `plain` sky, which is what the
-2026-09-08 owed re-run was for: full daylight at every hour, and no sun, moon,
-stars, clouds, sunrise or sunset glow. **The code under test is committed
-nowhere** — `player:set_sky({type = "plain", base_color = "#90d3f6"})` exists
-only in the working tree, so this result is not reproducible from any sha and
-must be re-run when the line lands. **Limits.** The report was the single word
+Result: pass — `dd83b99` · engine 5.17.0 · 2026-09-09 — re-run beside `L4`
+against the `plain` sky, which is what the 2026-09-08 owed re-run was for: full
+daylight at every hour, and no sun, moon, stars, clouds, sunrise or sunset glow.
+**Run against the working tree and committed unchanged as `dd83b99`** on the same
+day — `player:set_sky({type = "plain", base_color = "#90d3f6"})` was uncommitted
+when this was run and is in that commit byte-identically, so the sha above is
+reproducible and **no re-run is owed**. **Limits.** The report was the single word
 *pass*, so no time of day and no observation was read back; the pass is against
 the check as written. And **the four-object half no longer distinguishes its
 cause**: under a `plain` sky the client draws no sky mesh at all, so *no sun, no
@@ -915,11 +933,10 @@ after the first.
 
 **Pass** — the same for both, every time.
 
-Result: pass — `50fd05f` plus the uncommitted texture rework **and `A19`'s
-uncommitted `set_sky` line in `mods/cc_day/init.lua`** · engine 5.17.0 ·
-2026-09-09 — re-run beside `L1` and `L4`: the flat sky and the pinned light level
-survive a rejoin. **The code under test is committed nowhere** and the result is
-not reproducible from any sha. This matters more than a repeat of 2026-09-01
+Result: pass — `dd83b99` · engine 5.17.0 · 2026-09-09 — re-run beside `L1` and
+`L4`: the flat sky and the pinned light level survive a rejoin. Run against the
+working tree, which was committed unchanged as `dd83b99` the same day, so the sha
+carries the code and no re-run is owed. This matters more than a repeat of 2026-09-01
 looks, because `set_sky` is a **sixth** per-player call in the same
 `on_joinplayer` and a per-player sky is exactly what a rejoin drops. **Limits.**
 The single word *pass* was reported. The **second-player half is still not
@@ -955,8 +972,7 @@ check the setting rather than `cc_day`. Setting `codeblock_flat_sky = true` to
 "help" is the thing not to do — it restores the duplicate in the version that
 lacks `B47`'s fix, which is why `ROADMAP.md` records declining it.
 
-Result: pass — `50fd05f` plus the uncommitted texture rework **and `A19`'s
-uncommitted `set_sky` line in `mods/cc_day/init.lua`** · engine 5.17.0 ·
+Result: pass — `dd83b99` · engine 5.17.0 ·
 2026-09-09 — **composed from three reported runs in one sitting, not separately
 reported**, and that is the one weakness of this line. This entry's *How* is *"re-run
 `L1` and `L2`"* with the mod's copy inert and nothing else, and **both were run
@@ -982,9 +998,9 @@ the line is kept rather than replaced. (`git submodule status` describes
 `v0.7.3-139-gfb75bc8`; same commit, a different set of tags fetched, and neither
 describe changes which code was adopted.)
 
-Previously partial — `50fd05f` plus the uncommitted texture rework · engine
-5.17.0 ·
-2026-09-09 — **the sky-object half passes; the "regardless
+Previously partial — `50fd05f` plus the texture rework, **before `A19`'s
+`set_sky` line**, so this one line names a tree that is *not* `dd83b99`'s code ·
+engine 5.17.0 · 2026-09-09 — **the sky-object half passes; the "regardless
 of the time of day" half does not.** With the mod's copy inert — the adopted
 `mods/codeblock` is `fb75bc8` (`v0.7.3-139-gfb75bc8`), whose `lib/register.lua:246`
 carries the `if codeblock.config.flat_sky then` guard, and nothing in this
@@ -1070,8 +1086,7 @@ no sky mesh at all, so `L3`'s *"no sun, no moon, no stars, no sunrise"* now
 passes for **two** reasons. The four original calls stay in `cc_day` precisely so
 a future return to `"regular"` cannot silently restore them.
 
-Result: pass, both halves — `50fd05f` plus the uncommitted texture rework **and
-`A19`'s uncommitted `set_sky` line in `mods/cc_day/init.lua`** · engine 5.17.0 ·
+Result: pass, both halves — `dd83b99` · engine 5.17.0 ·
 2026-09-09 — **the first run of this entry and the whole of `A19`'s in-world
 evidence.** Reported by the author from a sitting in a world, against the check as
 written, so the pass covers all four steps: the horizon band, the haze over
@@ -1083,12 +1098,13 @@ does not move either. **The second half is a judgement and it went the author's
 way**: none of the three over-applied signals is reported, so `#90d3f6` stays and
 the one hex constant is not moved.
 
-**The code under test is committed nowhere.** `player:set_sky({type = "plain",
-base_color = "#90d3f6"})` exists only in `mods/cc_day/init.lua` in the working
-tree, so this result names no sha that carries it and **is not reproducible from
-any commit**. It is owed a re-run the moment the line lands, under the rule that a
-result does not survive a change to the code it exercised — here the code has not
-changed, it has not yet been written down.
+**The code under test was uncommitted when this ran and is committed now.**
+`player:set_sky({type = "plain", base_color = "#90d3f6"})` was working-tree only
+in `mods/cc_day/init.lua`; `dd83b99` was made the same day with `git add -A` over
+that tree and carries the line byte-identically, so the sha above is reproducible
+and **no re-run is owed**. The rule is that a result does not survive a change to
+the code it exercised, and nothing changed: a re-run would execute the same bytes
+and could only produce the same output.
 
 **Limits.** The report was the single word *pass* for an entry with four steps and
 two halves, so **nothing was read back**: not which of the four times were typed,
@@ -1169,7 +1185,8 @@ sitting all three were undone and the file still differed: **two blank lines wer
 left at file scope** where the hand override had sat. Harmless — luacheck was
 silent either way — but it is the same residue a *half*-undone override would
 leave, and the only thing that distinguishes the two is reading the diff. The
-blank lines were removed and the file is byte-identical to `50fd05f`. Read the
+blank lines were removed and the file is byte-identical to `50fd05f`, which is
+how it is committed at `dd83b99`. Read the
 diff; do not assume the undo was complete because you remember doing it.
 
 Chosen on 2026-09-09 over a `core.dig_node` chat command, which was considered
@@ -1224,7 +1241,7 @@ one from `default`"*; both mods are deleted, so every node a program can place i
 `codeblock:*` and the ground is `cc_mapgen`'s. The pass below was against the old
 set of nodes and is owed a re-run for that reason as well as for `B48`.
 
-Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
+Result: pass — `dd83b99` · engine 5.17.0 ·
 2026-09-09 — **the first run of this check that could have failed**, and that is
 the whole of what makes it worth more than the line below. The temporary hand
 override from this group's preamble was in place, so the punch came from a hand
@@ -1239,7 +1256,8 @@ override was **gone**, and two stray blank lines sat at file scope exactly where
 it had been. So all three things were really added and really undone — this is
 not a report against an unmodified tree, which is the failure mode that would make
 a *pass* here worthless a second time. The blank lines have since been removed and
-`cc_security` is byte-identical to `50fd05f`, with luacheck silent.
+`cc_security` is byte-identical to `50fd05f` and committed that way at
+`dd83b99`, with luacheck silent.
 
 **Limits, and they are the whole of the entry's breadth.** The report was the
 single word *pass*, so **none of the subjects was read back**: not the ground, not
@@ -1325,7 +1343,7 @@ either: there is **no creative-mode gate on drops** anywhere in builtin's
 `node_dig`. `handle_node_drops` passes an empty list to whatever it captured, so
 nothing is ever handed out. (`A8`)
 
-Result: pass, both halves — `50fd05f` plus the uncommitted texture rework ·
+Result: pass, both halves — `dd83b99` ·
 engine 5.17.0 · 2026-09-09 — **no longer blocked, and the drop half is now
 repeatable in a way it was not this morning.** The first run of this entry since
 `7dc764f` on 2026-09-02, and the first ever under the corrected method: all three
@@ -1344,7 +1362,8 @@ and `diggable = false` **restored**, the hand override **gone**, and two stray
 blank lines at file scope where it had sat. Both comments were therefore really
 made and really undone, which is also the two-comment count the method warns
 about being met. The blank lines have since been removed; `cc_security` is
-byte-identical to `50fd05f` and luacheck is silent.
+byte-identical to `50fd05f` — as committed at `dd83b99` — and luacheck is
+silent.
 
 **Limits.** The report was the single word *pass*, so **the pass observation
 itself was not read back**: the entry asks for the **hotbar** — slot 3, the first
@@ -1365,8 +1384,8 @@ have failed silently. What this still does not establish is that no inventory is
 (`S8`).
 
 **A re-attempt on 2026-09-09 could not dig anything at all, and it was not a
-method slip.** At `50fd05f` plus the
-uncommitted texture rework, on engine 5.17.0, the author commented out **both**
+method slip.** At `dd83b99`'s code, on engine 5.17.0, the author commented out
+**both**
 lines and **did fully restart the server**, and still could not dig — confirmed
 with them directly. So the two-comment trap is **not** the explanation for this
 run: the setup was right and something else refused. **No evidence was produced
@@ -1391,8 +1410,7 @@ defect in this document; it is fixed above by the shared setup rather than by an
 change to the game.
 
 **Closed out the same day: the diagnosis was right and the fix works.** The drop
-half ran and passed at `50fd05f` plus the uncommitted texture rework, with the
-hand override in place — see the top result — so the refusal was the hand's empty
+half ran and passed at `dd83b99`, with the hand override in place — see the top result — so the refusal was the hand's empty
 `groupcaps` and nothing else, and `A20` is confirmed in a world rather than only
 traced. The two paragraphs above are kept rather than compressed away, because
 what they record is a **run that produced no evidence**, which is the case this
@@ -1410,7 +1428,7 @@ Previously pass on the inventory half only — `7f649d8` · engine 5.17.0 ·
 
 **Pass** — you are not moved.
 
-Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
+Result: pass — `dd83b99` · engine 5.17.0 ·
 2026-09-09 — no knockback, re-run at the current tree. This is the thirty seconds
 the *what needs action* table had been holding `R5` open for.
 
@@ -1468,7 +1486,7 @@ drop handler matters only once something has already re-enabled digging, at whic
 point the owner has deliberately changed the game. Decided by the author on
 2026-09-02.
 
-Result: pass, both halves — `50fd05f` plus the uncommitted texture rework ·
+Result: pass, both halves — `dd83b99` ·
 engine 5.17.0 · 2026-09-09 — **composed from two reported runs, not separately
 reported**, which the entry pre-authorised in writing: its *How* is *"re-run `R3`,
 and run `R2` by its drop method"* and nothing else, and the `partial` below said
@@ -1493,8 +1511,7 @@ competes for it — but small is not none, and thirty seconds closes it.
 
 **The gap that line names was closed on 2026-09-09 and another opened in its
 place, so this stays `partial` and no result is moved.** `R3` was re-run at
-`50fd05f` plus the uncommitted texture rework and passed, so the knockback half no
-longer rests on 2026-09-01. But `R2`'s drop half was re-attempted the same day and
+`dd83b99` and passed, so the knockback half no longer rests on 2026-09-01. But `R2`'s drop half was re-attempted the same day and
 **exercised nothing** — correctly set up, both lines commented out and the server
 restarted, and still nothing could be dug — so that half's evidence is still the
 2026-09-02 pass at `7dc764f`. Nobody ran `R5` itself today; this note records what
@@ -1508,8 +1525,7 @@ still rests on `7dc764f`, and the run that would move it is one sitting away
 rather than waiting on a diagnosis.
 
 **That sitting happened, later the same day.** `R2`'s drop half ran under the hand
-override and passed at `50fd05f` plus the uncommitted texture rework, so `A8`'s
-drop half no longer rests on `7dc764f` and this entry is the composed pass at the
+override and passed at `dd83b99`, so `A8`'s drop half no longer rests on `7dc764f` and this entry is the composed pass at the
 top. The two paragraphs above are kept because they are the record of how the half
 came to be blocked and unblocked in one day.
 
@@ -1652,7 +1668,7 @@ that stops cracking while the glass still flashes means the group list is
 incomplete, not that the fix works. The nodes are also still there afterwards,
 which is `R1`'s claim and not this one.
 
-Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
+Result: pass — `dd83b99` · engine 5.17.0 ·
 2026-09-09 — **no cracking texture at any stage and no dig sound, on all three
 subjects.** This is the first in-world judgement of `B48`'s fix, and the whole of
 its evidence: until now the claim that the client stops predicting a dig rested on
@@ -1762,7 +1778,7 @@ first two runs proved less than they appear to. The two misspelling runs have
 
 No `default:*` or `wool:*` node can be named at all.
 
-Result: pass — `50fd05f` plus the uncommitted texture rework · engine 5.17.0 ·
+Result: pass — `dd83b99` · engine 5.17.0 ·
 2026-09-09 — **the quiet path is run and this clears to a full pass**, the second
 sitting of the day on the same tree. The `partial` below named exactly one thing
 owed — *"two one-line programs, `place(colors.vermilion)` and
@@ -1794,9 +1810,8 @@ one-word report. Nor was it confirmed the two programs were run separately rathe
 than as one. The paragraphs below belong to the superseded `partial` and are kept
 because they hold why the step was wrong before it was corrected.
 
-Previously partial — `50fd05f` plus the uncommitted texture rework · engine
-5.17.0 ·
-2026-09-09 — **the fifteen blocks pass and the quiet-fallback step has still never
+Previously partial — `dd83b99` · engine 5.17.0 · 2026-09-09 — **the fifteen
+blocks pass and the quiet-fallback step has still never
 been run.** What was established: fifteen blocks in five colours and three
 materials, the solids showing their colour, the glass see-through and tinted, each
 lamp lighting its surroundings — the variant a `groups` rewrite would break first —
@@ -1965,8 +1980,21 @@ Result: unchecked
 
 Newest first.
 
-- **2026-09-09, `50fd05f` plus the uncommitted texture rework and `A19`'s
-  uncommitted `set_sky` line, third sitting — the largest batch this document has
+- **2026-09-09, `dd83b99`: every result of the day re-pointed at the commit, and
+  the `L` group's owed re-runs dropped.** Nothing was run and no outcome changed.
+  `dd83b99` commits the tree all three sittings were played against with
+  `git add -A`, and its only difference from that tree is two stray blank lines
+  removed from `mods/cc_security/init.lua`, leaving the file byte-identical to
+  `50fd05f`. So every 2026-09-09 result line, and the prose in the `R` group that
+  named the tree, now names the sha instead of *`50fd05f` plus the uncommitted
+  texture rework*. **The three `L` re-runs are dropped rather than carried**: a
+  re-run is owed when the code changed under a result, and here the code was only
+  written down — the same bytes would run. The *results that name no commit*
+  row goes to **0**, and the recording rule in *Where it stands* is kept as a rule
+  with **no live instance**. **One line deliberately keeps the old tree**: `L3`'s
+  retained `partial`, taken in the first sitting before the `set_sky` line existed
+  and entirely about the sky, so `dd83b99` is not the code it exercised.
+- **2026-09-09, `dd83b99`, third sitting — the largest batch this document has
   taken.** Six results moved and two more composed from them, so the counts go to
   **29 pass, 1 partial, 0 fail and 4 unrun**, recounted from the first `Result:`
   line of all 34 entries rather than adjusted by hand. `R1` **pass, and the first
@@ -1984,9 +2012,11 @@ Newest first.
   pass of the fifteen blocks that had already passed — an asymmetry that does not
   hold for `L4` or `R1`, whose parts are all live at once, and the reason those two
   carry longer limits. `L1`, `L2` and `L4` **pass**, the first in-world judgement
-  of `A19`, `L4` on its first run and covering both blend peaks; **none of the
-  three names a commit that carries the code**, and the rule for that shape of
-  result is written into *Where it stands* rather than left to the next reader.
+  of `A19`, `L4` on its first run and covering both blend peaks; none of the
+  three named a commit that carried the code when they were written, and the rule
+  for that shape of result is written into *Where it stands* rather than left to
+  the next reader. **The commit landed the same day** and all three now name
+  `dd83b99` — see the entry above this one.
   `L1` gains a second limit of the same kind as `R8`'s: a `plain` sky draws no sky
   mesh, so *no sun, no moon, no stars, no sunrise* no longer distinguishes the four
   calls from the sky type, and the 2026-09-01 pass under a `"regular"` sky is kept
@@ -2021,7 +2051,7 @@ Newest first.
   and one pass — `R1`'s — that proves nothing.
 - **2026-09-09, record-only over `50fd05f`: `L4` added for `A19`'s fix.** No
   result moved and nothing was run — the fix is one `set_sky` line in the working
-  tree, uncommitted. `L4` exists because **neither `L1` nor `L3` asked about the
+  tree, uncommitted at the time and committed later the same day as `dd83b99`. `L4` exists because **neither `L1` nor `L3` asked about the
   horizon or the fog**, which is why the residual came back as a partial rather
   than a fail, and that gap is now closed in the criteria rather than left to the
   runner. `L1`'s Pass gained one line handing the sky's *colour* to `L4`, and
@@ -2030,7 +2060,7 @@ Newest first.
   correction — the mover is `m_horizon_blend`, not `sky_color`'s dawn entries —
   and its **observation and its `partial` are untouched**. Counts: 34 entries, 5
   unrun.
-- **2026-09-09, `50fd05f` plus the uncommitted texture rework, second sitting.**
+- **2026-09-09, `dd83b99`, second sitting.**
   `R3` and `R8` **pass** and `R9` is **partial**, so the counts move to **25 pass,
   4 partial and 4 unrun**. `R8` is the first and whole of `B48`'s in-world
   evidence. `R3` is a re-run, which puts `R5`'s knockback half on the current tree
@@ -2057,7 +2087,7 @@ Newest first.
   engine's default hand has no usable groupcap since `G3`, the drop half is
   impossible as written rather than fragile, which would be a defect in this
   document.
-- **2026-09-09, `50fd05f` plus the uncommitted texture rework, first sitting.**
+- **2026-09-09, `dd83b99`, first sitting.**
   `W15` and `W16`
   **pass** and `L3` is **partial**, so the counts moved to **24 pass, 3 partial and
   6 unrun**. `W15` is the first judgement of the `G3` surface and of two of the

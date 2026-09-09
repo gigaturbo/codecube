@@ -24,7 +24,8 @@ The `S` series was all the mod's until `S8` was filed, fixed and confirmed here
 on 2026-09-01; the `F` feature series is the mod's own.
 
 States: **resolved**, **open**, **won't fix** (the defect is real, the decision
-is not to fix it), **withdrawn** (no longer applies — none is). Severities:
+is not to fix it — `A20` since 2026-09-09), **withdrawn** (no longer applies —
+none is). Severities:
 critical, high, medium, low.
 
 **Findings are grouped by state first, then by series.** Open findings are in
@@ -46,64 +47,71 @@ ever been renumbered and nothing dropped.
 | `B` bugs | 7 | 7 | 0 | 0 |
 | `S` sandbox and security | 1 | 1 | 0 | 0 |
 | `C` compliance and packaging | 8 | 7 | 1 | 0 |
-| `A` architecture and performance | 6 | 3 | 3 | 0 |
-| **Total** | **22** | **18** | **4** | **0** |
+| `A` architecture and performance | 6 | 3 | 2 | 1 |
+| **Total** | **22** | **18** | **3** | **1** |
 
-**No open finding is critical or high.** Three are medium and one is low.
+**No open finding is critical or high.** `A7` and `A8` are medium, `C21` is low.
+`A20` is the first **won't fix** in this document — medium, and a decision rather
+than debt.
 
 | Id | Sev | State | What | Waiting on |
 |---|---|---|---|---|
-| `A7` | medium | open | `cc_day` duplicates a sky block `codeblock` also runs | adopting a release at or past their `6fea453`. **`L3`'s half is now done** — it passes at the working tree's `fb75bc8` on 2026-09-09, so `cc_day` is sufficient alone. **Settled upstream on different terms than predicted** — a setting off by default, not a deletion. Nothing is written in this repository for it, and the flag must not be set |
-| `A8` | medium | open | the every-node table walk that expresses one rule | a decision on whether Luanti offers anything better than the walk. The drop chain half is confirmed by `R2` |
-| `A20` | medium | open | `A13`'s deletion took the hand's groupcaps with it, so **nothing in the game is hand-diggable** and `R1` cannot fail | a temporary hand override in a playtest sitting, which is the only way `R1` and `R2`'s drop half can be run at all. **The game will not ship a hand definition** — decided 2026-09-09 |
+| `A7` | medium | open | `cc_day` duplicates a sky block `codeblock` also runs | adopting a release at or past their `6fea453`. **`L3`'s half is now done** — it passes at the adopted `fb75bc8` on 2026-09-09, so `cc_day` is sufficient alone. **Settled upstream on different terms than predicted** — a setting off by default, not a deletion. Nothing is written in this repository for it, and the flag must not be set |
+| `A8` | medium | open | the every-node table walk that expresses one rule | a decision on whether Luanti offers anything better than the walk. The drop chain half is confirmed by `R2` at `dd83b99`, on the current tree |
 | `C21` | low | open | `mods/vector3/mod.conf` declares `max_minetest_version = 5.5`, four minor versions under this game's floor | upstream `vector3` or a re-pin. Not this repository's to edit |
 
-**Four findings are resolved in code and unverified in a world**, which is a
+**`A20` is won't fix as of 2026-09-09, and is waiting on nothing.** The condition
+is real and permanent — nothing in the game is hand-diggable — the author declined
+the only fix on the merits, and the obligation the finding created is discharged:
+`R1` ran falsifiably under the temporary hand override and passed. It is in full
+below, beside the three open findings, because it is not resolved and a reader needs
+its standing cost. Do not report it as outstanding work.
+
+**Two findings are resolved in code and unverified in a world**, which is a
 weaker state than resolved and is tracked here because nothing else tracks it.
 The game has no test suite, so a `PLAYTEST.md` result line is the only thing that
-closes the gap. Three are committed; `A19` is not. **`B48` left this table on
-2026-09-09**, closed by `R8`.
+closes the gap. Both are committed. **`B48` left this table on 2026-09-09**,
+closed by `R8`; **`A13` and `A19` left it the same day**, closed by `R9` and by
+`L4`.
 
 | Id | Resolved in | Unverified until |
 |---|---|---|
-| `A19` | **the working tree over `50fd05f`, uncommitted** | `L4`, written 2026-09-09 for exactly this, with `L1` and `L3` re-run beside it |
 | `B19` | `e51f969` | `P3` |
 | `B24` | `e51f969` | `P3` |
-| `A13` | `50fd05f` | **`R9` alone, narrowed 2026-09-09.** `W15` and `W16` both pass at `50fd05f` — the grass-over-dirt surface at 128, and no unknown node anywhere — so the deletion's two named checks are discharged. What is left is `R9`, the drone driven against an all-`codeblock:*` palette, which is the only thing that says every block a program can name still resolves without `default`, `dye` or `wool` |
 
-**One playtest sitting still closes three of the four** — `P3` takes `B19` and
-`B24` together, and `R9` is `A13`'s last check. `R1` and `R4` are owed re-runs for
-the same reason `R8` was, `B48`'s fix rewriting `groups` on every registered node,
-and a partial strip is what they would catch. **`R1` gates `A20` since
-2026-09-09** — it is the one thing that would show the digging restriction
-refusing a hand that could otherwise dig — and it needs that finding's temporary
-hand override to be able to fail at all. `A19`'s `L4` is the fourth and wants a commit
-first. `PLAYTEST.md` holds the list of what needs action; it is not restated
-here.
+**One playtest sitting closes both** — `P3` takes `B19` and `B24` together, and
+it is the boot log. `R4` is still owed a re-run for the reason `R8` was, `B48`'s
+fix rewriting `groups` on every registered node, and a partial strip is what it
+would catch; it is the last of the `R` group's re-runs and no finding's state
+rests on it. `PLAYTEST.md` holds the list of what needs action; it is not
+restated here.
 
 ## Where it stands
 
-**`A20` was filed on 2026-09-09 and it costs this project evidence rather than
-behaviour.** `A13`'s deletion of `mods/default` removed the only thing that gave
-the hand any groupcaps, so **no node in this game is hand-diggable, with or
-without `cc_security`** — traced read-only through the engine at both 5.9.0 and
-5.17.0 and never run in a world. The consequence is that `PLAYTEST.md` `R1`,
-*nothing is diggable*, **would pass with `cc_security` deleted outright**, and
-`R2`'s drop half cannot be reached at all as its method was written. Both entries
-now carry a temporary hand override, which is the only way either can be run.
-The restriction itself stays: `A20` records four paths on which `diggable = false`
-and the group strip are still what refuses, and it **does not weaken `A8`**.
+**`A20` was filed and closed as won't fix on 2026-09-09, and it cost this project
+evidence rather than behaviour.** `A13`'s deletion of `mods/default` removed the
+only thing that gave the hand any groupcaps, so **no node in this game is
+hand-diggable, with or without `cc_security`**. That was traced read-only through
+the engine at both 5.9.0 and 5.17.0, and **it is now confirmed in a world**: `R2`
+ran its drop half under the temporary hand override at `dd83b99` and dug, where
+without the override nothing could be dug at all. The consequence was that
+`PLAYTEST.md` `R1`, *nothing is diggable*, **would have passed with `cc_security`
+deleted outright**; the override makes it falsifiable and it passed on
+2026-09-09. The restriction itself stays: `A20` records four paths on which
+`diggable = false` and the group strip are still what refuses, and it **does not
+weaken `A8`**. What it leaves behind is a standing setup cost on `R1`, `R4` and
+`R8`, not open work.
 
-**`A19` was filed and fixed on 2026-09-09, and its stated cause was wrong.** One
-`set_sky{type = "plain", base_color = "#90d3f6"}` in `cc_day`, in the working
-tree over `50fd05f` and **not committed**. The finding blamed unpinned
-`sky_color` entries; the engine says the day branch was the only one ever
-selected and the mover was `m_horizon_blend`, which no colour table can hold
-still. The wrong reading is kept beside the corrected one in the finding, because
-it is the natural one. It also turned out to cost more than the finding claimed:
-**every fresh world sat permanently in a sunrise-tinted blend**, and the horizon
-moved as the player turned. `L4` is what judges the fix; nothing has been run in
-a world, so `L3` stays `partial`.
+**`A19` was filed, fixed and verified on 2026-09-09, and its stated cause was
+wrong.** One `set_sky{type = "plain", base_color = "#90d3f6"}` in `cc_day`,
+committed at `dd83b99`. The finding blamed unpinned `sky_color` entries; the
+engine says the day branch was the only one ever selected and the mover was
+`m_horizon_blend`, which no colour table can hold still. The wrong reading is
+kept beside the corrected one in the finding, because it is the natural one. It
+also turned out to cost more than the finding claimed: **every fresh world sat
+permanently in a sunrise-tinted blend**, and the horizon moved as the player
+turned. `L4` passed on the fix, engine 5.17.0, which is the whole of its in-world
+evidence; `L1`, `L2` and `L3` are behind it.
 
 **`B50` is resolved, and it is the one finding here closed by evidence rather
 than by a commit.** Falling out of the world had **two routes**: the generated
@@ -175,10 +183,10 @@ never sees `diggable`, so the fix had to come from the groups and no other readi
 of the defect survives. What the run adds is that the strip works on the client,
 which no reading could say.
 
-**Three of the twenty arrived on 2026-09-01, from the first hours anyone has
+**Three of the 22 arrived on 2026-09-01, from the first hours anyone has
 spent playing this game against `PLAYTEST.md`** — `B47`, `B48` and `S8`. None was
 visible from reading the three `cc_*` files, **which between them were 21 lines
-at the time** and are **572** now across four files, since `G6`, the rescue
+at the time** and are **591** now across four files, since `G6`, the rescue
 rewrite, the barrier node, the world's new depth and `G3`'s ground; two of the
 three are in how
 those lines meet a vendored node or the client. That is the argument for the `W`,
@@ -203,8 +211,10 @@ fresh clone failing `check_game.sh`.
 
 **Two corrections to what this document said about the remote, both read from git
 and the Actions API on 2026-09-08.** The branch is **not unpushed**:
-`origin/g6-world-limits` exists and is at `5777dc0`, so `50fd05f` is the only
-commit of the 23 that is local-only. And **CI's most recent run is not on
+`origin/g6-world-limits` exists and is at `5777dc0`, so `50fd05f` and `dd83b99`
+are the only local-only commits. **A third correction, 2026-09-09**: the branch
+carries **14** commits over `main`, not the 23 written here and in `ROADMAP.md`
+for two passes — `git rev-list --count main..HEAD`, with `main` at `578b364`. And **CI's most recent run is not on
 `578b364`** — that commit was never pushed either. The newest run of any kind is
 `main` at `35fa2a1`, **success**, 2026-09-01, and **no commit on
 `g6-world-limits` has a run at all**, so nothing on this branch has been checked
@@ -221,8 +231,11 @@ log nobody has read.
 
 ## Open findings
 
-In full, and they are the reason to read this document. `A7`, `A8` and `A20` are
-medium; `C21` is low. Nothing here is critical or high.
+In full, and they are the reason to read this document. `A7` and `A8` are medium
+and `C21` is low; nothing here is critical or high. **`A20` sits here too and is
+won't fix**, because a decision taken against a real condition has to be as
+readable as an open item or it gets re-argued — its state is in its own heading
+and it is not counted as open anywhere.
 
 ### C21 · low · open — a bundled submodule carries the version ceiling this game's own check forbids
 
@@ -282,7 +295,7 @@ which is why this finding stays open here after the upstream edit lands and clos
 only at adoption.
 
 **`L3` is done, 2026-09-09, so adoption is the only thing left.** It passed at
-`50fd05f` with the working tree's `mods/codeblock` at `fb75bc8`, engine 5.17.0:
+`50fd05f`, whose adopted `mods/codeblock` is `fb75bc8`, engine 5.17.0:
 with `codeblock.config.flat_sky` off and this game not setting it, there is no
 sun, no moon, no stars and **no sunrise** — so `cc_day` is sufficient on its own,
 `sunrise_visible = false` included. A rejoin was in the same sitting, so the
@@ -378,6 +391,17 @@ and it is now evidence rather than a reading of the reference. `R5` is *partial*
 only because `R3` was not re-run beside it; `calculate_knockback` is byte-identical
 to before, so that half is low risk rather than open.
 
+**And confirmed again on the current tree, 2026-09-09 — the unrepeatable half of
+this finding is repeatable again.** `R2` passed both halves at `dd83b99`, engine
+5.17.0, its drop half run under `A20`'s temporary hand override and no item
+appearing. That is the first time the drop chain has been exercised since
+`7dc764f`, and the first ever under the corrected method. `R5` composes to a pass
+with `R3`'s re-run beside it, so both halves of this fix now name the same
+tree. **`last_mod` stays untested by choice** — the paragraph below is unchanged
+by any of it, and no sitting can change it while no second mod ships. What was
+not read back is the pass observation itself, the hotbar slot and the dug
+position.
+
 **What is still untested, by choice.** The composition half — that `last_mod`
 makes this mod's assignment the surviving one — needs a second mod that assigns
 the same globals, and building one would be testing a composition this game does
@@ -424,16 +448,20 @@ which `diggable = false` and the group strip are still the only refusal. What
 be repeated** without the temporary hand override `A20` describes. The
 2026-09-02 pass stands: a run at its own commit is not retroactively invalidated.
 
-### A20 · medium · open — `A13`'s deletion took the hand's groupcaps with it, so nothing is hand-diggable and the digging restriction is unfalsifiable
+### A20 · medium · won't fix — `A13`'s deletion took the hand's groupcaps with it, so nothing is hand-diggable and the digging restriction is unfalsifiable without a setup
 
 `mods/cc_security/init.lua` · deleted `mods/default/tools.lua` · `PLAYTEST.md`
 `R1`, `R2`
 
-**Traced read-only from source on 2026-09-09 and never run in a world.** The
-engine was read at **both 5.9.0, this game's floor, and 5.17.0**, and the adopted
-`mods/codeblock` at `fb75bc8`. Nothing was edited and no gate was run, so every
-claim here is a reading of source and not an observation. It was found because
-`R2`'s drop half refused twice with its method correctly set up.
+**Traced read-only from source on 2026-09-09, and the diagnosis is now confirmed
+in a world the same day.** The engine was read at **both 5.9.0, this game's
+floor, and 5.17.0**, and the adopted `mods/codeblock` at `fb75bc8`; nothing was
+edited and no gate was run for the trace, so every claim about the engine's
+internals below is a reading of source. It was found because `R2`'s drop half
+refused twice with its method correctly set up. **What was traced is what
+happened**: at `dd83b99`, engine 5.17.0, `R2`'s drop half dug and passed *with*
+the temporary hand override in place, having been undiggable without it — so the
+hand's empty groupcaps are the cause and not a hypothesis about one.
 
 **The refusal has two layers, and the second is the one that matters.**
 
@@ -514,11 +542,27 @@ is what `B48` was filed to remove. The accepted cost is that `R1` and `R2` need 
 temporary override to be runnable at all. See `ROADMAP.md` *deliberately not
 doing*, under the shape of the world.
 
-**What would close this finding** is not a code change. It is `R1` and `R2` run
-once, with the temporary hand override and an empty hotbar slot selected, so that
-the restriction has been seen to refuse a hand that could otherwise dig. Until
-then the strip and `diggable = false` are committed and unobserved against a
-capable hand.
+**Won't fix, and not open — decided 2026-09-09.** Three facts settle the state
+and each points the same way. The condition is **real**: nothing in the game is
+hand-diggable, and that is a consequence of `A13` nobody costed. The condition is
+**permanent and accepted**: the only fix is a hand definition, the author declined
+it on the merits the day this was filed, and *deliberately not doing* in
+`ROADMAP.md` records the grounds. And the obligation this finding created is
+**discharged**: `R1` and `R2` were run on 2026-09-09 at `dd83b99` with the
+temporary hand override in place, `R1` falsifiably for the first time in the
+project, and `R5` closed with them. So there is nothing left to do and nothing
+left to wait for, which is what disqualifies *open*; and the defect has not gone
+away, which is what disqualifies *resolved*. **Won't fix is the only state that
+says both.**
+
+**What it costs from here, and it is a setup and not a task.** Every future run
+of `R1`, `R4` or `R8` needs the temporary hand override from `PLAYTEST.md`'s `R`
+preamble, or it exercises nothing — three things to undo afterwards, and the
+2026-09-09 sitting is corroborated as having done exactly that, because the
+committed tree at `dd83b99` has both `cc_security` lines restored and no
+`override_item("", …)` left in it. **Do not re-derive this as an open finding**
+and do not propose the hand definition again: `B48` returns with it, which is one
+of the grounds on which it was declined.
 
 ## Resolved — B bugs
 
@@ -875,8 +919,8 @@ overriding it, the hand is the engine's default. `R8`'s method is rewritten arou
 no id.
 
 **Closed on 2026-09-09 by `R8`, and that result line is the whole of the
-evidence.** `PLAYTEST.md` `R8` passed at `50fd05f` plus the uncommitted texture
-rework, on engine 5.17.0: **no cracking texture at any stage and no dig sound**,
+evidence.** `PLAYTEST.md` `R8` passed on the tree committed as `dd83b99`,
+on engine 5.17.0: **no cracking texture at any stage and no dig sound**,
 on a solid `codeblock` block, a glass one, and `cc_mapgen:grass` with the barrier
 as the control. Until then the claim that the client stops predicting a dig rested
 on reading the `groups` rebuild, and both gates say nothing about it — neither
@@ -906,6 +950,15 @@ defect returns, and the group strip is the only thing that would hold it** —
 which is one of the grounds on which `A20` records that hand definition as
 declined.
 
+**And the run that would separate them was not done, 2026-09-09.** `R8` was
+**not** re-run with `A20`'s temporary hand override in place, even though the
+override was set up in the same sitting for `R1` and `R2`. A run with a hand that
+*could* dig is the only thing that would show the group strip refusing on its
+own, so until someone does it **`B48` cannot be separated from `A20`** and its
+pass has two live explanations. Not a reason to reopen it: the fix is correct by
+reading and the defect is unreachable either way. It is a reason not to write
+that `R8` proves the strip works on the client.
+
 ### B47 · low · resolved, `L1` passes — the sunrise texture is still drawn, so part of the sun shows
 
 `mods/cc_day/init.lua`
@@ -929,6 +982,16 @@ that passing *no* arguments resets the sun entirely — which reads as though an
 omitted field might take its default rather than keep its current value. If so,
 the mod's bare call would put `sunrise_visible` back and `A7` would be a
 prerequisite.
+
+**Keep — `sunrise_visible = false` is no longer observable in any world, and
+this finding's evidence is frozen (`B47`, `A19`).** `A19`'s `plain` sky draws **no
+sky mesh at all**, so there is nothing for a sunrise glow to be painted on: no
+future run can distinguish this fix working from the sky type hiding it, whatever
+`set_sun` is passed. The only evidence that ever existed is `L1`'s pass at
+`b9bf82b` and `L3`'s retained 2026-09-01 `partial`, both taken under a
+`"regular"` sky, which is why that retained line is kept rather than tidied. The
+call itself **stays in `cc_day`** for the reason `A19`'s own `Keep` gives: a
+future return to `"regular"` must not silently restore the sunrise.
 
 **It is not.** `L1` re-run at `b9bf82b` passes with the duplicate still in place.
 Either `set_sun` merges with the current parameters or `cc_day`'s callback runs
@@ -1274,20 +1337,20 @@ belongs to the mod's audit.
 
 ## Resolved — A architecture and performance
 
-**6 findings, 3 resolved.** `A7`, `A8` and `A20` are open and in full above.
-`A20` is the newest and the one that costs evidence rather than behaviour: no
-node in the game is hand-diggable, so `R1` cannot fail. `A13` and
+**6 findings, 3 resolved, 2 open and 1 won't fix.** `A7` and `A8` are open and
+`A20` is won't fix; all three are in full above. `A13` and
 `A19` are below in full, not compressed: `A13` closed at `50fd05f` on 2026-09-08
 and its reasoning is still load-bearing — the three essential mapgen aliases and
 the surface material it dragged in are what a future change would re-break — and
-`A19` was filed and fixed on 2026-09-09, with its own stated cause corrected in
-the same pass and the wrong version kept beside it.
+`A19` was filed, fixed and verified on 2026-09-09, with its own stated cause
+corrected in the same pass and the wrong version kept beside it. **Both left the
+resolved-and-unverified state on 2026-09-09**, on `R9` and on `L4`.
 
 | Id | Sev | Was | Fixed by | Where it stands |
 |---|---|---|---|---|
 | `A14` | medium | CI conflated the component with the composite: the game's badge reported on the mod's internals and the mod had no CI at all | split along the component/composite line; the mod took its own `.luacheckrc`, specs and badge | — |
-| `A13` | medium | `mods/default`, `mods/dye` and `mods/wool` were 9,744 lines vendored to supply 106 node definitions | all three deleted at `50fd05f`, once CodeBlock registered its own 105 nodes; `cc_mapgen` took the three essential mapgen aliases and the world's surface material | **unverified in a world, narrowed to `R9`** — `W15` and `W16` both pass at `50fd05f`. In full below |
-| `A19` | medium | permanent noon reached the light level and the sky objects but not the sky's own colour, so the horizon and the fog still moved with the time of day — and with the player's yaw | one `set_sky{type = "plain", base_color = "#90d3f6"}` in `cc_day`, `plain` being the one sky type the engine excludes from the directional tint | **in the working tree over `50fd05f`, uncommitted, and unverified in a world** — `L4`. In full below |
+| `A13` | medium | `mods/default`, `mods/dye` and `mods/wool` were 9,744 lines vendored to supply 106 node definitions | all three deleted at `50fd05f`, once CodeBlock registered its own 105 nodes; `cc_mapgen` took the three essential mapgen aliases and the world's surface material | **verified in a world** — `W15`, `W16` and `R9` all pass on 2026-09-09. In full below |
+| `A19` | medium | permanent noon reached the light level and the sky objects but not the sky's own colour, so the horizon and the fog still moved with the time of day — and with the player's yaw | one `set_sky{type = "plain", base_color = "#90d3f6"}` in `cc_day`, `plain` being the one sky type the engine excludes from the directional tint | `dd83b99`; **verified in a world** by `L4`, 2026-09-09. In full below |
 
 - **A14 · medium · resolved** — CI conflated the component with the composite.
   `codeblock` Phase 0 put every check in the game repository, where they linted
@@ -1311,7 +1374,7 @@ the same pass and the wrong version kept beside it.
   The same split is why this repository's CI and the mod's go red independently;
   check the repository you changed.
 
-### A13 · medium · resolved, unverified in a world — `default` was 9,744 lines to supply 106 node definitions, and the answer was deletion
+### A13 · medium · resolved, `W15`, `W16` and `R9` all pass — `default` was 9,744 lines to supply 106 node definitions, and the answer was deletion
 
 `mods/default` · `mods/dye` · `mods/wool` · `mods/cc_mapgen/init.lua` ·
 `mods/cc_mapgen/mapgen_env.lua`
@@ -1329,22 +1392,27 @@ rather than trimmed"*. It happened, so the 9,744-lines-for-106-nodes framing bel
 is spent: **the work is deleting `mods/default`, `mods/dye` and `mods/wool`
 outright**, and the palette is no longer a contract this repository has to honour.
 
-**Resolved at `50fd05f`, 2026-09-08, and unverified in a world.** All three
+**Resolved at `50fd05f`, 2026-09-08.** All three
 directories are gone, `cc_mapgen` registers four nodes and the three mapgen
 aliases, and the game's Lua went from 177 non-comment lines to 208 while roughly
 9,700 vendored lines left the tree. **Neither gate runs a line of this game's
 Lua**, so what was owed was evidence: `W15` (one layer of grass over dirt at 128)
-and `W16` (no unknown node anywhere).
+and `W16` (no unknown node anywhere), and then `R9`.
 
-**Narrowed to `R9` on 2026-09-09.** `W15` and `W16` both pass at `50fd05f`, so
-the two checks this finding named are discharged and the author's earlier
+**Verified in a world on 2026-09-09, and this leaves the
+resolved-and-unverified state.** All three checks pass: `W15` and `W16` at
+`50fd05f`, and `R9` across two sittings — its fifteen blocks first, then the two
+corrected one-line programs of its misspelling step. So the author's earlier
 same-day report — grass over dirt at the right height, dirt on a cut face, the
-engine's own hotbar and hand in place of `default`'s — is now backed by result
-lines rather than standing as a report. **The state does not change**: `R9`, the
-drone driven against an all-`codeblock:*` palette, is unrun, and it is the only
-check that says every block a program can name still resolves with `default`,
-`dye` and `wool` gone. That is the deletion's remaining risk, so this stays
-resolved-and-unverified until `R9` runs. The roadmap entry is `G3`.
+engine's own hotbar and hand in place of `default`'s — is backed by result lines,
+and **every block a program can name resolves with `default`, `dye` and `wool`
+gone**, which was the deletion's whole remaining risk. Two limits are carried in
+`PLAYTEST.md` rather than restated here: `R9`'s misspelling step was written
+against the wrong code path and had to be corrected before it could run at all,
+and the default-coloured block the quiet path leaves behind was not read back.
+**This finding does not narrow to `W11`.** `W11` judges the bedrock and barrier
+redraw, which is `G7`'s subject and allocates no finding; nothing in it says
+anything about the deletion. The roadmap entry is `G3`.
 
 **Two consequences, and the first is the real cost of the deletion.**
 
@@ -1460,19 +1528,37 @@ coupling this project avoids everywhere else. The saving is size and boot noise,
 not behaviour, so nothing a player meets is waiting on it. See `ROADMAP.md` under
 *deliberately not doing* for what would change that.
 
-### A19 · medium · resolved in the working tree, unverified in a world — permanent noon did not reach the sky's own colour, so a day-night blend remained at the horizon
+### A19 · medium · resolved, `L4` passes — permanent noon did not reach the sky's own colour, so a day-night blend remained at the horizon
 
 `mods/cc_day/init.lua`
 
-**Fixed by one call, uncommitted.** `player:set_sky({type = "plain", base_color
-= "#90d3f6"})` inside `cc_day`'s existing `register_on_joinplayer`, in the
-working tree over `50fd05f` on 2026-09-09. `#90d3f6` is the engine's own
+**Fixed by one call, committed at `dd83b99`.** `player:set_sky({type = "plain",
+base_color = "#90d3f6"})` inside `cc_day`'s existing `register_on_joinplayer`,
+written and run in a world on 2026-09-09 and committed the same day. `#90d3f6` is
+the engine's own
 `day_horizon` default, so at true noon the horizon band and the fog are exactly
 what they were and only the zenith changes, from `#61b5f5` to that same lighter
 blue. No `sky_color`, no `fog_sun_tint`/`fog_moon_tint`/`fog_tint_type`, no
 `clouds` field and no `fog` table. `cc_day` goes from 7 lines to 8.
-**Unverified**: nothing has been run in a world, so `L3` stays `partial` and
-`L4` — written for this fix — is unrun.
+
+**Closed by `PLAYTEST.md` `L4`, and that result line is the whole of the
+evidence.** `L4` passed both halves at this tree, engine 5.17.0, 2026-09-09: the
+sky and the fog do not move across `/time 0`, `5000`, `10000` and `22000`,
+nothing changes as the player turns a full circle at each, indoors matches
+outdoors, and **none of the three over-applied signals appeared** — so `#90d3f6`
+stays and the trade is accepted as made. `L1`, `L2` and `L3` passed in the same
+sitting behind it. Both gates were green on the commit and **neither runs a line
+of this game's Lua**, which is why `L4` and not `dd83b99` is what closes this.
+
+**Three limits of that closure, carried here rather than smoothed away.** The
+report was the single word *pass* for a check whose method is four `/time`
+positions — **including both blend peaks** — a full circle turned at each, and an
+indoor comparison, so nothing was read back about any one of them. Each of the
+three over-applied signals is a **sub-condition that fails quietly**: *shifts only
+at 22000*, *shifts only as you turn*, and *grey only indoors* would each leave the
+rest of the check passing, and none was described back. And the `L4` method is
+the only thing in the project that asks about the horizon or the fog at all, so
+there is no second check to corroborate it.
 
 The defect: the game pinned the **light level** and removed the **sky objects**,
 and left the sky's own **colour and fog** on the engine's day cycle, so a visible
@@ -1609,9 +1695,10 @@ ways. `C21` is read straight out of a tracked file (`mods/vector3/mod.conf`) and
 is verified as *a fact about the metadata*; what is unverified is whether it costs
 anything.
 
-**Committed and unproven, on branch `g6-world-limits`, tip `d6e4a12`:** this
+**Committed and unproven, on branch `g6-world-limits`, tip `dd83b99`:** this
 named `B48`'s group strip at `ec02760` and `B19` and `B24`. `B48` left the state on
-2026-09-09 when `R8` passed; `B19` and `B24` still wait on `P3`. `G6` itself is no longer here: `f5f2385` carried `minetest.conf` at
+2026-09-09 when `R8` passed; **`B19` and `B24` are the only two left in it**, and
+both wait on `P3`. `G6` itself is no longer here: `f5f2385` carried `minetest.conf` at
 `mapgen_limit = 1024`, `game.conf` at `min_minetest_version = 5.9`, a new root
 `settingtypes.txt`, `cc_mapgen`'s bedrock node and forced limit, the new
 `cc_mapgen/mapgen_env.lua`, and `cc_security`'s world-box globalstep with
@@ -1664,20 +1751,30 @@ requires the wall walk and the exposed floor plane to move nobody, and `W9` case
 1 and 3 — rescued once with no second teleport, and the no-op where only
 `(x, 0, z)` changed — are untouched by it.
 
-**Committed, unproven — `G3`'s deletion, at `50fd05f` on 2026-09-08.** The record
+**Verified in a world — `G3`'s deletion, committed `50fd05f` on 2026-09-08 and
+played on 2026-09-09.** The record
 documents, `README.md`, `CONTENTDB.md`, `.cdb.json` and `CHANGELOG.md` landed in
 the same commit as the code, which is the only arrangement in which the
-player-facing prose is never wrong about the world. **Nothing in a world has been
-recorded for it**: `W15`, `W16` and `R9` are unrun at that commit, and the
-author's report of a working world in the same sitting is a report and not a
-result line. `A13` is the finding and `ROADMAP.md` `G3` the entry.
+player-facing prose is never wrong about the world. **All three of its checks now
+pass**: `W15`, `W16` and `R9`, the last across two sittings after its misspelling
+step was corrected. `A13` is the finding and `ROADMAP.md` `G3` the entry.
 
-**Committed, unproven — the texture rework, uncommitted at the time of writing,
-over `50fd05f`.** Grass, dirt, bedrock and the barrier redrawn in a flat-base
+**Committed and part-proven — the texture rework, at `dd83b99` on 2026-09-09.**
+Grass, dirt, bedrock and the barrier redrawn in a flat-base
 plus sparse-specks style after the author rejected the first attempt's grain,
 with `scripts/gen_textures.py` added to hold the palettes and the seeds. It is
 **not a finding**: no committed code was defective. `W11` and `W15` are what judge
-it, and `W11`'s earlier pass was retired rather than carried across the change.
+it; **`W15` passes and `W11` does not** — its earlier pass was retired rather than
+carried across the change, and it was not run beside `W15`, so the bedrock and
+barrier redraw is the one part of this change nobody has looked at.
+
+**Verified in a world — `A19`'s `plain` sky, committed `dd83b99` on 2026-09-09.**
+`L4` passed both halves at that tree, engine 5.17.0, and `L1`, `L2` and `L3`
+passed behind it in the same sitting. Both gates were green on the commit and
+neither runs a line of this game's Lua. **Three limits are in the finding**: a
+one-word report over four `/time` positions and two halves, three over-applied
+signals each of which fails quietly, and no second check that asks about the
+horizon or the fog at all.
 
 **Committed, unproven:** `CONTENTDB.md` and the generator change for `C20`
 landed in `9ad884c`, `.cdb.json` regenerated and `check_game.sh` passing on it.
@@ -1745,27 +1842,31 @@ code, only with what is known about the sentence beside it.
 **Still not checked:** `W11`, whose pass was retired with the textures it
 described; `P3` (the boot log), `P4` (the main menu), `P5` (the ContentDB page,
 which needs a release), and the boot half of `P1`, which is a fresh recursive
-clone and is not discharged by the author's own checkout booting. **Six left this
-list on 2026-09-09**, over two sittings: `W15`, `W16`, `R8` and `R3` pass — `R8`
-closing `B48` and `R3` putting `R5`'s knockback half on the current tree — while
-`L3` and `R9` are **partial**, each with one half unrun. `R9`'s remaining half was
+clone and is not discharged by the author's own checkout booting. **That is the
+whole of the unchecked list**, and it has not been this short before.
+
+**Results moved on 2026-09-09 over three sittings**, and `PLAYTEST.md`'s own
+status table is where they are counted rather than here. `W15`, `W16`, `R8`
+and `R3` first; then `R9` completed and `L3` composed, both having been `partial`
+with one half unrun; then `R1`, `R2`, `L1`, `L2` and `L4`, with `R5` composing
+from `R2` and `R3`. `R9`'s remaining half had been
 unreachable as written: its misspelling step named a code path that cannot produce
 the warning it asks for, corrected in `PLAYTEST.md` from the adopted mod's source.
-**`R2`'s drop half is back on this list**: it was re-attempted on 2026-09-09 with
-both lines commented out and the server restarted, and nothing could be dug at
-all — no evidence either way, and **diagnosed the same day as `A20`**, the hand
-having no groupcaps since `G3`. Its 2026-09-02 pass at `7dc764f` stands, and it
-is unrepeatable without that finding's temporary hand override. **`R1` joins the
-list for the same reason and is the worse case**: its 2026-09-01 pass is against
-a check that cannot fail, so the digging restriction is *claimed* and not
-verified, whatever that result line says. **`R6` and `R7` leave this document's re-run lists
+**`R1` and `R2` were the document's priority and are discharged.** `R2`'s drop
+half had been re-attempted earlier the same day with both lines commented out and
+nothing diggable at all — no evidence either way, **diagnosed as `A20`** — and it
+ran under that finding's temporary hand override at `dd83b99`, which is also what
+made `R1` the **first falsifiable run of the digging restriction in the project**.
+Both are limited by breadth rather than by setup: `R1`'s bare *pass* named none of
+the seven subjects its method asks for, and `R2`'s named neither the hotbar slot
+nor the dug position. **`R6` and `R7` leave this document's re-run lists
 by becoming unrunnable** with `G3`'s deletion, not by being discharged.
-**`W10` and `W12`–`W14` pass at `3479e25`** and have left this list. **`W4`, `W8` and
+**`W10` and `W12`–`W14` pass at `3479e25`**. **`W4`, `W8` and
 `W9` are owed re-runs** at the current depth, and `W14` discharges none of them.
 `P2` is owed a re-run whenever a tracked file is added, because nothing in either
-CI reads `.gitattributes`. **`R1`, `R4`
-and `R9` are marked for re-running** at the same time — `R6` was the third until
-`G3`'s deletion made it unrunnable: the `B48` change rewrites
+CI reads `.gitattributes`. **`R4` is the last re-run for `B48`'s blast radius**,
+`R1` and `R9` having been run and `R6` having become unrunnable: the `B48` change
+rewrites
 `groups` on every registered node, and if the new inner loop errors on any one of
 them, `register_on_mods_loaded` aborts and every node after that point keeps
 `diggable = true` — with table iteration order unstable, that is a different set
@@ -1781,15 +1882,16 @@ install, `AppData/Local/luanti/5.17.0`, running every session from 22:13 to
 line checkable. **Note it at the time next time**: this only worked because one
 version is installed and the log had not rotated.
 
-**`A19`'s mechanism is verified out of the engine source and nothing else, and
-its fix is neither committed nor run.** `sky.cpp`, `sky.h`, `game.cpp` and
+**`A19`'s mechanism is verified out of the engine source, and its fix is now
+verified separately in a world.** `sky.cpp`, `sky.h`, `game.cpp` and
 `clientpackethandler.cpp` were read at **5.9.0 and 5.17.0** — the dawn and night
 branches unreachable under a pinned ratio, `m_horizon_blend` as the mover, the
 `plain` path disabling the directional tint, and `time_of_day = 5250` as a new
 world's start in `serverenvironment.cpp`. That is a strong reading of what the
-client does and it is **not** an observation of a screen. The one `set_sky` call
-sits in the working tree over `50fd05f`, uncommitted, so it has no commit to
-name; `L4` is the check and it is unrun.
+client does and it is **not** an observation of a screen. What was observed is the
+fix holding: `L4` at `dd83b99`, engine 5.17.0, 2026-09-09. **Nobody observed the
+defect at `/time 22000`**, the other blend peak, so the mechanism's shape is still
+read and only its absence is seen.
 
 ## Corrections kept rather than edited away
 
@@ -1817,6 +1919,25 @@ suggests and the next reader will re-derive it. **It was marked "likely and not
 demonstrated" when filed, and that marking is what made it cheap to correct.**
 
 ---
+
+Revised 2026-09-09 at `dd83b99`, tree clean. **The counts move to 22 findings,
+18 resolved, 2 open and the first won't fix** — `A7` and `A8` open, `C21` open,
+`A20` won't fix. Three states changed on evidence, all from one sitting at that
+tree on engine 5.17.0: **`A19` is resolved and verified** by `L4`, **`A13` is
+verified** by `R9`, and **`A20` is won't fix** — its condition real and permanent,
+its fix declined by the author on the merits, and the obligation it created
+discharged by `R1` running falsifiably under the temporary hand override. So the
+unverified-in-a-world table drops from four findings to **two**, `B19` and `B24`,
+both waiting on `P3`. `B48` was **not** reopened and gained one limit: `R8` was
+not re-run with the override, so its pass still has two explanations. `B47` gained
+a `Keep` — a `plain` sky draws no mesh, so `sunrise_visible = false` is
+unobservable for good and `L3`'s retained 2026-09-01 `partial` is its only
+evidence. Three counts corrected here: *twenty* findings to 22, the game's Lua
+572 lines to 591, and the branch's 23 commits over `main` to **14**.
+
+An entry for **`A20`'s filing** is missing from this log: it was filed on
+2026-09-09 in the same pass that resolved `A19`, and the entry below counts 21
+findings when the table already said 22. Recorded rather than back-written.
 
 Revised 2026-09-09 at `50fd05f`, plus an uncommitted texture rework and an
 uncommitted `cc_day` one-liner over it. **`A19` is resolved in the working tree
