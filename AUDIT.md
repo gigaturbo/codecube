@@ -46,25 +46,29 @@ ever been renumbered and nothing dropped.
 |---|---|---|---|---|
 | `B` bugs | 7 | 7 | 0 | 0 |
 | `S` sandbox and security | 1 | 1 | 0 | 0 |
-| `C` compliance and packaging | 8 | 7 | 1 | 0 |
-| `A` architecture and performance | 6 | 3 | 2 | 1 |
-| **Total** | **22** | **18** | **3** | **1** |
+| `C` compliance and packaging | 8 | 8 | 0 | 0 |
+| `A` architecture and performance | 6 | 3 | 1 | 2 |
+| **Total** | **22** | **19** | **1** | **2** |
 
-**No open finding is critical or high.** `A7` and `A8` are medium, `C21` is low.
-`A20` is the first **won't fix** in this document — medium, and a decision rather
-than debt.
+**No open finding is critical or high, and the `C` series has none left.** `A7`
+is medium and is the only one open. Both **won't fix** entries in this document
+are medium and are decisions rather than debt: `A20`, the first, and `A8`,
+decided 2026-09-09.
 
 | Id | Sev | State | What | Waiting on |
 |---|---|---|---|---|
 | `A7` | medium | open | `cc_day` duplicates a sky block `codeblock` also runs | adopting a release at or past their `6fea453`. **`L3`'s half is now done** — it passes at the adopted `fb75bc8` on 2026-09-09, so `cc_day` is sufficient alone. **Settled upstream on different terms than predicted** — a setting off by default, not a deletion. Nothing is written in this repository for it, and the flag must not be set |
-| `A8` | medium | open | the every-node table walk that expresses one rule | a decision on whether Luanti offers anything better than the walk. The drop chain half is confirmed by `R2` at `dd83b99`, on the current tree |
-| `C21` | low | open | `mods/vector3/mod.conf` declares `max_minetest_version = 5.5`, four minor versions under this game's floor | upstream `vector3` or a re-pin. Not this repository's to edit |
+
+**`A8` is won't fix as of 2026-09-09, and is waiting on nothing.** The author
+decided the every-node walk stays: *the case of another mod in this game is not
+actual*. Its drop-chain half is confirmed by `R2` at `dd83b99`, on the current
+tree. No source changed for the decision.
 
 **`A20` is won't fix as of 2026-09-09, and is waiting on nothing.** The condition
 is real and permanent — nothing in the game is hand-diggable — the author declined
 the only fix on the merits, and the obligation the finding created is discharged:
 `R1` ran falsifiably under the temporary hand override and passed. It is in full
-below, beside the three open findings, because it is not resolved and a reader needs
+below, beside `A7` and `A8`, because it is not resolved and a reader needs
 its standing cost. Do not report it as outstanding work.
 
 **Two findings are resolved in code and unverified in a world**, which is a
@@ -87,6 +91,19 @@ rests on it. `PLAYTEST.md` holds the list of what needs action; it is not
 restated here.
 
 ## Where it stands
+
+**`C21` is resolved on 2026-09-09 by a re-pin, and it is the only finding here
+closed without a line of this repository changing.** `mods/vector3` moved from
+`v1.5` (`16621648`) to `v2.0.2` (`fc8a5b8`), whose `mod.conf` is four lines and
+carries `min_minetest_version = 5.3` and no ceiling at all. That is the route the
+finding itself named — upstream or a re-pin — and it closes the `C` series. **No
+gate in this repository ever saw the defect and none sees it gone**: the
+`max_minetest_version` guard at `scripts/check_game.sh:34` reads `game.conf`
+alone and has never read a `mod.conf`, so the evidence is the pointer and the
+file rather than a green run. Both gates were green at `c7c2c43` with the pointer
+staged, which says the game still assembles and nothing more. Extending the guard
+to every bundled `mod.conf` would have caught this and is a `TODO.md` line, not a
+finding.
 
 **`A20` was filed and closed as won't fix on 2026-09-09, and it cost this project
 evidence rather than behaviour.** `A13`'s deletion of `mods/default` removed the
@@ -162,13 +179,13 @@ set that setting**. Both entries carry the correction where they stand.
 **`A13` is now resolved, at `50fd05f` the same day, and unverified in a world**;
 `A7` closes at adoption.
 
-`C21` is the other finding new on 2026-09-07, from shaping the same feature: a
-version ceiling in a bundled submodule, and the only one here the game cannot fix
-in its own tree. `A13` no longer
+`C21` was the other finding new on 2026-09-07, from shaping the same feature: a
+version ceiling in a bundled submodule, and the only one here the game could not
+fix in its own tree. It is resolved — see the top of this section. `A13` no longer
 carries `B19` and `B24`: both were closed directly on 2026-09-02, which was the
 point of looking at them, since "resolved for free by `A13`" had kept two
 boot-log defects invisible behind a deferred item. `A8`'s drop chain is confirmed
-and its table walk is what keeps it open.
+and its table walk is won't fix, decided 2026-09-09.
 
 **`B49` is resolved and confirmed.** Its fix rests on undocumented behaviour —
 replacing an ABM's `action`, because Luanti cannot unregister one — so `R7` was
@@ -231,48 +248,11 @@ log nobody has read.
 
 ## Open findings
 
-In full, and they are the reason to read this document. `A7` and `A8` are medium
-and `C21` is low; nothing here is critical or high. **`A20` sits here too and is
-won't fix**, because a decision taken against a real condition has to be as
-readable as an open item or it gets re-argued — its state is in its own heading
-and it is not counted as open anywhere.
-
-### C21 · low · open — a bundled submodule carries the version ceiling this game's own check forbids
-
-`mods/vector3/mod.conf`
-
-`max_minetest_version = 5.5`, beside `min_minetest_version = 5.3`. `C1` is the
-same defect in this game's `game.conf`, and `check_game.sh` now fails a
-reinstated one there — while a mod the game hard-depends on has carried one all
-along, unchecked.
-
-**It blocks nothing at load.** Per the 5.17.0 reference the engine reads only
-`depends` and `optional_depends` out of a `mod.conf`, so this is ContentDB
-metadata: it constrains what the *package page* claims to support, not what the
-engine will start. That is what makes it low rather than high.
-
-**What makes it worth filing anyway is the direction of travel.** `ROADMAP.md`
-`G6` raises this game to `min_minetest_version = 5.9`, **four minor versions**
-above `vector3`'s stated ceiling — so the game advertises a floor its own
-dependency advertises as out of range. A reader comparing the two package pages
-sees a contradiction, which is exactly the shape `C4` was filed for.
-`mods/codeblock/mod.conf` still says 5.4, which is the other half of the same
-picture and is upstream's call.
-
-**Corrected 2026-09-07, the same day this was filed: three minor versions, not
-four.** It was written against a `min_minetest_version` of 5.7, which was the
-author's instruction and was factually wrong —
-`core.register_mapgen_script` first appears in the 5.9.0 `lua_api`, so 5.7 and
-5.8 cannot start the game at all. The gap this finding describes widened with
-the correction; the severity did not, because the engine still reads no
-`max_minetest_version` out of a `mod.conf`. Recorded rather than overwritten:
-`G6` decision 4 in `ROADMAP.md` carries the evidence.
-
-**Not ours to edit.** `vector3` is a pinned submodule with its own repository
-(`v1.5` at `16621648`); the fix is upstream or a re-pin, and neither is work this
-repository does on its own. Nothing here should hand-edit a submodule's
-`mod.conf` — that change would be silently discarded by the next pointer move.
-Recorded so it reads as known rather than missed.
+In full, and they are the reason to read this document. `A7` is the only one open,
+and it is medium; nothing here is critical or high. **`A8` and `A20` sit here too
+and are won't fix**, because a decision taken against a real condition has to be
+as readable as an open item or it gets re-argued — each state is in its own
+heading and neither is counted as open anywhere.
 
 ### A7 · medium · open, and the edit is upstream — `cc_day` duplicates a block `codeblock` already runs, marked "TEMP fix"
 
@@ -332,7 +312,7 @@ reintroduce the texture whichever way `set_sun` treats an omitted field. Recorde
 here only so the next reader does not re-derive it from the claim that the two
 calls match.
 
-### A8 · medium · open — the drop chain is confirmed; `last_mod` is untested by choice and the table walk untouched
+### A8 · medium · won't fix — decided 2026-09-09: the every-node walk stays; the drop chain is confirmed and `last_mod` untested by choice
 
 `mods/cc_security/init.lua` · `game.conf` · `.luacheckrc`
 
@@ -418,12 +398,32 @@ property rather than a privilege, and the drone writes with `set_node` and
 `VoxelManip`, which never compute drops. A check that cannot be run reads exactly
 like one that passed.
 
-**The other half of this finding is untouched, and is why it stays open.** The
-mod overrides **every registered node** at `on_mods_loaded` to set
-`diggable = false` — a large table walk to express one rule. It has to run there
-to see every mod's registrations (moving it earlier silently covers fewer nodes
-and nothing fails), and Luanti offers no global switch for it, so there may be
-nothing better than the walk. Deciding that is what remains.
+**The other half of this finding is the table walk, and it is decided rather
+than fixed.** The mod overrides **every registered node** at `on_mods_loaded` to
+set `diggable = false` — a large table walk to express one rule. It has to run
+there to see every mod's registrations (moving it earlier silently covers fewer
+nodes and nothing fails). **Decided by the author on 2026-09-09, in their
+words: the case of another mod in this game is not actual.** The walk stays as it
+is; nothing in `mods/` changed for the decision. The code is not being defended
+as elegant — the scenario the concern rested on is not real here, so the cost of
+replacing it buys nothing.
+
+**And the walk survives the digging question regardless, which is the stronger
+reason.** Read from the offline 5.17.0 API reference on 2026-09-09 — a reading of
+the reference, not a run and not a world check:
+
+- The one single-point alternative is `core.node_dig`, the overridable default
+  for a node definition's `on_dig`. It could refuse every dig from one function,
+  protected by `last_mod` exactly as the drop chain already is. But it covers
+  only the digging job, a node declaring its own `on_dig` bypasses it entirely,
+  and it does nothing about the client-side dig prediction, so `B48`'s group
+  strip would still need a per-node pass. It was **not exhaustively ruled out**;
+  the author's decision made it moot.
+- The loop's other four jobs have no game-wide equivalent at all.
+  `register_allow_player_inventory_action` governs the player's own inventory
+  only and there is no counterpart for a node's metadata inventory, and node
+  timers have no global switch. So the walk would remain even if digging moved
+  to `core.node_dig`.
 
 **The walk got wider on 2026-09-07**, when `B48`'s fix added an inner `pairs`
 over each node's `groups` and a rebuilt table per node. It is the same one pass,
@@ -435,8 +435,7 @@ that is why `R1`, `R4` and `R6` are all marked for re-running.
 `A13`'s deletion takes roughly 120 `default` and `wool` node definitions out of
 `minetest.registered_nodes`, leaving CodeBlock's 105, the two drone tools and
 `cc_mapgen`'s four. The walk is still a walk over every registered node to express
-one rule, so what keeps this finding open is untouched; what goes is the argument
-that it is expensive. `R6` also stops being one of the re-runs, because it becomes
+one rule; what goes is the argument that it is expensive. `R6` also stops being one of the re-runs, because it becomes
 unrunnable — `R1`, `R4` and the new `R9` are the blast-radius checks now.
 
 **`A20` does not weaken this finding, 2026-09-09.** That no hand in the game can
@@ -1169,10 +1168,12 @@ as well and a reader meeting it twice should meet the correction twice.
 
 ## Resolved — C compliance and packaging
 
-**8 findings, 7 resolved.** `C21` is open and in full above.
+**8 findings, all 8 resolved, and the `C` series has no open finding left.**
+`C21` closed on 2026-09-09, the last of them.
 
 | Id | Sev | Was | Fixed by | Where it stands |
 |---|---|---|---|---|
+| `C21` | low | a bundled submodule carried the version ceiling this game's own check forbids | adopting `vector3` `v2.0.2`, which declares `min_minetest_version = 5.3` and no ceiling | the pointer move to `fc8a5b8`, 2026-09-09; **no gate here ever read it**, so the evidence is the file and not a run |
 | `C22` | low | three menu images shipped to every player with no licence stated anywhere | a new `menu/license.txt`, two media rows in `THIRD-PARTY-LICENSES.md`, and `media_license` in the generator | `48cc63e`; `menu/license.txt` confirmed shipped by `P2` there; **not enforced by any gate** |
 | `C20` | medium | the ContentDB long description was `README.md` verbatim, breaking six of ContentDB's page rules | `CONTENTDB.md` written for its own reader, and the generator repointed at it | `9ad884c`; **unseen**, `P5` needs a release |
 | `C15` | low | the release archive shipped `.claude/`, the record documents and the art sources | `.* export-ignore` plus rules by name | `8d18e8b`; confirmed by `P2` at `8b27f2f`, re-confirmed at `48cc63e` |
@@ -1183,6 +1184,36 @@ as well and a reader meeting it twice should meet the correction twice.
 
 `C1` is not in this document: it is the same defect in the mod's `mod.conf` and
 belongs to the mod's audit.
+
+- **C21 · low · resolved** — `mods/vector3/mod.conf` carried
+  `max_minetest_version = 5.5` beside `min_minetest_version = 5.3`, **four minor
+  versions** below the `min_minetest_version = 5.9` `G6` gave this game, so the
+  game advertised a floor its own hard dependency advertised as out of range —
+  the shape `C4` was filed for, and the same defect `C1` was in `game.conf`. Low
+  because the engine reads only `depends` and `optional_depends` out of a
+  `mod.conf` (5.17.0 reference), so it constrained what the *package page* claims
+  and never what the engine would start. **Resolved 2026-09-09 by adopting
+  `vector3` `v2.0.2`** — `mods/vector3` moved from `v1.5` (`16621648`) to
+  `fc8a5b8` on the author's instruction, *"vector3 should be v2.0.2 now and
+  should only state `min_minetest_version = 5.3` so it does not block
+  anything"*, and the release's `mod.conf` is exactly that: `name`, `title`,
+  `description`, `min_minetest_version = 5.3`, no ceiling. Nothing in this
+  repository changed. `mods/codeblock/mod.conf` still says 5.4, which is the
+  other half of the same picture and is upstream's call. The 5.7-to-5.9
+  correction this finding took the day it was filed is under *the corrections*
+  and in `ROADMAP.md` `G6` decision 4.
+
+  **Keep — never hand-edit a submodule's `mod.conf`, and no gate here reads
+  one.** Two rules came out of `C21` and both outlive it. First, the fix for a
+  defect inside a pinned submodule is upstream or a pointer move: an edit made in
+  the working copy is discarded, silently, by the next `git checkout` of a tag,
+  and it fails nothing on the way out. Second, `check_game.sh`'s
+  `max_minetest_version` guard (`scripts/check_game.sh:34`) is scoped to
+  `game.conf` — it never saw this defect for the two days it stood and does not
+  see it gone, which is why this finding's evidence is a file and a pointer
+  rather than a green run. Widening the guard to every bundled `mod.conf` is a
+  wanted check and a `TODO.md` line, and **not a finding**: nothing in committed
+  code is wrong now.
 
 - **C22 · low · resolved** — `menu/background.png`, `menu/header.png` and
   `menu/icon.png` reach every player and **no file anywhere stated a licence for
@@ -1337,8 +1368,8 @@ belongs to the mod's audit.
 
 ## Resolved — A architecture and performance
 
-**6 findings, 3 resolved, 2 open and 1 won't fix.** `A7` and `A8` are open and
-`A20` is won't fix; all three are in full above. `A13` and
+**6 findings, 3 resolved, 1 open and 2 won't fix.** `A7` is open and `A8` and
+`A20` are won't fix; all three are in full above. `A13` and
 `A19` are below in full, not compressed: `A13` closed at `50fd05f` on 2026-09-08
 and its reasoning is still load-bearing — the three essential mapgen aliases and
 the surface material it dragged in are what a future change would re-break — and
@@ -1691,9 +1722,24 @@ cases.
 **Verified, and note what shape of evidence it is.** Route one of `B50` was never
 observed in its broken state — nobody walked to ±4080 before the fix — so `W5` is
 the fix holding rather than the defect reproduced. Route two *was* observed both
-ways. `C21` is read straight out of a tracked file (`mods/vector3/mod.conf`) and
-is verified as *a fact about the metadata*; what is unverified is whether it costs
-anything.
+ways. `C21` is read straight out of a tracked file (`mods/vector3/mod.conf`) at
+both pointers and is verified as *a fact about the metadata*; what it never told
+anyone is whether it cost anything.
+
+**Nothing in a world has been played against `vector3` `v2.0.2`, and that is what
+the re-pin leaves open.** `C21`'s own claim is metadata and is settled by reading
+the file; what is unproven is a **major version of a hard dependency** running
+under the drone. `v2.0` made two breaking changes — writing to an exported
+constant raises `read only`, and a bad argument raises `format error` where the
+`from*` constructors used to return `nil` — and the adopted CodeBlock is written
+for both, `snapshot_vector3` in `mods/codeblock/lib/sandbox.lua:123-148`
+rebuilding the constants with the constructor precisely because 2.0 froze them.
+The method surface is otherwise unchanged between `v1.5` and `v2.0.2`: same
+names, same arity. **That is a reading of source and not a run.** `PLAYTEST.md`
+gets no new entry for it — `ROADMAP.md` `G5` records why — and the game-side
+evidence is `R4` and `R9` re-run at whatever commit carries the pointer; both
+currently name `dd83b99`, which is before it. The `vector` library's own
+semantics are the mod's `PLAYTEST.md` and not this one's.
 
 **Committed and unproven, on branch `g6-world-limits`, tip `dd83b99`:** this
 named `B48`'s group strip at `ec02760` and `B19` and `B24`. `B48` left the state on
@@ -1919,6 +1965,37 @@ suggests and the next reader will re-derive it. **It was marked "likely and not
 demonstrated" when filed, and that marking is what made it cheap to correct.**
 
 ---
+
+Revised 2026-09-09 at `c7c2c43`, on the author's decision about `A8`. **`A8` is
+won't fix and the counts move to 22 findings, 19 resolved, 1 open and 2 won't
+fix** — `A7` is the only open finding left. The author's words: *the case of
+another mod in this game is not actual*. Nothing in `mods/` changed for it.
+Recorded alongside the decision, from the offline 5.17.0 reference read the same
+day and not from a run: `core.node_dig` is the one single-point alternative for
+the digging job and was not exhaustively ruled out, and the walk's other four
+jobs have no game-wide equivalent at all. Every existing evidence paragraph in
+the finding stands, including the `last_mod`-untested-by-choice decision of
+2026-09-02.
+
+Revised 2026-09-09 at `c7c2c43`, with `mods/vector3` staged at `fc8a5b8`.
+**`C21` is resolved and the counts move to 22 findings, 19 resolved, 2 open and
+one won't fix** — `A7` and `A8` open, `A20` won't fix, and the `C` series is
+closed. The change is a pointer and not a line of this repository: `mods/vector3`
+from `v1.5` (`16621648`) to `v2.0.2` (`fc8a5b8`), whose `mod.conf` states
+`min_minetest_version = 5.3` and no ceiling. `C21` moves from *Open findings* to
+the resolved `C` series, compressed, keeping one `Keep` — never hand-edit a
+submodule's `mod.conf`, and no gate here reads one. Both gates were green at
+`c7c2c43` with the pointer staged, which says the game assembles; **no gate in
+this repository ever saw `C21` and none sees it gone**, so the evidence is the
+file. Two things the re-pin buys beyond the finding are in `CHANGELOG.md`, being
+player-facing: a startup warning from the adopted CodeBlock about a `vector3`
+older than 2.0.2, and with it the condition it warned about, and an unbounded
+rejection-sampling loop in `v1.5`'s samplers that could hang the server. What it
+does **not** buy is world evidence — nothing has been played against `v2.0.2`,
+and *Verified, committed, claimed* says so rather than the record implying
+otherwise. **One correction to the entry below**: it reads *"2 open"* and then
+names three open findings, which the status table never agreed with. The count
+was the typo and three was right at `dd83b99`.
 
 Revised 2026-09-09 at `dd83b99`, tree clean. **The counts move to 22 findings,
 18 resolved, 2 open and the first won't fix** — `A7` and `A8` open, `C21` open,

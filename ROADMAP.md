@@ -39,8 +39,9 @@ checked**, and every open item in this file is either the author's or a release'
 **`W11` is the cheapest evidence outstanding**: the redrawn bedrock and barrier,
 whose earlier pass was retired with the textures it described, and the one
 unjudged part of `G7`. Behind it, in the order they cost least: `R4`'s re-run for
-`B48`'s blast radius, `P3` and `P4`, `P1`'s boot half, and the `W4`, `W8` and
-`W9` re-runs at the new depth. `R6` and `R7` are **unrunnable**, their subjects
+`B48`'s blast radius — **now also carrying the `vector3` `v2.0.2` re-pin, with
+`R9` beside it**, since nothing has been played against that library — `P3` and
+`P4`, `P1`'s boot half, and the `W4`, `W8` and `W9` re-runs at the new depth. `R6` and `R7` are **unrunnable**, their subjects
 deleted. `PLAYTEST.md` holds the list; it is not restated here.
 
 **`A20` is settled and is not work.** Filed 2026-09-09 from a read-only trace —
@@ -51,10 +52,12 @@ because `R1` ran falsifiably under the temporary hand override and passed, with
 `R2`'s drop half beside it. What it leaves is a setup cost on `R1`, `R4` and `R8`
 for ever, written into `PLAYTEST.md`'s `R` preamble. Do not re-propose the hand.
 
-Then `G5`: adopting a tagged CodeBlock release, which is what `A7` and `C21` both
-wait on and the only thing on this file's critical path. `C22` closed on
-2026-09-08 — the licence question is answered. The `TODO.md` *fog distance* line
-is the author's and stays open; `viewing_range` is deliberately a courtesy.
+Then `G5`: adopting a tagged CodeBlock release, which is what `A7` waits on and
+the only thing on this file's critical path. `C22` closed on 2026-09-08 and
+**`C21` on 2026-09-09**, by re-pinning `mods/vector3` to `v2.0.2` — so the whole
+`C` series is closed and the licence and metadata questions are answered. The
+`TODO.md` *fog distance* line is the author's and stays open; `viewing_range` is
+deliberately a courtesy.
 
 ## Milestones
 
@@ -70,7 +73,7 @@ whatever is opened after it.
 | `G4` | Make the game's own mods behave | **done on both counts** — `A19` committed `dd83b99` and `L4` passes; `A7` is `G5`'s | 5/6 | 5/5 |
 | `G6` | Bound the world | **done on both counts** | 5/5 | 6/6 |
 | `G7` | Make the world something to be in | done, the texture rework committed `dd83b99`; `W11` still owed | 3/3 | 4/5 |
-| `G5` | Adopt CodeBlock 1.0.0 and ship | started | 1/5 | — |
+| `G5` | Adopt CodeBlock 1.0.0 and ship | started | 2/5 | — |
 
 Findings by milestone: `G1` (`C1`, `C2`, `C3`, `C4`, `C5`, `C15`, `C20`); `G2`
 (`A14`, `B20`); `G3` (`B49`, `A13`); `G4` (`B47`, `B48`, `S8`, `A7`, `A8`,
@@ -183,8 +186,8 @@ control, not the check of an item.
 - [x] Stop `cc_security` clobbering two engine callbacks by direct assignment.
   Drops chain to the captured handler with an empty list; `R2` confirms it at
   `dd83b99`, both halves, its drop half run under `A20`'s hand override. The
-  finding stays open for the every-node table walk, and `last_mod` stays untested
-  by choice. (`A8`)
+  every-node table walk stays — decided 2026-09-09, and the finding is won't fix
+  with no source change. `last_mod` stays untested by choice. (`A8`)
 - [x] Strip six digging groups so the client stops predicting a dig. Committed
   `ec02760`; **`R8` passes** at `dd83b99`'s tree,
   engine 5.17.0, 2026-09-09: no cracking texture at any stage and no dig sound on
@@ -331,7 +334,8 @@ playing it, the eighth about this record.**
    the shipped `lua_api` at 5.7.0 and 5.8.0 and present at 5.9.0, so below 5.9 the
    call is `nil` and the game does not start. Recorded rather than overwritten,
    because a number silently changed is one the next reader re-derives. `C21`'s
-   gap widened with it, to four minor versions.
+   gap widened with it, to four minor versions; the **gap** closed on 2026-09-09
+   with the `vector3` re-pin, the **floor** did not.
 5. **Default 1024.** 256 puts the walls inside `viewing_range = 300` so they are
    always in sight; 4096's walls are seven minutes' walk away and therefore
    theoretical.
@@ -490,7 +494,9 @@ The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
   `mods/cc_mapgen/license.txt`, `THIRD-PARTY-LICENSES.md` and
   `scripts/gen_cdb_json.sh`. Decided 2026-09-08 — see *The media licence* under
   `G7`. (`C22`)
-- [ ] Re-pin or wait out `vector3`'s `max_minetest_version = 5.5`. (`C21`)
+- [x] Re-pin `mods/vector3` to `v2.0.2` (`fc8a5b8`), from `v1.5`, on the author's
+  instruction 2026-09-09 — the release states `min_minetest_version = 5.3` and no
+  ceiling. (`C21`)
 - [ ] Update `README.md`, `CHANGELOG.md` and `CONTENTDB.md` in the same commit,
   and regenerate `.cdb.json` — `check_game.sh` diffs it.
 - [ ] Run `check_game.sh`, `P1`, `P2`, tag on `main`, upload, then read the page
@@ -524,6 +530,14 @@ limitation and never pending, and it forbids an entry for work in progress. The
 obligation to write that entry now sits on `G5`'s first line, where it will be
 read when the pointer actually moves.
 
+**The other submodule is on a tag: `mods/vector3` at `v2.0.2` (`fc8a5b8`) since
+2026-09-09**, moved from `v1.5` (`16621648`) on the author's instruction and
+staged with the record edits that close `C21`. Upstream is
+`github.com/gigaturbo/vector3`, and `v2.0.2` is its **newest tag** — read from
+the tags API on 2026-09-09 — so this pointer is neither behind nor off the track. `P1`'s clone half has not been re-run since it
+moved either, and it is the same gap as the paragraph above: nothing has confirmed
+a fresh recursive clone can fetch **either** pointer.
+
 ## What ships broken
 
 - **A rescued player is left standing in the shaft they fell down.** The design,
@@ -546,9 +560,6 @@ read when the pointer actually moves.
   from builtin, showing 4096, and under Content: Games → Codecube, showing 1024.
   Both write the same key. Inherent to decision 3; the alternative was not
   declaring it.
-- **`mods/vector3/mod.conf` declares `max_minetest_version = 5.5`**, four minor
-  versions below what `G6` requires. The engine does not read it, so it blocks
-  nothing at load; it is ContentDB metadata on a pinned submodule. (`C21`)
 - **`R6` and `R7` become unrunnable with the deletion.** Both pass, and both name
   a node only `default` registered — a bookshelf and a dirt/grass/sapling patch.
   Their passes stand as what was seen; there is no way to re-run either. `S8`'s
@@ -619,6 +630,17 @@ proposed again.
   default is what makes that free. *What would change it:* `cc_day` being deleted
   in favour of the mod's block, which would mean losing `B47`'s fix or landing it
   upstream first. (`A7`)
+- **A `PLAYTEST.md` entry for the `vector3` `v2.0.2` re-pin.** Decided
+  2026-09-09. A major version of a hard dependency wants world evidence, but the
+  two things `v2.0` changed — a frozen constant raising `read only`, and a bad
+  argument raising `format error` where a `from*` constructor returned `nil` —
+  are reached through `vector` in a player's program, and this document's
+  checklist *"does not re-check the drone, the editor, the sandbox or the API"*
+  in its own words. That evidence is the mod's `PLAYTEST.md`. The game's share is
+  already written: `R4`, *the drone can still build*, and `R9`, *the drone places
+  and removes CodeBlock's own blocks* — both owed a re-run at the commit that
+  carries the pointer, which is the whole of the cost. *What would change it:* a
+  break that shows in the world rather than in a program. (`C21`)
 - **A `settingtypes.txt` entry for anything the drone does.** Every drone setting
   is CodeBlock's, and CodeBlock is its own ContentDB package. `G6` adds a
   game-root file for `mapgen_limit` **only**, which extends this rather than
@@ -701,6 +723,15 @@ proposed again.
 
 ### How the bounds are implemented
 
+- **Replacing `cc_security`'s every-node `on_mods_loaded` walk with something
+  narrower.** Decided by the author on 2026-09-09, in their words: *the case of
+  another mod in this game is not actual*. `A8` is won't fix and no source
+  changed. Two supporting facts, read from the offline 5.17.0 reference the same
+  day and not from a run: `core.node_dig` is the one single-point alternative and
+  covers only digging — a node declaring its own `on_dig` bypasses it and the
+  client-side dig prediction still needs `B48`'s per-node group strip — and the
+  walk's other four jobs have no game-wide equivalent at all. *What would change
+  it:* the game gaining a second mod that registers nodes. (`A8`)
 - **Shipping `G6`'s `on_generated` on the main thread and moving it later.** The
   ordinary-environment callback is documented as *"Not recommended; … blocks the
   main thread and is prone to introduce noticeable latency/lag"* — unacceptable in
@@ -777,11 +808,13 @@ proposed again.
 
 ---
 
-2026-09-09 · codecube `dd83b99`, on branch **`g6-world-limits`**. **The branch is
-pushed except its last two commits**: `origin/g6-world-limits` is at `5777dc0`,
-so `50fd05f` and `dd83b99` are local-only. **The branch carries 14 commits over
-`main`, not the 23 written here for two passes** — corrected 2026-09-09 from
-`git rev-list --count main..HEAD`, with `main` at `578b364`. **No commit on the
+2026-09-09 · codecube `c7c2c43`, on branch **`g6-world-limits`**, with
+`mods/vector3` staged at `fc8a5b8` and nothing else in the tree. **The branch is
+pushed except its last four commits**: `origin/g6-world-limits` is at `5777dc0`,
+so `50fd05f`, `dd83b99`, `67f1feb` and `c7c2c43` are local-only. **The branch
+carries 16 commits over `main`** — `git rev-list --count main..HEAD`, with `main`
+at `578b364`; it was 14 at `dd83b99` and 23 was written here wrongly for two
+passes before that. **No commit on the
 branch has a CI run**; the newest run of any kind is `main` at `35fa2a1`,
 success, 2026-09-01, re-read from the Actions API on 2026-09-09. Both facts
 corrected here on 2026-09-08 — this file said the
@@ -789,6 +822,21 @@ branch was unpushed and that the latest run was on `578b364`, which was never
 pushed. `codeblock` `fb75bc8` in the commit, a commit off `master` and not a tag, 139
 commits past `v0.7.3`; moving it was forced by `G3`, because the old pointer hard
 depends on `default` and `wool`. `G5` is where it goes back on the release track.
+`vector3` `fc8a5b8` — `v2.0.2`, staged and not yet committed.
+
+**This pass is the `vector3` re-pin and the record edits that close `C21`, and no
+code changed for it.** The pointer moved from `v1.5` (`16621648`) to `v2.0.2`
+(`fc8a5b8`) on the author's instruction, *"vector3 should be v2.0.2 now and
+should only state `min_minetest_version = 5.3` so it does not block anything"* —
+and the release's `mod.conf` is exactly that, with no ceiling. Both gates were
+green at `c7c2c43` with the pointer staged: `check_game.sh` ending `all game
+integration checks passed` with five mods declared, every hard dependency
+present, `mods/vector3` carrying its own licence and `.cdb.json` matching
+`CONTENTDB.md`, and luacheck silent. **Neither gate ever read the defect and
+neither reads the fix** — the `max_minetest_version` guard is scoped to
+`game.conf` — so green means the game assembles and nothing more. **Nothing has
+been played against `v2.0.2`**: `R4` and `R9` are the game-side evidence and both
+name `dd83b99`, which is before the pointer.
 
 **`dd83b99` is `A19`'s `set_sky` line, the four redrawn textures with
 `scripts/gen_textures.py`, and every record edit of 2026-09-09.** Both gates were
@@ -849,8 +897,11 @@ texture rework added seven lines of comment to `cc_mapgen/init.lua` and no code.
 `A19` is what moved 208 to 209 and 579 to 591: one `set_sky` call in `cc_day`
 and eleven lines of comment beside it, in the one file it touched.
 
-This file is **849 lines against its own "under roughly 150"**, up from 824 last
-pass; 849 is `wc -l` here. This pass added `A20`'s terminal state, `A19`'s
+This file is **899 lines against its own "under roughly 150"**, up from 849 last
+pass; 899 is `wc -l` here. This pass added `C21`'s closure, the `vector3`
+pointer, one *deliberately not doing* entry for the playtest decision and this
+footer's own paragraph, and removed the `vector3` *ships broken* line. The pass
+before it added `A20`'s terminal state, `A19`'s
 in-world evidence and one *ships broken* line, and removed another — the six
 passes let *Now* shrink and nothing else. It got there by moving reasoning to `AUDIT.md` under its finding id
 and settled questions into *deliberately not doing*, not by deleting either — and

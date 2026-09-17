@@ -126,6 +126,15 @@ saying it eleven times.
 barrier textures were redrawn after it, and because it had passed against wording
 the textures can no longer meet. Its entry carries the retired line and why.
 
+**`mods/vector3` was re-pinned to `v2.0.2` on 2026-09-09, and no result in this
+document was run against it.** It is a **major version of a hard dependency**
+under the drone, so `R4` and `R9` are owed a re-run at the commit that carries the
+pointer; both name `dd83b99`, which is before it. **No entry was added for it**,
+and the grounds are `ROADMAP.md` under *deliberately not doing*: what `v2.0`
+changed is reached through `vector` in a player's program, and this document does
+not re-check the drone, the editor, the sandbox or the API — that evidence is
+`mods/codeblock/PLAYTEST.md`'s. `R4` and `R9` are the game's whole share.
+
 **What needs action**, and it is the list — `TODO.md` points here rather than
 keeping a second copy.
 
@@ -135,7 +144,7 @@ keeping a second copy.
 | `W11` | **retired, unrun** | the bedrock and barrier textures were redrawn on 2026-09-08 in a flat-base-plus-specks style, and the old pass named a *"black mottled rock"* and a *"wrapping blur"* that no longer exist. **`W15` was run on 2026-09-09 without it**, so the bedrock and barrier redraws are now the only unjudged part of the texture rework, and the cheapest thing left in this group |
 | `W15` | **pass at `dd83b99`, 2026-09-09** | the grass-over-dirt surface and its two textures are judged. Nothing owed here; `W11`, which it was to be run beside, was not run |
 | `W16` | **pass at `dd83b99`, 2026-09-09** | the three essential mapgen aliases resolve and nothing in the column is `unknown`. It does **not** discharge `P3`, which asks for a log with nothing in it at all rather than four strings absent |
-| `R9` | **pass at `dd83b99`, 2026-09-09** | nothing owed. The two corrected one-line programs were run in the third sitting: `place(colors.vermilion)` warns once, carries on and leaves a default-coloured block, and `place('vermilion')` stops the program and places nothing. **What was not read back** is the default-coloured block itself, which is the quiet path's whole pass condition |
+| `R9` | **pass at `dd83b99`, 2026-09-09**, **re-run owed** | the re-run is for the `vector3` `v2.0.2` re-pin, which no result here names — `dd83b99` is before the pointer moved. The two corrected one-line programs were run in the third sitting: `place(colors.vermilion)` warns once, carries on and leaves a default-coloured block, and `place('vermilion')` stops the program and places nothing. **What was not read back** is the default-coloured block itself, which is the quiet path's whole pass condition |
 | `R6` | pass, **unrunnable** | `default:bookshelf` is deleted with `G3` and no node left carries a formspec. The pass at `c042364` stands; there is no way to run it again |
 | `R7` | pass, **unrunnable** | its three cases and the ABMs they were about are all `default`'s. The pass at `d16f9bb` stands and is the only evidence the `action` replacement ever worked |
 | `W4` | pass, **re-run owed** | passes at `60259dd`, where `mgflat_ground_level` was 8; `d6e4a12` moved it to 128. **`W14` does not discharge it**: `W4`'s subject is **air, not stone**, under a removed floor tile, and a program being unable to take the plane by accident — which `W14` never reaches |
@@ -148,7 +157,7 @@ keeping a second copy.
 | `R1` | **pass at `dd83b99`, 2026-09-09, and the first falsifiable run** | the priority of this document is discharged (`A20`). The temporary hand override was in place — corroborated by the working tree, which had both `cc_security` lines restored and the override gone — so the pass is a restriction refusing a hand that **could** have dug. **What is still owed is breadth**: a bare *pass* named none of the seven subjects the method asks for, and the entry's *Why* — a partial override pass covering a different set of nodes on every boot — is reached only by breadth |
 | `R2` | **pass, both halves, at `dd83b99`, 2026-09-09** | **no longer blocked**: the drop half ran for the first time since `7dc764f` and the first time ever under the corrected method, and no item appeared. So `A20` is confirmed in a world rather than only traced, and the empty drop list reaching the captured handler is on the current tree. **What was not read back** is the pass observation itself — the hotbar's slot 3 and the dug position — which this method was corrected on 2026-09-09 to name |
 | `R3` | **pass, re-run done 2026-09-09** | nothing owed. It was the knockback half of `R5`, and that half is now on the current tree |
-| `R4` | pass, **re-run owed** | same blast radius as `R1` |
+| `R4` | pass, **re-run owed** | same blast radius as `R1`, and since 2026-09-09 the `vector3` `v2.0.2` re-pin as well — run it with `R9` |
 | `R5` | **pass, composed, 2026-09-09** | nothing owed. Both halves are now on the same tree — `R3` re-run and `R2`'s drop half run under the hand override — which is exactly the composition the `partial` pre-authorised in writing. `A8`'s **`last_mod` half stays untested by choice**, as its own paragraph records: it needs a second mod assigning the same globals and none ships here |
 | `R8` | **pass 2026-09-09**, with a second explanation | nothing owed. It is the whole of `B48`'s in-world evidence, and the `dig_immediate` case stays unreproducible — `G3` deleted the last such node. **The pass no longer distinguishes its cause** (`A20`): empty hand groupcaps suppress the crack overlay and the dig sound on their own. Only a run with the hand override would separate them, and nobody has done that |
 | `P1` | **partial** | the clone half passed at `8b27f2f`; the boot half has never been run, and a working checkout booting does not discharge it |
@@ -166,7 +175,8 @@ added.
   priority of the whole document and is now spent: `R1` is falsifiable and passed,
   `R2`'s drop half ran, and `R5` closes with it. **What is left of the `R` group is
   `R4`'s re-run** — the widening control, owed for `B48`'s blast radius over
-  `groups` — and, if anyone wants it, a re-run of `R8` **with** the hand override,
+  `groups` and now for the `vector3` re-pin, with **`R9`** beside it — and, if
+  anyone wants it, a re-run of `R8` **with** the hand override,
   the only thing that would separate its two explanations.
 - **`L`'s is done, and nothing in it is owed.** `L1`, `L2` and `L4` passed and
   `L3` composes from them, so `A19` has in-world evidence for the first time. All
@@ -1980,6 +1990,17 @@ Result: unchecked
 
 Newest first.
 
+- **2026-09-09, `c7c2c43` with `mods/vector3` staged at `fc8a5b8`: two re-runs
+  owed for the `vector3` `v2.0.2` re-pin, and no entry added.** Nothing was run
+  and **no `Result:` line was changed**. `R4` and `R9` are the game's share of a
+  major version of a hard dependency, and both name `dd83b99`, which is before
+  the pointer moved; `R9`'s row went from *nothing owed* to *re-run owed* for
+  that reason alone. The decision **not** to add an entry is recorded in
+  `ROADMAP.md` under *deliberately not doing*: what `v2.0` changed — a frozen
+  constant raising `read only`, a bad argument raising `format error` — is
+  reached through `vector` in a player's program, and this document does not
+  re-check the drone, the editor, the sandbox or the API. The entry count stays
+  at 34.
 - **2026-09-09, `dd83b99`: every result of the day re-pointed at the commit, and
   the `L` group's owed re-runs dropped.** Nothing was run and no outcome changed.
   `dd83b99` commits the tree all three sittings were played against with

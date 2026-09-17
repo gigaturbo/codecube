@@ -60,6 +60,14 @@ local dig_groups = {
     dig_immediate = true
 }
 
+-- One pass over every registered node, because Luanti offers no game-wide
+-- switch for any of these four rules.
+-- `register_allow_player_inventory_action` governs the player's own inventory
+-- only, with no counterpart for a node's metadata inventory, and a node timer
+-- has no global form at all. Digging alone has one -- `core.node_dig`, the
+-- default a definition's `on_dig` falls back to -- but a node bringing its own
+-- `on_dig` never reaches it, and it says nothing to the client, so the group
+-- strip above would still need the per-node walk. (A8)
 minetest.register_on_mods_loaded(function()
     for name, def in pairs(minetest.registered_nodes) do
         local groups = {}

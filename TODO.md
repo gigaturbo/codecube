@@ -67,8 +67,9 @@ Nothing below can be closed by an agent.
       — settled upstream as a setting off by default, not a removal. **`L3` passed
       on 2026-09-09**, so this closes at adoption alone; the game must **not** set
       `codeblock_flat_sky`
-- [ ] `vector3` declares `max_minetest_version = 5.5`, four minor versions below
-      the 5.9 G6 needs (audit C21) — upstream or a re-pin
+- [ ] `check_game.sh`: the `max_minetest_version` guard reads `game.conf` only, so
+      a bundled mod's `mod.conf` can carry a ceiling with nothing failing — it did
+      for two days (audit C21 `Keep`). A wanted check, not a finding
 - [ ] adopt a tagged CodeBlock release and update the game's documentation with
       it (roadmap G5)
 - [ ] `cc_security`: the rescue's `load_area` column grew from 5 mapblocks to 13
