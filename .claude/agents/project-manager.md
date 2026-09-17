@@ -113,8 +113,8 @@ summary of it. Two facts bear on every report you write:
   moves only at adoption — together with this game's documentation. So a pointer
   that lags upstream is **correct, not a bug to report**, and an unstaged
   `mods/codeblock` in `git status` is the normal resting state.
-- **CI here covers this repository only** — `check_game.sh` and luacheck on
-  `cc_day`, `cc_mapgen` and `cc_security`. It deliberately does not re-run the
+- **CI here covers this repository only** — `check_game.sh` and luacheck over the
+  `mods/cc_*` glob. It deliberately does not re-run the
   mod's checks, so a mod change leaves this repository green, and a broken
   submodule pointer or a stale `.cdb.json` turns it red on its own.
 
@@ -163,7 +163,7 @@ trusted with.
 
 | Agent | Owns | Call it when |
 |---|---|---|
-| `code-expert` | `mods/cc_day`, `mods/cc_mapgen`, `mods/cc_security`, `scripts/`, `game.conf`, `minetest.conf`, `settingtypes.txt`, the packaging and lint configuration, the `.cdb.json` generator over `CONTENTDB.md`, and its own two files in `.claude/` | a change, a fix, an audit of the game's own code, or one of the dependencies above needs making |
+| `code-expert` | the `mods/cc_*` mods, `scripts/`, `game.conf`, `minetest.conf`, `settingtypes.txt`, the packaging and lint configuration, the `.cdb.json` generator over `CONTENTDB.md`, and its own two files in `.claude/` | a change, a fix, an audit of the game's own code, or one of the dependencies above needs making |
 | `test-agent` | the two gates, the CI lookup, `PLAYTEST.md`'s result lines, and the evidence side of `AUDIT.md` | something needs running or proving, a playtest needs putting to the author, or the record claims a state the code may contradict |
 
 There is also `release-check`, the release gate, and the `release-codecube`

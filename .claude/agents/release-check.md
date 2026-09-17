@@ -29,7 +29,7 @@ read as "checked".
 
 ## What you gate, and what you do not
 
-You gate **the game**: its own three mods, its packaging, its presentation, and
+You gate **the game**: its own `mods/cc_*` mods, its packaging, its presentation, and
 the fact that it assembles from a clean clone.
 
 You do **not** re-gate the CodeBlock mod. It is an upstream package with its own
@@ -86,9 +86,12 @@ every result — someone fixing one thing wants to know what else is waiting.
 
 ### 2. The game's own code lints and assembles
 
-- `luacheck mods/cc_day mods/cc_mapgen mods/cc_security --formatter plain --codes`
-  clean. It runs under WSL here:
-  `wsl bash -lc 'cd /mnt/c/... && luacheck ...'`.
+- `luacheck mods/cc_*/ --formatter plain --codes` clean. It runs under WSL here,
+  from the repository root — WSL inherits the Windows working directory, so no
+  `cd` is needed: `wsl bash -lc 'luacheck mods/cc_*/ --formatter plain --codes'`.
+  **Use the glob, never a list of mod names.** It is what CI lints, so the two
+  cannot disagree about which mods exist, and a hardcoded list is how `cc_gui`
+  shipped unlinted (`B57`). The submodules carry no `cc_` prefix and stay out.
 - `bash scripts/check_game.sh` passes; confirm the tree is clean afterwards.
 - **Read the output, not the exit code** — `$?` does not survive this machine's
   WSL layer.
@@ -186,9 +189,11 @@ that carried meaning has to have become words.
   this gate used to name. The two submodules count.
 - **Licensing reaches media, not just code.** Every image and every texture that
   ships has a stated licence somewhere a player can find. Two classes exist here:
-  `menu/`'s images, which the main menu reads, and `mods/cc_mapgen/textures/`'s
-  two 16×16 PNGs for the bedrock floor and the barrier wall, covered by a
-  *License of media* section in that mod's `license.txt`. A mod licence file that
+  `menu/`'s images, which the main menu reads, and the textures under
+  `mods/cc_*/textures/`, each covered by a *License of media* section in its own
+  mod's `license.txt`. **Enumerate that glob rather than trusting a list here**:
+  the textures were `cc_mapgen`'s alone until `cc_gui` added its own, and a gate
+  naming one mod passes over the other. A mod licence file that
   only covers source code does not cover the textures beside it — `C22` is this
   repository's finding for exactly that gap, and a gate that tests only mods
   passes straight over it.
@@ -207,8 +212,9 @@ that carried meaning has to have become words.
   Nothing a player has no use for: `.claude/`, `.reports/`, `.github/`,
   `scripts/`, art sources, and none of `CLAUDE.md`, `ROADMAP.md`, `TODO.md`,
   `AUDIT.md`, `PLAYTEST.md` or `CONTENTDB.md`. Two things **must** be present:
-  `menu/`, which the main menu reads, and `mods/cc_mapgen/textures/*.png`,
-  without which the floor and the wall render untextured. A newly added tracked
+  `menu/`, which the main menu reads, and every `mods/cc_*/textures/*.png`,
+  without which the floor, the wall and the game's own panels and hotbar render
+  untextured. A newly added tracked
   document is the thing that slips through: each of the record documents needed
   its own `export-ignore` line. Note that `git archive` does not include submodule contents at all, so
   what a ContentDB user gets for `mods/codeblock` comes from ContentDB's own

@@ -314,7 +314,7 @@ setting at all. The non-fullscreen default is hardcoded in the engine and has no
 been read out of its source here, so no value for it is written down.
 
 **No gate could see this, and none will see it fixed.** `check_game.sh` verifies
-that the game assembles and luacheck reads four files without running them, so a
+that the game assembles and luacheck reads the game's Lua without running it, so a
 deletion that removes an appearance fails nothing — the same silence as `C15`'s
 `.gitattributes` and `C22`'s media licences. `PLAYTEST.md` `P6` is the only thing
 in the project that reaches it, and because a prepend is visible only inside a
@@ -327,7 +327,53 @@ in `G7`'s flat-with-flecks style by an extension to `scripts/gen_textures.py`.
 **No setting**: a server owner who wants another look sets a prepend from their
 own mod, which overrides this one. The two rejected scopes and the rejected
 setting are in `ROADMAP.md` under *deliberately not doing*; what the change drags
-with it is on the `G8` entry.
+with it is on the `G8` entry. `cc_gui` landed at `ba92d52` with its three 64×64
+textures. **The finding stays open**: nothing automated reaches a prepend, so
+closing it needs `P6` run in a world, and `P6` is `unchecked`.
+
+**The wider defect: `cc_gui` was added and nine hardcoded lists went stale at
+once.** CI linting three mods out of four was one symptom, not the finding.
+Across `.claude/` the convention was to *name* the game's mods, and **nine lists
+in six files** — `test-agent.md`, `release-check.md`, `project-manager.md`,
+`run-checks`, `build-feature`, `release-codecube` — named `cc_day`, `cc_mapgen`
+and `cc_security` as the complete set. Every one was wrong the moment the fourth
+mod existed, and **not one of them fails anything when wrong**, which is why they
+all went stale together and stayed that way. Corrected 2026-09-17 over
+`ba92d52`.
+
+Two of the nine were live holes in `release-check.md`, and they are the ones
+worth naming, because they would have cost at a release rather than at a lint:
+
+- the **media-licence check** named `mods/cc_mapgen/textures/`'s *two* 16×16
+  PNGs. `cc_mapgen` has had four since `G7`'s rework and `cc_gui` adds three
+  64×64, so a gate following it would have checked two files out of seven for a
+  licence — the same gap as `C22`, reintroduced in the agent written to catch
+  `C22`.
+- the **archive-contents check** named `mods/cc_mapgen/textures/*.png` as the
+  only textures that must be present. A release archive that dropped `cc_gui`'s
+  three would have passed the gate, and every player would have got the engine's
+  default panels and hotbar back — this finding's own symptom, shipped, with the
+  release gate silent.
+
+**The fix is structural, not a count correction.** Every one of the nine is now
+either the `mods/cc_*` glob or an instruction to read `mods/`, so the next mod
+added breaks none of them. The pattern already existed and should have been
+followed: `release-check.md`'s licence-*file* bullet said **"Read `mods/` rather
+than a list"** and was the one bullet that was still correct.
+
+**Keep — a list of the game's mods written anywhere but `mods/` goes stale in
+silence.** Nothing lints prose, and nothing failed for the months these were
+wrong. Write the glob or the rule, never the names. The residual is that the glob
+rests on the `cc_` prefix: a game mod named without it is skipped silently,
+because the other four still match. Nothing crosses the two lists today, and the
+`TODO.md` line asking `check_game.sh` to assert every non-submodule `mods/*/` is
+inside the lint scope is what would close it.
+
+**Severity stays `low` and the state stays `open`.** The widening is about how
+the defect propagated, not about what a player suffers; neither release-gate hole
+was ever exercised, because no release has been cut since `cc_gui` existed, and
+both are shut before the next one. Raising severity for a hazard that was caught
+before it reached anybody would make the scale mean something else.
 
 ### A8 · medium · won't fix — decided 2026-09-09: the every-node walk stays; the drop chain is confirmed and `last_mod` untested by choice
 

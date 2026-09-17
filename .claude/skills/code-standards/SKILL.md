@@ -348,9 +348,13 @@ the wrong project.
 
 ## Before handing the change back
 
+Both from the repository root — WSL inherits the Windows working directory, so
+the second line needs no `cd`, and the glob is the one CI uses, so it cannot
+drift from the gate when a mod is added:
+
 ```bash
 bash scripts/check_game.sh
-wsl bash -lc 'cd /mnt/c/Users/lacba/PRogrammation/codecube && luacheck mods/cc_day mods/cc_gui mods/cc_mapgen mods/cc_security --formatter plain --codes'
+wsl bash -lc 'luacheck mods/cc_*/ --formatter plain --codes'
 ```
 
 **Read the output, not the exit code** — `$?` does not survive this machine's WSL

@@ -19,8 +19,8 @@ project's own, and it is the one that saves the most.
 ## 0. Decide whose the work is
 
 **Most feature-shaped ideas that arrive here belong to CodeBlock, upstream.** The
-game is thin on purpose: a couple of hundred lines of Lua across `cc_day`,
-`cc_mapgen` and `cc_security`, plus packaging and presentation. Everything a player *does* is the
+game is thin on purpose: a couple of hundred lines of Lua across the `mods/cc_*`
+mods, plus packaging and presentation. Everything a player *does* is the
 mod's.
 
 - The **game's** if it is about the world, the light, what a player may break or
@@ -78,8 +78,11 @@ the normal path; the gates are the same either way.
 
 ```bash
 bash scripts/check_game.sh
-wsl bash -lc 'cd /mnt/c/Users/lacba/PRogrammation/codecube && luacheck mods/cc_day mods/cc_mapgen mods/cc_security --formatter plain --codes'
+wsl bash -lc 'luacheck mods/cc_*/ --formatter plain --codes'
 ```
+
+Both from the repository root — WSL inherits the working directory, and the glob
+is what CI lints, so it picks up a mod added since.
 
 **Read the output, not the exit code** — `$?` does not survive this machine's WSL
 layer. Green is `all game integration checks passed` and luacheck silent.
@@ -93,8 +96,8 @@ that one `check_game.sh` does catch, but only after the fact.
 
 Hand it over and stop. Here that is not a formality but the *only* evidence this
 repository can produce: **the game has no test suite**, and both gates together
-prove only that it assembles. Every claim about what `cc_day`, `cc_mapgen` and
-`cc_security` do in a world currently rests on reading three short files.
+prove only that it assembles. Every claim about what the `mods/cc_*` mods do in a
+world currently rests on reading a handful of short files.
 
 So the hand-over names the `PLAYTEST.md` checks the change touches, and adds one
 if the change reaches behaviour no existing check does. `run-checks` holds what a
