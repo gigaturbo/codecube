@@ -33,8 +33,8 @@ Nothing below can be closed by an agent.
       `W12`–`W14` passing proves the author's own checkout boots — but `P1` is a **fresh
       recursive clone**, whose submodule objects nobody has locally. **Its clone
       half is stale too**: it passed at `8b27f2f` on `codeblock` `2647228`, and
-      the pointer moved to `fb75bc8` at `50fd05f`, so nothing has confirmed the
-      current one is fetchable
+      the pointer has moved twice since — `fb75bc8` at `50fd05f`, `09c708d` on
+      2026-09-17 — so no clone has confirmed the current one is fetchable
 - [ ] `W4`, `W8` and `W9` are owed re-runs at the new depth: all three pass at
       `60259dd`, where `mgflat_ground_level` was 8, and all three exercise heights
       the rescue derives from that number. **`W14` discharges none of them** —
@@ -63,15 +63,13 @@ Nothing below can be closed by an agent.
       release. Nothing in either CI reads `.gitattributes`, so the next tracked
       file ships or does not with nothing failing (audit C15, C22). It passed at
       `48cc63e` on 2026-09-08 and has been needed twice in two milestones
-- [ ] `cc_day`: drop the duplicate of a block `codeblock` already runs (audit A7)
-      — settled upstream as a setting off by default, not a removal. **`L3` passed
-      on 2026-09-09**, so this closes at adoption alone; the game must **not** set
-      `codeblock_flat_sky`
 - [ ] `check_game.sh`: the `max_minetest_version` guard reads `game.conf` only, so
       a bundled mod's `mod.conf` can carry a ceiling with nothing failing — it did
       for two days (audit C21 `Keep`). A wanted check, not a finding
-- [ ] adopt a tagged CodeBlock release and update the game's documentation with
-      it (roadmap G5)
+- [ ] adopt a **tagged** CodeBlock release and update the game's documentation
+      with it (roadmap G5) — `09c708d` was adopted on 2026-09-17 and is a bare
+      commit; re-point at `v1.0.0` once it is tagged, and write the `CHANGELOG.md`
+      *Changed* entry then
 - [ ] `cc_security`: the rescue's `load_area` column grew from 5 mapblocks to 13
       with the deeper world, and the scan reads ~128 more nodes before it finds
       the surface — bounded and deliberate; it could start at the surface and
@@ -100,8 +98,10 @@ Nothing below can be closed by an agent.
 These are the mod's defects, read while working on the game. They get no
 `B`/`S`/`C`/`A` id in `AUDIT.md`; they are hand-offs to the other repository.
 Both were read, neither was run. **Both re-read at `fb75bc8` on 2026-09-08 and
-both still apply** — `check_inside_world` is still position-only and the bound is
-still the raw `mapgen_limit` setting, at `lib/commands.lua:53` and `:92`.
+both still applied** — `check_inside_world` position-only and the bound the raw
+`mapgen_limit` setting, at `lib/commands.lua:53` and `:92`. **Neither has been
+re-read at `09c708d`, adopted 2026-09-17**, so the line numbers and both claims
+are unverified against the mod as it now stands.
 
 - [ ] codeblock: `check_inside_world` is applied to the drone's position only,
       never to a shape's extent — `lib/commands.lua:82-87`, called at `:130`,

@@ -135,6 +135,17 @@ changed is reached through `vector` in a player's program, and this document doe
 not re-check the drone, the editor, the sandbox or the API — that evidence is
 `mods/codeblock/PLAYTEST.md`'s. `R4` and `R9` are the game's whole share.
 
+**`mods/codeblock` was adopted at `09c708d` on 2026-09-17, and no result in this
+document was run against it either.** Sixteen commits, including a substantially
+rewritten `lib/sandbox.lua`, so the same two re-runs are owed for the same reason
+and by the same argument: the sandbox and the API are the mod's to check, and
+`R4` and `R9` are the game's share. **No entry was added.** The one thing the
+move changes in this document's criteria is `L3`'s precondition — the mod's sky
+block, its `codeblock_flat_sky` setting and the guard around it are deleted
+upstream, so there is nothing left to be inert — which strengthens a pass already
+taken and closes `A7`. Nothing else here is affected, and **CodeBlock's CI on
+`09c708d` is unchecked** from this machine.
+
 **What needs action**, and it is the list — `TODO.md` points here rather than
 keeping a second copy.
 
@@ -144,23 +155,23 @@ keeping a second copy.
 | `W11` | **retired, unrun** | the bedrock and barrier textures were redrawn on 2026-09-08 in a flat-base-plus-specks style, and the old pass named a *"black mottled rock"* and a *"wrapping blur"* that no longer exist. **`W15` was run on 2026-09-09 without it**, so the bedrock and barrier redraws are now the only unjudged part of the texture rework, and the cheapest thing left in this group |
 | `W15` | **pass at `dd83b99`, 2026-09-09** | the grass-over-dirt surface and its two textures are judged. Nothing owed here; `W11`, which it was to be run beside, was not run |
 | `W16` | **pass at `dd83b99`, 2026-09-09** | the three essential mapgen aliases resolve and nothing in the column is `unknown`. It does **not** discharge `P3`, which asks for a log with nothing in it at all rather than four strings absent |
-| `R9` | **pass at `dd83b99`, 2026-09-09**, **re-run owed** | the re-run is for the `vector3` `v2.0.2` re-pin, which no result here names — `dd83b99` is before the pointer moved. The two corrected one-line programs were run in the third sitting: `place(colors.vermilion)` warns once, carries on and leaves a default-coloured block, and `place('vermilion')` stops the program and places nothing. **What was not read back** is the default-coloured block itself, which is the quiet path's whole pass condition |
+| `R9` | **pass at `dd83b99`, 2026-09-09**, **re-run owed** | the re-run is for the `vector3` `v2.0.2` re-pin and, since 2026-09-17, the `codeblock` `09c708d` adoption — sixteen commits including a substantially rewritten `lib/sandbox.lua`. No result here names either pointer; `dd83b99` is before both. The two corrected one-line programs were run in the third sitting: `place(colors.vermilion)` warns once, carries on and leaves a default-coloured block, and `place('vermilion')` stops the program and places nothing. **What was not read back** is the default-coloured block itself, which is the quiet path's whole pass condition |
 | `R6` | pass, **unrunnable** | `default:bookshelf` is deleted with `G3` and no node left carries a formspec. The pass at `c042364` stands; there is no way to run it again |
 | `R7` | pass, **unrunnable** | its three cases and the ABMs they were about are all `default`'s. The pass at `d16f9bb` stands and is the only evidence the `action` replacement ever worked |
 | `W4` | pass, **re-run owed** | passes at `60259dd`, where `mgflat_ground_level` was 8; `d6e4a12` moved it to 128. **`W14` does not discharge it**: `W4`'s subject is **air, not stone**, under a removed floor tile, and a program being unable to take the plane by accident — which `W14` never reaches |
 | `W8` | pass, **re-run owed** | same depth change. **`W14` case 1 shares the setup and not the check**: `W8`'s pass includes walking the wall and standing on the exposed floor plane **unmoved**, which `W14` does not ask for |
 | `W9` | pass, **re-run owed** | same depth change. **`W14` covers neither case 1** — the spawn-column shaft, rescued **once**, with no second teleport — **nor case 3**, the no-op where only `(x, 0, z)` may have changed |
 | `L4` | **pass, both halves, at `dd83b99`, 2026-09-09** | nothing owed. The first run of the entry and **the whole of `A19`'s in-world evidence**: nothing moves across `/time 0`, `5000`, `10000` and `22000`, turning changes nothing, indoors matches outdoors, and none of the three over-applied signals appeared, so `#90d3f6` stays. The `set_sky` line was uncommitted when this ran and `dd83b99` carries it byte-identically, so **the owed re-run is dropped**. A bare *pass* covered four steps and two halves; nothing was read back |
-| `L3` | **pass, composed, at `dd83b99`, 2026-09-09** | nothing owed. Composed from `L1` and `L2` passing in the same world with the mod's copy inert, plus `L4` closing the residual at the two times it was seen at; the precondition is read, not run — nothing sets `codeblock_flat_sky` and the adopted `fb75bc8` still guards its copy. **The `sunrise_visible = false` half can never be re-established**: a `plain` sky draws no mesh, so that evidence is frozen in the retained `partial` |
+| `L3` | **pass, composed, at `dd83b99`, 2026-09-09** | nothing owed. Composed from `L1` and `L2` passing in the same world with the mod's copy inert, plus `L4` closing the residual at the two times it was seen at; the precondition is read, not run — nothing set `codeblock_flat_sky` and the then-adopted `fb75bc8` guarded the mod's copy. **The precondition is stronger since 2026-09-17**: at `09c708d` the copy, the setting and the guard are deleted upstream, so there is nothing left to be inert. **The `sunrise_visible = false` half can never be re-established**: a `plain` sky draws no mesh, so that evidence is frozen in the retained `partial` |
 | `L1` | **pass at `dd83b99`, 2026-09-09** | the owed re-run beside `L4` is done: full daylight and no sky objects under the `plain` sky. One limit stays — **the four-object half no longer distinguishes its cause**, because a `plain` sky draws no sky mesh at all; that the four calls do their own work now rests on the retained 2026-09-01 pass under a `"regular"` sky |
 | `L2` | **pass at `dd83b99`, 2026-09-09** | the rejoin holds with `set_sky` as a sixth per-player call, which is the one this could have dropped. The **second-player half is still unexercised** — singleplayer only, since 2026-09-01 — and nothing here would catch a sky applied to whoever joined first |
 | `R1` | **pass at `dd83b99`, 2026-09-09, and the first falsifiable run** | the priority of this document is discharged (`A20`). The temporary hand override was in place — corroborated by the working tree, which had both `cc_security` lines restored and the override gone — so the pass is a restriction refusing a hand that **could** have dug. **What is still owed is breadth**: a bare *pass* named none of the seven subjects the method asks for, and the entry's *Why* — a partial override pass covering a different set of nodes on every boot — is reached only by breadth |
 | `R2` | **pass, both halves, at `dd83b99`, 2026-09-09** | **no longer blocked**: the drop half ran for the first time since `7dc764f` and the first time ever under the corrected method, and no item appeared. So `A20` is confirmed in a world rather than only traced, and the empty drop list reaching the captured handler is on the current tree. **What was not read back** is the pass observation itself — the hotbar's slot 3 and the dug position — which this method was corrected on 2026-09-09 to name |
 | `R3` | **pass, re-run done 2026-09-09** | nothing owed. It was the knockback half of `R5`, and that half is now on the current tree |
-| `R4` | pass, **re-run owed** | same blast radius as `R1`, and since 2026-09-09 the `vector3` `v2.0.2` re-pin as well — run it with `R9` |
+| `R4` | pass, **re-run owed** | same blast radius as `R1`, and since 2026-09-09 the `vector3` `v2.0.2` re-pin and since 2026-09-17 the `codeblock` `09c708d` adoption as well — run it with `R9` |
 | `R5` | **pass, composed, 2026-09-09** | nothing owed. Both halves are now on the same tree — `R3` re-run and `R2`'s drop half run under the hand override — which is exactly the composition the `partial` pre-authorised in writing. `A8`'s **`last_mod` half stays untested by choice**, as its own paragraph records: it needs a second mod assigning the same globals and none ships here |
 | `R8` | **pass 2026-09-09**, with a second explanation | nothing owed. It is the whole of `B48`'s in-world evidence, and the `dig_immediate` case stays unreproducible — `G3` deleted the last such node. **The pass no longer distinguishes its cause** (`A20`): empty hand groupcaps suppress the crack overlay and the dig sound on their own. Only a run with the hand override would separate them, and nobody has done that |
-| `P1` | **partial** | the clone half passed at `8b27f2f`; the boot half has never been run, and a working checkout booting does not discharge it |
+| `P1` | **partial**, clone half **stale** | the clone half passed at `8b27f2f` on `codeblock` `2647228`, and the pointer has moved twice since — to `fb75bc8` at `50fd05f`, then to `09c708d` on 2026-09-17 — so nothing has confirmed a fresh recursive clone can fetch the current one. `09c708d` is on `origin/master` and fetchable, read from the submodule's remote on 2026-09-17, which is the reading half of the check and not the run. The boot half has never been run, and a working checkout booting does not discharge it |
 | `P2` | pass at `48cc63e`, **standing obligation** | re-run on 2026-09-08 and it stays here permanently: the entry says to run it **whenever a tracked file is added**, and nothing in either CI reads `.gitattributes` (`C15`, `C22`). Needed twice in two milestones — `G6`'s two files, then `G7`'s new directory, two textures and `menu/license.txt` |
 | `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence — whose causes `G3` deletes, while adding three mapgen aliases whose absence shows up here |
 | `P4` | unrun | the main menu shows the game's name, artwork and icon |
@@ -190,7 +201,9 @@ added.
   the only unjudged part of the texture rework — `P3` beside `W16`, and the whole
   `W` group re-run.
 - **What no sitting has touched:** `P3`, `P4`, `P1`'s boot half, and the `W4`,
-  `W8` and `W9` re-runs at the current depth. `P5` needs a release first.
+  `W8` and `W9` re-runs at the current depth. `P5` needs a release first. **No
+  result names either current submodule pointer** — `vector3` `v2.0.2` or
+  `codeblock` `09c708d`.
 
 **The boot gap is real and narrower than it was.** `W10` and `W12`–`W14` pass at
 `3479e25`, record-only over `48cc63e`, and none of those observations is possible
@@ -958,29 +971,30 @@ The second-player half was not exercised: singleplayer only.
 
 ### L3 · Permanent noon still holds when only `cc_day` is setting the sky [A7]
 
-**Why** — `codeblock` registers its own `on_joinplayer` calling the same five
-methods, and until the adopted release it ran unconditionally, so `cc_day` being
-sufficient **on its own** has never been observed. Since their `6fea453` that copy
-is behind `codeblock.config.flat_sky`, **off by default**, and this game
-deliberately does not set it — so on the adopted release `cc_day` is the only
-thing setting the sky and this check is what says that is enough.
+**Why** — `codeblock` used to register its own `on_joinplayer` calling the same
+five methods, so `cc_day` being sufficient **on its own** was never observed. The
+mod's copy went behind `codeblock.config.flat_sky` at their `6fea453` and was
+**removed outright** at their `3fa9d0c` and `6440ca0`, adopted here as `09c708d`
+on 2026-09-17. So on the adopted release `cc_day` is the only thing setting the
+sky, and this check is what says that is enough.
 
-**How** — run this **only once the game has adopted a `codeblock` release at or
-past `6fea453`**; nothing in this repository changes for it, so read
-`mods/codeblock/lib/register.lua` for the `flat_sky` guard to confirm which
-release you have. First confirm `codeblock_flat_sky` is **not** set anywhere —
-`grep -rn flat_sky minetest.conf settingtypes.txt` must find nothing, and the
-advanced settings menu must show it off under Mods → codeblock. Then re-run `L1`
-and `L2`, looking at **dawn and dusk in particular**: the one field that
-distinguishes the two copies is `sunrise_visible = false`, which only `cc_day`
+**How** — nothing in this repository changes for it, so first read the adopted
+mod: `grep -rn "set_sky\|set_sun\|set_moon\|set_stars\|set_clouds\|flat_sky"
+mods/codeblock` must find **nothing**, which is what `09c708d` and later give. On
+a release between `6fea453` and the removal, the weaker precondition applies
+instead — the guard present and `grep -rn flat_sky minetest.conf settingtypes.txt`
+finding nothing, with the setting shown off under Mods → codeblock. Then re-run
+`L1` and `L2`, looking at **dawn and dusk in particular**: the one field that
+distinguished the two copies is `sunrise_visible = false`, which only `cc_day`
 has.
 
-**Pass** — `L1` and `L2` both still pass with the mod's copy inert, dawn and dusk
-included. A sunrise glow appearing is the *opposite* of what a failure here would
-have looked like before: it would mean the mod's copy is running after all, so
-check the setting rather than `cc_day`. Setting `codeblock_flat_sky = true` to
-"help" is the thing not to do — it restores the duplicate in the version that
-lacks `B47`'s fix, which is why `ROADMAP.md` records declining it.
+**Pass** — `L1` and `L2` both still pass with nothing but `cc_day` setting the
+sky, dawn and dusk included. A sunrise glow appearing is the *opposite* of what a
+failure here would have looked like: on a release that still has the copy it
+would mean the mod's is running after all, so check the mod rather than `cc_day`.
+On a release that has the guard, setting `codeblock_flat_sky = true` to "help" is
+the thing not to do — it restores the duplicate in the version that lacks `B47`'s
+fix, which is why `ROADMAP.md` records declining it.
 
 Result: pass — `dd83b99` · engine 5.17.0 ·
 2026-09-09 — **composed from three reported runs in one sitting, not separately
@@ -990,9 +1004,12 @@ and both passed** in the world above; the residual that held it `partial` is wha
 `L4` passed on at `/time 5000` and `/time 10000`, the two times the residual was
 seen at. The precondition is **read, not run**: nothing in this repository sets
 `codeblock_flat_sky` — `grep -rn flat_sky minetest.conf settingtypes.txt
-game.conf` finds nothing, checked 2026-09-09 — and the adopted `mods/codeblock`
-is still `fb75bc8`, whose `lib/register.lua:246` carries the
-`if codeblock.config.flat_sky then` guard. So `cc_day` **on its own** is
+game.conf` finds nothing, checked 2026-09-09 — and the `mods/codeblock` adopted
+**when this ran** was `fb75bc8`, whose `lib/register.lua:246` carries the
+`if codeblock.config.flat_sky then` guard. **The pointer moved to `09c708d` on
+2026-09-17, where the guard, the setting and the mod's five sky calls are all
+gone**; that strengthens the precondition and does not disturb the run, which
+happened under the guard. So `cc_day` **on its own** is
 sufficient for the flat sky, the four sky objects and the pinned light level,
 across a rejoin, which is the whole reason this entry exists.
 
@@ -1748,7 +1765,8 @@ place('vermilion')        -- the loud path: a string that is not a block
 **The two are not interchangeable, and the step above said the wrong one until
 2026-09-09.** This was corrected by reading the adopted `mods/codeblock` at
 `fb75bc8` (`v0.7.3-139-gfb75bc8`), so it is checked against that release and no
-other:
+other — **and `lib/sandbox.lua` changed substantially at `09c708d`, adopted
+2026-09-17**, so re-read the two line references below before running this step:
 
 - `lib/sandbox.lua:159` defines `unknown_block`, and `:332` installs it as the
   miss handler on every block category — the three are `colors`, `glass` and
@@ -1990,6 +2008,23 @@ Result: unchecked
 
 Newest first.
 
+- **2026-09-17, over `c2d2b5a` with `mods/codeblock` moved to `09c708d` in the
+  working tree and uncommitted: the same two re-runs owed again, and `L3`'s
+  precondition rewritten.** Nothing was run and **no `Result:` line was changed**;
+  the counts are unchanged at 34 entries, 29 pass, 1 partial, 0 fail, 4 unrun.
+  `R4` and `R9` are owed a re-run for a sixteen-commit adoption that includes a
+  substantially rewritten `lib/sandbox.lua`, on the same argument as the `vector3`
+  re-pin — the sandbox is the mod's to check and these two are the game's share —
+  so **no entry was added**. `L3`'s *Why*, *How* and *Pass* now name the
+  **removal** upstream (`3fa9d0c`, `6440ca0`) rather than the guard: at `09c708d`
+  there is no `flat_sky` in any Lua, `.txt` or `.conf` and no sky call left in
+  `lib/`, so the check's precondition is read by grepping the adopted mod for any
+  sky call at all, with the older guard wording kept for a release between
+  `6fea453` and the removal. The pass itself stands untouched and its result line
+  says which pointer it ran under; that closes `A7`. `P1`'s row is marked **clone
+  half stale** for the second pointer move in a row — `09c708d` is on
+  `origin/master` and fetchable, read on 2026-09-17, which is not the same as a
+  fresh recursive clone having done it.
 - **2026-09-09, `c7c2c43` with `mods/vector3` staged at `fc8a5b8`: two re-runs
   owed for the `vector3` `v2.0.2` re-pin, and no entry added.** Nothing was run
   and **no `Result:` line was changed**. `R4` and `R9` are the game's share of a

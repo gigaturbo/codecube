@@ -47,17 +47,15 @@ ever been renumbered and nothing dropped.
 | `B` bugs | 7 | 7 | 0 | 0 |
 | `S` sandbox and security | 1 | 1 | 0 | 0 |
 | `C` compliance and packaging | 8 | 8 | 0 | 0 |
-| `A` architecture and performance | 6 | 3 | 1 | 2 |
-| **Total** | **22** | **19** | **1** | **2** |
+| `A` architecture and performance | 6 | 4 | 0 | 2 |
+| **Total** | **22** | **20** | **0** | **2** |
 
-**No open finding is critical or high, and the `C` series has none left.** `A7`
-is medium and is the only one open. Both **won't fix** entries in this document
-are medium and are decisions rather than debt: `A20`, the first, and `A8`,
-decided 2026-09-09.
-
-| Id | Sev | State | What | Waiting on |
-|---|---|---|---|---|
-| `A7` | medium | open | `cc_day` duplicates a sky block `codeblock` also runs | adopting a release at or past their `6fea453`. **`L3`'s half is now done** — it passes at the adopted `fb75bc8` on 2026-09-09, so `cc_day` is sufficient alone. **Settled upstream on different terms than predicted** — a setting off by default, not a deletion. Nothing is written in this repository for it, and the flag must not be set |
+**Nothing in this document is open as of 2026-09-17.** `A7` was the last, and it
+closed with the `mods/codeblock` pointer moving to `09c708d`, where the
+duplicated sky block is gone from the mod's source entirely. Both **won't fix**
+entries are medium and are decisions rather than debt: `A20`, the first, and
+`A8`, decided 2026-09-09. **No finding here is waiting on anything**; what is
+outstanding for the game is checking, and `PLAYTEST.md` is where that is said.
 
 **`A8` is won't fix as of 2026-09-09, and is waiting on nothing.** The author
 decided the every-node walk stays: *the case of another mod in this game is not
@@ -68,7 +66,7 @@ tree. No source changed for the decision.
 is real and permanent — nothing in the game is hand-diggable — the author declined
 the only fix on the merits, and the obligation the finding created is discharged:
 `R1` ran falsifiably under the temporary hand override and passed. It is in full
-below, beside `A7` and `A8`, because it is not resolved and a reader needs
+below, beside `A8`, because it is not resolved and a reader needs
 its standing cost. Do not report it as outstanding work.
 
 **Two findings are resolved in code and unverified in a world**, which is a
@@ -91,6 +89,16 @@ rests on it. `PLAYTEST.md` holds the list of what needs action; it is not
 restated here.
 
 ## Where it stands
+
+**`A7` is resolved on 2026-09-17 and nothing here is open.** The game adopted
+`codeblock` `09c708d`, where the mod's duplicate sky block, the
+`codeblock_flat_sky` setting that had guarded it and that setting's
+`settingtypes.txt` entry are all removed — upstream's `C18`, finished at
+`3fa9d0c` and `6440ca0`. **Not a line of this repository changed for it**, as the
+finding always said it would not, and no gate in either repository reads the
+subject: the evidence is the pointer plus `L3`'s pass of 2026-09-09, taken while
+the mod's copy was merely inert. The pointer is still **not a tag** — see
+`ROADMAP.md`, *which release is adopted*.
 
 **`C21` is resolved on 2026-09-09 by a re-pin, and it is the only finding here
 closed without a line of this repository changing.** `mods/vector3` moved from
@@ -172,12 +180,13 @@ predicted.** `A13`'s deferral **ended**: CodeBlock registers its own 105 nodes a
 depends on `vector3` alone, which is the condition the deferral named, so the
 answer is deleting `mods/default`, `mods/dye` and `mods/wool` outright rather than
 trimming — and the deletion drags the engine's three essential mapgen aliases and
-the world's surface material with it. `A7` was **not** resolved the way this
-document said it would be: the duplicate sky block was put behind a setting that
-is off by default, not deleted, and the consequence is that **this game must not
-set that setting**. Both entries carry the correction where they stand.
-**`A13` is now resolved, at `50fd05f` the same day, and unverified in a world**;
-`A7` closes at adoption.
+the world's surface material with it. `A7` took an intermediate shape first — the
+duplicate sky block was put behind a setting off by default rather than deleted,
+so the game had to decline setting it — and then upstream **deleted it after
+all**, which is what closed the finding when the game adopted `09c708d` on
+2026-09-17. Both entries carry their corrections where they stand.
+**`A13` is now resolved, at `50fd05f` the same day**, and verified by `W15`,
+`W16` and `R9`.
 
 `C21` was the other finding new on 2026-09-07, from shaping the same feature: a
 version ceiling in a bundled submodule, and the only one here the game could not
@@ -203,7 +212,7 @@ which no reading could say.
 **Three of the 22 arrived on 2026-09-01, from the first hours anyone has
 spent playing this game against `PLAYTEST.md`** — `B47`, `B48` and `S8`. None was
 visible from reading the three `cc_*` files, **which between them were 21 lines
-at the time** and are **591** now across four files, since `G6`, the rescue
+at the time** and are **597** now across four files, since `G6`, the rescue
 rewrite, the barrier node, the world's new depth and `G3`'s ground; two of the
 three are in how
 those lines meet a vendored node or the client. That is the argument for the `W`,
@@ -220,11 +229,13 @@ minutes.
 **Where the repository stands.** `C15` landed in `8d18e8b`; `C20` is the only
 finding here to arrive from reading a published rule rather than from a defect,
 and was filed and fixed in one change at `9ad884c`. The adopted `codeblock`
-pointer is `fb75bc8` since `50fd05f`, which is **a commit off `master` and not a
-tagged release** — see `ROADMAP.md` `G5`, which is where it is put back on the
-release track. It moved because `A13` forced it: the previous pointer hard depends
-on `default` and `wool`, so the deletion and the old pointer together leave a
-fresh clone failing `check_game.sh`.
+pointer is **`09c708d` since 2026-09-17**, and it is still **a commit off
+`master` and not a tagged release** — upstream's newest tag is `v0.7.3` and no
+`v1.0.0` exists yet. `ROADMAP.md` `G5` is where it goes back on the release
+track, and *which release is adopted* there is why the game is on a bare commit
+deliberately. It was `fb75bc8` from `50fd05f`, which `A13` forced: the pointer
+before that hard depends on `default` and `wool`, so the deletion and the old
+pointer together leave a fresh clone failing `check_game.sh`.
 
 **Two corrections to what this document said about the remote, both read from git
 and the Actions API on 2026-09-08.** The branch is **not unpushed**:
@@ -246,71 +257,13 @@ submodule objects nobody has locally, which is the case that catches a pointer
 nobody can fetch — and `P3`, so `B19` and `B24` above are still waiting on a boot
 log nobody has read.
 
-## Open findings
+## Open and won't-fix findings
 
-In full, and they are the reason to read this document. `A7` is the only one open,
-and it is medium; nothing here is critical or high. **`A8` and `A20` sit here too
-and are won't fix**, because a decision taken against a real condition has to be
-as readable as an open item or it gets re-argued — each state is in its own
-heading and neither is counted as open anywhere.
-
-### A7 · medium · open, and the edit is upstream — `cc_day` duplicates a block `codeblock` already runs, marked "TEMP fix"
-
-`mods/cc_day/init.lua` · `codeblock lib/register.lua:178`
-
-Both register an `on_joinplayer` calling the same five sky methods; the copy
-inside `codeblock` is annotated `-- TODO: TEMP fix`. Sky presentation is the
-game's job, not the programming mod's — and removing it also stops `codeblock`
-imposing permanent daylight on any other game that installs it.
-
-**Routed here, and it is the one genuinely two-sided item.** The duplicate to
-delete is in `codeblock`, but the decision and the behaviour that must survive it
-are the game's: `cc_day` is what should own permanent noon. Kept in this audit as
-one finding rather than split in two; the mod's roadmap does not list it.
-
-**Nothing is written in this repository for it.** `cc_day` is already what this
-side should look like — it is the copy that survives, and no `cc_*` file changes.
-The game's half was adopting the release that settles it and then running `L3`,
-which is why this finding stays open here after the upstream edit lands and closes
-only at adoption.
-
-**`L3` is done, 2026-09-09, so adoption is the only thing left.** It passed at
-`50fd05f`, whose adopted `mods/codeblock` is `fb75bc8`, engine 5.17.0:
-with `codeblock.config.flat_sky` off and this game not setting it, there is no
-sun, no moon, no stars and **no sunrise** — so `cc_day` is sufficient on its own,
-`sunrise_visible = false` included. A rejoin was in the same sitting, so the
-re-application half is covered. The finding stays open because the duplicate is
-still in the mod's source at a pointer this game has not adopted; the check that
-was gating it is no longer what holds it. The residual that sitting found is a
-separate defect, `A19`, and not this one.
-
-**Corrected 2026-09-08: the prediction above was wrong in mechanism and right in
-outcome.** This finding said the duplicate would be **deleted** upstream. It was
-not. At `fb75bc8` `codeblock lib/register.lua:243-252` still calls all five sky
-methods, now guarded by `codeblock.config.flat_sky` — a setting **off by
-default**, which is their finding `C18`, resolved at their `6fea453`. So the
-duplicate still exists in the mod's source and simply does not run. Recorded
-rather than overwritten: a claim silently changed is one the next reader
-re-derives.
-
-**Keep — the game must not set `codeblock_flat_sky = true`, and upstream's own
-documents ask it to.** Both CodeBlock's `ROADMAP.md` and its `CHANGELOG.md`
-instruct a game bundling the mod to set the flag. Following that instruction would
-**restore the exact duplicate this finding exists to remove, in the worse of the
-two versions**: `cc_day` calls
-`set_sun{visible = false, sunrise_visible = false}` — the `B47` fix — and the
-mod's copy still calls a bare `set_sun{visible = false}`. The flag being off by
-default is what makes `cc_day` sufficient and costs the game nothing. The decision
-and *what would change it* are `ROADMAP.md`, under *deliberately not doing*.
-
-**Corrected 2026-09-02: "identical arguments" above was wrong.** `codeblock` calls
-a bare `set_sun{visible = false}`; `cc_day` calls
-`set_sun{visible = false, sunrise_visible = false}` — the `B47` fix. The
-difference does not make the removal urgent, and `B47`'s **Keep** is where that is
-settled: `L1` passes with the duplicate still in place, and removing a call cannot
-reintroduce the texture whichever way `set_sun` treats an omitted field. Recorded
-here only so the next reader does not re-derive it from the claim that the two
-calls match.
+**Nothing is open as of 2026-09-17** — `A7` was the last and is resolved, in full
+under the `A` series below. `A8` and `A20` stay here, both **won't fix**, because
+a decision taken against a real condition has to be as readable as an open item
+or it gets re-argued. Neither is counted as open anywhere, and neither is
+outstanding work.
 
 ### A8 · medium · won't fix — decided 2026-09-09: the every-node walk stays; the drop chain is confirmed and `last_mod` untested by choice
 
@@ -975,7 +928,7 @@ level and it does not vary. This is the objects half, and it is one field:
 **Keep — a blocker that was predicted and did not exist, and how that was
 settled.** This was filed with a warning that the one-field fix might not hold:
 `codeblock` registers the same five calls in its own `on_joinplayer` (the
-duplicate `A7` removes), including a bare `set_sun{visible = false}`. The
+duplicate `A7` had removed upstream), including a bare `set_sun{visible = false}`. The
 reference lists every `set_sun` field as optional with a stated default, and says
 that passing *no* arguments resets the sun entirely — which reads as though an
 omitted field might take its default rather than keep its current value. If so,
@@ -1368,8 +1321,10 @@ belongs to the mod's audit.
 
 ## Resolved — A architecture and performance
 
-**6 findings, 3 resolved, 1 open and 2 won't fix.** `A7` is open and `A8` and
-`A20` are won't fix; all three are in full above. `A13` and
+**6 findings, 4 resolved, 0 open and 2 won't fix.** `A8` and `A20` are won't fix
+and are in full above. `A7` closed on 2026-09-17 with the `codeblock` pointer
+moving to `09c708d`, and is in full below, first: the upstream removal is what
+resolved it and its **Keep** is what a later change would re-break. `A13` and
 `A19` are below in full, not compressed: `A13` closed at `50fd05f` on 2026-09-08
 and its reasoning is still load-bearing — the three essential mapgen aliases and
 the surface material it dragged in are what a future change would re-break — and
@@ -1379,6 +1334,7 @@ resolved-and-unverified state on 2026-09-09**, on `R9` and on `L4`.
 
 | Id | Sev | Was | Fixed by | Where it stands |
 |---|---|---|---|---|
+| `A7` | medium | `cc_day` and `codeblock` both registered an `on_joinplayer` calling the same five sky methods, the mod's marked `-- TODO: TEMP fix` | upstream removed its copy, the setting that had guarded it and its `settingtypes.txt` entry (their `C18`, `3fa9d0c` and `6440ca0`); the game adopted `09c708d` on 2026-09-17 and changed nothing of its own | **verified in a world** — `L3` passes on 2026-09-09, before the removal, with the mod's copy inert. In full below |
 | `A14` | medium | CI conflated the component with the composite: the game's badge reported on the mod's internals and the mod had no CI at all | split along the component/composite line; the mod took its own `.luacheckrc`, specs and badge | — |
 | `A13` | medium | `mods/default`, `mods/dye` and `mods/wool` were 9,744 lines vendored to supply 106 node definitions | all three deleted at `50fd05f`, once CodeBlock registered its own 105 nodes; `cc_mapgen` took the three essential mapgen aliases and the world's surface material | **verified in a world** — `W15`, `W16` and `R9` all pass on 2026-09-09. In full below |
 | `A19` | medium | permanent noon reached the light level and the sky objects but not the sky's own colour, so the horizon and the fog still moved with the time of day — and with the player's yaw | one `set_sky{type = "plain", base_color = "#90d3f6"}` in `cc_day`, `plain` being the one sky type the engine excludes from the directional tint | `dd83b99`; **verified in a world** by `L4`, 2026-09-09. In full below |
@@ -1404,6 +1360,78 @@ resolved-and-unverified state on 2026-09-09**, on `R9` and on `L4`.
   `.gitattributes`, and therefore what the release archive contains — see `C15`.
   The same split is why this repository's CI and the mod's go red independently;
   check the repository you changed.
+
+### A7 · medium · resolved upstream, `L3` passes — `cc_day` duplicated a block `codeblock` already ran, marked "TEMP fix"
+
+`mods/cc_day/init.lua` · `codeblock lib/register.lua:178`
+
+Both register an `on_joinplayer` calling the same five sky methods; the copy
+inside `codeblock` is annotated `-- TODO: TEMP fix`. Sky presentation is the
+game's job, not the programming mod's — and removing it also stops `codeblock`
+imposing permanent daylight on any other game that installs it.
+
+**Routed here, and it is the one genuinely two-sided item.** The duplicate to
+delete is in `codeblock`, but the decision and the behaviour that must survive it
+are the game's: `cc_day` is what should own permanent noon. Kept in this audit as
+one finding rather than split in two; the mod's roadmap does not list it.
+
+**Resolved 2026-09-17 by adopting `codeblock` `09c708d`, and not a line of this
+repository changed for it.** Upstream removed the block outright at `3fa9d0c` and
+`6440ca0` — their `C18` — so at `09c708d` the setting, its `settingtypes.txt`
+entry and the five sky overrides in `register_on_joinplayer` are all gone:
+`flat_sky` appears in no Lua, no `.txt` and no `.conf`, and no `set_sky`,
+`set_sun`, `set_moon`, `set_stars` or `set_clouds` call remains in `lib/`, read
+at the pointer on 2026-09-17. `cc_day` is the only thing in the package setting
+the sky, which is what this finding wanted. **The commit that carries the pointer
+is the resolution and it is not named here**: the move was uncommitted when this
+was written, and the record is `ROADMAP.md`'s `G4` line and the git history of
+`mods/codeblock`'s pointer.
+
+**Nothing was ever written in this repository for it.** `cc_day` is already what
+this side should look like — it is the copy that survived, and no `cc_*` file
+changed. The game's half was adopting the release that settles it and then
+running `L3`.
+
+**`L3` was done first, 2026-09-09.** It passed at
+`50fd05f`, whose adopted `mods/codeblock` is `fb75bc8`, engine 5.17.0:
+with `codeblock.config.flat_sky` off and this game not setting it, there is no
+sun, no moon, no stars and **no sunrise** — so `cc_day` is sufficient on its own,
+`sunrise_visible = false` included. A rejoin was in the same sitting, so the
+re-application half is covered. It held while the duplicate was still in the mod's
+source at a pointer this game had not adopted. The residual that sitting found is
+a separate defect, `A19`, and not this one.
+
+**Two corrections kept rather than edited away, because the prediction moved
+twice.** Filed, this finding said the duplicate would be **deleted** upstream. On
+2026-09-08 that was wrong: at `fb75bc8` `codeblock lib/register.lua:243-252` still
+called all five sky methods, guarded by `codeblock.config.flat_sky`, a setting
+**off by default** — their `C18` at their `6fea453` — so the duplicate existed and
+simply did not run. On 2026-09-17 the original prediction turned out right after
+all: their `C18` finished as a **removal** at `3fa9d0c` and `6440ca0`, on the
+ground that the game does this itself. Both readings are kept because each was
+true of the pointer this game had adopted at the time.
+
+**Keep — `cc_day` is the only thing that sets the sky, and it must stay that
+way.** The guard this paragraph used to name is gone: there is no
+`codeblock_flat_sky` setting at `09c708d`, so there is nothing to set and nothing
+to keep off. What survives is the reason. `cc_day` calls
+`set_sun{visible = false, sunrise_visible = false}` — the `B47` fix — where the
+mod's deleted copy called a bare `set_sun{visible = false}`, so any route that
+restores a second sky block restores it in the worse version. Permanent daylight
+is the game's subject and `cc_day` is where it lives. **Until 2026-09-17 both of
+CodeBlock's own documents told a game bundling the mod to set the flag**, and
+declining that instruction is why the removal cost this game nothing; the
+decision and *what would change it* are `ROADMAP.md`, under *deliberately not
+doing*.
+
+**Corrected 2026-09-02: "identical arguments" above was wrong.** `codeblock` calls
+a bare `set_sun{visible = false}`; `cc_day` calls
+`set_sun{visible = false, sunrise_visible = false}` — the `B47` fix. The
+difference does not make the removal urgent, and `B47`'s **Keep** is where that is
+settled: `L1` passes with the duplicate still in place, and removing a call cannot
+reintroduce the texture whichever way `set_sun` treats an omitted field. Recorded
+here only so the next reader does not re-derive it from the claim that the two
+calls match.
 
 ### A13 · medium · resolved, `W15`, `W16` and `R9` all pass — `default` was 9,744 lines to supply 106 node definitions, and the answer was deletion
 
@@ -1965,6 +1993,21 @@ suggests and the next reader will re-derive it. **It was marked "likely and not
 demonstrated" when filed, and that marking is what made it cheap to correct.**
 
 ---
+
+Revised 2026-09-17, over `c2d2b5a` with `mods/codeblock` moved to `09c708d` in
+the working tree and not yet committed. **`A7` is resolved and the counts move to
+22 findings, 20 resolved, 0 open and 2 won't fix** — the first time this document
+has had nothing open. Upstream finished its `C18` as a **removal** at `3fa9d0c`
+and `6440ca0`: no `flat_sky` in any Lua, `.txt` or `.conf` at `09c708d`, and no
+`set_sky`, `set_sun`, `set_moon`, `set_stars` or `set_clouds` in `lib/`, read at
+the pointer. Nothing in this repository changed, and no gate reads the subject —
+`check_game.sh` and luacheck were green after the bump, which says the game
+assembles. `A7`'s entry moved from *open findings* to the resolved `A` series,
+its **Keep** rewritten around a setting that no longer exists, and the
+prediction it was corrected against in 2026-09-08 turns out to have been right
+about the outcome; both readings are kept. **CodeBlock's own CI on `09c708d` is
+unchecked** — it could not be read from this machine, and the two repositories go
+red independently.
 
 Revised 2026-09-09 at `c7c2c43`, on the author's decision about `A8`. **`A8` is
 won't fix and the counts move to 22 findings, 19 resolved, 1 open and 2 won't

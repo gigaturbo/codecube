@@ -2,13 +2,11 @@
 -- sky objects. Per-player and re-applied on every join, so nothing has to be
 -- undone.
 --
--- codeblock does the same five calls behind codeblock.config.flat_sky, which is
--- off by default and must stay off: this game does not set
--- codeblock_flat_sky in its minetest.conf, whatever the mod's own roadmap asks
--- for. Turning it on would run both copies, which is what A7 exists to remove,
--- and the mod's copy still lacks the sunrise_visible line below -- so the flag
--- would put the B47 defect back on screen. Delete this file instead if the mod
--- is ever the one to hold the sky.
+-- This is the only place in the package that sets the sky, and it must stay so.
+-- A second copy anywhere would have to carry set_sun's sunrise_visible below to
+-- match, and the obvious spelling leaves it out, which is B47 back on screen.
+-- Move this file if the sky ever belongs elsewhere; never add a second copy.
+-- (A7)
 minetest.register_on_joinplayer(function(player)
     player:override_day_night_ratio(1)
     -- The pinned light level does not reach the sky's own colour: the client

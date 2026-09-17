@@ -20,9 +20,9 @@ either.
 ## The first question is always *whose is this*
 
 The game owns **209 lines of Lua**, in four files — counted as lines that are
-neither blank nor a comment, recounted on 2026-09-09 with `G3`, `G7` and `A19`'s
-fix in the working tree, which is how the numbers below can be re-derived rather
-than trusted. Counting blanks and comments too it is 591 lines, so most of what
+neither blank nor a comment, recounted on 2026-09-17 with the `09c708d` adoption
+in the working tree, which is how the numbers below can be re-derived rather
+than trusted. Counting blanks and comments too it is 597 lines, so most of what
 is here is prose about why. The one-line recipe, and the one the numbers below
 come from:
 
@@ -94,8 +94,9 @@ Five questions for any change to it, or to `minetest.conf` and `game.conf`:
    is why `PLAYTEST.md`'s `W3` tells you to teleport rather than fly. Every entry
    there is a decision about what an unknown player on someone's server can do,
    and it is the author's, not yours.
-5. **Does CodeBlock already do it?** `cc_day` duplicates a block the mod already
-   runs (**finding `A7`**). Two mods setting the same thing is not twice as safe;
+5. **Does CodeBlock already do it?** `cc_day`'s sky block ran beside one of the
+   mod's until the mod dropped its copy (**finding `A7`**, resolved). Two mods
+   setting the same thing is not twice as safe;
    it is one of them being wrong later and nobody noticing which.
 
 ## The Luanti and Lua facts that hold here
@@ -369,5 +370,5 @@ this is an index, not a second copy of either.
 | The grass slab is written before the y loop, so the barrier wins at the wall and the bedrock floor wins if a server owner puts the ground level at or under 0 | — | `cc_mapgen/mapgen_env.lua` |
 | `sunrise_visible = false` is a field of its own — hiding the sun leaves the sunrise texture drawn | `B47` | `cc_day/init.lua` |
 | The sky is `type = "plain"`, which is what makes it immune to the time of day; a `"regular"` sky cannot be, whatever `sky_color` holds. The four sky-object calls beside it are redundant under a plain sky and stay so that going back to `"regular"` cannot silently restore the sun, the moon, the stars and the sunrise | `A19`, `B47` | `cc_day/init.lua` |
-| `codeblock_flat_sky` is **not** set in `minetest.conf`, whatever CodeBlock's roadmap asks: the mod's copy of those five calls lacks `sunrise_visible`, so turning it on both duplicates `cc_day` and restores `B47` | `A7`, `B47` | `cc_day/init.lua`, `minetest.conf` |
+| `cc_day` is the only thing in the package that sets the sky, and no second sky block is added or re-enabled anywhere: the copy CodeBlock deleted called a bare `set_sun{visible = false}`, so any route that brings one back brings it back without `B47`'s `sunrise_visible` | `A7`, `B47` | `cc_day/init.lua` |
 | Every tracked document carries its own `export-ignore` line, or `git archive` ships it to a player | `C15` | `.gitattributes` |

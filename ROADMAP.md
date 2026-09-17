@@ -39,8 +39,9 @@ checked**, and every open item in this file is either the author's or a release'
 **`W11` is the cheapest evidence outstanding**: the redrawn bedrock and barrier,
 whose earlier pass was retired with the textures it described, and the one
 unjudged part of `G7`. Behind it, in the order they cost least: `R4`'s re-run for
-`B48`'s blast radius — **now also carrying the `vector3` `v2.0.2` re-pin, with
-`R9` beside it**, since nothing has been played against that library — `P3` and
+`B48`'s blast radius — **now also carrying the `vector3` `v2.0.2` re-pin and the
+`codeblock` `09c708d` adoption, with `R9` beside it**, since nothing has been
+played against either — `P3` and
 `P4`, `P1`'s boot half, and the `W4`, `W8` and `W9` re-runs at the new depth. `R6` and `R7` are **unrunnable**, their subjects
 deleted. `PLAYTEST.md` holds the list; it is not restated here.
 
@@ -52,8 +53,11 @@ because `R1` ran falsifiably under the temporary hand override and passed, with
 `R2`'s drop half beside it. What it leaves is a setup cost on `R1`, `R4` and `R8`
 for ever, written into `PLAYTEST.md`'s `R` preamble. Do not re-propose the hand.
 
-Then `G5`: adopting a tagged CodeBlock release, which is what `A7` waits on and
-the only thing on this file's critical path. `C22` closed on 2026-09-08 and
+Then `G5`, and it is the only thing on this file's critical path: **a tagged**
+CodeBlock release. The pointer moved to `09c708d` on 2026-09-17 and that closed
+`A7` — the mod deleted its duplicate sky block outright — but `09c708d` is a bare
+commit, so `G5`'s first line stays open until `v1.0.0` exists. **`AUDIT.md` now
+has nothing open at all.** `C22` closed on 2026-09-08 and
 **`C21` on 2026-09-09**, by re-pinning `mods/vector3` to `v2.0.2` — so the whole
 `C` series is closed and the licence and metadata questions are answered. The
 `TODO.md` *fog distance* line is the author's and stays open; `viewing_range` is
@@ -70,7 +74,7 @@ whatever is opened after it.
 | `G1` | Ship an honest, installable package | done | 5/5 | — |
 | `G2` | Check the game, not the mod | done | 4/4 | — |
 | `G3` | Delete what the game vendors | **done on both counts** — committed `50fd05f`, `W15`, `W16` and `R9` all pass | 5/5 | 4/4 |
-| `G4` | Make the game's own mods behave | **done on both counts** — `A19` committed `dd83b99` and `L4` passes; `A7` is `G5`'s | 5/6 | 5/5 |
+| `G4` | Make the game's own mods behave | **done on both counts** — `A19` committed `dd83b99` and `L4` passes; `A7` closed 2026-09-17 with the `09c708d` adoption | 6/6 | 5/5 |
 | `G6` | Bound the world | **done on both counts** | 5/5 | 6/6 |
 | `G7` | Make the world something to be in | done, the texture rework committed `dd83b99`; `W11` still owed | 3/3 | 4/5 |
 | `G5` | Adopt CodeBlock 1.0.0 and ship | started | 2/5 | — |
@@ -166,17 +170,19 @@ to see it again.
    grass until a program places some" claim that followed from it, which was true
    only while the world borrowed `default`'s nodes.
 
-### G4. Make the game's own mods behave — done, `dd83b99` (5/6), 5/5 checked
+### G4. Make the game's own mods behave — done, `dd83b99` (6/6), 5/5 checked
 
 The first playtest added three of these six and all three are fixed. **Reopened
 on 2026-09-09 by `A19`, written, committed at `dd83b99` and checked the same
 day**: one `set_sky` call declaring a `plain` sky, with `L4` passing on it. `A7`
-is settled upstream and closes at adoption, which is `G5`'s — and its `L3` half
-is now discharged, because `L3` passed in the same sitting that found `A19`.
+**closed on 2026-09-17**, when the game adopted `codeblock` `09c708d` and the
+duplicate was gone from the mod's source; its `L3` half was discharged on
+2026-09-09, in the same sitting that found `A19`.
 
 **The 5/5 counts the five written items' own checks**, one each: `B47` on `L1`,
 `S8` on `R6` and `R4`, `A8` on `R2`, `B48` on `R8`, `A19` on `L4`. `A7` is the
-sixth item and is neither written here nor checkable here. `R4`'s re-run for
+sixth item, is written nowhere in this repository and is checkable here only
+through `L3`, which passed before the removal it turns on. `R4`'s re-run for
 `B48`'s blast radius is still owed and moves no fraction — it is a widening
 control, not the check of an item.
 
@@ -197,14 +203,13 @@ control, not the check of an item.
   case is gone from the game for good, and **`R8` was not re-run with `A20`'s hand
   override**, so the pass does not separate the strip from the empty groupcaps.
   (`B48`)
-- [ ] Drop `cc_day`'s duplicate of a block `codeblock` already runs. **Settled
-  upstream on different terms than this record predicted, 2026-09-08**: the block
-  was not deleted but put behind `codeblock.config.flat_sky`, a setting **off by
-  default** (their `C18`, at their `6fea453`). The outcome is the one predicted —
-  `cc_day` is the copy that survives and nothing in this repository changes — and
-  **the game must not set the flag**; see *deliberately not doing*. The game's
-  half is adopting the release and running `L3` — **`L3` passed on 2026-09-09**,
-  so adoption is all that is left. Untidiness only. (`A7`)
+- [x] Drop `cc_day`'s duplicate of a block `codeblock` already runs. **Done
+  upstream and adopted 2026-09-17**: their `C18` finished as a **removal** at
+  `3fa9d0c` and `6440ca0` — the block, the `codeblock_flat_sky` setting that had
+  guarded it since `6fea453` and that setting's `settingtypes.txt` entry are all
+  gone at `09c708d`. `cc_day` is the copy that survives and **not a line of this
+  repository changed**, as predicted. `L3` passed on 2026-09-09, while the copy
+  was merely inert; nothing has been played against `09c708d`. (`A7`)
 - [x] `cc_day`: pin the sky's own colour and fog, so permanent noon reaches the
   horizon. One `set_sky{type = "plain", base_color = "#90d3f6"}`, committed
   `dd83b99`; **`L4` passes** on it, engine 5.17.0, 2026-09-09 — four `/time`
@@ -478,18 +483,20 @@ long form is for prose only. **The root `LICENSE` stays bare** — see
 media file, so a texture or menu image added with no licence line fails no gate.
 That is `AUDIT.md` `C22`'s `Keep`, and the wanted check is a `TODO.md` line.
 
-### G5. Adopt CodeBlock 1.0.0 and ship — started (1/5)
+### G5. Adopt CodeBlock 1.0.0 and ship — started (2/5)
 
 The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
 `release-codecube` skill owns the procedure and `release-check` gates it.
 
-- [ ] Move `mods/codeblock` to a **tagged** release. See *which release is
-  adopted* below: the pointer is currently off the release track, not merely
-  behind it. **In the same piece of work, write the `CHANGELOG.md` *Changed*
-  entry naming the release adopted**: it said the mod was adopted as a tagged
-  release rather than followed commit by commit, and it was deleted on
-  2026-09-09 because the pointer was still `fb75bc8`, a commit off `master`. It
-  is true only once this line is done, so it is written then and not before.
+- [ ] Move `mods/codeblock` to a **tagged** release. **Still open after the
+  2026-09-17 move to `09c708d`**, which is a bare commit: no `v1.0.0` exists yet,
+  locally or on the remote. See *which release is adopted* below for why that
+  move was taken anyway. **In the same piece of work, write the `CHANGELOG.md`
+  *Changed* entry naming the release adopted**: it said the mod was adopted as a
+  tagged release rather than followed commit by commit, and it was deleted on
+  2026-09-09 because the pointer was a commit off `master`. It is true only once
+  this line is done, so it is written then and not before — it was **not** written
+  for `09c708d`.
 - [x] State the licence for the game's media, in `menu/license.txt`,
   `mods/cc_mapgen/license.txt`, `THIRD-PARTY-LICENSES.md` and
   `scripts/gen_cdb_json.sh`. Decided 2026-09-08 — see *The media licence* under
@@ -504,31 +511,45 @@ The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
 
 ## Which CodeBlock release is adopted
 
-**`fb75bc8`, and it is a commit off `master`, not a tag.** The policy is that the
-pointer names the release this game has *adopted*, so lagging upstream is
-correct; this is a different thing — the pointer is **off the release track**, not
-merely behind it. Upstream's newest tag is **`v0.7.3`** and `fb75bc8` is 139
-commits past it. Nothing is broken by
-it: the game assembles and both gates are green on it. `G5` is where
-it goes back on the track. Read both numbers from `git ls-tree HEAD
-mods/codeblock` and `git tag` inside the submodule, **never from upstream's
-`HEAD`**.
+**`09c708d` since 2026-09-17, and it is a commit off `master`, not a tag.** The
+policy is that the pointer names the release this game has *adopted*, so lagging
+upstream is correct; this is a different thing — the pointer is **off the release
+track**, not merely behind it. Upstream's newest tag is **`v0.7.3`**, on the
+remote as well as locally, and **no `v1.0.0` exists yet**. Nothing is broken by
+it: `09c708d` is on `origin/master` and fetchable, and both gates are green on it.
+`G5`'s first line is where it goes back on the track. Read both numbers from
+`git ls-tree HEAD mods/codeblock` and the submodule's own tags —
+`git ls-remote --tags origin` inside it — **never from upstream's `HEAD`**.
+
+**The two-step is the author's decision, taken 2026-09-17.** CodeBlock is at
+`09c708d` and will be tagged `v1.0.0` and released soon, and the author wants the
+two released together; adopting the bare commit now and re-pointing at the tag
+when it exists was chosen over waiting. So the pointer is deliberately off the
+release track for a shorter time, and `G5`'s first line and the `CHANGELOG.md`
+entry it owes both stay open — that entry is true only once the pointer names a
+tag.
+
+**What the move bought, and what it did not.** `A7` is resolved by it: upstream
+removed the duplicate sky block, its `codeblock_flat_sky` setting and that
+setting's `settingtypes.txt` entry, so `cc_day` is the only thing in the package
+setting the sky. Nothing else in this repository changed. **Nothing has been
+played against `09c708d`** — `R4` and `R9` are the game's share and both name
+`dd83b99` — and **CodeBlock's CI on `09c708d` is unchecked** from here; the two
+repositories go red independently.
 
 **Corrected 2026-09-09: this section named `2647228` for two passes and that
-stopped being true at `50fd05f`.** `git ls-tree 50fd05f mods/codeblock` gives
-`fb75bc8`, so the move that `G3` forced was **committed** with the deletion, and
-the paragraph describing `fb75bc8` as a deliberately unstaged working tree is
-gone with it. `git status` is now clean on `mods/codeblock`, and the old resting
-state no longer applies. `P1`'s clone half passed on `2647228` at `8b27f2f` and
-**has not been re-run since the pointer moved**, so nothing has confirmed that a
-fresh recursive clone can fetch `fb75bc8`.
+stopped being true at `50fd05f`**, which committed `fb75bc8` with the `G3`
+deletion; the paragraph describing the pointer as a deliberately unstaged working
+tree went with it. `P1`'s clone half passed on `2647228` at `8b27f2f` and **has
+not been re-run across either move since**, so nothing has confirmed that a fresh
+recursive clone can fetch `09c708d` — or `fb75bc8` before it.
 
 **Deleted from `CHANGELOG.md` on 2026-09-09:** a *Changed* entry claiming the mod
 was already adopted as a tagged release rather than followed commit by commit.
 The pointer above shows it had not happened, the file's boxes mean done or known
 limitation and never pending, and it forbids an entry for work in progress. The
-obligation to write that entry now sits on `G5`'s first line, where it will be
-read when the pointer actually moves.
+obligation to write that entry sits on `G5`'s first line, where it will be read
+when the pointer names a tag.
 
 **The other submodule is on a tag: `mods/vector3` at `v2.0.2` (`fc8a5b8`) since
 2026-09-09**, moved from `v1.5` (`16621648`) on the author's instruction and
@@ -619,17 +640,16 @@ proposed again.
   take the blocks". **CodeBlock took them** (`F11`, at `fb75bc8`), so the question
   is closed the other way and the work is a deletion under `G3` rather than an
   omission here. (`A13`)
-- **Setting `codeblock_flat_sky = true` in the game's `minetest.conf`.** Declined
-  2026-09-08, and it is declined against upstream's own instruction: both
-  CodeBlock's `ROADMAP.md` and its `CHANGELOG.md` tell a game bundling it to set
-  the flag. **`cc_day` already makes all five of the mod's sky calls and adds
-  `sunrise_visible = false`**, which is the `B47` fix and which the mod's copy
-  still lacks — so setting the flag would restore the exact duplicate `A7` exists
-  to remove, and restore it in the *worse* of the two versions. Permanent daylight
-  is the game's subject, `cc_day` is where it lives, and the flag being off by
-  default is what makes that free. *What would change it:* `cc_day` being deleted
-  in favour of the mod's block, which would mean losing `B47`'s fix or landing it
-  upstream first. (`A7`)
+- **Setting `codeblock_flat_sky = true` in the game's `minetest.conf` — this
+  entry is spent and is kept only as the record of why it stood.** Declined
+  2026-09-08 against upstream's own instruction: both CodeBlock's `ROADMAP.md`
+  and its `CHANGELOG.md` told a game bundling it to set the flag, and doing so
+  would have restored the exact duplicate `A7` existed to remove, in the version
+  lacking `B47`'s `sunrise_visible = false`. **There is no such setting at
+  `09c708d`** — upstream removed the block, the flag and its `settingtypes.txt`
+  entry — so the question is closed the other way and `A7` is resolved. What
+  survives is the rule behind it, in `AUDIT.md` `A7`'s **Keep**: `cc_day` is the
+  only thing that sets the sky. (`A7`)
 - **A `PLAYTEST.md` entry for the `vector3` `v2.0.2` re-pin.** Decided
   2026-09-09. A major version of a hard dependency wants world evidence, but the
   two things `v2.0` changed — a frozen constant raising `read only`, and a bad
@@ -808,23 +828,39 @@ proposed again.
 
 ---
 
-2026-09-09 · codecube `c7c2c43`, on branch **`g6-world-limits`**, with
-`mods/vector3` staged at `fc8a5b8` and nothing else in the tree. **The branch is
-pushed except its last four commits**: `origin/g6-world-limits` is at `5777dc0`,
-so `50fd05f`, `dd83b99`, `67f1feb` and `c7c2c43` are local-only. **The branch
-carries 16 commits over `main`** — `git rev-list --count main..HEAD`, with `main`
+2026-09-17 · codecube `c2d2b5a`, on branch **`g6-world-limits`**, with
+`mods/codeblock` moved to `09c708d` in the working tree and **not yet
+committed**; nothing else is in the tree. **The branch is pushed except its last
+five commits**: `origin/g6-world-limits` is at `5777dc0`, so `50fd05f`,
+`dd83b99`, `67f1feb`, `c7c2c43` and `c2d2b5a` are local-only. **The branch
+carries 17 commits over `main`** — `git rev-list --count main..HEAD`, with `main`
 at `578b364`; it was 14 at `dd83b99` and 23 was written here wrongly for two
 passes before that. **No commit on the
 branch has a CI run**; the newest run of any kind is `main` at `35fa2a1`,
 success, 2026-09-01, re-read from the Actions API on 2026-09-09. Both facts
 corrected here on 2026-09-08 — this file said the
 branch was unpushed and that the latest run was on `578b364`, which was never
-pushed. `codeblock` `fb75bc8` in the commit, a commit off `master` and not a tag, 139
-commits past `v0.7.3`; moving it was forced by `G3`, because the old pointer hard
-depends on `default` and `wool`. `G5` is where it goes back on the release track.
-`vector3` `fc8a5b8` — `v2.0.2`, staged and not yet committed.
+pushed. `codeblock` `09c708d` in the working tree, a commit off `master` and not
+a tag; `fb75bc8` in `c2d2b5a` and every commit back to `50fd05f`. `vector3`
+`fc8a5b8` — `v2.0.2`, committed at `c2d2b5a`.
 
-**This pass is the `vector3` re-pin and the record edits that close `C21`, and no
+**This pass is the `codeblock` adoption and the record edits that close `A7`, and
+no code changed for it.** The pointer moved sixteen commits, `fb75bc8` →
+`09c708d`, on the author's decision of 2026-09-17 to adopt the bare commit now
+and re-point to `v1.0.0` once it is tagged — see *which release is adopted*.
+Upstream's `C18` finished as a **removal**: `codeblock_flat_sky`, its
+`settingtypes.txt` entry and the five sky overrides are gone at `09c708d`, so
+`A7` is resolved and `AUDIT.md` has **nothing open** for the first time. Both
+gates were re-run green after the bump — `check_game.sh` ending `all game
+integration checks passed`, luacheck silent — which says the game assembles and
+nothing more: **nothing here runs a line of the mod's Lua**, no result in
+`PLAYTEST.md` names `09c708d`, and CodeBlock's own CI on it could not be read
+from this machine and is **unchecked**. The move also carries `F17`, the mod's
+CI and documentation work, and replaced screenshots — all the mod's to describe,
+and none of it reaches the game's release archive, which excludes submodule
+contents.
+
+**The `vector3` pass, 2026-09-09: the re-pin and the record edits that close `C21`, and no
 code changed for it.** The pointer moved from `v1.5` (`16621648`) to `v2.0.2`
 (`fc8a5b8`) on the author's instruction, *"vector3 should be v2.0.2 now and
 should only state `min_minetest_version = 5.3` so it does not block anything"* —
@@ -887,20 +923,26 @@ boot is **narrower rather than confirmed** — `P1`'s boot half is a fresh recur
 clone and `P3` is unrun.
 
 The game's own Lua is **209 lines** across four files — `cc_day` 8, `cc_mapgen`
-51 + 49, `cc_security` 101 — counting neither blanks nor comments, and **591
-lines in all**, measured at `dd83b99` — the tree is clean, so the numbers are the
-commit's. At `5777dc0` the same counts were
-177 and 464. **Two corrections to the counts, both 2026-09-08:** the 464 was off
-by one, `cc_day/init.lua` having lacked the trailing newline `.editorconfig`
-requires; and **572 was the total written for `50fd05f` and it is 579** — the
-texture rework added seven lines of comment to `cc_mapgen/init.lua` and no code.
-`A19` is what moved 208 to 209 and 579 to 591: one `set_sky` call in `cc_day`
-and eleven lines of comment beside it, in the one file it touched.
+51 + 49, `cc_security` 101 — counting neither blanks nor comments, and **597
+lines in all**, recounted 2026-09-17 over the working tree at the `09c708d`
+adoption; at `dd83b99` they were 209 and 591, at `50fd05f` 208 and 572. At
+`5777dc0` the same counts were
+177 and 464. **Three corrections to the counts:** the 464 was off
+by one (2026-09-08), `cc_day/init.lua` having lacked the trailing newline
+`.editorconfig` requires; **579 was written for `50fd05f` and it is 572**
+(2026-09-17), an earlier correction having moved a right number to a wrong one;
+and the total stood at `dd83b99`'s 591 while six further lines of comment landed.
+`A19` is what moved 208 to 209, and the whole of 572 to 591 is comment: one
+`set_sky` call in `cc_day` and eleven lines of comment beside it, plus seven the
+texture rework added to `cc_mapgen/init.lua`.
 
-This file is **899 lines against its own "under roughly 150"**, up from 849 last
-pass; 899 is `wc -l` here. This pass added `C21`'s closure, the `vector3`
-pointer, one *deliberately not doing* entry for the playtest decision and this
-footer's own paragraph, and removed the `vector3` *ships broken* line. The pass
+This file is **953 lines against its own "under roughly 150"**, up from 899 last
+pass; 953 is `wc -l` here. This pass rewrote *which release is adopted* around
+`09c708d`, closed `A7`'s `G4` line, spent the `codeblock_flat_sky` entry under
+*deliberately not doing* and added this footer's own paragraph. The pass before
+it added `C21`'s closure, the `vector3`
+pointer, one *deliberately not doing* entry for the playtest decision and its own
+footer paragraph, and removed the `vector3` *ships broken* line. The pass
 before it added `A20`'s terminal state, `A19`'s
 in-world evidence and one *ships broken* line, and removed another — the six
 passes let *Now* shrink and nothing else. It got there by moving reasoning to `AUDIT.md` under its finding id

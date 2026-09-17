@@ -233,10 +233,12 @@ falling back to the spawn point only when nothing in that column fits. Those
 writes are **the one place this game writes to the map**; every other rule in
 `cc_security` denies. Four Lua files, and the whole of this game's code:
 **209 lines** — `cc_day` 8, `cc_mapgen` 51 + 49, `cc_security` 101, counting
-neither blanks nor comments, and **591 lines in all**. `G3` is what moved it from
-177; read the files rather than trusting the number. Both numbers are `dd83b99`,
-where `A19` and the texture rework landed; at `50fd05f` they were 208 and 579,
-the difference being one `set_sky` line and eleven lines of comment beside it.
+neither blanks nor comments, and **597 lines in all**, recounted 2026-09-17 over
+the working tree at the `09c708d` adoption. `G3` is what moved the code count
+from 177; **read the files rather than trusting the number**, which has now been
+written down wrong twice. The code count has not moved since `50fd05f`, where it
+was 208 and 572 in all: everything after it is comment, nineteen lines of it by
+`dd83b99` (209 and 591) and six more since.
 
 **The bedrock floor is buried deep under the ground.** `mgflat` fills
 `mapgen_stone` — `cc_mapgen:dirt` — up to
