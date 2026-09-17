@@ -15,9 +15,9 @@ share and adapt it, including commercially, provided you give credit and license
 your adaptations under the same terms:
 https://creativecommons.org/licenses/by-sa/4.0/
 
-The vector sources header.svg and icon.svg are the same works under the same
-license. They carry an export-ignore rule, so they are not in the release
-archive a player installs.
+Any .svg source kept beside these images is the same work under the same
+license. Every one of them carries an export-ignore rule, so the release archive
+a player installs holds the .png files alone.
 
 License of source code
 ----------------------
