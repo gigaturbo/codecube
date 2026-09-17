@@ -47,3 +47,8 @@ luac.out
 
 # Bytecode from importing scripts/gen_reports.py, which is the only Python here.
 __pycache__/
+
+# Screen captures and video of the game, kept locally and deliberately not
+# versioned. The video alone is 113 MB, over GitHub's 100 MB hard limit for a
+# single file, so a commit would be rejected and the blob would stay in history.
+screenshots/
