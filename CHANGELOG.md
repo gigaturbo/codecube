@@ -1,12 +1,19 @@
-# v1.0.0 (unreleased)
+# vX.Y.Z (unreleased)
+
+**The version number is unchosen and this heading is the only place it is
+written.** `v1.0.0`, `v1.0.1` and `v1.0.2` are already tagged and pushed — the
+last of them, `9d83f11`, is what a player has — so the next number is the
+author's to pick. Everything below compares against `v1.0.2`, not against any
+unreleased state.
 
 **This release breaks saved player programs, and it breaks worlds you have
 already played in.** Programs break because the drone's limits were rewritten
-around what a program costs the server rather than around counts of calls, and
+around what a program costs the server rather than around counts of calls,
 because nothing bounds a shape's size or the drone's distance from home any
-more. Worlds change because the world is now a finite tray, 2048 nodes across
-with a wall at each edge and a bedrock floor 128 nodes beneath the surface. It
-also needs a newer engine: **Luanti 5.9 or newer**, up from 5.4.
+more, and because several API names are gone with no replacement. Worlds change
+because the world is now bounded — a wall around it and a bedrock floor beneath
+it — and because it is about twice as wide and sixteen times as deep under your
+feet. It also needs a newer engine: **Luanti 5.9 or newer**, up from 5.4.
 
 The bundled `codeblock` mod reached 1.0.0 with changes that break existing player
 programs. See [its changelog](https://github.com/gigaturbo/codeblock/blob/master/CHANGELOG.md)
@@ -18,15 +25,16 @@ for the full list.
 - [x] **BREAKING** removed `max_minetest_version`, which was pinned at 5.5 and hid the game on ContentDB
 - [x] **BREAKING** removed the bundled WorldEdit fork: `codeblock` now places its four shapes itself, so nothing needed it
 - [x] **BREAKING** removed the `formspecs` submodule; `codeblock` no longer depends on it
-- [x] **BREAKING** on a multiplayer server, a player joining for the first time now starts at codelevel 2 rather than 4. Singleplayer is unchanged at 4, and anyone who has already played keeps the level they have
+- [x] **BREAKING** on a multiplayer server, a player joining for the first time now starts at codelevel 2 rather than 4, and a single player starts at 3 rather than 4. Anyone who has already played keeps the level they have
 - [x] **BREAKING** the drone limits were rewritten around what a program actually costs the server - running time, nodes written, map memory - instead of counts of calls and commands. A `minetest.conf` setting an old limit by name now warns in the log and does nothing
-- [x] **BREAKING** the two lowest codelevels are paced: the drone waits between commands (250 ms at codelevel 1, 15 ms at codelevel 2) so a beginner can watch their loop happen. Codelevels 3 and 4 do not wait
+- [x] **BREAKING** the two lowest codelevels are paced: the drone waits between commands (250 ms at codelevel 1, 5 ms at codelevel 2) so a beginner can watch their loop happen. Codelevels 3 and 4 do not wait
 - [x] **BREAKING** programs are now limited in how much of the world they hold at once. Over that limit a program is slowed down rather than stopped, since the engine frees unused map by itself
 - [x] **BREAKING** nothing limits how big a shape may be or how far the drone may fly from home any more. Large shapes no longer freeze the server while they are written - a 150-node cube used to stall it for nearly half a second, and is now written in slabs - and the drone is stopped only at the edge of the world, where a build would not survive anyway
 - [x] **BREAKING** Codecube now needs **Luanti 5.9 or newer**, up from 5.4. The world's floor and walls are written on the engine's mapgen threads, and the call that does it does not exist before 5.9
-- [x] **BREAKING** the world is now a finite tray, **2048 nodes across** instead of roughly 8160. There is a wall at each edge, standing full height, and it is made of a translucent barrier rather than solid rock — the edge of the world is meant to read as a limit you can see past, not as the inside of a box. It still stops you and it still cannot be dug. Under it is a bedrock floor you cannot dig either, with nothing generated below it. **That floor is now 128 nodes beneath the surface rather than 8**, so the world is something to dig down into: there is solid ground the whole way from where you stand to the floor. You still meet the floor only where a program has cleared a shaft to it. An existing world is re-bounded to the new size when you open it, so ground beyond 1024 that you have already visited is now outside the wall. The drone shares the same limit, so it can never build where you cannot walk
+- [x] **BREAKING** the world is now **bounded**, and it is bigger. There is a wall at each edge, standing the full height of the world, made of a translucent barrier rather than solid rock — the edge of the world is meant to read as a limit you can see past, not as the inside of a box. It stops you and it cannot be dug. Under it is a bedrock floor at `y = 0` you cannot dig either, with nothing generated below it, and **that floor is now 128 nodes beneath the surface rather than 8**, so there is solid ground the whole way down and the world is something to dig into. You still meet the floor only where a program has cleared a shaft to it. The size setting bounds every axis, so **the field goes from about 3920 nodes on a side to about 8080** and the ceiling rises with it — about 4047 nodes up. An existing world is re-bounded when you open it, but only ground that has not been generated yet gets the wall, the floor or the new height. The drone shares the same limit, so it can never build where you cannot walk
 - [x] **BREAKING** the bundled vector library is now **2.0.2**, up from 1.5, and two things a program could do quietly now stop it. Writing to one of the library's own constants - `vector.zero` and the like - is an error rather than a change everything else on the server then sees. And giving a vector constructor a bad argument is an error where it used to hand back nothing, so a program that was wrong in one line failed somewhere else entirely
 - [x] **BREAKING** the game no longer bundles `default`, `wool` and `dye` from Minetest Game. Every block a program can place now comes from `codeblock` itself — 35 colours in solid, glass and lamp — so a program that named a block by an old name places nothing. The world's ground changes with them: the surface is a layer of the game's own grass over its own dirt, where it used to be Minetest Game's stone the whole way down
+- [x] **BREAKING** several API names are gone with **no alias**, so a saved program using one now stops on that line: the whole `table` namespace, `random.block`, `random.plant`, `random.wool`, `table.randomizer` and the per-category colour ramps. `random.of(list)` and `random.hues()` replace the pickers and `ramp.hues` and `ramp.of` replace the ramps; `table.randomizer(t)` becomes `function() return random.of(t) end`
 
 ## Added
 
@@ -67,6 +75,6 @@ for the full list.
 
 ## Known limitations
 
-- [ ] Known: a world you created before this release is re-bounded when you open it, but the wall is only built into ground that has not been generated yet. Where you have already been, the world simply stops at 1024 with no wall to see
+- [ ] Known: a world you created before this release is re-bounded when you open it, but the wall and the floor are only built into ground that has not been generated yet. Where you have already been, the world simply stops where it used to, with no wall to see and no bedrock under it
 - [ ] Known: the same applies to the deeper surface. A world you created before this release keeps the ground it has already generated at the old height, and only newly generated ground comes in at 128, so there is a step where the two meet — and the same for its material: ground you have already generated stays the stone it was made of
 - [ ] Known: nothing in CI checks `.gitattributes`, so a file added to this repository ships inside the release archive unless a rule excludes it, and nothing fails locally when one does

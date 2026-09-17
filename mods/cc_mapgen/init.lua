@@ -27,7 +27,7 @@ minetest.set_mapgen_setting("mg_flags",
 -- core.settings:get("mapgen_limit"), which minetest.conf populates before any
 -- mod loads. Writing that setting from here instead would make the two depend
 -- on a load order this game does not fix.
-local mapgen_limit = tonumber(minetest.settings:get("mapgen_limit")) or 1024
+local mapgen_limit = tonumber(minetest.settings:get("mapgen_limit")) or 4096
 
 minetest.set_mapgen_setting("mapgen_limit", mapgen_limit, true)
 

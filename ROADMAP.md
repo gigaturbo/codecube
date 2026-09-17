@@ -30,6 +30,18 @@ Target is **v1.0.0**, major because several changes break saved player programs.
 
 ## Now
 
+**The version number is the release's first open question.** `v1.0.0`, `v1.0.1`
+and `v1.0.2` are tagged and pushed, and `v1.0.2` (`9d83f11`, 2022-07-07) is what
+a player has installed today, so `G5`'s plan to tag `v1.0.0` cannot happen and
+the next number is the author's to pick. `CHANGELOG.md`'s heading is the only
+place it is written.
+
+**The world was widened to `mapgen_limit = 4096` on 2026-09-17** — decision 9
+under `G6`, reversing decision 5. The field is 8080 nodes on a side and the
+ceiling rises with it, and the `W` group's methods were written for the 2000-node
+world, so `W3`, `W5`, `W6` and `W7` are owed re-runs against edges nobody has
+walked to.
+
 **`G8` is the one thing waiting on code**, opened 2026-09-17: nothing in the game
 styles a formspec or the hotbar, because `G3`'s deletion took Minetest Game's and
 nothing replaced it, so every form is the engine's semi-transparent default
@@ -280,12 +292,14 @@ distance* line was expected to ride on the same `set_sky` call and does not:
 `fog_distance` is not a colour, it caps the client's viewing range, and that is
 the author's decision rather than this item's.
 
-### G6. Bound the world — done: 5/5 written at `60259dd`, 6/6 checked
+### G6. Bound the world — done: 5/5 written at `60259dd`, 6/6 checked at 1024, four re-runs owed at 4096
 
 **The first milestone here to be both**, and keeping the two states apart is the
 point of this file. Shaped with the author on 2026-09-07 and built the same day.
 `W4`–`W9` all pass at `60259dd`, which resolves `B50` on both of its routes. The
-defect, the fix and its five **Keep** paragraphs are `AUDIT.md` `B50`.
+defect, the fix and its five **Keep** paragraphs are `AUDIT.md` `B50`. **The
+default moved to 4096 on 2026-09-17** — decision 9 — which changes no code this
+milestone wrote and does move every edge those checks were run against.
 
 **The author's brief, verbatim, and it is what both `G6` and `G7` are built
 against.** It was said in conversation when `G6` opened and written down only on
@@ -307,7 +321,8 @@ The *floor* being visible went the other way — see *deliberately not doing*.
   the bedrock plane at `y = 0`, and fills the outermost generated columns to full
   height. `cc_mapgen` forces `mapgen_limit` onto the world with `override_meta`,
   because the engine stores it per world in `map_meta.txt`. (`B50`)
-- [x] Default the world to **1024**, a 2048×2048 field, down from 4096.
+- [x] Default the world to **1024**. **Reversed on 2026-09-17 by decision 9**,
+  which puts it back to 4096; the field was 2000 nodes on a side, not 2048.
 - [x] Add a game-root `settingtypes.txt` declaring `mapgen_limit`. Extends `C7`
   rather than reversing it — see *deliberately not doing*.
 - [x] Raise `min_minetest_version` 5.4 → **5.9**, the cost of the mapgen
@@ -353,7 +368,7 @@ playing it, the eighth about this record.**
    with the `vector3` re-pin, the **floor** did not.
 5. **Default 1024.** 256 puts the walls inside `viewing_range = 300` so they are
    always in sight; 4096's walls are seven minutes' walk away and therefore
-   theoretical.
+   theoretical. **Reversed on 2026-09-17 — decision 9.**
 6. **Clamp the player, in `cc_security`.** `cc_mapgen:bedrock` is an ordinary node
    to a program, so `remove` deletes a floor tile and a player walks into unlit
    air below `y = 0`. Ruled by the author: one rule, in the mod whose job is
@@ -381,6 +396,22 @@ playing it, the eighth about this record.**
    no id. The fix is the quotation above. **The guidance was already correct and
    simply not followed**, so nothing was added to `CLAUDE.md` for it. *What would
    change it:* the same failure recurring, which would make it a pattern.
+
+**A ninth decision, 2026-09-17, and it reverses the fifth.**
+
+9. **Default 4096, not 1024.** Asked for by the author. Decision 5 chose 1024 to
+   keep the walls reachable; the world it produced was judged too small to build
+   in, and a wall nobody walks to costs nothing. **Three consequences, none
+   separable from it.** The field goes from 2000 to **8080 nodes on a side** —
+   the wall stands at -4032 and 4047, not ±4096, because only whole mapchunks
+   inside the limit are generated and the shortfall is one mapchunk however large
+   the world is. `mapgen_limit` bounds the **vertical** axis too, so the buildable
+   ceiling rises from about 1007 to about 4047 and the barrier runs that high in
+   an edge chunk. And a world already played at 1024 keeps its old barrier shell
+   as real nodes when the override moves its edge out — see *what ships broken*.
+   Derived from the engine's `get_mapgen_edges` at 5.9.0 rather than from the API
+   document, which says only *"a little short"*; `settingtypes.txt` carries the
+   derivation. **No finding**: nothing in committed code was wrong.
 
 ### G7. Make the world something to be in — done, `d6e4a12` and `dd83b99`, 4/5 checked
 
@@ -619,6 +650,13 @@ a fresh recursive clone can fetch **either** pointer.
   not a defect — decision 7. Getting out needs a working program.
 - **A player whose own column is solid for 72 nodes is still sent to spawn.**
   Accepted with decision 7; `W9` case 4 is its check.
+- **A world played at `mapgen_limit = 1024` ends up with a wall inside a wall.**
+  `cc_mapgen` forces the setting with `override_meta = true`, so opening such a
+  world moves its edge out to 4096 and the engine generates to the new one, while
+  the old barrier shell at about ±1000 stays in the map as real nodes. A program
+  can clear it; a player cannot dig it. Nobody is trapped — the rescue reads the
+  new edges. **It reaches no player**: 1024 was never released, so only an
+  unreleased checkout produces such a world. Decision 9.
 - **The wall exists only in chunks generated after `G6`.** It is written by the
   mapgen callback, so a pre-existing world is bounded only where it has not been
   visited. `W7` confirms the *limit* moves; the missing wall is what nothing
@@ -632,9 +670,9 @@ a fresh recursive clone can fetch **either** pointer.
   this is the silence that let it open, and it is `C15`'s hazard in a second
   form. Not a finding: nothing in committed code is wrong.
 - **`mapgen_limit` appears twice in the advanced settings menu** — under Mapgen
-  from builtin, showing 4096, and under Content: Games → Codecube, showing 1024.
-  Both write the same key. Inherent to decision 3; the alternative was not
-  declaring it.
+  from builtin and under Content: Games → Codecube. Both write the same key, and
+  since decision 9 both show 4096, so the duplication is now silent rather than
+  contradictory. Inherent to decision 3; the alternative was not declaring it.
 - **`R6` and `R7` become unrunnable with the deletion.** Both pass, and both name
   a node only `default` registered — a bookshelf and a dirt/grass/sapling patch.
   Their passes stand as what was seen; there is no way to re-run either. `S8`'s

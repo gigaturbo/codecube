@@ -82,12 +82,12 @@ A `fail` is not a finding — report it and let `AUDIT.md` allocate or widen an 
 
 | | |
 |---|---|
-| Entries | **35** — `P6` added 2026-09-17, `L4` 2026-09-09 |
-| Live checks | 33 — `R6` and `R7` are unrunnable, not live |
+| Entries | **36** — `P6` and `P7` added 2026-09-17, `L4` 2026-09-09 |
+| Live checks | 34 — `R6` and `R7` are unrunnable, not live |
 | Most recent result a `pass` | **29**, of which 2 are on entries that can never be re-run |
 | `partial` | **1** — `P1` |
 | `fail` | 0 |
-| Unrun (`unchecked`) | **5** — `W11`, `P3`, `P4`, `P5`, `P6` |
+| Unrun (`unchecked`) | **6** — `W11`, `P3`, `P4`, `P5`, `P6`, `P7` |
 | Results retired | 3 — `W8` and `W9` at `f5f2385` on 2026-09-07, `W11` at `3479e25` on 2026-09-08 |
 | Findings closed by a check | `B47`, `B48`, `B49`, `B50`, `S8` |
 | A pass that proves nothing | **0** — `R1`'s run of 2026-09-09 carries the hand override and could have failed. `R8`'s pass still cannot *distinguish* its cause, which is a weaker thing and is recorded in its entry |
@@ -95,9 +95,9 @@ A `fail` is not a finding — report it and let `AUDIT.md` allocate or widen an 
 | Passes composed from other entries rather than reported | **2** — `L3` and `R5`. Each entry says so in its own result line |
 
 **Counted 2026-09-09 from the first `Result:` line of all 34 entries**, not
-adjusted by hand: 29 pass, 1 partial, 0 fail, 4 unchecked. `P6` was added on
-2026-09-17 and is the 35th, unchecked, which is the only change to the counts
-since. Six results moved in
+adjusted by hand: 29 pass, 1 partial, 0 fail, 4 unchecked. `P6` and `P7` were added on
+2026-09-17 and are the 35th and 36th, both unchecked, which is the only change to
+the counts since. Six results moved in
 the third sitting of the day — `R1`, `R2`, `R9`, `L1`, `L2` and `L4` — and two
 more were composed from them, `R5` and `L3`.
 
@@ -123,6 +123,14 @@ and its reasoning with it. **Every `W` result is owed a re-run at
 `50fd05f` or later** — the tip is `dd83b99` — because `50fd05f` rewrites both
 files the group exercises; the group's preamble says so once rather than the table
 saying it eleven times.
+
+**The world was widened to `mapgen_limit = 4096` on 2026-09-17** (`ROADMAP.md`
+`G6` decision 9), so every `W` result was run in a world 2000 nodes on a side and
+the game now makes one **8080** on a side, with the ceiling as far up as the wall
+is out. It changes no code the group exercises and it moves every edge: `W3`,
+`W5`, `W6` and `W7` are owed re-runs and all four have had their methods
+rewritten, because each named a coordinate or a distance. `W4`, `W8` and `W9` are
+about depth and are untouched by it.
 
 **`W11`'s pass was retired on 2026-09-08** because `cc_mapgen`'s bedrock and
 barrier textures were redrawn after it, and because it had passed against wording
@@ -153,7 +161,10 @@ keeping a second copy.
 
 | Check | State | Why it needs action |
 |---|---|---|
-| `W3` | pass, **method stale** | it passed by teleporting "several thousand nodes" out, which now lands outside a world whose limit is 1024. The pass is still what was seen at `7f649d8`; the instruction has to be re-read before it is re-run |
+| `W3` | pass, **method stale** | it passed by teleporting "several thousand nodes" out, a distance that was outside the world at 1024 and is inside it again since the 2026-09-17 widening to 4096. The pass stands as what was seen at `7f649d8`; the instruction carries a command now |
+| `W5` | pass, **re-run owed** | the wall it saw stood at 1007. Since 2026-09-17 it stands at **4047**, in chunks nobody has emerged, and the method's *past 1000* reached nothing there. Rewritten with a command |
+| `W6` | pass, **re-run owed** | its pass condition inverted on 2026-09-17: the drone must now name **4096**, which used to be the fail. The pass at `60259dd` named 1024 under the old setting |
+| `W7` | pass, **method rewritten, re-run owed** | it compared a world at 4096 against a game at 1024, and 4096 is now the game's own value, so the old method proves nothing. Rewritten around a world at `2000` or `1024` |
 | `W11` | **retired, unrun** | the bedrock and barrier textures were redrawn on 2026-09-08 in a flat-base-plus-specks style, and the old pass named a *"black mottled rock"* and a *"wrapping blur"* that no longer exist. **`W15` was run on 2026-09-09 without it**, so the bedrock and barrier redraws are now the only unjudged part of the texture rework, and the cheapest thing left in this group |
 | `W15` | **pass at `dd83b99`, 2026-09-09** | the grass-over-dirt surface and its two textures are judged. Nothing owed here; `W11`, which it was to be run beside, was not run |
 | `W16` | **pass at `dd83b99`, 2026-09-09** | the three essential mapgen aliases resolve and nothing in the column is `unknown`. It does **not** discharge `P3`, which asks for a log with nothing in it at all rather than four strings absent |
@@ -319,9 +330,10 @@ game promises.
 
 **How** — `/teleport` into unemerged map and watch the ground generate ahead.
 Use `/teleport`, not flight: `default_privs` dropped `fly` and `noclip` on
-2026-09-02. **The distance in the old instruction is stale** — `mapgen_limit` is
-1024, not 4096, so "several thousand nodes" now lands *outside* the world and past
-the wall there is nothing to teleport into. Pick a distance inside 1024.
+2026-09-02. **The distance in the old instruction has been stale twice** — it was
+written at 4096, was outside the world at 1024, and is inside it again since the
+2026-09-17 widening back to 4096. `/teleport 3000 130 3000` is well inside the
+wall at 4047 and well outside anything a `W5` or `W7` run has emerged.
 
 **Pass** — the same flat clean ground, generated live.
 
@@ -374,11 +386,16 @@ sha, which is the outcome that rule was holding out for.
 mode is height and seams rather than presence, and no amount of reading
 `mapgen_env.lua` settles that.
 
-**How** — `/teleport` toward `+x` past 1000, then walk into the edge. Look up
-along the face, and walk some way along `z` with the wall beside you.
+**How** — `/teleport 4040 130 0`, which is a few nodes inside the `+x` wall at
+**4047** and above the surface, then walk into the edge. Look up along the face,
+and walk some way along `z` with the wall beside you. **Rewritten 2026-09-17**:
+the old instruction teleported past 1000, which since the widening to 4096 is
+nowhere near an edge.
 
 **Pass** — an unbroken face, from the floor up out of sight, standing at the same
-`x` all along `z`, with no gap where one mapchunk meets the next. Not a wall that
+`x` all along `z`, with no gap where one mapchunk meets the next. **`x` is 4047,
+not 4096**: only whole mapchunks inside the limit are generated, and the wall
+stands on the last of them. Not a wall that
 is there at eye level and absent thirty nodes up: that is the wall being written
 only into the chunk containing the ground, and it is exactly the case a check done
 from standing height would pass.
@@ -397,10 +414,15 @@ than two that happen to agree. CodeBlock reads `mapgen_limit` itself and nothing
 here writes it into the mod, so a disagreement would let a program build where a
 player cannot walk.
 
-**How** — ask the drone to move past 1024 on any horizontal axis.
+**How** — ask the drone to move past 4096 on any horizontal axis.
 
-**Pass** — it refuses with *"The drone cannot leave the world (1024 nodes)"*,
-naming **1024** and not 4096.
+**Pass** — it refuses with *"The drone cannot leave the world (4096 nodes)"*,
+naming the number in `minetest.conf` and not the engine's own default. **The
+number changed on 2026-09-17**, from 1024 to 4096, so the pass condition inverts:
+4096 used to be the failure. One thing this does **not** settle is that the drone
+and the wall stop in the same place — the drone reads the raw setting, 4096, and
+the wall stands at 4047, so the drone may build in the 49 nodes between them
+(`TODO.md`, upstream).
 
 Result: pass — `60259dd` · engine 5.17.0 · 2026-09-07 — the drone refuses and its
 message names **1024**. So the game's `minetest.conf` reached `core.settings`, and
@@ -416,10 +438,16 @@ on `cc_mapgen`'s `set_mapgen_setting` call an old world keeps its old edge for
 ever. This is the only thing that argument buys and the only route to seeing it
 fail.
 
-**How** — open a world created before this change, one whose `map_meta.txt` still
-carries `mapgen_limit = 4096`, and walk or teleport out to 1024.
+**How** — open a world whose `map_meta.txt` carries a **different**
+`mapgen_limit` from the game's — `2000`, which is what `v1.0.2` created, or `1024`
+from an unreleased checkout — and teleport out past that world's old edge with
+`/teleport 3000 130 0`. **Rewritten 2026-09-17**: the old instruction used a world
+at 4096 and expected 1024, and 4096 is now the game's own value, so as written it
+proves nothing.
 
-**Pass** — the edge is at 1024, not 4096. What this does **not** cover is under
+**Pass** — ground continues past the old edge and stops at **4047**. A world made
+at 1024 also keeps its old barrier shell at about ±1000, standing inside the new
+wall; that is expected and is under *what ships broken* in `ROADMAP.md`. What this does **not** cover is under
 *what ships broken* in `ROADMAP.md`: terrain already emerged beyond 1024 keeps no
 wall, because the wall is written by the mapgen callback and nothing regenerates a
 visited chunk.
@@ -2018,9 +2046,11 @@ mechanism that carried `mods/default`'s styling before `50fd05f` and `B57` after
 it. The hotbar is the same subject by a different call and is on screen from the
 first second.
 
-**How**, in a new world — look at the hotbar as soon as you spawn. Then, holding
-the **Drone setter** (`codeblock:setter`, the tool the mod puts in the hotbar on
-join):
+**How**, in a new world — look at the hotbar as soon as you spawn. Then run
+`/codeblock tools`, which is the only way to be given them here — the mod stopped
+putting them in the hotbar on join and `cc_security` blanks the inventory
+formspec, so the creative inventory does not open (`P7`). Holding the **Drone
+setter** (`codeblock:setter`):
 
 1. **right-click** with it, which opens the file editor;
 2. **left-click** with it, which opens the drone panel.
@@ -2038,12 +2068,58 @@ that form, which is the mod's to change, not a failure of the prepend.
 
 Result: unchecked
 
+### P7 · A new player can get the drone tools at all
+
+**Why** — the two tools are the whole of the game's interface to the drone, and
+**nothing in this game gives them out.** CodeBlock stopped putting them in the
+hotbar on join, and `cc_security` blanks the player's inventory formspec, so the
+creative inventory cannot be opened either. That leaves `/codeblock tools` as the
+only route, and it is a route a new player has to be told about — which is why
+both `README.md` and `CONTENTDB.md` now open with it. A new world that hands a
+player nothing they can use is the worst failure this package can have and no
+gate reaches it.
+
+**How**, in a new singleplayer world, as the first thing done in it:
+
+1. Look at the hotbar on spawning, and press `i`.
+2. Run `/codeblock tools`.
+3. Right click a block with the **Drone placer**.
+
+**Pass** — step 1 finds an empty hotbar and **no inventory menu opening at all**,
+step 2 puts the Drone placer and the Drone setter in the hotbar, and step 3 opens
+the program list. A near miss: the tools already being in the hotbar at step 1
+means something gives them out after all, which is a **pass of the game** and a
+defect in this entry and in both documents — report it rather than recording a
+fail.
+
+Result: unchecked
+
 ---
 
 ## Revisions
 
 Newest first.
 
+- **2026-09-17, over `7f3a39b`, with the configuration change uncommitted in the
+  working tree: the world widened to 4096, four `W` methods
+  rewritten, and `P7` added.** Nothing was run and **no `Result:` line was
+  changed**; the counts go to **36 entries, 29 pass, 1 partial, 0 fail, 6 unrun**.
+  The default `mapgen_limit` went from 1024 to 4096 (`ROADMAP.md` `G6` decision
+  9), which moves the wall from 1007 to **4047**, the field from 2000 to **8080**
+  nodes on a side, and the buildable ceiling with it. Every `W` method that named
+  a coordinate or a distance was written for the old world: `W3`'s stale note is
+  stale in the other direction and now carries a command, `W5` teleported *past
+  1000* and now names 4040, `W6`'s pass condition **inverts** — 4096 was the fail
+  and is now the pass — and `W7` compared a world at 4096 against a game at 1024,
+  which the widening makes vacuous, so it is rewritten around a world at `2000`
+  or `1024`. All four keep their passes, which stand as what was seen under the
+  old setting, and all four are owed re-runs. `W6` also gained the one thing it
+  does not settle: the drone reads the raw setting and the wall is 49 nodes short
+  of it. **`P7` is new and is the first entry about a player getting the tools at
+  all** — nothing in this game gives them out, the mod stopped doing it and
+  `cc_security` blanks the inventory formspec, so `/codeblock tools` is the only
+  route and it had never been checked or documented. `P6`'s *How* carried the
+  false premise and is corrected with it.
 - **2026-09-17, over `34b3820`: `P6` added for `B57`, and nothing was run.** No
   `Result:` line was changed and nothing moved off `unchecked`; the counts go to
   **35 entries, 29 pass, 1 partial, 0 fail, 5 unrun**. `P6` is the first entry in

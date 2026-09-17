@@ -25,8 +25,24 @@ numbers.
 
 Nothing below can be closed by an agent.
 
-*Nothing at present.* The media licence was the last one and was answered on
-2026-09-08 — code AGPL-3.0-only, media CC BY-SA 4.0 (roadmap G7, audit C22).
+- [ ] DECIDE: the release version number. `v1.0.0`, `v1.0.1` and `v1.0.2` are
+      tagged and pushed and `v1.0.2` is what ContentDB serves, so `G5`'s plan to
+      tag `v1.0.0` cannot happen. `CHANGELOG.md`'s heading is the only place it
+      is written
+- [ ] DECIDE: whether `G8`'s interface style ships in this release. If not, the
+      last `## Features` bullet in `CONTENTDB.md` is the clause to cut
+- [ ] DECIDE: `dev_state` is `BETA` in `.cdb.json` and on ContentDB; CodeBlock's
+      is `ACTIVELY_DEVELOPED`. The value lives in `scripts/gen_cdb_json.sh`,
+      which is `code-expert`'s
+- [ ] DECIDE: the game has three one-liners — `game.conf` and the generator's
+      `short_description` say *"A game where the player can construct by
+      programming"*, the README tagline does not
+- [ ] DECIDE: every CodeBlock link in `README.md` points at `blob/master`, which
+      moves under the reader. Pinning to the adopted tag costs one edit per
+      adoption
+
+The media licence was answered on 2026-09-08 — code AGPL-3.0-only, media
+CC BY-SA 4.0 (roadmap G7, audit C22).
 
 ## To do
 
