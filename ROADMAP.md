@@ -23,14 +23,22 @@ Two numbering conventions, so a commit message always resolves:
   messages, so this file never says "Phase N" for anything of its own.
 - **Finding ids are shared** with the mod's audit — a `B`, `S`, `C` or `A` number
   is allocated once across both, so it never means two things and is never
-  renumbered. The 22 in `AUDIT.md` are the game's; the rest are the mod's, as
+  renumbered. The 23 in `AUDIT.md` are the game's; the rest are the mod's, as
   is the `F` feature series.
 
 Target is **v1.0.0**, major because several changes break saved player programs.
 
 ## Now
 
-**No finding is waiting on code, and what is left is checking.** `dd83b99`
+**`G8` is the one thing waiting on code**, opened 2026-09-17: nothing in the game
+styles a formspec or the hotbar, because `G3`'s deletion took Minetest Game's and
+nothing replaced it, so every form is the engine's semi-transparent default
+(`B57`). It is a new mod, `cc_gui`, plus textures, and `code-expert` is writing
+it. **Whether it ships in this release is open** — `G5`'s first line is blocked
+on a `v1.0.0` upstream that does not exist yet, so there is room, but `G8` must
+not be what delays the tag, and `P2` and `P6` both have to be run before one.
+
+**Everything else that is left is checking.** `dd83b99`
 committed `A19`'s `plain` sky and the texture rework, and six checks passed
 against that tree on 2026-09-09 — `R1`, `R2`, `R9`, `L1`, `L2` and `L4` — which
 closes `A19` on `L4` and `A13` on `R9`. **`G3` and `G4` are now done and
@@ -56,12 +64,12 @@ for ever, written into `PLAYTEST.md`'s `R` preamble. Do not re-propose the hand.
 Then `G5`, and it is the only thing on this file's critical path: **a tagged**
 CodeBlock release. The pointer moved to `09c708d` on 2026-09-17 and that closed
 `A7` — the mod deleted its duplicate sky block outright — but `09c708d` is a bare
-commit, so `G5`'s first line stays open until `v1.0.0` exists. **`AUDIT.md` now
-has nothing open at all.** `C22` closed on 2026-09-08 and
+commit, so `G5`'s first line stays open until `v1.0.0` exists. `C22` closed on 2026-09-08 and
 **`C21` on 2026-09-09**, by re-pinning `mods/vector3` to `v2.0.2` — so the whole
 `C` series is closed and the licence and metadata questions are answered. The
 `TODO.md` *fog distance* line is the author's and stays open; `viewing_range` is
-deliberately a courtesy.
+deliberately a courtesy. **`AUDIT.md` had nothing open for a few hours on
+2026-09-17 and now has `B57`.**
 
 ## Milestones
 
@@ -77,13 +85,15 @@ whatever is opened after it.
 | `G4` | Make the game's own mods behave | **done on both counts** — `A19` committed `dd83b99` and `L4` passes; `A7` closed 2026-09-17 with the `09c708d` adoption | 6/6 | 5/5 |
 | `G6` | Bound the world | **done on both counts** | 5/5 | 6/6 |
 | `G7` | Make the world something to be in | done, the texture rework committed `dd83b99`; `W11` still owed | 3/3 | 4/5 |
+| `G8` | Give the interface the game's own style | **opened 2026-09-17**, being written | 0/3 | 0/1 |
 | `G5` | Adopt CodeBlock 1.0.0 and ship | started | 2/5 | — |
 
 Findings by milestone: `G1` (`C1`, `C2`, `C3`, `C4`, `C5`, `C15`, `C20`); `G2`
 (`A14`, `B20`); `G3` (`B49`, `A13`); `G4` (`B47`, `B48`, `S8`, `A7`, `A8`,
 `A19`); `G5`
 (`C21`, `C22`); `G6` (`B50`); `G7` (none — an appearance the author wanted
-changed is not a defect). `C22` was turned up sideways by `G7` and is scheduled
+changed is not a defect); `G8` (`B57`, and it **is** a defect — a styling the
+game used to have and lost, not a look nobody chose). `C22` was turned up sideways by `G7` and is scheduled
 under `G5`, because it is what makes the package honest to ship. **`A20` belongs
 to no milestone**: it is a consequence of `G3` that costs evidence rather than
 behaviour, no item was written for it, and it is won't fix.
@@ -483,6 +493,50 @@ long form is for prose only. **The root `LICENSE` stays bare** — see
 media file, so a texture or menu image added with no licence line fails no gate.
 That is `AUDIT.md` `C22`'s `Keep`, and the wanted check is a `TODO.md` line.
 
+### G8. Give the interface the game's own style — opened 2026-09-17 (0/3)
+
+**A new milestone rather than a reopened `G7`.** `G7`'s goal is the *world* — the
+ground, the wall, the depth — and it is done and 4/5 checked; this is the
+*interface*, a new mod and a new subject, so it takes the next letter. `G5` stays
+last because it is shipping.
+
+The defect, the evidence and why no gate could see it are `AUDIT.md` `B57`;
+`PLAYTEST.md` `P6` is the only check that reaches it, and it names the form to
+open because a prepend is invisible outside one.
+
+- [ ] Add `cc_gui`: a formspec prepend and the two hotbar images, set per player
+  from `register_on_joinplayer`. (`B57`)
+- [ ] Draw the nine-slice panel and the hotbar textures in
+  `scripts/gen_textures.py`, in `G7`'s flat-with-flecks style. (`B57`)
+- [ ] Carry what a fourth mod drags — all `code-expert`'s: a `mod.conf`, its own
+  `license.txt`, a `THIRD-PARTY-LICENSES.md` row, `check_game.sh`'s declared-mod
+  count moving from 5, and `.gitattributes`. The media licence is
+  **CC BY-SA 4.0**, machine-readable `CC-BY-SA-4.0`. (`C22`, `C15`)
+
+**`.gitattributes` is the reverse of the usual `C15` question here.** The new
+PNGs must **ship**, so they need no `export-ignore` line; any art *source* added
+beside them does. `P2` is what would catch either mistake and it is owed as soon
+as the files are tracked.
+
+**The author's three decisions, 2026-09-17.**
+
+1. **Drawn in the game's own flat style** — colours plus a nine-slice panel and
+   hotbar textures, from `scripts/gen_textures.py`, so the interface and the world
+   read as one thing. Two alternatives were rejected; see *deliberately not doing*.
+2. **A fourth mod, `cc_gui`**, self-enclosed and named for what it does, which is
+   how the other three are arranged. Extending `cc_day` was rejected.
+3. **No setting.** A server owner who wants another look sets a prepend from their
+   own mod, which overrides this one.
+
+**Whether it ships in the coming release is open.** `G5`'s first line is blocked
+on a `v1.0.0` upstream that does not exist yet, so there is room for it; the cost
+if it goes in is `P2` re-run for the new files and `P6` run at all, and neither
+has been done. The rule, so it is not decided by drift: **`G8` ships if it is
+committed and both `P2` and `P6` have run before the tag, and is held back
+otherwise.** It is a visible regression every player meets at the first form they
+open, which is the argument for including it; it is also a new mod and new media
+in a release candidate, which is the argument against.
+
 ### G5. Adopt CodeBlock 1.0.0 and ship — started (2/5)
 
 The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
@@ -741,6 +795,28 @@ proposed again.
 - **Separate width and depth.** Rejected 2026-09-07 — decision 2. One number, and
   it is `mapgen_limit`, because the drone already reads that setting.
 
+### The interface
+
+All three were decided with `G8`, on 2026-09-17. (`B57`)
+
+- **Colours only, with no texture files.** Rejected: a prepend's `bgcolor` and
+  `listcolors` alone give a flat rectangle, which reads as a default that happens
+  to be opaque rather than as something drawn. The world already has a drawn style
+  (`G7`) and the point of the change is that the two match. The cost accepted is
+  two more PNGs in the archive, a licence row and a `P2` re-run. *What would
+  change it:* the author preferring no new media in the release archive.
+- **Reproducing Minetest Game's old look** — `bgcolor[#080808BB;true]`,
+  `listcolors[#00000069;…]` and `gui_formbg.png`, which is what `50fd05f^` holds
+  and is the obvious thing to copy back. Rejected because it imports another
+  game's visual language into one that has since chosen its own. Recorded because
+  restoring the deleted bytes is the cheapest fix and the wrong one.
+- **A setting for the interface style.** Rejected: a setting no code path depends
+  on is one maintained for nobody — the principle that removed
+  `codeblock_flat_sky` upstream and closed `A7`. A server owner who wants another
+  look **sets a prepend from their own mod**, which overrides this one, so nothing
+  is locked. *What would change it:* a server owner needing it off without writing
+  a mod.
+
 ### How the bounds are implemented
 
 - **Replacing `cc_security`'s every-node `on_mods_loaded` walk with something
@@ -828,7 +904,23 @@ proposed again.
 
 ---
 
-2026-09-17 · codecube `c2d2b5a`, on branch **`g6-world-limits`**, with
+2026-09-17 · codecube `34b3820`, on branch **`g6-world-limits`**, tree clean at
+the start of this pass — `09c708d` is committed at `34b3820`, which the previous
+footer described as an uncommitted working tree.
+
+**This pass opened `G8` and filed `B57`, and no code exists for either yet.**
+Nothing in the game styles a formspec or the hotbar: `A13`'s deletion at
+`50fd05f` took `mods/default`'s `set_formspec_prepend` and its two
+`hud_set_hotbar_*` images and nothing replaced them, so every form a player opens
+— the editor included, through a prepend that reaches a mod this game does not
+own — is the engine's semi-transparent default. The three decisions are on the
+`G8` entry, the rejected alternatives under *the interface*, the reasoning in
+`AUDIT.md` `B57`, and `PLAYTEST.md` `P6` is the only check that reaches it. No
+gate can see any of it: `check_game.sh` says the game assembles.
+
+The paragraph below describes the state before this pass.
+
+2026-09-17 · codecube `c2d2b5a`, with
 `mods/codeblock` moved to `09c708d` in the working tree and **not yet
 committed**; nothing else is in the tree. **The branch is pushed except its last
 five commits**: `origin/g6-world-limits` is at `5777dc0`, so `50fd05f`,
@@ -936,11 +1028,15 @@ and the total stood at `dd83b99`'s 591 while six further lines of comment landed
 `set_sky` call in `cc_day` and eleven lines of comment beside it, plus seven the
 texture rework added to `cc_mapgen/init.lua`.
 
-This file is **953 lines against its own "under roughly 150"**, up from 899 last
-pass; 953 is `wc -l` here. This pass rewrote *which release is adopted* around
+This file is **1045 lines against its own "under roughly 150"**, up from 953 last
+pass; 1045 is `wc -l` here. This pass added the `G8` section, its three
+*deliberately not doing* entries under a new *the interface* heading, a table
+row, and this footer's own paragraph — a milestone opening is the one thing that
+legitimately grows this file, and none of the 92 lines is reasoning that belongs
+in `AUDIT.md`. The pass before it rewrote *which release is adopted* around
 `09c708d`, closed `A7`'s `G4` line, spent the `codeblock_flat_sky` entry under
-*deliberately not doing* and added this footer's own paragraph. The pass before
-it added `C21`'s closure, the `vector3`
+*deliberately not doing* and added a footer paragraph. The one before that
+added `C21`'s closure, the `vector3`
 pointer, one *deliberately not doing* entry for the playtest decision and its own
 footer paragraph, and removed the `vector3` *ships broken* line. The pass
 before it added `A20`'s terminal state, `A19`'s

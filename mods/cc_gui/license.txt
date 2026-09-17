@@ -1,0 +1,39 @@
+License of source code
+----------------------
+
+GNU Affero General Public License, version 3 only (AGPL-3.0-only)
+
+Copyright (C) 2022-2026 giga-turbo
+
+cc_gui -- Style the interface to match the world
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details:
+https://www.gnu.org/licenses/agpl-3.0.html
+
+The full license text is distributed with this game in the LICENSE file at its
+root directory.
+
+License of media
+----------------
+
+Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+
+Copyright (C) 2026 giga-turbo
+
+textures/cc_gui_formbg.png
+textures/cc_gui_hotbar.png
+textures/cc_gui_hotbar_selected.png
+
+All three are original work for this game, made for it and taken from nowhere
+else. You may share and adapt them, including commercially, provided you give
+credit and license your adaptations under the same terms:
+https://creativecommons.org/licenses/by-sa/4.0/
+
+This is not the license of the source code above. The media of this game is
+licensed separately from its code.

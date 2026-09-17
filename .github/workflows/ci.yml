@@ -43,9 +43,21 @@ jobs:
 
       - name: Lint the game's own mods
         run: |
-          # Explicit paths, not ".": gh-actions-luarocks installs a .luarocks
-          # tree into the workspace and "." would lint the toolchain itself.
-          luacheck mods/cc_day mods/cc_mapgen mods/cc_security \
+          # A glob over the game's own mods, not ".": gh-actions-luarocks
+          # installs a .luarocks tree into the workspace and "." would lint the
+          # toolchain itself. "mods/cc_*" cannot reach it, and unlike a hardcoded
+          # list it picks up a new game mod on the day it is added - which is how
+          # this job once passed without reading cc_gui at all (B57). The two
+          # submodules, codeblock and vector3, carry no cc_ prefix and stay out.
+          mods=(mods/cc_*/)
+          # An empty glob would leave the literal pattern and lint nothing, so
+          # fail loudly rather than pass on having read no code.
+          if [ ${#mods[@]} -eq 0 ] || [ ! -d "${mods[0]}" ]; then
+            echo "::error::no mods/cc_*/ directories found - nothing was linted"
+            exit 1
+          fi
+          echo "Linting: ${mods[*]}"
+          luacheck "${mods[@]}" \
             --formatter plain --codes > luacheck.txt 2>&1 || true
           cat luacheck.txt
           # Re-emit findings as inline annotations: they show on the diff in a

@@ -1,16 +1,17 @@
 ---
 name: code-standards
-description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is 209 lines of Lua across three mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, an index of the guards a change would re-break, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
-when_to_use: Before editing mods/cc_day, mods/cc_mapgen, mods/cc_security, scripts/, game.conf, minetest.conf, .luacheckrc or .gitattributes; when auditing the game's own code; when deciding whether a change belongs to the game or to the mod; and whenever you are about to state that an engine function exists or behaves in a particular way.
+description: The standards and the traps for writing the Codecube game's own Lua and configuration — the game is 218 lines of Lua across four mods, so the craft here is mostly deciding what not to add and what belongs upstream in CodeBlock instead. Covers the restriction boundary cc_security holds, the Luanti behaviours that have already cost findings here, an index of the guards a change would re-break, and what a change drags with it. Use before editing anything under mods/cc_*, scripts/ or the game's configuration, and when auditing them.
+when_to_use: Before editing mods/cc_day, mods/cc_gui, mods/cc_mapgen, mods/cc_security, scripts/, game.conf, minetest.conf, .luacheckrc or .gitattributes; when auditing the game's own code; when deciding whether a change belongs to the game or to the mod; and whenever you are about to state that an engine function exists or behaves in a particular way.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
 # Writing code in Codecube
 
-**This game is 209 lines of Lua, and the craft here is almost entirely deciding
+**This game is 218 lines of Lua, and the craft here is almost entirely deciding
 what not to add.** Everything a player *does* belongs upstream in CodeBlock; what
-is left is the world, the light, the restrictions, the packaging, and a handful
-of engine behaviours that have each already cost a finding.
+is left is the world, the light, the restrictions, the interface's look, the
+packaging, and a handful of engine behaviours that have each already cost a
+finding.
 
 What the game is, what is in `mods/`, and the submodule policy are in `CLAUDE.md`
 and are not restated here. The editing, coding and helper conventions are in
@@ -19,11 +20,11 @@ either.
 
 ## The first question is always *whose is this*
 
-The game owns **209 lines of Lua**, in four files — counted as lines that are
-neither blank nor a comment, recounted on 2026-09-17 with the `09c708d` adoption
-in the working tree, which is how the numbers below can be re-derived rather
-than trusted. Counting blanks and comments too it is 597 lines, so most of what
-is here is prose about why. The one-line recipe, and the one the numbers below
+The game owns **218 lines of Lua**, in five files — counted as lines that are
+neither blank nor a comment, recounted on 2026-09-17 with `cc_gui` in the
+working tree, which is how the numbers below can be re-derived rather than
+trusted. Counting blanks and comments too it is 647 lines, so most of what is
+here is prose about why. The one-line recipe, and the one the numbers below
 come from:
 
 ```bash
@@ -33,7 +34,8 @@ grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l
 | Mod | Lines | What it does |
 |---|---|---|
 | `cc_day` | 8 | Holds the world at noon: the light level, a plain sky, no sky objects |
-| `cc_mapgen` | 51 + 49 | `init.lua` sets `mg_flags`, the world's size and its depth, registers the four nodes the world is made of and the three mapgen aliases a non-V6 mapgen needs of a game; `mapgen_env.lua` writes three of those four on the emerge threads. It is also the only `cc_*` mod with media: four 16×16 textures in `textures/`, drawn by `scripts/gen_textures.py` and licensed in its own `license.txt` |
+| `cc_gui` | 9 | One formspec prepend and the two hotbar images, set per player on join. Its media is three 64×64 textures in `textures/`, drawn by the same `scripts/gen_textures.py` and licensed in its own `license.txt` (`B57`) |
+| `cc_mapgen` | 51 + 49 | `init.lua` sets `mg_flags`, the world's size and its depth, registers the four nodes the world is made of and the three mapgen aliases a non-V6 mapgen needs of a game; `mapgen_env.lua` writes three of those four on the emerge threads. It carries media too: four 16×16 textures in `textures/`, drawn by `scripts/gen_textures.py` and licensed in its own `license.txt` |
 | `cc_security` | 101 | Nothing diggable, no drops, no knockback, no inventory form, nothing growing or spreading, and the world-box clamp with the column rescue and its spawn fallback |
 
 The four nodes are `cc_mapgen:dirt`, the fill, which the engine writes itself
@@ -48,8 +50,8 @@ idea arriving here is usually a change to the mod that has been misfiled, and
 the cheapest thing you can do is say so before writing anything.
 
 It belongs to the **game** when it is about the world, the light, what a player
-may break or place, what a server owner gets by default, packaging, or the
-presentation of the package. It belongs to the **mod** when it is about
+may break or place, what a server owner gets by default, how the interface
+looks, packaging, or the presentation of the package. It belongs to the **mod** when it is about
 programming the drone. `TODO.md` already sorts this way — *"teleport function? —
 game-side, a chat command rather than a drone command"* is the triage done
 correctly.
@@ -240,14 +242,53 @@ already cost findings. Answering from memory is how findings get here.
   `base_color`, `Sky::render` draws nothing at all — sun, moon, stars and the
   sunrise glow included — and the handler disables the directional tint itself.
   A plain sky is therefore flat: no day gradient and no `indoors` shift either.
+- **A formspec prepend is parsed with the *target* form's version, and with
+  legacy coordinates forced.** `GUIFormSpecMenu::regenerateGui` reads
+  `formspec_version[]` out of the main string in its ordered pre-scan, *then*
+  parses the prepend with `real_coordinates = false` and that version still in
+  `m_formspec_version` (5.9.0 `guiFormSpecMenu.cpp`). So `bgcolor[]` in a prepend
+  takes two parameters and never three: the third is rejected outright, with a
+  line to `errorstream`, on any form that declares no version — which is version
+  1. `background9[]` on the other hand carries no version gate in the parser at
+  all; the doc's *"available since formspec version 2"* is about the **client**
+  being 5.1.0 or later, which the 5.9 floor already guarantees, so Minetest
+  Game's `info.formspec_version > 1` branch around it is dead here and is not
+  carried. In a prepend its leading `5,5` is a pixel bleed, not a position,
+  because `auto_clip` turns the position into an offset.
+- **The engine's own non-fullscreen formspec background is
+  `SColor(140, 0, 0, 0)`**, hardcoded in `regenerateGui`. There is no
+  `formspec_default_bg_*` setting — `minetest.conf.example` configures the
+  *fullscreen* pair only. That 140 is what a `bgcolor[]` replaces.
+- **`listcolors[]` with four arguments is an invalid combination** and the whole
+  element is dropped. Two, three or five. The five-argument form is the only way
+  anything sets the default tooltip colours, which are otherwise
+  `SColor(255, 110, 130, 60)`, an olive green that fights any grey panel.
+- **An empty inventory formspec opens no menu at all**, so `cc_security`'s
+  `set_inventory_formspec("")` and `cc_gui`'s prepend cannot interact:
+  `Game::openInventory` returns before it creates the menu when the form string
+  is empty (5.9.0 `game.cpp`).
+- **`hud_set_hotbar_image` stretches one texture across the whole bar**, whose
+  width is `itemcount × (48 + 8)` at the default scale, so per-slot detail drawn
+  into it lands at a different scale for every item count. Setting it also stops
+  the engine drawing its own `SColor(128, 0, 0, 0)` behind each item (5.9.0
+  `hud.cpp`), so that texture's alpha becomes the whole of the contrast behind an
+  icon. `hud_set_hotbar_selected_image` is drawn over one slot grown by
+  `2 × m_padding` on each side, which is **64×64** at the default HUD scale —
+  `HOTBAR_IMAGE_SIZE` is 48 and `m_padding` is 48/12.
+- **A nine-sliced panel cannot carry the world's speck field.** `background9[]`
+  stretches everything inside the middle rect by whatever the form's size happens
+  to be, and the hotbar image is stretched too. A concentric ring survives, being
+  uniform along the axis it is stretched on; a speck smears. That is why
+  `cc_gui`'s three tiles are rings and flat fills while `cc_mapgen`'s four are
+  specks — a constraint of the geometry, not a second style.
 
 ## There are no vendored mods any more
 
-`mods/` holds exactly five directories: `cc_day`, `cc_mapgen`, `cc_security`,
-and the two submodules. **`default`, `dye` and `wool` were deleted outright
+`mods/` holds exactly six directories: `cc_day`, `cc_gui`, `cc_mapgen`,
+`cc_security`, and the two submodules. **`default`, `dye` and `wool` were deleted outright
 under `A13`**, once CodeBlock started registering its own 105 nodes and stopped
 naming anything from Minetest Game — the condition the milestone had always been
-waiting on. `check_game.sh` prints `5 mods declared`; anything higher means a
+waiting on. `check_game.sh` prints `6 mods declared`; anything higher means a
 mod has come back into `mods/`, and putting one of these three back would be a
 whole-game decision about licensing and about 9,744 lines of code nobody here
 maintains.
@@ -277,7 +318,7 @@ table.
 | `CONTENTDB.md` | `.cdb.json`, regenerated with `bash scripts/gen_cdb_json.sh` — never hand-edited | `check_game.sh` diffs it, CRs stripped |
 | a `game.conf` key | ContentDB's reading of it, and `check_game.sh`'s expectations | `check_game.sh`, for `title` and `max_minetest_version` only |
 | what a player sees or may do | `README.md` and `CONTENTDB.md` if it is player-facing | nothing |
-| a texture under `mods/cc_mapgen/textures/` | a filename row in that mod's own `license.txt`, **no** `export-ignore` — a player needs it at runtime — and a redraw through `python scripts/gen_textures.py`, which owns all four; plus a `PLAYTEST.md` entry, because nothing here renders a pixel | nothing |
+| a texture under `mods/cc_mapgen/textures/` or `mods/cc_gui/textures/` | a filename row in that mod's own `license.txt`, a row in `THIRD-PARTY-LICENSES.md`'s *Media* table, **no** `export-ignore` — a player needs it at runtime — and a redraw through `python scripts/gen_textures.py`, which owns all seven; plus a `PLAYTEST.md` entry, because nothing here renders a pixel | nothing |
 | behaviour in a running world | a `PLAYTEST.md` entry — nothing else here reaches it | nothing. `project-manager` writes it |
 | a finding fixed | its state and commit in `AUDIT.md` | nothing. Report it; `project-manager` files it |
 
@@ -309,7 +350,7 @@ the wrong project.
 
 ```bash
 bash scripts/check_game.sh
-wsl bash -lc 'cd /mnt/c/Users/lacba/PRogrammation/codecube && luacheck mods/cc_day mods/cc_mapgen mods/cc_security --formatter plain --codes'
+wsl bash -lc 'cd /mnt/c/Users/lacba/PRogrammation/codecube && luacheck mods/cc_day mods/cc_gui mods/cc_mapgen mods/cc_security --formatter plain --codes'
 ```
 
 **Read the output, not the exit code** — `$?` does not survive this machine's WSL
@@ -363,11 +404,15 @@ this is an index, not a second copy of either.
 | No node this mod registers carries a dig group, for the same reason as the override pass | `B48` | `cc_mapgen/init.lua` |
 | `mapgen_stone`, `mapgen_water_source` and `mapgen_river_water_source` are all three registered; without `mapgen_stone` the world fills with `ignore`, and the two water names go to `air` because no water is generated | `A13` | `cc_mapgen/init.lua` |
 | `is_ground_content` is `true` on dirt and grass and `false` on bedrock and barrier: the ground may be carved, the bounds may not | — | `cc_mapgen/init.lua` |
-| All four textures are **generated, not hand-drawn**: `python scripts/gen_textures.py` redraws every one of them, so a hand edit is undone the next time it runs, and the palettes and seeds live in its table. The look is a flat base colour plus sparse non-touching specks, three or four colours in the tile, following Soothing32 — a value-noise version of the same palettes was drawn and **rejected as grain**, so per-pixel jitter is the thing not to add back | — | `scripts/gen_textures.py`, `cc_mapgen/init.lua` |
+| All seven textures are **generated, not hand-drawn**: `python scripts/gen_textures.py` redraws every one of them, `cc_gui`'s three as well as `cc_mapgen`'s four, so a hand edit is undone the next time it runs, and the palettes and seeds live in its table. The look is a flat base colour plus sparse non-touching specks, three or four colours in the tile, following Soothing32 — a value-noise version of the same palettes was drawn and **rejected as grain**, so per-pixel jitter is the thing not to add back | — | `scripts/gen_textures.py`, `cc_mapgen/init.lua` |
 | `mapgen_env.lua` writes `minp..maxp` only, never the emerged shell, which belongs to the neighbouring chunks | — | `cc_mapgen/mapgen_env.lua` |
 | `ground_level` is read with `get_mapgen_setting` inside the mapgen env, not passed from `init.lua` — that environment sees none of the main one's locals, and a nil there is silent | — | `cc_mapgen/mapgen_env.lua` |
 | A chunk that is interior, wholly above `y = 0` *and* clear of `mgflat_ground_level` returns before `get_data`, which would otherwise be half a million nodes read and written on an emerge thread to change none of them. Every layer the file writes needs a test in that condition | — | `cc_mapgen/mapgen_env.lua` |
 | The grass slab is written before the y loop, so the barrier wins at the wall and the bedrock floor wins if a server owner puts the ground level at or under 0 | — | `cc_mapgen/mapgen_env.lua` |
+| `bgcolor[]` in the prepend takes **two** parameters: a prepend is parsed with the target form's version, and a form declaring none is version 1, where the third is rejected | `B57` | `cc_gui/init.lua` |
+| No `info.formspec_version` branch around `background9[]` — the parser has no version gate and the 5.9 floor guarantees a client that knows the element | `B57` | `cc_gui/init.lua` |
+| The hotbar image is flat: the engine stretches it across a bar whose width follows the item count, and setting it removes the engine's own backdrop behind each item, so its alpha is the only contrast an icon gets | `B57` | `cc_gui/init.lua`, `scripts/gen_textures.py` |
+| `cc_gui` introduces no colour. The palette constants in `gen_textures.py` are shared with `cc_mapgen`'s tiles, so the tie to the world is in the code and not in a comment | `B57` | `scripts/gen_textures.py` |
 | `sunrise_visible = false` is a field of its own — hiding the sun leaves the sunrise texture drawn | `B47` | `cc_day/init.lua` |
 | The sky is `type = "plain"`, which is what makes it immune to the time of day; a `"regular"` sky cannot be, whatever `sky_color` holds. The four sky-object calls beside it are redundant under a plain sky and stay so that going back to `"regular"` cannot silently restore the sun, the moon, the stars and the sunrise | `A19`, `B47` | `cc_day/init.lua` |
 | `cc_day` is the only thing in the package that sets the sky, and no second sky block is added or re-enabled anywhere: the copy CodeBlock deleted called a bare `set_sun{visible = false}`, so any route that brings one back brings it back without `B47`'s `sunrise_visible` | `A7`, `B47` | `cc_day/init.lua` |

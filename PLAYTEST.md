@@ -82,12 +82,12 @@ A `fail` is not a finding — report it and let `AUDIT.md` allocate or widen an 
 
 | | |
 |---|---|
-| Entries | **34** — unchanged; `L4` added 2026-09-09 |
-| Live checks | 32 — `R6` and `R7` are unrunnable, not live |
+| Entries | **35** — `P6` added 2026-09-17, `L4` 2026-09-09 |
+| Live checks | 33 — `R6` and `R7` are unrunnable, not live |
 | Most recent result a `pass` | **29**, of which 2 are on entries that can never be re-run |
 | `partial` | **1** — `P1` |
 | `fail` | 0 |
-| Unrun (`unchecked`) | **4** — `W11`, `P3`, `P4`, `P5` |
+| Unrun (`unchecked`) | **5** — `W11`, `P3`, `P4`, `P5`, `P6` |
 | Results retired | 3 — `W8` and `W9` at `f5f2385` on 2026-09-07, `W11` at `3479e25` on 2026-09-08 |
 | Findings closed by a check | `B47`, `B48`, `B49`, `B50`, `S8` |
 | A pass that proves nothing | **0** — `R1`'s run of 2026-09-09 carries the hand override and could have failed. `R8`'s pass still cannot *distinguish* its cause, which is a weaker thing and is recorded in its entry |
@@ -95,7 +95,9 @@ A `fail` is not a finding — report it and let `AUDIT.md` allocate or widen an 
 | Passes composed from other entries rather than reported | **2** — `L3` and `R5`. Each entry says so in its own result line |
 
 **Counted 2026-09-09 from the first `Result:` line of all 34 entries**, not
-adjusted by hand: 29 pass, 1 partial, 0 fail, 4 unchecked. Six results moved in
+adjusted by hand: 29 pass, 1 partial, 0 fail, 4 unchecked. `P6` was added on
+2026-09-17 and is the 35th, unchecked, which is the only change to the counts
+since. Six results moved in
 the third sitting of the day — `R1`, `R2`, `R9`, `L1`, `L2` and `L4` — and two
 more were composed from them, `R5` and `L3`.
 
@@ -176,6 +178,7 @@ keeping a second copy.
 | `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence — whose causes `G3` deletes, while adding three mapgen aliases whose absence shows up here |
 | `P4` | unrun | the main menu shows the game's name, artwork and icon |
 | `P5` | unrun | needs a release first — it is the ContentDB page as published |
+| `P6` | **new 2026-09-17, unrun** | needs `cc_gui` to exist first: it is `B57`'s only evidence, and both gates together prove only that the game assembles. Run it before the release if `G8` ships in it |
 
 **Three sittings on 2026-09-09, and `P2` is in none of them** — it touches no
 engine and needs no world, so it is run from a shell whenever a tracked file is
@@ -200,6 +203,9 @@ added.
   of it is **`W11`** — which was to be run beside `W15` and was not, and is now
   the only unjudged part of the texture rework — `P3` beside `W16`, and the whole
   `W` group re-run.
+- **`P6` is new on 2026-09-17 and cannot be run yet.** It checks `B57`'s fix —
+  the game's own formspec and hotbar styling — and the mod it needs, `cc_gui`, is
+  being written. Nothing else in this document reaches a form at all.
 - **What no sitting has touched:** `P3`, `P4`, `P1`'s boot half, and the `W4`,
   `W8` and `W9` re-runs at the current depth. `P5` needs a release first. **No
   result names either current submodule pointer** — `vector3` `v2.0.2` or
@@ -2002,12 +2008,52 @@ instruction is complete as words.
 
 Result: unchecked
 
+### P6 · Every form and the hotbar wear the game's own style [B57]
+
+**Why** — a formspec prepend is invisible outside a form, so nothing about this
+can be seen from the world, from the menu or from either gate. The forms a player
+actually opens belong to **CodeBlock**, which sets no styling of its own, so this
+is also the check that the game's prepend reaches a mod it does not own — the
+mechanism that carried `mods/default`'s styling before `50fd05f` and `B57` after
+it. The hotbar is the same subject by a different call and is on screen from the
+first second.
+
+**How**, in a new world — look at the hotbar as soon as you spawn. Then, holding
+the **Drone setter** (`codeblock:setter`, the tool the mod puts in the hotbar on
+join):
+
+1. **right-click** with it, which opens the file editor;
+2. **left-click** with it, which opens the drone panel.
+
+Open each against two backgrounds — facing the grass, then facing the sky — and
+compare the same view with the form closed.
+
+**Pass** — the hotbar draws the game's own frame and its own selection marker,
+not the engine's default; both forms draw an opaque panel in the flat
+grass-and-bedrock palette, with the same panel on both. Two near misses. A panel
+that merely looks darker over grass than over sky is the engine's semi-transparent
+default and is a **fail** — that is what the two backgrounds are for. And styling
+that appears on one of the two forms and not the other is a `no_prepend[]` inside
+that form, which is the mod's to change, not a failure of the prepend.
+
+Result: unchecked
+
 ---
 
 ## Revisions
 
 Newest first.
 
+- **2026-09-17, over `34b3820`: `P6` added for `B57`, and nothing was run.** No
+  `Result:` line was changed and nothing moved off `unchecked`; the counts go to
+  **35 entries, 29 pass, 1 partial, 0 fail, 5 unrun**. `P6` is the first entry in
+  this document that reaches a **formspec**, which nothing here had ever covered:
+  a prepend is invisible outside a form, so the check names the two forms to open
+  and the gesture that opens each — the Drone setter, `codeblock:setter`,
+  right-click for the file editor and left-click for the drone panel. It is `P`
+  rather than a new group because it is the game presenting itself, which is
+  `P4`'s subject too. **It cannot be run until `cc_gui` exists** (`ROADMAP.md`
+  `G8`).
 - **2026-09-17, over `c2d2b5a` with `mods/codeblock` moved to `09c708d` in the
   working tree and uncommitted: the same two re-runs owed again, and `L3`'s
   precondition rewritten.** Nothing was run and **no `Result:` line was changed**;

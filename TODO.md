@@ -18,7 +18,8 @@ is deleted only once its facts are somewhere else** — check before striking, a
 move anything that has no other home.
 
 Finding ids are shared between the two audits and are never renumbered;
-milestones here are lettered `G1`–`G7`, not the mod's phase numbers.
+milestones here are lettered `G`-numbers, `G1` upward, not the mod's phase
+numbers.
 
 ## Decisions wanted from the author
 
@@ -29,6 +30,9 @@ Nothing below can be closed by an agent.
 
 ## To do
 
+- [ ] `cc_gui`: the game styles no formspec and no hotbar since `G3`'s deletion,
+      so every form is the engine's semi-transparent default (roadmap G8, audit
+      B57). Being written; `P6` is its check and `P2` is owed for the new files
 - [ ] `P1`'s boot half and `P3` are unrun. Narrower than it was — `W10` and
       `W12`–`W14` passing proves the author's own checkout boots — but `P1` is a **fresh
       recursive clone**, whose submodule objects nobody has locally. **Its clone
@@ -59,6 +63,13 @@ Nothing below can be closed by an agent.
 - [ ] `check_game.sh`: nothing reads a media file, so a texture or menu image
       added with no licence line fails no gate — the same silence as
       `.gitattributes` (audit C22 `Keep`, C15). A wanted check, not a finding
+- [ ] `check_game.sh`: assert every non-submodule `mods/*/` directory is inside
+      the lint scope. CI globs `mods/cc_*/` and fails loudly on an empty match,
+      which closed `B57`'s hole, but the glob rests on the `cc_` prefix — a game
+      mod named without it is skipped in silence, because the other four still
+      match. Nothing crosses the two lists today. Same shape as the `C22` line
+      above: a convention nothing enforces. A wanted check, not a finding, and
+      `code-expert`'s to write
 - [ ] **standing:** re-run `P2` whenever a tracked file is added — not only at a
       release. Nothing in either CI reads `.gitattributes`, so the next tracked
       file ships or does not with nothing failing (audit C15, C22). It passed at

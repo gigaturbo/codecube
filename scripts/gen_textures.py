@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Draw the four textures the world is made of, into mods/cc_mapgen/textures/.
+"""Draw every texture this game ships: the four the world is made of, into
+mods/cc_mapgen/textures/, and the three the interface is made of, into
+mods/cc_gui/textures/.
 
     python scripts/gen_textures.py
 
-Dev tooling, and **neither a gate nor something CI runs**: the four PNGs are
+Dev tooling, and **neither a gate nor something CI runs**: the seven PNGs are
 committed artefacts, `check_game.sh` does not know about this file and luacheck
 does not read Python. Nothing fails if it is never run again. It exists so that
 the next iteration on the look costs one edit to the palette table below, and so
@@ -27,6 +29,17 @@ Two properties are by construction, not by inspection
   non-base pixel, eight-connected and wrapped. Touching specks accumulate into
   patches, and a field of patches reads as noise again.
 
+The interface tiles, and the one thing that shapes them
+------------------------------------------------------
+The engine stretches both of them, by an amount nothing here can know: a
+`background9[]` panel stretches its middle to whatever the form's size happens to
+be, and the hotbar image is stretched across a bar whose width follows the item
+count. So the specks cannot appear in either -- they would smear, and by a
+different factor for every form and every player. What does survive a stretch
+untouched is a **concentric ring**, uniform along the axis it is stretched on,
+and a **uniform fill**. That is the whole of the interface design: the ground's
+own palette, drawn with rings instead of specks.
+
 Reproducible: each texture draws from its own `random.Random(seed)` over a fixed
 call sequence, so two runs produce byte-identical files whatever order the table
 is read in. Verified by running twice and diffing, as `gen_reports.py` and
@@ -40,6 +53,12 @@ from collections import Counter
 from pathlib import Path
 
 SIZE = 16
+
+# The interface tiles are 64 x 64, which is one hotbar slot exactly at the
+# default HUD scale: 48 px of item plus the engine's 4 px padding doubled on each
+# side (hud.cpp, HOTBAR_IMAGE_SIZE and m_padding). The panel and the bar are
+# stretched anyway; only the selection frame is drawn at its own size.
+GUI = 64
 
 # The speck shapes: single pixels weighted heaviest, then pairs and one triple.
 # Nothing larger -- a four-pixel cluster reads as a blotch at this scale.
@@ -97,10 +116,24 @@ def border(edge):
     ]
 
 
+def rings(edges, fill):
+    """A GUI x GUI tile of concentric one-pixel rings, `edges` from the outside
+    in, with `fill` everywhere deeper. The only shape that survives the engine's
+    stretching intact -- a ring is uniform along whichever axis it is stretched
+    on -- and an empty `edges` gives a uniform tile, which is stretch-proof
+    outright. Colours are RGBA here, since two of the three tiles need it."""
+
+    def at(x, y):
+        ring = min(x, y, GUI - 1 - x, GUI - 1 - y)
+        return edges[ring] if ring < len(edges) else fill
+
+    return [[at(x, y) for x in range(GUI)] for y in range(GUI)]
+
+
 def writepng(path, px):
-    """Write `px`, a SIZE x SIZE list of rows of RGB or RGBA tuples. The colour
-    type follows the tuple width, so an opaque texture stays three channels and
-    only the barrier carries an alpha channel."""
+    """Write `px`, a list of rows of RGB or RGBA tuples, square or not. The
+    colour type follows the tuple width, so an opaque texture stays three
+    channels and only the tiles that need alpha carry it."""
     colour_type = 6 if len(px[0][0]) == 4 else 2
     raw = b"".join(
         b"\x00" + bytes(v for pixel in row for v in pixel) for row in px
@@ -113,49 +146,88 @@ def writepng(path, px):
     path.write_bytes(
         b"\x89PNG\r\n\x1a\n"
         + chunk(b"IHDR",
-                struct.pack(">IIBBBBB", SIZE, SIZE, 8, colour_type, 0, 0, 0))
+                struct.pack(">IIBBBBB", len(px[0]), len(px), 8,
+                            colour_type, 0, 0, 0))
         + chunk(b"IDAT", zlib.compress(raw, 9))
         + chunk(b"IEND", b"")
     )
 
 
-# The palettes and the seeds. A seed is only a label for one arrangement of
-# specks: change it and the tile is redrawn, so the four committed PNGs are what
-# these values mean.
+# The four tones the interface borrows, named so that the borrowing is real
+# rather than a claim in a comment: cc_gui introduces no colour of its own. The
+# three greys are cc_mapgen_bedrock.png's base and its two accents, EDGE is the
+# barrier's border, and GRASS is the ground the hotbar sits over.
+STONE = (40, 40, 45)
+STONE_DARK = (28, 28, 32)
+STONE_LIT = (60, 60, 68)
+EDGE = (16, 16, 16)
+GRASS = (156, 196, 60)
+CLEAR = (0, 0, 0, 0)
+
+# The palettes and the seeds, per mod. A seed is only a label for one arrangement
+# of specks: change it and the tile is redrawn, so the seven committed PNGs are
+# what these values mean.
 TEXTURES = {
-    # Green, with two darker greens and one that leans towards moss.
-    "cc_mapgen_grass.png": specks(
-        base=(156, 196, 60),
-        accents=[(120, 163, 47), (95, 145, 62), (78, 133, 104)],
-        count=8,
-        seed=7,
-    ),
-    # Brown, with one darker brown and one grey pebble tone offered. Five specks
-    # over two accents happen to draw only the darker brown, so the tile as
-    # printed is two colours and not three; that is the arrangement the author
-    # approved, not an accident to correct.
-    "cc_mapgen_dirt.png": specks(
-        base=(139, 101, 71),
-        accents=[(112, 78, 54), (96, 85, 78)],
-        count=5,
-        seed=23,
-    ),
-    # Near-black grey, one shade down and one up, so the floor reads as a
-    # material rather than as a flat fill.
-    "cc_mapgen_bedrock.png": specks(
-        base=(40, 40, 45),
-        accents=[(28, 28, 32), (60, 60, 68)],
-        count=6,
-        seed=59,
-    ),
-    "cc_mapgen_barrier.png": border(edge=(16, 16, 16, 255)),
+    "cc_mapgen": {
+        # Green, with two darker greens and one that leans towards moss.
+        "cc_mapgen_grass.png": specks(
+            base=GRASS,
+            accents=[(120, 163, 47), (95, 145, 62), (78, 133, 104)],
+            count=8,
+            seed=7,
+        ),
+        # Brown, with one darker brown and one grey pebble tone offered. Five
+        # specks over two accents happen to draw only the darker brown, so the
+        # tile as printed is two colours and not three; that is the arrangement
+        # the author approved, not an accident to correct.
+        "cc_mapgen_dirt.png": specks(
+            base=(139, 101, 71),
+            accents=[(112, 78, 54), (96, 85, 78)],
+            count=5,
+            seed=23,
+        ),
+        # Near-black grey, one shade down and one up, so the floor reads as a
+        # material rather than as a flat fill.
+        "cc_mapgen_bedrock.png": specks(
+            base=STONE,
+            accents=[STONE_DARK, STONE_LIT],
+            count=6,
+            seed=59,
+        ),
+        "cc_mapgen_barrier.png": border(edge=EDGE + (255,)),
+    },
+    "cc_gui": {
+        # The form panel: a flat bedrock face behind one lit ring and the
+        # barrier's border, nine-sliced on 8 px so the two rings land at the
+        # form's corners and edges unstretched. Alpha 240 throughout, so the
+        # world is a hint behind a panel of text rather than a distraction, and
+        # so the bgcolor[] beneath composes with it instead of being dead weight.
+        "cc_gui_formbg.png": rings(
+            edges=[EDGE + (240,), STONE_LIT + (240,)],
+            fill=STONE + (240,),
+        ),
+        # The hotbar, uniform and deliberately featureless. Setting a hotbar
+        # image also stops the engine drawing its own SColor(128, 0, 0, 0) behind
+        # each item, so this alpha is the whole of what keeps an icon readable,
+        # and it is darker than the 128 it replaces.
+        "cc_gui_hotbar.png": rings(edges=[], fill=STONE_DARK + (176,)),
+        # The selected slot: two pixels of grass between two dark lines, over a
+        # transparent centre, so the frame reads against a bright item icon as
+        # well as against the sky.
+        "cc_gui_hotbar_selected.png": rings(
+            edges=[EDGE + (255,), GRASS + (255,), GRASS + (255,), EDGE + (255,)],
+            fill=CLEAR,
+        ),
+    },
 }
 
-OUT = Path(__file__).resolve().parent.parent / "mods" / "cc_mapgen" / "textures"
+ROOT = Path(__file__).resolve().parent.parent
 
-for name, pixels in TEXTURES.items():
-    writepng(OUT / name, pixels)
-    tally = Counter(pixel for row in pixels for pixel in row)
-    base, base_count = tally.most_common(1)[0]
-    print(f"{name}: {len(tally)} colours, "
-          f"{base_count}/{SIZE * SIZE} px are the base {base}")
+for mod, tiles in TEXTURES.items():
+    for name, pixels in tiles.items():
+        writepng(ROOT / "mods" / mod / "textures" / name, pixels)
+        tally = Counter(pixel for row in pixels for pixel in row)
+        base, base_count = tally.most_common(1)[0]
+        total = len(pixels) * len(pixels[0])
+        print(f"{mod}/{name}: {len(tally)} colours, "
+              f"{base_count}/{total} px are the base {base}")

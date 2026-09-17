@@ -10,7 +10,7 @@ Each carries its licence text in its own directory.
 |-----|---------|-----------|------|
 | `codeblock` | AGPL-3.0-only | giga-turbo | `mods/codeblock/LICENSE` (submodule, carries its own) |
 | `vector3` | see file | ISs25u / giga-turbo | `mods/vector3/LICENSE` (submodule, carries its own) |
-| `cc_day`, `cc_mapgen`, `cc_security` | AGPL-3.0-only (code; `cc_mapgen`'s textures are CC-BY-SA-4.0) | giga-turbo | each mod's `license.txt` |
+| `cc_day`, `cc_gui`, `cc_mapgen`, `cc_security` | AGPL-3.0-only (code; the textures `cc_gui` and `cc_mapgen` ship are CC-BY-SA-4.0) | giga-turbo | each mod's `license.txt` |
 
 ## Media
 
@@ -22,6 +22,7 @@ this table is all of it.
 | Files | Licence | Copyright | Text |
 |-------|---------|-----------|------|
 | `mods/cc_mapgen/textures/cc_mapgen_grass.png`, `cc_mapgen_dirt.png`, `cc_mapgen_bedrock.png`, `cc_mapgen_barrier.png` | CC-BY-SA-4.0 | giga-turbo | `mods/cc_mapgen/license.txt`, *License of media* |
+| `mods/cc_gui/textures/cc_gui_formbg.png`, `cc_gui_hotbar.png`, `cc_gui_hotbar_selected.png` | CC-BY-SA-4.0 | giga-turbo | `mods/cc_gui/license.txt`, *License of media* |
 | `menu/background.png`, `menu/header.png`, `menu/icon.png` | CC-BY-SA-4.0 | giga-turbo | `menu/license.txt` |
 
 **All of the game's own media is CC-BY-SA-4.0, and all of its code stays
@@ -32,10 +33,13 @@ the game needs on a texture. The name written into any machine-read field is
 ContentDB's own spelling, **`CC-BY-SA-4.0`** — hyphenated, and listed as FOSS at
 `https://content.luanti.org/api/licenses/`.
 
-Three places carry the statement, and each has one reader:
+Four places carry the statement, and each has one reader:
 
-- `mods/cc_mapgen/license.txt`, *License of media* — the four textures, beside the
-  mod that ships them, in the same shape as every other mod's licence file.
+- `mods/cc_mapgen/license.txt`, *License of media* — the four world textures,
+  beside the mod that ships them, in the same shape as every other mod's licence
+  file.
+- `mods/cc_gui/license.txt`, *License of media* — the three interface textures,
+  on the same terms and for the same reason.
 - `menu/license.txt` — the three menu images and their `.svg` sources. `menu/` is
   deliberately not export-ignored, because the main menu reads `menu/*.png` at
   runtime, so this file ships with them and is what a player finds. The `.svg`

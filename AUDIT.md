@@ -19,7 +19,8 @@ number never means two things and **a gap here is a finding that lives in the
 mod's audit**, not one dropped. Every id below kept the number it had in the
 shared audit; `C15` is the first allocated after the split, then `C20`, then
 `B50` and `C21` on 2026-09-07, then `C22`, then `A19` and `A20` on 2026-09-09 —
-the next two free `A` numbers, the mod's audit holding `A15`–`A18`.
+the next two free `A` numbers, the mod's audit holding `A15`–`A18` — then `B57`
+on 2026-09-17, the next free `B` number, the mod's audit holding `B51`–`B56`.
 The `S` series was all the mod's until `S8` was filed, fixed and confirmed here
 on 2026-09-01; the `F` feature series is the mod's own.
 
@@ -44,18 +45,18 @@ ever been renumbered and nothing dropped.
 
 | Series | Total | Resolved | Open | Won't fix |
 |---|---|---|---|---|
-| `B` bugs | 7 | 7 | 0 | 0 |
+| `B` bugs | 8 | 7 | 1 | 0 |
 | `S` sandbox and security | 1 | 1 | 0 | 0 |
 | `C` compliance and packaging | 8 | 8 | 0 | 0 |
 | `A` architecture and performance | 6 | 4 | 0 | 2 |
-| **Total** | **22** | **20** | **0** | **2** |
+| **Total** | **23** | **20** | **1** | **2** |
 
-**Nothing in this document is open as of 2026-09-17.** `A7` was the last, and it
-closed with the `mods/codeblock` pointer moving to `09c708d`, where the
-duplicated sky block is gone from the mod's source entirely. Both **won't fix**
-entries are medium and are decisions rather than debt: `A20`, the first, and
-`A8`, decided 2026-09-09. **No finding here is waiting on anything**; what is
-outstanding for the game is checking, and `PLAYTEST.md` is where that is said.
+**One finding is open as of 2026-09-17: `B57`**, filed the same day. `A7` had
+closed the last one hours earlier, with the `mods/codeblock` pointer moving to
+`09c708d`; `B57` is a presentation regression that shipped with `A13`'s deletion
+at `50fd05f` and that no gate here can see. It is scheduled as `ROADMAP.md` `G8`
+and is being written. Both **won't fix** entries are medium and are decisions
+rather than debt: `A20`, the first, and `A8`, decided 2026-09-09.
 
 **`A8` is won't fix as of 2026-09-09, and is waiting on nothing.** The author
 decided the every-node walk stays: *the case of another mod in this game is not
@@ -90,7 +91,14 @@ restated here.
 
 ## Where it stands
 
-**`A7` is resolved on 2026-09-17 and nothing here is open.** The game adopted
+**`B57` was filed on 2026-09-17 and is the only open finding.** Nothing in the
+game styles a formspec or the hotbar: `A13`'s deletion of `mods/default` at
+`50fd05f` took Minetest Game's prepend and hotbar images with it and nothing
+replaced them, so every form is the engine's semi-transparent default. It is a
+defect in committed code that neither gate can see, and the fix — a fourth mod,
+`cc_gui` — is `ROADMAP.md` `G8`.
+
+**`A7` is resolved on 2026-09-17, hours before `B57` was filed.** The game adopted
 `codeblock` `09c708d`, where the mod's duplicate sky block, the
 `codeblock_flat_sky` setting that had guarded it and that setting's
 `settingtypes.txt` entry are all removed — upstream's `C18`, finished at
@@ -209,7 +217,7 @@ never sees `diggable`, so the fix had to come from the groups and no other readi
 of the defect survives. What the run adds is that the strip works on the client,
 which no reading could say.
 
-**Three of the 22 arrived on 2026-09-01, from the first hours anyone has
+**Three of the 23 arrived on 2026-09-01, from the first hours anyone has
 spent playing this game against `PLAYTEST.md`** — `B47`, `B48` and `S8`. None was
 visible from reading the three `cc_*` files, **which between them were 21 lines
 at the time** and are **597** now across four files, since `G6`, the rescue
@@ -259,11 +267,67 @@ log nobody has read.
 
 ## Open and won't-fix findings
 
-**Nothing is open as of 2026-09-17** — `A7` was the last and is resolved, in full
-under the `A` series below. `A8` and `A20` stay here, both **won't fix**, because
+**`B57` is the one open finding, filed 2026-09-17** and in full below. `A7` had
+been the last open one and is resolved, under the `A` series. `A8` and `A20` stay
+here, both **won't fix**, because
 a decision taken against a real condition has to be as readable as an open item
 or it gets re-argued. Neither is counted as open anywhere, and neither is
 outstanding work.
+
+### B57 · low · open — nothing in the game styles a formspec or the hotbar, so every form falls back to the engine's semi-transparent default
+
+`mods/default/init.lua` (deleted at `50fd05f`) · no replacement anywhere in the
+tree
+
+Minetest Game's `default` styled **every** formspec on the server from
+`register_on_joinplayer`, with `player:set_formspec_prepend()`:
+
+```
+bgcolor[#080808BB;true]
+listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]
+background9[5,5;1,1;gui_formbg.png;true;10]
+```
+
+and set the hotbar in the same callback, `hud_set_hotbar_image("gui_hotbar.png")`
+and `hud_set_hotbar_selected_image("gui_hotbar_selected.png")`. Read from
+`git show 50fd05f^:mods/default/init.lua`, lines 29–46, on 2026-09-17.
+
+**`A13` deleted `mods/default` at `50fd05f` and nothing replaced any of it.**
+Neither the game's own three mods nor `mods/codeblock` sets a formspec prepend, a
+form background or a hotbar image — CodeBlock's only `bgcolor` uses are
+`style[stop;bgcolor=red]` and five siblings, per-button and never per-form. So
+every form a player opens, the editor included, falls back to the engine's
+built-in background, which is semi-transparent, and the hotbar to the engine's
+default images. The author saw it in play on 2026-09-17.
+
+**Why a deletion here reached a mod this game does not own.** A prepend applies
+to every formspec shown to that player except one carrying `no_prepend[]` —
+5.17.0's `lua_api.md` warns at line 3024 that a prepend *"may be the reason
+backgrounds are appearing when you don't expect them to"*. The same mechanism in
+reverse is this finding: the styling the editor appeared to have was never the
+editor's, so deleting a game mod changed how a mod looked.
+
+**No number for the engine's own default, deliberately.** 5.17.0's
+`minetest.conf.example` declares `formspec_fullscreen_bg_opacity = 140` and
+`formspec_fullscreen_bg_color = (0,0,0)` and **no** `formspec_default_bg_*`
+setting at all. The non-fullscreen default is hardcoded in the engine and has not
+been read out of its source here, so no value for it is written down.
+
+**No gate could see this, and none will see it fixed.** `check_game.sh` verifies
+that the game assembles and luacheck reads four files without running them, so a
+deletion that removes an appearance fails nothing — the same silence as `C15`'s
+`.gitattributes` and `C22`'s media licences. `PLAYTEST.md` `P6` is the only thing
+in the project that reaches it, and because a prepend is visible only inside a
+form, `P6` names the form to open.
+
+**The fix, agreed with the author on 2026-09-17 and scheduled as `ROADMAP.md`
+`G8`.** A fourth mod, `cc_gui`, setting the prepend and the two hotbar images
+from `register_on_joinplayer`, over a nine-slice panel and hotbar textures drawn
+in `G7`'s flat-with-flecks style by an extension to `scripts/gen_textures.py`.
+**No setting**: a server owner who wants another look sets a prepend from their
+own mod, which overrides this one. The two rejected scopes and the rejected
+setting are in `ROADMAP.md` under *deliberately not doing*; what the change drags
+with it is on the `G8` entry.
 
 ### A8 · medium · won't fix — decided 2026-09-09: the every-node walk stays; the drop chain is confirmed and `last_mod` untested by choice
 
@@ -518,7 +582,8 @@ of the grounds on which it was declined.
 
 ## Resolved — B bugs
 
-**7 findings, all 7 resolved, and the `B` series has no open finding left.**
+**8 findings, 7 resolved and `B57` open** — `B57` is 2026-09-17's and is in full
+under *Open and won't-fix findings*, above.
 `B50` closed on 2026-09-07 when `W4`–`W9` all passed at `60259dd` and both of its
 routes became observed. Two are resolved but **unverified in a world**: `B19`
 and `B24`, both waiting on `P3`. `B48` left that state on 2026-09-09, when `R8`
@@ -1993,6 +2058,19 @@ suggests and the next reader will re-derive it. **It was marked "likely and not
 demonstrated" when filed, and that marking is what made it cheap to correct.**
 
 ---
+
+Revised 2026-09-17, over `34b3820`, tree clean. **`B57` is filed and the counts
+move to 23 findings, 20 resolved, 1 open and 2 won't fix** — the document had
+nothing open for a few hours. `B57` is the game styling no formspec and no
+hotbar: `A13`'s deletion at `50fd05f` took Minetest Game's `set_formspec_prepend`
+and its two `hud_set_hotbar_*` images with it and nothing replaced them, read
+from `git show 50fd05f^:mods/default/init.lua` and from a grep of the whole tree
+on 2026-09-17. It is filed **low** — nothing behaves wrongly and nothing is
+unreachable; every form is the engine's semi-transparent default and the author
+saw it in play. **No gate could have caught it and none will confirm the fix**,
+which is why `PLAYTEST.md` `P6` was written with it. The fix is scheduled as
+`ROADMAP.md` `G8`, a fourth mod `cc_gui`, and is being written by `code-expert`;
+nothing about it is committed at this revision.
 
 Revised 2026-09-17, over `c2d2b5a` with `mods/codeblock` moved to `09c708d` in
 the working tree and not yet committed. **`A7` is resolved and the counts move to

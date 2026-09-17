@@ -2,7 +2,8 @@
 --
 --   luacheck .
 --
--- Scope: the game's own mods only, which is cc_day, cc_mapgen and cc_security.
+-- Scope: the game's own mods only, which is cc_day, cc_gui, cc_mapgen and
+-- cc_security.
 --
 -- The codeblock mod is developed in its own repository, ships as its own
 -- ContentDB package, and carries its own .luacheckrc, test suite and CI. It is

@@ -26,10 +26,10 @@ instructions.
 | | |
 |---|---|
 | `codeblock`, `vector3` | Submodules. Pinned dependencies, **not working copies.** |
-| `cc_day`, `cc_mapgen`, `cc_security` | The game's own mods: permanent daylight, a flat bounded clean mapgen, and the build restrictions. One Lua file each except `cc_mapgen`, which has a second, `mapgen_env.lua`, run in the mapgen environment on the emerge threads. **This is the only Lua this repository owns or lints.** `cc_mapgen` is also the only one with media: 16×16 textures in `textures/`, drawn by `scripts/gen_textures.py` and licensed in its own `license.txt`. |
+| `cc_day`, `cc_gui`, `cc_mapgen`, `cc_security` | The game's own mods: permanent daylight, the look of the interface, a flat bounded clean mapgen, and the build restrictions. One Lua file each except `cc_mapgen`, which has a second, `mapgen_env.lua`, run in the mapgen environment on the emerge threads. **This is the only Lua this repository owns or lints.** Two of them carry media in `textures/`, drawn by `scripts/gen_textures.py` and licensed in each mod's own `license.txt`: `cc_mapgen`'s four 16×16 world tiles and `cc_gui`'s three 64×64 interface tiles. |
 **`mods/default`, `mods/dye` and `mods/wool` were deleted at `50fd05f`** under
 `G3`: CodeBlock registers its own 105 nodes since its `F11` and depends on
-`vector3` alone, so nothing reachable came from them. `mods/` holds the five
+`vector3` alone, so nothing reachable came from them. `mods/` holds the six
 directories above and nothing else — do not re-vendor a Minetest Game mod for a
 node, and note that the engine's three essential mapgen aliases moved into
 `cc_mapgen` with the deletion.
@@ -72,9 +72,10 @@ Seven tracked documents, all in this directory, plus the `.claude/` definitions
 and the HTML renderings:
 
 - `ROADMAP.md` — the game's own mods, its packaging and presentation, and which
-  CodeBlock release it has adopted. Its milestones are lettered **`G1`–`G7`**,
-  deliberately not "Phase N" — that is the mod's scheme and appears in its commit
-  messages, and the two must stay distinguishable.
+  CodeBlock release it has adopted. Its milestones are lettered **`G`-numbers**,
+  `G1` upward and allocated as they open, deliberately not "Phase N" — that is
+  the mod's scheme and appears in its commit messages, and the two must stay
+  distinguishable.
 - `TODO.md` — intentions that are not findings. One line per item and a finding
   id where there is one; the description of the work belongs in `ROADMAP.md`, and
   the reasoning in the audit.
@@ -138,7 +139,7 @@ own skill first. Their definitions are the long form; this is only the map.
 | Agent | Owns | Reads |
 |---|---|---|
 | `project-manager` | the record above, `README.md`, `CONTENTDB.md` and the `.cdb.json` generator over it, `.reports/`, and the `.claude/` definitions bar the two below | `build-feature` |
-| `code-expert` | `mods/cc_day`, `mods/cc_mapgen`, `mods/cc_security`, `scripts/`, `game.conf`, `minetest.conf`, `settingtypes.txt`, the packaging and lint configuration, `THIRD-PARTY-LICENSES.md` and each mod's `license.txt`, and its own two files — `.claude/agents/code-expert.md` and `.claude/skills/code-standards/SKILL.md` | `code-standards`, `luanti-reference` |
+| `code-expert` | the game's own mods, `mods/cc_*` — currently `cc_day`, `cc_gui`, `cc_mapgen` and `cc_security` — plus `scripts/`, `game.conf`, `minetest.conf`, `settingtypes.txt`, the packaging and lint configuration, `THIRD-PARTY-LICENSES.md` and each mod's `license.txt`, and its own two files — `.claude/agents/code-expert.md` and `.claude/skills/code-standards/SKILL.md` | `code-standards`, `luanti-reference` |
 | `test-agent` | the two gates, the CI lookup, `PLAYTEST.md`'s result lines, and the evidence side of `AUDIT.md` | `run-checks`, `luanti-reference` |
 
 Two rules make the split work: **call the agent rather than doing its work**, and
@@ -160,7 +161,7 @@ These are the game's own checks, and they are what this repository's CI runs —
 
 ```bash
 bash scripts/check_game.sh    # the game assembles: metadata, submodules, deps, .cdb.json
-luacheck mods/cc_day mods/cc_mapgen mods/cc_security --formatter plain --codes
+luacheck mods/cc_*/ --formatter plain --codes   # the glob CI uses; picks up a new game mod
 bash scripts/gen_cdb_json.sh  # regenerate after a CONTENTDB.md edit; check_game.sh diffs it
 ```
 
@@ -169,7 +170,7 @@ Two more generators, and **neither is a gate nor something CI runs**:
 ```bash
 python scripts/gen_reports.py          # rebuild the three HTML renderings
 python scripts/gen_reports.py --check  # report drift without writing
-python scripts/gen_textures.py         # redraw cc_mapgen's four 16x16 textures
+python scripts/gen_textures.py         # redraw all seven textures the game ships
 ```
 
 Run `gen_reports.py` after editing `ROADMAP.md`, `AUDIT.md` or `PLAYTEST.md`, and
@@ -177,10 +178,12 @@ check the entry count it prints against that document's own status table — a
 count that has dropped is an entry heading that stopped parsing. Nothing fails if
 it is skipped, because `.reports/` is gitignored.
 
-`gen_textures.py` draws grass, dirt, bedrock and the barrier from the palettes and
-seeds in its own table, byte-identically on every run. The PNGs are **committed
-artefacts**, so nothing fails if it is never run again: `check_game.sh` does not
-know about the script and luacheck does not read Python. It exists so the palettes
+`gen_textures.py` draws every texture the game ships from the palettes and seeds
+in its own table, byte-identically on every run: `cc_mapgen`'s grass, dirt,
+bedrock and barrier at 16×16, and `cc_gui`'s panel background, hotbar strip and
+selection frame at 64×64 — one hotbar slot exactly at the default HUD scale. The
+seven PNGs are **committed artefacts**, so nothing fails if it is never run
+again: `check_game.sh` does not know about the script and luacheck does not read Python. It exists so the palettes
 and the seeds do not rot in a comment. The style is deliberate and is not noise —
 `ROADMAP.md` `G7`, *The texture rework*, says why, and `PLAYTEST.md` `W11` and
 `W15` are what judge it in a world.
@@ -231,14 +234,17 @@ the world box **into their own column** — clamping it inside the wall, making 
 floor whole under it and standing them on the first height in it they fit, and
 falling back to the spawn point only when nothing in that column fits. Those
 writes are **the one place this game writes to the map**; every other rule in
-`cc_security` denies. Four Lua files, and the whole of this game's code:
-**209 lines** — `cc_day` 8, `cc_mapgen` 51 + 49, `cc_security` 101, counting
-neither blanks nor comments, and **597 lines in all**, recounted 2026-09-17 over
-the working tree at the `09c708d` adoption. `G3` is what moved the code count
-from 177; **read the files rather than trusting the number**, which has now been
-written down wrong twice. The code count has not moved since `50fd05f`, where it
-was 208 and 572 in all: everything after it is comment, nineteen lines of it by
-`dd83b99` (209 and 591) and six more since.
+`cc_security` denies. `cc_gui` gives every panel and the hotbar their look — one
+formspec prepend and two hotbar images, set per player on join because the engine
+offers no server-wide default for either, and the reason a form is no longer the
+engine's semi-transparent default. It has no setting and no dependency. Five Lua
+files, and the whole of this game's code: **218 lines** — `cc_day` 8, `cc_gui` 9,
+`cc_mapgen` 51 + 49, `cc_security` 101, counting neither blanks nor comments, and
+**647 lines in all**, counted 2026-09-17 over the working tree with `cc_gui`
+still untracked. `G3` is what moved the code count from 177 and `G8` is the 9
+lines of `cc_gui`; **read the files rather than trusting the number**, which has
+been written down wrong twice. Everything between `50fd05f` (208 and 572) and
+`cc_gui` was comment.
 
 **The bedrock floor is buried deep under the ground.** `mgflat` fills
 `mapgen_stone` — `cc_mapgen:dirt` — up to
