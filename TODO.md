@@ -25,15 +25,6 @@ numbers.
 
 Nothing below can be closed by an agent.
 
-- [ ] DECIDE: the release version number. `v1.0.0`, `v1.0.1` and `v1.0.2` are
-      tagged and pushed and `v1.0.2` is what ContentDB serves, so `G5`'s plan to
-      tag `v1.0.0` cannot happen. `CHANGELOG.md`'s heading is the only place it
-      is written
-- [ ] DECIDE: whether `G8`'s interface style ships in this release. If not, the
-      last `## Features` bullet in `CONTENTDB.md` is the clause to cut
-- [ ] DECIDE: `dev_state` is `BETA` in `.cdb.json` and on ContentDB; CodeBlock's
-      is `ACTIVELY_DEVELOPED`. The value lives in `scripts/gen_cdb_json.sh`,
-      which is `code-expert`'s
 - [ ] DECIDE: the game has three one-liners — `game.conf` and the generator's
       `short_description` say *"A game where the player can construct by
       programming"*, the README tagline does not
@@ -46,15 +37,18 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
 
 ## To do
 
-- [ ] `cc_gui`: the game styles no formspec and no hotbar since `G3`'s deletion,
-      so every form is the engine's semi-transparent default (roadmap G8, audit
-      B57). Being written; `P6` is its check and `P2` is owed for the new files
+- [ ] `cc_gui`: committed at `ba92d52` and **ships in `v2.0.0`** (roadmap G8,
+      audit B57). What is left is checking, and both are **release blockers**:
+      `P6` is its own check and the only thing that closes `B57`, and `P2` is
+      owed for the four files it adds
 - [ ] `P1`'s boot half and `P3` are unrun. Narrower than it was — `W10` and
       `W12`–`W14` passing proves the author's own checkout boots — but `P1` is a **fresh
       recursive clone**, whose submodule objects nobody has locally. **Its clone
       half is stale too**: it passed at `8b27f2f` on `codeblock` `2647228`, and
       the pointer has moved twice since — `fb75bc8` at `50fd05f`, `09c708d` on
-      2026-09-17 — so no clone has confirmed the current one is fetchable
+      2026-09-17. Narrower since 2026-09-22: `release-check` fetched both
+      pointers by hash into a clean clone and both succeeded, so what is left is
+      the rest of a recursive clone rather than the fetchability
 - [ ] `W4`, `W8` and `W9` are owed re-runs at the new depth: all three pass at
       `60259dd`, where `mgflat_ground_level` was 8, and all three exercise heights
       the rescue derives from that number. **`W14` discharges none of them** —
@@ -69,9 +63,11 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
       `cc_mapgen`'s two `flowers:*` aliases have no schematics left to resolve.
       Keep as defence or delete as dead code — a decision, not a finding (audit
       B49, B19)
-- [ ] `P2` and the changelog's download figure: the deletion of three vendored
-      mods changes the archive size, and `CHANGELOG.md` still states 1.93 MB
-      measured at `48cc63e`. Re-measure at release (audit C15)
+- [ ] `P2` and the changelog's download figure: `CHANGELOG.md` now states
+      2.53 MB at `v1.0.2` down to 1.21 MB, measured 2026-09-22 with
+      `git archive --format=zip` at `0a605a3` and a dirty tree, so the figure
+      will shift once the 7 uncommitted files land. Re-measure at the tagged
+      commit — that is the number a player's download actually is (audit C15)
 - [ ] `R4`'s re-run — the last of `B48`'s blast-radius controls, and it needs
       `A20`'s temporary hand override like `R1` did. A re-run of `R8` **with** the
       override is worth it too: it is the only thing that would separate the group
@@ -81,7 +77,9 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
       `.gitattributes` (audit C22 `Keep`, C15). A wanted check, not a finding
 - [ ] `check_game.sh`: assert every non-submodule `mods/*/` directory is inside
       the lint scope. CI globs `mods/cc_*/` and fails loudly on an empty match,
-      which closed `B57`'s hole, but the glob rests on the `cc_` prefix — a game
+      which closed `B57`'s hole and is confirmed — 5 files, 0 warnings, 0 errors
+      on 2026-09-22, `cc_gui` inside the scope — but the glob rests on the `cc_`
+      prefix — a game
       mod named without it is skipped in silence, because the other four still
       match. Nothing crosses the two lists today. Same shape as the `C22` line
       above: a convention nothing enforces. A wanted check, not a finding, and
@@ -95,8 +93,16 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
       for two days (audit C21 `Keep`). A wanted check, not a finding
 - [ ] adopt a **tagged** CodeBlock release and update the game's documentation
       with it (roadmap G5) — `09c708d` was adopted on 2026-09-17 and is a bare
-      commit; re-point at `v1.0.0` once it is tagged, and write the `CHANGELOG.md`
-      *Changed* entry then
+      commit; re-point at CodeBlock `v1.0.0` once it is tagged, and write the `CHANGELOG.md`
+      *Changed* entry then. Until then `CHANGELOG.md` says what is true — a
+      development build ahead of `v0.7.3` — corrected 2026-09-22 from a claim
+      that the mod had reached 1.0.0
+- [ ] push both branches and get a CI run on the commit that will be tagged:
+      `g6-world-limits` is 11 ahead of its remote, `main` 10 ahead of
+      `origin/main` at `35fa2a1`, and no run exists for `0a605a3` or for any of
+      the 9 commits after `dd83b99` (roadmap G5, release-check 2026-09-22)
+- [ ] check the ContentDB upload webhook from a machine with `gh` installed.
+      Until someone does, **treat the upload as manual** (roadmap G5)
 - [ ] `cc_security`: the rescue's `load_area` column grew from 5 mapblocks to 13
       with the deeper world, and the scan reads ~128 more nodes before it finds
       the surface — bounded and deliberate; it could start at the surface and

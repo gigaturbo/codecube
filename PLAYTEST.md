@@ -120,21 +120,59 @@ was corrected, and the two corrected one-line programs passed in the third.
 unrunnable with it** — each names a node only `default` registered — and are kept
 with their passes rather than deleted, because a deleted entry takes its evidence
 and its reasoning with it. **Every `W` result is owed a re-run at
-`50fd05f` or later** — the tip is `dd83b99` — because `50fd05f` rewrites both
+`50fd05f` or later** — the tip is `0a605a3` — because `50fd05f` rewrites both
 files the group exercises; the group's preamble says so once rather than the table
 saying it eleven times.
 
+**The newest commit any result names is `dd83b99`, and HEAD is nine commits
+later, at `0a605a3`.** Counted from the `Result:` lines on 2026-09-22, not
+recalled. Those nine touch **all four** of the game's own mods, both submodule
+pointers and `minetest.conf`, so every claim below about behaviour is evidence
+about a tree nine commits old. Nothing in this document has been run since
+2026-09-09.
+
 **The world was widened to `mapgen_limit = 4096` on 2026-09-17** (`ROADMAP.md`
-`G6` decision 9), so every `W` result was run in a world 2000 nodes on a side and
+`G6` decision 9) and **committed at `0a605a3` on 2026-09-22**, so every `W` result
+was run in a world 2000 nodes on a side and
 the game now makes one **8080** on a side, with the ceiling as far up as the wall
-is out. It changes no code the group exercises and it moves every edge: `W3`,
+is out. It moves every edge: `W3`,
 `W5`, `W6` and `W7` are owed re-runs and all four have had their methods
 rewritten, because each named a coordinate or a distance. `W4`, `W8` and `W9` are
-about depth and are untouched by it.
+about depth and are untouched by it — their re-runs are the older depth ones and
+are still owed.
+
+**That set of four is complete for the code and incomplete for the wording.**
+`0a605a3` changes two files the group reaches: `minetest.conf`, the setting
+itself, and `mods/cc_mapgen/init.lua`, whose `or 1024` fallback moved to
+`or 4096` — a line reached only when `mapgen_limit` is absent from
+`core.settings`, which `minetest.conf` never lets happen, so no run exercises it
+and it adds no fifth re-run. The earlier claim here that the widening *"changes no
+code the group exercises"* was written while it was working-tree only and is
+corrected. **`W12`** was stale in the same way and is now fixed: its *Pass* read
+*"**World half-extent** at 1024"* against a `settingtypes.txt:27` declaring 4096,
+so a runner would have failed a correct world. The wording now names 4096; its
+subject is depth, so its pass at `3479e25` stands and no re-run is owed.
+Corrected 2026-09-22, found in the same pass.
+
+**Verified against the tree on 2026-09-22, and this is the whole of it.**
+`mods/cc_day/init.lua` and `mods/cc_security/init.lua` both changed in the nine
+commits since `dd83b99` and **both changes are comment-only** — read from
+`git diff dd83b99..HEAD` — so neither owes anything. `mods/cc_gui/` is new at
+`ba92d52`, 50 lines of Lua with no result of any kind: **`P6` is its only possible
+evidence** and both gates together prove only that it assembles.
 
 **`W11`'s pass was retired on 2026-09-08** because `cc_mapgen`'s bedrock and
 barrier textures were redrawn after it, and because it had passed against wording
 the textures can no longer meet. Its entry carries the retired line and why.
+
+**Both pointers are now committed, and the re-runs below are genuinely owed.**
+Checked on 2026-09-22 with `git submodule status` and `git diff dd83b99..HEAD`:
+`mods/codeblock` is `09c708d`, moved from `fb75bc8` at `34b3820`, and
+`mods/vector3` is `fc8a5b8` (`v2.0.2`), moved from `1662164` at `c2d2b5a`. **No
+result in this document names either.** `R9`'s newest names `dd83b99`, which
+precedes both; `R4`'s newest names `6f2409e`, older still. So `R4` and `R9` — the
+game's whole share of that evidence — are owed re-runs on the record as well as in
+the prose.
 
 **`mods/vector3` was re-pinned to `v2.0.2` on 2026-09-09, and no result in this
 document was run against it.** It is a **major version of a hard dependency**
@@ -161,14 +199,15 @@ keeping a second copy.
 
 | Check | State | Why it needs action |
 |---|---|---|
-| `W3` | pass, **method stale** | it passed by teleporting "several thousand nodes" out, a distance that was outside the world at 1024 and is inside it again since the 2026-09-17 widening to 4096. The pass stands as what was seen at `7f649d8`; the instruction carries a command now |
+| `W3` | pass, **method stale** | it passed by teleporting "several thousand nodes" out, a distance that was outside the world at 1024 and is inside it again since the widening to 4096, **committed at `0a605a3`**. The pass stands as what was seen at `7f649d8`; the instruction carries a command now |
 | `W5` | pass, **re-run owed** | the wall it saw stood at 1007. Since 2026-09-17 it stands at **4047**, in chunks nobody has emerged, and the method's *past 1000* reached nothing there. Rewritten with a command |
-| `W6` | pass, **re-run owed** | its pass condition inverted on 2026-09-17: the drone must now name **4096**, which used to be the fail. The pass at `60259dd` named 1024 under the old setting |
+| `W6` | pass, **inverted, re-run owed** | **its pass condition inverted**: the drone must now name **4096**, which used to be the fail, and the recorded pass at `60259dd` names **1024**, which is now the failure. Verified 2026-09-22 — `minetest.conf` reads `mapgen_limit = 4096` at `0a605a3`. Until it is re-run this entry's own result reads as a fail against its own criterion |
 | `W7` | pass, **method rewritten, re-run owed** | it compared a world at 4096 against a game at 1024, and 4096 is now the game's own value, so the old method proves nothing. Rewritten around a world at `2000` or `1024` |
 | `W11` | **retired, unrun** | the bedrock and barrier textures were redrawn on 2026-09-08 in a flat-base-plus-specks style, and the old pass named a *"black mottled rock"* and a *"wrapping blur"* that no longer exist. **`W15` was run on 2026-09-09 without it**, so the bedrock and barrier redraws are now the only unjudged part of the texture rework, and the cheapest thing left in this group |
+| `W12` | pass, **wording corrected 2026-09-22, nothing owed** | its subject is depth and nothing has moved it, so the pass at `3479e25` stands. Its *Pass* read *"**World half-extent** at 1024"* against a `settingtypes.txt:27` declaring **4096** since `0a605a3`, so a runner following it would have failed a correct world; the wording now names 4096. A defect in this entry rather than in the code, so no finding id |
 | `W15` | **pass at `dd83b99`, 2026-09-09** | the grass-over-dirt surface and its two textures are judged. Nothing owed here; `W11`, which it was to be run beside, was not run |
 | `W16` | **pass at `dd83b99`, 2026-09-09** | the three essential mapgen aliases resolve and nothing in the column is `unknown`. It does **not** discharge `P3`, which asks for a log with nothing in it at all rather than four strings absent |
-| `R9` | **pass at `dd83b99`, 2026-09-09**, **re-run owed** | the re-run is for the `vector3` `v2.0.2` re-pin and, since 2026-09-17, the `codeblock` `09c708d` adoption — sixteen commits including a substantially rewritten `lib/sandbox.lua`. No result here names either pointer; `dd83b99` is before both. The two corrected one-line programs were run in the third sitting: `place(colors.vermilion)` warns once, carries on and leaves a default-coloured block, and `place('vermilion')` stops the program and places nothing. **What was not read back** is the default-coloured block itself, which is the quiet path's whole pass condition |
+| `R9` | **pass at `dd83b99`, 2026-09-09**, **re-run owed** | the re-run is for the `vector3` `v2.0.2` re-pin, committed at `c2d2b5a`, and the `codeblock` `09c708d` adoption, committed at `34b3820` — sixteen commits including a substantially rewritten `lib/sandbox.lua`. No result here names either pointer; `dd83b99` is before both. The two corrected one-line programs were run in the third sitting: `place(colors.vermilion)` warns once, carries on and leaves a default-coloured block, and `place('vermilion')` stops the program and places nothing. **What was not read back** is the default-coloured block itself, which is the quiet path's whole pass condition |
 | `R6` | pass, **unrunnable** | `default:bookshelf` is deleted with `G3` and no node left carries a formspec. The pass at `c042364` stands; there is no way to run it again |
 | `R7` | pass, **unrunnable** | its three cases and the ABMs they were about are all `default`'s. The pass at `d16f9bb` stands and is the only evidence the `action` replacement ever worked |
 | `W4` | pass, **re-run owed** | passes at `60259dd`, where `mgflat_ground_level` was 8; `d6e4a12` moved it to 128. **`W14` does not discharge it**: `W4`'s subject is **air, not stone**, under a removed floor tile, and a program being unable to take the plane by accident — which `W14` never reaches |
@@ -181,15 +220,15 @@ keeping a second copy.
 | `R1` | **pass at `dd83b99`, 2026-09-09, and the first falsifiable run** | the priority of this document is discharged (`A20`). The temporary hand override was in place — corroborated by the working tree, which had both `cc_security` lines restored and the override gone — so the pass is a restriction refusing a hand that **could** have dug. **What is still owed is breadth**: a bare *pass* named none of the seven subjects the method asks for, and the entry's *Why* — a partial override pass covering a different set of nodes on every boot — is reached only by breadth |
 | `R2` | **pass, both halves, at `dd83b99`, 2026-09-09** | **no longer blocked**: the drop half ran for the first time since `7dc764f` and the first time ever under the corrected method, and no item appeared. So `A20` is confirmed in a world rather than only traced, and the empty drop list reaching the captured handler is on the current tree. **What was not read back** is the pass observation itself — the hotbar's slot 3 and the dug position — which this method was corrected on 2026-09-09 to name |
 | `R3` | **pass, re-run done 2026-09-09** | nothing owed. It was the knockback half of `R5`, and that half is now on the current tree |
-| `R4` | pass, **re-run owed** | same blast radius as `R1`, and since 2026-09-09 the `vector3` `v2.0.2` re-pin and since 2026-09-17 the `codeblock` `09c708d` adoption as well — run it with `R9` |
+| `R4` | pass at `6f2409e`, **re-run owed** | same blast radius as `R1`, and both pointer moves are now committed — `vector3` `fc8a5b8` (`v2.0.2`) at `c2d2b5a`, `codeblock` `09c708d` at `34b3820`, both confirmed against the tree on 2026-09-22. Its newest result names `6f2409e`, older than every other live result here, so it is the stalest entry in the document. Run it with `R9` |
 | `R5` | **pass, composed, 2026-09-09** | nothing owed. Both halves are now on the same tree — `R3` re-run and `R2`'s drop half run under the hand override — which is exactly the composition the `partial` pre-authorised in writing. `A8`'s **`last_mod` half stays untested by choice**, as its own paragraph records: it needs a second mod assigning the same globals and none ships here |
 | `R8` | **pass 2026-09-09**, with a second explanation | nothing owed. It is the whole of `B48`'s in-world evidence, and the `dig_immediate` case stays unreproducible — `G3` deleted the last such node. **The pass no longer distinguishes its cause** (`A20`): empty hand groupcaps suppress the crack overlay and the dig sound on their own. Only a run with the hand override would separate them, and nobody has done that |
-| `P1` | **partial**, clone half **stale** | the clone half passed at `8b27f2f` on `codeblock` `2647228`, and the pointer has moved twice since — to `fb75bc8` at `50fd05f`, then to `09c708d` on 2026-09-17 — so nothing has confirmed a fresh recursive clone can fetch the current one. `09c708d` is on `origin/master` and fetchable, read from the submodule's remote on 2026-09-17, which is the reading half of the check and not the run. The boot half has never been run, and a working checkout booting does not discharge it |
+| `P1` | **partial**, clone half **fetch-confirmed, boot half unrun** | the clone half passed at `8b27f2f` on `codeblock` `2647228`, and the pointer has moved twice since — to `fb75bc8` at `50fd05f`, then to `09c708d` at `34b3820`. **On 2026-09-22 a fresh recursive clone fetched both intended pointers by hash**: `git fetch origin 09c708d` and `git fetch origin fc8a5b8` each succeeded and `git cat-file -t` gave `commit`, so neither names an object nobody can fetch. That is **the reading half only, and less than the check asks for**: the clone's own submodules came up at `35fa2a1`, the previous release, because the candidate is unpushed, so no clone has yet *populated* at these pointers. The boot half has never been run, and a working checkout booting does not discharge it |
 | `P2` | pass at `48cc63e`, **standing obligation** | re-run on 2026-09-08 and it stays here permanently: the entry says to run it **whenever a tracked file is added**, and nothing in either CI reads `.gitattributes` (`C15`, `C22`). Needed twice in two milestones — `G6`'s two files, then `G7`'s new directory, two textures and `menu/license.txt` |
 | `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence — whose causes `G3` deletes, while adding three mapgen aliases whose absence shows up here |
 | `P4` | unrun | the main menu shows the game's name, artwork and icon |
 | `P5` | unrun | needs a release first — it is the ContentDB page as published |
-| `P6` | **new 2026-09-17, unrun** | needs `cc_gui` to exist first: it is `B57`'s only evidence, and both gates together prove only that the game assembles. Run it before the release if `G8` ships in it |
+| `P6` | **unrun, and now runnable** | the blocker is gone: `mods/cc_gui/` was committed at `ba92d52` — 50 lines of Lua, a `mod.conf`, a `license.txt` and three textures, confirmed against the tree on 2026-09-22. **No result of any kind exists for that mod**, and `P6` is `B57`'s only possible evidence; both gates together prove only that it assembles and lints. It is the only thing in this document that reaches a form at all, and nothing about a prepend is visible from the world, the menu or either gate. Run it before the release |
 
 **Three sittings on 2026-09-09, and `P2` is in none of them** — it touches no
 engine and needs no world, so it is run from a shell whenever a tracked file is
@@ -214,13 +253,15 @@ added.
   of it is **`W11`** — which was to be run beside `W15` and was not, and is now
   the only unjudged part of the texture rework — `P3` beside `W16`, and the whole
   `W` group re-run.
-- **`P6` is new on 2026-09-17 and cannot be run yet.** It checks `B57`'s fix —
-  the game's own formspec and hotbar styling — and the mod it needs, `cc_gui`, is
-  being written. Nothing else in this document reaches a form at all.
-- **What no sitting has touched:** `P3`, `P4`, `P1`'s boot half, and the `W4`,
-  `W8` and `W9` re-runs at the current depth. `P5` needs a release first. **No
-  result names either current submodule pointer** — `vector3` `v2.0.2` or
-  `codeblock` `09c708d`.
+- **`P6` can be run now.** It checks `B57`'s fix — the game's own formspec and
+  hotbar styling — and the mod it needs, `cc_gui`, exists as of `ba92d52`.
+  Nothing else in this document reaches a form at all, and `cc_gui` has **no
+  in-world evidence whatever**.
+- **What no sitting has touched:** `P3`, `P4`, `P6`, `P1`'s boot half, and the
+  `W4`, `W8` and `W9` re-runs at the current depth. `P5` needs a release first.
+  **No result names either current submodule pointer** — `vector3` `v2.0.2`
+  (`fc8a5b8`) or `codeblock` `09c708d` — and none names any of the nine commits
+  from `67f1feb` to `0a605a3`.
 
 **The boot gap is real and narrower than it was.** `W10` and `W12`–`W14` pass at
 `3479e25`, record-only over `48cc63e`, and none of those observations is possible
@@ -265,7 +306,7 @@ place it puts them (`W9`). `W4`–`W9` and `W14` are `B50`; `W15` and `W16` are
 `A13`.
 
 **`G3` rewrote both of those files at `50fd05f`, so every result in this group is
-owed a re-run at that commit or later — the tip is `dd83b99`.** That is the rule about a result not surviving a
+owed a re-run at that commit or later — the tip is `0a605a3`.** That is the rule about a result not surviving a
 change to the code it exercised, applied to a whole group at once rather than per
 check: the surface material changed, the fill node changed, and the mapgen aliases
 the engine needs moved into `cc_mapgen`. The passes below stand as what was seen
@@ -424,6 +465,15 @@ and the wall stop in the same place — the drone reads the raw setting, 4096, a
 the wall stands at 4047, so the drone may build in the 49 nodes between them
 (`TODO.md`, upstream).
 
+**The result below now reads as a fail against this entry's own criterion, and it
+is not one.** Recorded 2026-09-22 from the tree, not run: `minetest.conf` at
+`0a605a3` carries `mapgen_limit = 4096`, so the *"1024"* the pass names is the
+number the *Pass* above declares a failure. The line is kept rather than retired
+because it is honest evidence of the mechanism — the game's `minetest.conf`
+reaching `core.settings` — under the setting it was taken at. **Nothing here has
+been re-run, and until it is, this entry has no live evidence for the current
+number.**
+
 Result: pass — `60259dd` · engine 5.17.0 · 2026-09-07 — the drone refuses and its
 message names **1024**. So the game's `minetest.conf` reached `core.settings`, and
 the drone's bound and the wall are the same number rather than two numbers that
@@ -447,7 +497,7 @@ proves nothing.
 
 **Pass** — ground continues past the old edge and stops at **4047**. A world made
 at 1024 also keeps its old barrier shell at about ±1000, standing inside the new
-wall; that is expected and is under *what ships broken* in `ROADMAP.md`. What this does **not** cover is under
+wall; that is expected. What this does **not** cover is under
 *what ships broken* in `ROADMAP.md`: terrain already emerged beyond 1024 keeps no
 wall, because the wall is written by the mapgen callback and nothing regenerates a
 visited chunk.
@@ -717,7 +767,7 @@ settings → Content: Games → Codecube.
 **Pass** — you are standing at `y` about **128.5**, with solid ground all
 the way down to the bedrock plane at `y = 0` — the floor did not move, the surface
 did — and **Surface height** is offered at 128 beside **World half-extent** at
-1024, which is a server owner's route to it and the reason it is a setting rather
+**4096**, which is a server owner's route to it and the reason it is a setting rather
 than a constant. **Fail: `y` about 8.5.** That is the engine's own default, and it
 means the game's `minetest.conf` did not reach `core.settings` or `cc_mapgen`'s
 forced `set_mapgen_setting` did not take — the same failure `W6` catches for
@@ -1508,6 +1558,14 @@ blocks. Run it in the same session as `R8`.
 
 **Pass** — the drone places and removes normally.
 
+**Re-run owed, recorded 2026-09-22 and not run.** Both submodule pointers under
+the drone have moved and are committed: `vector3` to `fc8a5b8` (`v2.0.2`) at
+`c2d2b5a`, a **major version of a hard dependency**, and `codeblock` to `09c708d`
+at `34b3820`, sixteen commits including a substantially rewritten
+`lib/sandbox.lua`. The newest result below names `6f2409e`, which is **before
+both** and is the oldest commit any live result in this document names. Run it
+with `R9`.
+
 Result: pass — `6f2409e` · engine 5.17.0 · 2026-09-02 — re-run after `A8` changed
 `cc_security`. The drone still places and removes normally, so chaining the drop
 handler and declaring `last_mod` have not narrowed the game.
@@ -1925,6 +1983,17 @@ in `.gitmodules`: `codeblock` `2647228` (`v0.4.0-98-g2647228`) and `vector3`
 `check_game.sh` passes inside the clone. **Not booted in Luanti** — the half that
 says it is playable is still unchecked.
 
+**Not a result, and deliberately not recorded as one: both current pointers are
+fetchable, read on 2026-09-22.** From a fresh recursive clone, `git fetch origin
+09c708d` in `mods/codeblock` and `git fetch origin fc8a5b8` in `mods/vector3` each
+succeeded, and `git cat-file -t` gave `commit` for both — so neither of the
+pointers this game intends to ship names an object nobody can fetch, which is the
+single failure this entry exists for. **It is strictly less than the check.** The
+clone's own submodules populated at `35fa2a1`, the previous release, because the
+candidate commit is unpushed, so no clone has yet *checked out* these pointers by
+`--recurse-submodules`, and the boot half has still never been run. The `partial`
+above stands unchanged.
+
 ### P2 · The release archive holds only what a player needs [C15]
 
 **Why** — `.gitattributes` decides what reaches a player and **nothing in either
@@ -2100,6 +2169,33 @@ Result: unchecked
 
 Newest first.
 
+- **2026-09-22, at `0a605a3`: what the nine commits since `dd83b99` owe, verified
+  against the tree.** Nothing was run in a world, **no `Result:` line was changed
+  and nothing moved off `unchecked`**; the counts stay at **36 entries, 29 pass, 1
+  partial, 0 fail, 6 unrun**. The newest commit any result names is `dd83b99` and
+  HEAD is nine commits later, so every claim here is about a tree nine commits
+  old. What the nine change, read from `git diff dd83b99..HEAD` rather than
+  assumed: `minetest.conf`'s `mapgen_limit` 1024 → 4096 and
+  `mods/cc_mapgen/init.lua`'s matching fallback, which is unreachable while the
+  conf is read and so adds no re-run; `mods/cc_gui/` **new** at `ba92d52`, with no
+  in-world evidence of any kind, so **`P6` is now runnable and is `B57`'s only
+  evidence**; both submodule pointers, `vector3` → `fc8a5b8` (`v2.0.2`) at
+  `c2d2b5a` and `codeblock` → `09c708d` at `34b3820`, which no result names, so
+  `R4` and `R9`'s re-runs are owed on the record; and `mods/cc_day/init.lua` and
+  `mods/cc_security/init.lua` **comment-only**, confirmed by reading the diff, so
+  neither owes anything. `W3`, `W5`, `W6` and `W7` remain the set the widening
+  touches, and it is complete for the code: `W6`'s recorded pass names **1024**,
+  which its own *Pass* now declares the failure, and that is noted in the entry
+  rather than retired. `W4`, `W8` and `W9` are still owed the older **depth**
+  re-runs. **`W12` is a fifth entry affected and not by a re-run**: its *Pass*
+  named *"World half-extent at 1024"* against a `settingtypes.txt` that declares
+  4096 — a defect in the entry, not in the code, so no finding id. Found and
+  corrected to 4096 in this same pass, on 2026-09-22; the pass at `3479e25`
+  stands and no re-run is owed. `P1` gains
+  the reading half at the current pointers: a fresh recursive clone fetched
+  `09c708d` and `fc8a5b8` by hash, `cat-file -t` → `commit`, but populated at
+  `35fa2a1` because the candidate is unpushed, so the `partial` stands and the
+  boot half is still unrun.
 - **2026-09-17, over `7f3a39b`, with the configuration change uncommitted in the
   working tree: the world widened to 4096, four `W` methods
   rewritten, and `P7` added.** Nothing was run and **no `Result:` line was

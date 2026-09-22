@@ -38,7 +38,7 @@ printf \
     "name": "codecube",
     "short_description": "A game where the player can construct by programming",
     "long_description": "%s",
-    "dev_state": "BETA",
+    "dev_state": "ACTIVELY_DEVELOPED",
     "tags": [
         "education"
     ],

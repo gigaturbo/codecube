@@ -26,15 +26,28 @@ Two numbering conventions, so a commit message always resolves:
   renumbered. The 23 in `AUDIT.md` are the game's; the rest are the mod's, as
   is the `F` feature series.
 
-Target is **v1.0.0**, major because several changes break saved player programs.
+Target is **v2.0.0**, chosen by the author on 2026-09-22 — major because several
+changes break saved player programs, and 2 rather than 1 because `v1.0.0`,
+`v1.0.1` and `v1.0.2` are already tagged and pushed. The mod's own **1.0.0 is a
+different number**: the game at 2.0.0 adopts CodeBlock 1.0.0.
 
 ## Now
 
-**The version number is the release's first open question.** `v1.0.0`, `v1.0.1`
-and `v1.0.2` are tagged and pushed, and `v1.0.2` (`9d83f11`, 2022-07-07) is what
-a player has installed today, so `G5`'s plan to tag `v1.0.0` cannot happen and
-the next number is the author's to pick. `CHANGELOG.md`'s heading is the only
-place it is written.
+**The release is `v2.0.0` and `G8` is in it** — both decided 2026-09-22, and both
+recorded under `G5` and `G8`. `v1.0.2` (`9d83f11`, 2022-07-07) is what a player
+has installed today, so everything the changelog describes is measured against
+it. What the two decisions leave is **`P2` and `P6`, now release blockers**: `P2`
+because `cc_gui` added four tracked files to the archive, `P6` because nothing
+automated reaches a formspec prepend and it is the only check that does.
+
+**`release-check` answered no-go on 2026-09-22**, and its blockers are under
+`G5`: nothing is pushed, no CI run exists on the release commit or on any of the
+9 commits after `dd83b99`, behaviour is unobserved at it — the newest playtest
+result names `dd83b99` and `cc_gui` has none — and the ContentDB upload should be
+treated as manual until the webhook is checked from a machine that has `gh`. The
+same run **corrected `CHANGELOG.md`**, which claimed the bundled mod had reached
+1.0.0; no such CodeBlock release exists, and the pointer is still the bare
+`09c708d`.
 
 **The world was widened to `mapgen_limit = 4096` on 2026-09-17** — decision 9
 under `G6`, reversing decision 5. The field is 8080 nodes on a side and the
@@ -42,13 +55,11 @@ ceiling rises with it, and the `W` group's methods were written for the 2000-nod
 world, so `W3`, `W5`, `W6` and `W7` are owed re-runs against edges nobody has
 walked to.
 
-**`G8` is the one thing waiting on code**, opened 2026-09-17: nothing in the game
-styles a formspec or the hotbar, because `G3`'s deletion took Minetest Game's and
-nothing replaced it, so every form is the engine's semi-transparent default
-(`B57`). It is a new mod, `cc_gui`, plus textures, and `code-expert` is writing
-it. **Whether it ships in this release is open** — `G5`'s first line is blocked
-on a `v1.0.0` upstream that does not exist yet, so there is room, but `G8` must
-not be what delays the tag, and `P2` and `P6` both have to be run before one.
+**`G8` is written and committed** at `ba92d52`, opened 2026-09-17: nothing in the
+game styled a formspec or the hotbar, because `G3`'s deletion took Minetest
+Game's and nothing replaced it, so every form was the engine's semi-transparent
+default (`B57`). `cc_gui` is the fourth mod and ships in `v2.0.0`. `B57` **stays
+open** until `P6` runs — nothing automated reaches a prepend.
 
 **Everything else that is left is checking.** `dd83b99`
 committed `A19`'s `plain` sky and the texture rework, and six checks passed
@@ -76,7 +87,7 @@ for ever, written into `PLAYTEST.md`'s `R` preamble. Do not re-propose the hand.
 Then `G5`, and it is the only thing on this file's critical path: **a tagged**
 CodeBlock release. The pointer moved to `09c708d` on 2026-09-17 and that closed
 `A7` — the mod deleted its duplicate sky block outright — but `09c708d` is a bare
-commit, so `G5`'s first line stays open until `v1.0.0` exists. `C22` closed on 2026-09-08 and
+commit, so `G5`'s first line stays open until CodeBlock's `v1.0.0` exists. `C22` closed on 2026-09-08 and
 **`C21` on 2026-09-09**, by re-pinning `mods/vector3` to `v2.0.2` — so the whole
 `C` series is closed and the licence and metadata questions are answered. The
 `TODO.md` *fog distance* line is the author's and stays open; `viewing_range` is
@@ -97,8 +108,8 @@ whatever is opened after it.
 | `G4` | Make the game's own mods behave | **done on both counts** — `A19` committed `dd83b99` and `L4` passes; `A7` closed 2026-09-17 with the `09c708d` adoption | 6/6 | 5/5 |
 | `G6` | Bound the world | **done on both counts** | 5/5 | 6/6 |
 | `G7` | Make the world something to be in | done, the texture rework committed `dd83b99`; `W11` still owed | 3/3 | 4/5 |
-| `G8` | Give the interface the game's own style | **opened 2026-09-17**, being written | 0/3 | 0/1 |
-| `G5` | Adopt CodeBlock 1.0.0 and ship | started | 2/5 | — |
+| `G8` | Give the interface the game's own style | written, committed `ba92d52`; ships in `v2.0.0` | 3/3 | 0/1 |
+| `G5` | Adopt a tagged CodeBlock release and ship `v2.0.0` | started; **`release-check` says no-go**, 2026-09-22 | 2/7 | — |
 
 Findings by milestone: `G1` (`C1`, `C2`, `C3`, `C4`, `C5`, `C15`, `C20`); `G2`
 (`A14`, `B20`); `G3` (`B49`, `A13`); `G4` (`B47`, `B48`, `S8`, `A7`, `A8`,
@@ -524,7 +535,7 @@ long form is for prose only. **The root `LICENSE` stays bare** — see
 media file, so a texture or menu image added with no licence line fails no gate.
 That is `AUDIT.md` `C22`'s `Keep`, and the wanted check is a `TODO.md` line.
 
-### G8. Give the interface the game's own style — opened 2026-09-17 (0/3)
+### G8. Give the interface the game's own style — written, `ba92d52` (3/3), 0/1 checked
 
 **A new milestone rather than a reopened `G7`.** `G7`'s goal is the *world* — the
 ground, the wall, the depth — and it is done and 4/5 checked; this is the
@@ -535,14 +546,17 @@ The defect, the evidence and why no gate could see it are `AUDIT.md` `B57`;
 `PLAYTEST.md` `P6` is the only check that reaches it, and it names the form to
 open because a prepend is invisible outside one.
 
-- [ ] Add `cc_gui`: a formspec prepend and the two hotbar images, set per player
-  from `register_on_joinplayer`. (`B57`)
-- [ ] Draw the nine-slice panel and the hotbar textures in
-  `scripts/gen_textures.py`, in `G7`'s flat-with-flecks style. (`B57`)
-- [ ] Carry what a fourth mod drags — all `code-expert`'s: a `mod.conf`, its own
+- [x] Add `cc_gui`: a formspec prepend and the two hotbar images, set per player
+  from `register_on_joinplayer`. Committed `ba92d52`. (`B57`)
+- [x] Draw the nine-slice panel and the hotbar textures in
+  `scripts/gen_textures.py`, in `G7`'s flat-with-flecks style — three 64×64 PNGs,
+  and `cc_gui` introduces no colour of its own. (`B57`)
+- [x] Carry what a fourth mod drags — all `code-expert`'s: a `mod.conf`, its own
   `license.txt`, a `THIRD-PARTY-LICENSES.md` row, `check_game.sh`'s declared-mod
-  count moving from 5, and `.gitattributes`. The media licence is
-  **CC BY-SA 4.0**, machine-readable `CC-BY-SA-4.0`. (`C22`, `C15`)
+  count and `.gitattributes`. The media licence is **CC BY-SA 4.0**,
+  machine-readable `CC-BY-SA-4.0`. `check_game.sh` needed no edit — it counts
+  `mods/*/` rather than carrying a number — and the three PNGs need no
+  `export-ignore` line, because they must ship. (`C22`, `C15`)
 
 **`.gitattributes` is the reverse of the usual `C15` question here.** The new
 PNGs must **ship**, so they need no `export-ignore` line; any art *source* added
@@ -559,29 +573,55 @@ as the files are tracked.
 3. **No setting.** A server owner who wants another look sets a prepend from their
    own mod, which overrides this one.
 
-**Whether it ships in the coming release is open.** `G5`'s first line is blocked
-on a `v1.0.0` upstream that does not exist yet, so there is room for it; the cost
-if it goes in is `P2` re-run for the new files and `P6` run at all, and neither
-has been done. The rule, so it is not decided by drift: **`G8` ships if it is
-committed and both `P2` and `P6` have run before the tag, and is held back
-otherwise.** It is a visible regression every player meets at the first form they
-open, which is the argument for including it; it is also a new mod and new media
-in a release candidate, which is the argument against.
+**A fourth decision, 2026-09-22: `G8` ships with `v2.0.0`.** It was open until
+then, under a rule that `G8` shipped only if committed and if `P2` and `P6` had
+both run before the tag. The author has settled the question and **not the two
+checks**: they are now **release blockers on `G5`** rather than a condition on
+inclusion. `P2` because `cc_gui` adds four tracked files to the archive and
+nothing in CI reads `.gitattributes` (`C15`); `P6` because a prepend is invisible
+to both gates and it is the only check that reaches one — and `B57` stays open
+until it runs. The argument that carried it: a visible regression every player
+meets at the first form they open.
 
-### G5. Adopt CodeBlock 1.0.0 and ship — started (2/5)
+**It is billed as a player-facing change**, decided here 2026-09-22 rather than
+left as one clause: `CONTENTDB.md` carries it in *Features* and in *Recent
+changes*, `README.md` in its opening paragraph, and `CHANGELOG.md` under
+*Changed*. A style every player meets before they write a line of code was
+otherwise described nowhere a player reads.
+
+### G5. Adopt a tagged CodeBlock release and ship v2.0.0 — started (2/7), no-go
 
 The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
-`release-codecube` skill owns the procedure and `release-check` gates it.
+`release-codecube` skill owns the procedure and `release-check` gates it. **The
+game's number and the mod's are not the same number**: the game ships `v2.0.0`
+and the release it adopts is CodeBlock `1.0.0`.
+
+**Two decisions, both the author's, both 2026-09-22.**
+
+1. **The release is `v2.0.0`.** `v1.0.0`, `v1.0.1` and `v1.0.2` are tagged and
+    pushed and `v1.0.2` is what ContentDB serves, so the `v1.0.0` this milestone
+    was written to cut cannot happen; major because the release breaks saved
+    player programs and existing worlds. It is written in `CHANGELOG.md`'s
+    heading and here, and nowhere else — no file in the tree carries a version
+    string, `game.conf` included.
+2. **`dev_state` becomes `ACTIVELY_DEVELOPED`**, from `BETA`, matching
+    CodeBlock's. The value is in `scripts/gen_cdb_json.sh` and reaches ContentDB
+    through the generated `.cdb.json`; the live page keeps `BETA` until the next
+    upload.
 
 - [ ] Move `mods/codeblock` to a **tagged** release. **Still open after the
-  2026-09-17 move to `09c708d`**, which is a bare commit: no `v1.0.0` exists yet,
+  2026-09-17 move to `09c708d`**, which is a bare commit: no CodeBlock `v1.0.0`
+  exists yet,
   locally or on the remote. See *which release is adopted* below for why that
   move was taken anyway. **In the same piece of work, write the `CHANGELOG.md`
   *Changed* entry naming the release adopted**: it said the mod was adopted as a
   tagged release rather than followed commit by commit, and it was deleted on
   2026-09-09 because the pointer was a commit off `master`. It is true only once
   this line is done, so it is written then and not before — it was **not** written
-  for `09c708d`.
+  for `09c708d`. What `CHANGELOG.md` carries meanwhile, corrected 2026-09-22, is
+  the true weaker statement: the bundled mod is a **development build** ahead of
+  its newest release `v0.7.3`, and its changes break saved programs. Replace that
+  sentence when the pointer names a tag.
 - [x] State the licence for the game's media, in `menu/license.txt`,
   `mods/cc_mapgen/license.txt`, `THIRD-PARTY-LICENSES.md` and
   `scripts/gen_cdb_json.sh`. Decided 2026-09-08 — see *The media licence* under
@@ -591,8 +631,40 @@ The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
   ceiling. (`C21`)
 - [ ] Update `README.md`, `CHANGELOG.md` and `CONTENTDB.md` in the same commit,
   and regenerate `.cdb.json` — `check_game.sh` diffs it.
-- [ ] Run `check_game.sh`, `P1`, `P2`, tag on `main`, upload, then read the page
-  in-game (`P5`).
+- [ ] Run `check_game.sh`, `P1`, **`P2` and `P6`**, tag `v2.0.0` on `main`,
+  upload, then read the page in-game (`P5`). **`P2` and `P6` are blockers, not
+  nice-to-haves** — they are what `G8`'s inclusion costs, and `P6` is the only
+  thing that would close `B57`.
+- [ ] Push, and get a CI run on the commit that is tagged. Nothing on this branch
+  has ever been built — see the gate below.
+- [ ] Merge to `main` and tag there. `main` itself is 10 commits ahead of
+  `origin/main` (`35fa2a1`), so the push is owed on both branches.
+
+**`release-check` ran on 2026-09-22 against the working tree at `0a605a3` and
+answered no-go.** Its blockers, recorded here because they are facts about this
+release and not about any one finding:
+
+- **Nothing is pushed.** `g6-world-limits` is 11 commits ahead of its remote,
+  local `main` is 10 ahead of `origin/main` at `35fa2a1`, and 7 files are
+  uncommitted. Nothing that would be tagged exists anywhere but this machine.
+- **CI has never run on the release commit.** No run exists for `0a605a3` or for
+  any of the 9 commits after `dd83b99`; the newest codecube run of any kind is
+  `main` at `35fa2a1`, 2026-09-01. Both gates were green *locally* and that is a
+  different claim.
+- **Behaviour is unobserved at the release commit.** The newest `PLAYTEST.md`
+  result names `dd83b99`, and `cc_gui` has no result at all — which is `P6`, the
+  blocker above, seen from the evidence side.
+- **The ContentDB upload webhook could not be checked**, because `gh` is not
+  installed on this machine. **Treat the upload as manual** until someone
+  confirms otherwise.
+
+**Two gaps the same run closed, and both are worth keeping.** `luacheck`'s
+`mods/cc_*/` glob now picks up `cc_gui` — 5 files, 0 warnings, 0 errors — so the
+fourth mod is inside the lint scope the `TODO.md` line worries about. And from a
+**clean clone**, `git fetch origin <hash>` succeeds for **both** submodule
+pointers, `09c708d` and `fc8a5b8`, so no `reference is not a tree` awaits anyone.
+That narrows `P1`'s clone half to the rest of a recursive clone and does not
+discharge it.
 
 ## Which CodeBlock release is adopted
 
@@ -600,14 +672,14 @@ The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
 policy is that the pointer names the release this game has *adopted*, so lagging
 upstream is correct; this is a different thing — the pointer is **off the release
 track**, not merely behind it. Upstream's newest tag is **`v0.7.3`**, on the
-remote as well as locally, and **no `v1.0.0` exists yet**. Nothing is broken by
+remote as well as locally, and **no CodeBlock `v1.0.0` exists yet**. Nothing is broken by
 it: `09c708d` is on `origin/master` and fetchable, and both gates are green on it.
 `G5`'s first line is where it goes back on the track. Read both numbers from
 `git ls-tree HEAD mods/codeblock` and the submodule's own tags —
 `git ls-remote --tags origin` inside it — **never from upstream's `HEAD`**.
 
 **The two-step is the author's decision, taken 2026-09-17.** CodeBlock is at
-`09c708d` and will be tagged `v1.0.0` and released soon, and the author wants the
+`09c708d` and will be tagged CodeBlock `v1.0.0` and released soon, and the author wants the
 two released together; adopting the bare commit now and re-pointing at the tag
 when it exists was chosen over waiting. So the pointer is deliberately off the
 release track for a shorter time, and `G5`'s first line and the `CHANGELOG.md`
@@ -626,8 +698,10 @@ repositories go red independently.
 stopped being true at `50fd05f`**, which committed `fb75bc8` with the `G3`
 deletion; the paragraph describing the pointer as a deliberately unstaged working
 tree went with it. `P1`'s clone half passed on `2647228` at `8b27f2f` and **has
-not been re-run across either move since**, so nothing has confirmed that a fresh
-recursive clone can fetch `09c708d` — or `fb75bc8` before it.
+not been re-run across either move since**. The fetch itself is now settled
+separately: `release-check` fetched **both** pointers by hash into a clean clone
+on 2026-09-22 and both succeeded, so no `reference is not a tree` awaits anyone.
+What `P1` still owes is the rest of a fresh recursive clone.
 
 **Deleted from `CHANGELOG.md` on 2026-09-09:** a *Changed* entry claiming the mod
 was already adopted as a tagged release rather than followed commit by commit.
@@ -928,7 +1002,7 @@ All three were decided with `G8`, on 2026-09-17. (`B57`)
 - **Waiting for a release before the changelog records a milestone.** Decided
   2026-09-07: the entry is written in the same branch as the code, so it lands
   exactly when the code lands and cannot outlive it if the branch is dropped.
-  `v1.0.0` is an unreleased heading that accumulates.
+  `v2.0.0` is an unreleased heading that accumulates.
 - **Keeping any agent guidance outside the repository.** Decided 2026-09-01 with
   the three-agent split. The reference documentation is copied in for the same
   reason: a fresh clone carries it.
@@ -942,8 +1016,32 @@ All three were decided with `G8`, on 2026-09-17. (`B57`)
 
 ---
 
+2026-09-22 · codecube `0a605a3`, on branch **`g6-world-limits`**, 7 files
+uncommitted over it, 23 commits over `main` and pushed only to `5777dc0` — 11
+behind on this branch, and `main` itself 10 ahead of `origin/main` (`35fa2a1`).
+
+**This pass records `release-check`'s no-go of 2026-09-22 and one correction to
+`CHANGELOG.md`.** The changelog said the bundled mod had *reached 1.0.0*; no such
+CodeBlock release exists — the pointer is `09c708d`, untagged, `git describe`
+gives `v0.7.3-155-g09c708d` and upstream's newest tag is `v0.7.3` — so it now
+says the true weaker thing, that the mod is a development build ahead of `v0.7.3`
+whose changes break saved programs. `G5` goes from 2/5 to **2/7** with the push
+and the CI run written as items, and its four blockers and the two gaps the run
+closed are on the milestone. `PLAYTEST.md` was not touched in this pass and
+nothing moved off `unchecked`. This file is **1184 lines** against its own "under
+roughly 150", up from 1129 at the previous pass.
+
+**The earlier pass at this same commit records three decisions of 2026-09-22 and wrote no code**: the
+release is `v2.0.0`, `G8` ships in it, and `dev_state` becomes
+`ACTIVELY_DEVELOPED`. `G8` also went from 0/3 to **3/3 written** — that was
+already true at `ba92d52` and this file had not caught up. Nothing moved off
+`unchecked` in `PLAYTEST.md` and `B57` stays open; the two checks the `G8`
+decision does not discharge, `P2` and `P6`, are now blockers on `G5`.
+
+The paragraph below describes the state two passes ago.
+
 2026-09-17 · codecube `34b3820`, on branch **`g6-world-limits`**, tree clean at
-the start of this pass — `09c708d` is committed at `34b3820`, which the previous
+the start of that pass — `09c708d` is committed at `34b3820`, which the previous
 footer described as an uncommitted working tree.
 
 **This pass opened `G8` and filed `B57`, and no code exists for either yet.**
@@ -977,7 +1075,7 @@ a tag; `fb75bc8` in `c2d2b5a` and every commit back to `50fd05f`. `vector3`
 **This pass is the `codeblock` adoption and the record edits that close `A7`, and
 no code changed for it.** The pointer moved sixteen commits, `fb75bc8` →
 `09c708d`, on the author's decision of 2026-09-17 to adopt the bare commit now
-and re-point to `v1.0.0` once it is tagged — see *which release is adopted*.
+and re-point to CodeBlock `v1.0.0` once it is tagged — see *which release is adopted*.
 Upstream's `C18` finished as a **removal**: `codeblock_flat_sky`, its
 `settingtypes.txt` entry and the five sky overrides are gone at `09c708d`, so
 `A7` is resolved and `AUDIT.md` has **nothing open** for the first time. Both
@@ -1066,8 +1164,7 @@ and the total stood at `dd83b99`'s 591 while six further lines of comment landed
 `set_sky` call in `cc_day` and eleven lines of comment beside it, plus seven the
 texture rework added to `cc_mapgen/init.lua`.
 
-This file is **1045 lines against its own "under roughly 150"**, up from 953 last
-pass; 1045 is `wc -l` here. This pass added the `G8` section, its three
+That pass left this file at **1045 lines**, up from 953. It added the `G8` section, its three
 *deliberately not doing* entries under a new *the interface* heading, a table
 row, and this footer's own paragraph — a milestone opening is the one thing that
 legitimately grows this file, and none of the 92 lines is reasoning that belongs

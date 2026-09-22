@@ -1,10 +1,8 @@
-# vX.Y.Z (unreleased)
+# v2.0.0 (unreleased)
 
-**The version number is unchosen and this heading is the only place it is
-written.** `v1.0.0`, `v1.0.1` and `v1.0.2` are already tagged and pushed — the
-last of them, `9d83f11`, is what a player has — so the next number is the
-author's to pick. Everything below compares against `v1.0.2`, not against any
-unreleased state.
+`v1.0.0`, `v1.0.1` and `v1.0.2` are already tagged and pushed — the last of them,
+`9d83f11`, is what a player has. Everything below compares against `v1.0.2`, not
+against any unreleased state.
 
 **This release breaks saved player programs, and it breaks worlds you have
 already played in.** Programs break because the drone's limits were rewritten
@@ -15,9 +13,10 @@ because the world is now bounded — a wall around it and a bedrock floor beneat
 it — and because it is about twice as wide and sixteen times as deep under your
 feet. It also needs a newer engine: **Luanti 5.9 or newer**, up from 5.4.
 
-The bundled `codeblock` mod reached 1.0.0 with changes that break existing player
+The bundled `codeblock` mod is a development build rather than one of its
+releases — its newest release is `v0.7.3` — and its changes break existing player
 programs. See [its changelog](https://github.com/gigaturbo/codeblock/blob/master/CHANGELOG.md)
-for the full list.
+for the full list, and read the unreleased section at the top of it.
 
 ## Breaking
 
@@ -48,11 +47,12 @@ for the full list.
 
 ## Changed
 
+- [x] **Every panel and the hotbar are drawn in the game's own style.** A dark nine-slice panel with a lit edge behind every form the game shows you — the code editor included — with the inventory slots and the tooltips to match, and a hotbar in the same tones with a green frame on the slot you have selected. It is drawn from the same three colours as the bedrock and the grass, so the interface and the world read as one thing. Until now that styling came from the bundled `default` mod and looked like Minetest Game's; nothing in the game replaced it when that mod was removed
 - [x] Every surface in the world is drawn with the game's own artwork: grass, dirt, the bedrock floor and the barrier wall. The floor and the wall used to borrow two textures from the bundled `default` mod, and the ground came from it entirely; nothing about how the world is drawn depends on a mod any more. All four are flat colours with a few flecks in them rather than fine-grained noise, so a large area reads as one calm surface instead of static
 - [x] **The sky is now a single flat colour** rather than a gradient from a pale horizon up to a deeper blue. That is what makes permanent noon reach the sky at all - the gradient is what the engine was tinting - and it is a trade: there is no depth to the sky any more, and the sky and the haze no longer turn grey when you stand inside something you have built
 - [x] Reframed the documentation: the README presents the game, its features and its settings, and points at the `codeblock` package for the programming API and the detailed instructions. The game's own record is `ROADMAP.md`, `TODO.md`, `AUDIT.md` and `PLAYTEST.md`; none of them ships to a player
 - [x] The ContentDB page is now written for someone reading it on ContentDB, rather than being `README.md` verbatim. The README's badges, licence line and repository links were noise on a page the reader is already on, and its nine images - five of them tool icons used inline in the instructions - are not visible at all to anyone browsing from inside Luanti, which is where the instructions were most needed
-- [x] The download from ContentDB now holds only what the game needs to run: 3.29 MB down to 1.93 MB. Hidden files and directories are excluded, which is what stops `.claude/` (993 kB), `.reports/` and `.github/` reaching players, along with the art sources, `scripts/` and the record documents. `menu/*.png` is kept - it is what the main menu reads
+- [x] The download from ContentDB now holds only what the game needs to run: **2.53 MB down to 1.21 MB** against `v1.0.2`. Most of that is the three Minetest Game mods going; the rest is hidden files and directories being excluded, which is what stops `.claude/` (1.01 MB), `.reports/` and `.github/` reaching players, along with the art sources, `scripts/` and the record documents. `menu/*.png` is kept - it is what the main menu reads
 - [x] Verified against Luanti 5.17.0
 
 ## Removed
