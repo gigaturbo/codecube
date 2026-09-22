@@ -48,7 +48,10 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
       the pointer has moved twice since — `fb75bc8` at `50fd05f`, `09c708d` on
       2026-09-17. Narrower since 2026-09-22: `release-check` fetched both
       pointers by hash into a clean clone and both succeeded, so what is left is
-      the rest of a recursive clone rather than the fetchability
+      the rest of a recursive clone rather than the fetchability. **The merge
+      changed what it can reach, not its result**: with `49c7f75` on origin a
+      fresh recursive clone now populates at the candidate's own pointers instead
+      of at `35fa2a1`. Still unrun
 - [ ] `W4`, `W8` and `W9` are owed re-runs at the new depth: all three pass at
       `60259dd`, where `mgflat_ground_level` was 8, and all three exercise heights
       the rescue derives from that number. **`W14` discharges none of them** —
@@ -98,12 +101,11 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
       *Changed* entry then. Until then `CHANGELOG.md` says what is true — a
       development build ahead of `v0.7.3` — corrected 2026-09-22 from a claim
       that the mod had reached 1.0.0
-- [ ] push `main` and get a CI run on the commit that will be tagged:
-      `g6-world-limits` was pushed 2026-09-22 (`5777dc0..7609d09`) and is in
-      sync, but `main` is still 10 ahead of `origin/main` at `35fa2a1`. No CI run
-      exists on any of the 9 commits after `dd83b99`, and the branch push could
-      not produce one — `ci.yml` fires on a push to `main`, a pull request or a
-      manual dispatch (roadmap G5, release-check 2026-09-22)
+- [ ] get a CI run on the commit that is **tagged**. The push half is done: PR #1
+      merged 2026-09-22 as `49c7f75`, `main` in sync with origin, and CI green on
+      `49c7f75` (`push`) and `99117bf` (`pull_request`), both jobs. No tag exists,
+      so no tagged commit has been built; this closes when `v2.0.0` is cut on
+      `49c7f75` with nothing pushed after it (roadmap G5)
 - [ ] check the ContentDB upload webhook from a machine with `gh` installed.
       Until someone does, **treat the upload as manual** (roadmap G5)
 - [ ] `cc_security`: the rescue's `load_area` column grew from 5 mapblocks to 13

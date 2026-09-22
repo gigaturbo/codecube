@@ -1893,8 +1893,10 @@ each commit** — `check_game.sh` ending `all game integration checks passed` wi
 `.cdb.json matches CONTENTDB.md`, and luacheck on the three `cc_*` mods printing
 nothing — and **neither gate runs a line of the game's Lua**, which is why the
 `W` group and not either commit is what closed `B50`. **Nothing was re-run for
-the playtest and nothing was owed**: no code changed. CI still has no run on this
-branch; the newest run of any kind is `main` at `35fa2a1`, 2026-09-01.
+the playtest and nothing was owed**: no code changed. CI had no run on this
+branch when this was written, the newest of any kind being `main` at `35fa2a1`,
+2026-09-01 — **superseded on 2026-09-22**, when PR #1 merged the branch into
+`main` as `49c7f75` and both jobs passed there and on `99117bf` before it.
 
 **Verified — the whole of `G7`, committed at `d6e4a12` and run in a world at
 `3479e25` on 2026-09-08.** All three changes landed in one commit: the translucent

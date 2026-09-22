@@ -120,17 +120,19 @@ was corrected, and the two corrected one-line programs passed in the third.
 unrunnable with it** — each names a node only `default` registered — and are kept
 with their passes rather than deleted, because a deleted entry takes its evidence
 and its reasoning with it. **Every `W` result is owed a re-run at
-`50fd05f` or later** — the tip is `7609d09` — because `50fd05f` rewrites both
+`50fd05f` or later** — the tip is `49c7f75` — because `50fd05f` rewrites both
 files the group exercises; the group's preamble says so once rather than the table
 saying it eleven times.
 
-**The newest commit any result names is `dd83b99`, and HEAD is ten commits
-later, at `7609d09`.** Counted from the `Result:` lines on 2026-09-22, not
-recalled. The tenth, `7609d09`, changes record documents and the `.cdb.json`
-generator only; the nine before it touch **all four** of the game's own mods, both submodule
-pointers and `minetest.conf`, so every claim below about behaviour is evidence
-about a tree ten commits old. Nothing in this document has been run since
-2026-09-09.
+**The newest commit any result names is `dd83b99`, and HEAD is twelve commits
+later, at `49c7f75`.** Counted from the `Result:` lines on 2026-09-22, not
+recalled. The last three — `7609d09`, `99117bf` and the merge `49c7f75` — change
+record documents and the `.cdb.json` generator only; the nine before them touch
+**all four** of the game's own mods, both submodule pointers and `minetest.conf`,
+so every claim below about behaviour is evidence about a tree twelve commits old.
+Nothing in this document has been run since 2026-09-09. **CI going green on
+`49c7f75` changes none of that** — it proves the game assembles, and no gate here
+reaches behaviour.
 
 **The world was widened to `mapgen_limit = 4096` on 2026-09-17** (`ROADMAP.md`
 `G6` decision 9) and **committed at `0a605a3` on 2026-09-22**, so every `W` result
@@ -224,7 +226,7 @@ keeping a second copy.
 | `R4` | pass at `6f2409e`, **re-run owed** | same blast radius as `R1`, and both pointer moves are now committed — `vector3` `fc8a5b8` (`v2.0.2`) at `c2d2b5a`, `codeblock` `09c708d` at `34b3820`, both confirmed against the tree on 2026-09-22. Its newest result names `6f2409e`, older than every other live result here, so it is the stalest entry in the document. Run it with `R9` |
 | `R5` | **pass, composed, 2026-09-09** | nothing owed. Both halves are now on the same tree — `R3` re-run and `R2`'s drop half run under the hand override — which is exactly the composition the `partial` pre-authorised in writing. `A8`'s **`last_mod` half stays untested by choice**, as its own paragraph records: it needs a second mod assigning the same globals and none ships here |
 | `R8` | **pass 2026-09-09**, with a second explanation | nothing owed. It is the whole of `B48`'s in-world evidence, and the `dig_immediate` case stays unreproducible — `G3` deleted the last such node. **The pass no longer distinguishes its cause** (`A20`): empty hand groupcaps suppress the crack overlay and the dig sound on their own. Only a run with the hand override would separate them, and nobody has done that |
-| `P1` | **partial**, clone half **fetch-confirmed, boot half unrun** | the clone half passed at `8b27f2f` on `codeblock` `2647228`, and the pointer has moved twice since — to `fb75bc8` at `50fd05f`, then to `09c708d` at `34b3820`. **On 2026-09-22 a fresh recursive clone fetched both intended pointers by hash**: `git fetch origin 09c708d` and `git fetch origin fc8a5b8` each succeeded and `git cat-file -t` gave `commit`, so neither names an object nobody can fetch. That is **the reading half only, and less than the check asks for**: the clone's own submodules came up at `35fa2a1`, the previous release, because the candidate is unpushed, so no clone has yet *populated* at these pointers. The boot half has never been run, and a working checkout booting does not discharge it |
+| `P1` | **partial**, clone half **fetch-confirmed, boot half unrun** | the clone half passed at `8b27f2f` on `codeblock` `2647228`, and the pointer has moved twice since — to `fb75bc8` at `50fd05f`, then to `09c708d` at `34b3820`. **On 2026-09-22 a fresh recursive clone fetched both intended pointers by hash**: `git fetch origin 09c708d` and `git fetch origin fc8a5b8` each succeeded and `git cat-file -t` gave `commit`, so neither names an object nobody can fetch. That is **the reading half only, and less than the check asks for**: the clone's own submodules came up at `35fa2a1`, the previous release, because the candidate was unpushed, so no clone has yet *populated* at these pointers. **Since PR #1 merged as `49c7f75` a fresh recursive clone would reach the candidate's own pointers** — that changes what the check can reach, not its result, and nobody has re-run it. The boot half has never been run, and a working checkout booting does not discharge it |
 | `P2` | pass at `48cc63e`, **standing obligation** | re-run on 2026-09-08 and it stays here permanently: the entry says to run it **whenever a tracked file is added**, and nothing in either CI reads `.gitattributes` (`C15`, `C22`). Needed twice in two milestones — `G6`'s two files, then `G7`'s new directory, two textures and `menu/license.txt` |
 | `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence — whose causes `G3` deletes, while adding three mapgen aliases whose absence shows up here |
 | `P4` | unrun | the main menu shows the game's name, artwork and icon |
@@ -307,7 +309,7 @@ place it puts them (`W9`). `W4`–`W9` and `W14` are `B50`; `W15` and `W16` are
 `A13`.
 
 **`G3` rewrote both of those files at `50fd05f`, so every result in this group is
-owed a re-run at that commit or later — the tip is `7609d09`.** That is the rule about a result not surviving a
+owed a re-run at that commit or later — the tip is `49c7f75`.** That is the rule about a result not surviving a
 change to the code it exercised, applied to a whole group at once rather than per
 check: the surface material changed, the fill node changed, and the mapgen aliases
 the engine needs moved into `cc_mapgen`. The passes below stand as what was seen
@@ -1991,9 +1993,15 @@ succeeded, and `git cat-file -t` gave `commit` for both — so neither of the
 pointers this game intends to ship names an object nobody can fetch, which is the
 single failure this entry exists for. **It is strictly less than the check.** The
 clone's own submodules populated at `35fa2a1`, the previous release, because the
-candidate commit is unpushed, so no clone has yet *checked out* these pointers by
+candidate commit was unpushed, so no clone has yet *checked out* these pointers by
 `--recurse-submodules`, and the boot half has still never been run. The `partial`
 above stands unchanged.
+
+**What the merge changed, and it is reach rather than evidence.** PR #1 merged as
+`49c7f75` on 2026-09-22 and `main` is in sync with origin, so a fresh recursive
+clone now lands on the candidate and populates at `09c708d` and `fc8a5b8` instead
+of at `35fa2a1` — the reason the run above fell short is gone. **Nobody has run
+it since.** The `partial` stands, and the boot half is untouched by any of this.
 
 ### P2 · The release archive holds only what a player needs [C15]
 
@@ -2170,6 +2178,17 @@ Result: unchecked
 
 Newest first.
 
+- **2026-09-22, at `49c7f75`: the merge to `main`, and what it does and does not
+  change here.** PR #1 merged, `main` in sync with origin, CI green on `49c7f75`
+  (`push`) and `99117bf` (`pull_request`). **No `Result:` line was changed and
+  nothing moved off `unchecked`**; the counts stay at **36 entries, 29 pass, 1
+  partial, 0 fail, 6 unrun**, and nothing has been run in a world since
+  2026-09-09. Two things moved: HEAD is now **twelve** commits past `dd83b99`, not
+  nine, and the last three are record-only; and **`P1`'s reach changed** — with
+  the candidate on origin a fresh recursive clone would populate at `09c708d` and
+  `fc8a5b8` rather than at `35fa2a1`, which was the stated reason its 2026-09-22
+  fetch fell short of the check. That is what the check *could* now reach, not a
+  run of it, and `P1` stays `partial` with its boot half unrun.
 - **2026-09-22, at `0a605a3`: what the nine commits since `dd83b99` owe, verified
   against the tree.** Nothing was run in a world, **no `Result:` line was changed
   and nothing moved off `unchecked`**; the counts stay at **36 entries, 29 pass, 1
