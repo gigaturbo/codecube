@@ -41,10 +41,14 @@ because `cc_gui` added four tracked files to the archive, `P6` because nothing
 automated reaches a formspec prepend and it is the only check that does.
 
 **`release-check` answered no-go on 2026-09-22**, and its blockers are under
-`G5`: nothing is pushed, no CI run exists on the release commit or on any of the
-9 commits after `dd83b99`, behaviour is unobserved at it — the newest playtest
-result names `dd83b99` and `cc_gui` has none — and the ContentDB upload should be
-treated as manual until the webhook is checked from a machine that has `gh`. The
+`G5`. Still no-go after the push later that day: `g6-world-limits` is now on
+origin at `7609d09` but **local `main` is still 10 ahead of `origin/main`
+(`35fa2a1`) and unpushed**, and the merge and the tag both happen there. No CI
+run exists on the release commit, and the branch push could not produce one: the
+workflow fires on a push to `main`, a pull request or a manual dispatch.
+Behaviour is unobserved at the release commit — the newest playtest result names
+`dd83b99` and `cc_gui` has none — and the ContentDB upload should be treated as
+manual until the webhook is checked from a machine that has `gh`. The
 same run **corrected `CHANGELOG.md`**, which claimed the bundled mod had reached
 1.0.0; no such CodeBlock release exists, and the pointer is still the bare
 `09c708d`.
@@ -635,22 +639,34 @@ and the release it adopts is CodeBlock `1.0.0`.
   upload, then read the page in-game (`P5`). **`P2` and `P6` are blockers, not
   nice-to-haves** — they are what `G8`'s inclusion costs, and `P6` is the only
   thing that would close `B57`.
-- [ ] Push, and get a CI run on the commit that is tagged. Nothing on this branch
-  has ever been built — see the gate below.
-- [ ] Merge to `main` and tag there. `main` itself is 10 commits ahead of
-  `origin/main` (`35fa2a1`), so the push is owed on both branches.
+- [ ] Push, and get a CI run on the commit that is tagged. **Half done**:
+  `g6-world-limits` was pushed to origin on 2026-09-22 (`5777dc0..7609d09`) and
+  is in sync with its remote. No CI run followed and none can — `ci.yml` triggers
+  on a push to `main`, a pull request or a manual dispatch — so the run comes
+  from the merge, a PR, or `workflow_dispatch`. Nothing on this branch has ever
+  been built; see the gate below.
+- [ ] Merge to `main` and tag there. `main` itself is **still** 10 commits ahead
+  of `origin/main` (`35fa2a1`) and unpushed, checked 2026-09-22 after the branch
+  push, so the push is still owed there.
 
 **`release-check` ran on 2026-09-22 against the working tree at `0a605a3` and
 answered no-go.** Its blockers, recorded here because they are facts about this
 release and not about any one finding:
 
-- **Nothing is pushed.** `g6-world-limits` is 11 commits ahead of its remote,
-  local `main` is 10 ahead of `origin/main` at `35fa2a1`, and 7 files are
-  uncommitted. Nothing that would be tagged exists anywhere but this machine.
-- **CI has never run on the release commit.** No run exists for `0a605a3` or for
-  any of the 9 commits after `dd83b99`; the newest codecube run of any kind is
-  `main` at `35fa2a1`, 2026-09-01. Both gates were green *locally* and that is a
-  different claim.
+- **Nothing was pushed** when the gate ran: `g6-world-limits` was 11 commits
+  ahead of its remote, local `main` 10 ahead of `origin/main` at `35fa2a1`, and 7
+  files uncommitted. **Half discharged later the same day**: the 8 modified files
+  were committed as `7609d09` and `g6-world-limits` was pushed
+  (`5777dc0..7609d09`), so the branch is in sync and the tree is clean. **`main`
+  is still 10 ahead of `origin/main` and unpushed**, and the merge and the tag
+  happen there, so what would be tagged still exists only on this machine.
+- **CI has never run on the release commit.** When the gate ran, no run existed
+  for `0a605a3` or for any of the 9 commits after `dd83b99`; the newest codecube
+  run of any kind was `main` at `35fa2a1`, 2026-09-01. The branch push did not
+  change that and could not: `.github/workflows/ci.yml` triggers on a push to
+  `main`, a pull request or `workflow_dispatch`, and the public runs API reports
+  **0 runs for branch `g6-world-limits`**, read 2026-09-22 after the push. Both
+  gates were green *locally* and that is a different claim.
 - **Behaviour is unobserved at the release commit.** The newest `PLAYTEST.md`
   result names `dd83b99`, and `cc_gui` has no result at all — which is `P6`, the
   blocker above, seen from the evidence side.
@@ -1016,11 +1032,20 @@ All three were decided with `G8`, on 2026-09-17. (`B57`)
 
 ---
 
-2026-09-22 · codecube `0a605a3`, on branch **`g6-world-limits`**, 7 files
-uncommitted over it, 23 commits over `main` and pushed only to `5777dc0` — 11
-behind on this branch, and `main` itself 10 ahead of `origin/main` (`35fa2a1`).
+2026-09-22 · codecube `7609d09`, on branch **`g6-world-limits`**, tree clean and
+**in sync with `origin/g6-world-limits`** — the release-preparation work was
+committed as `7609d09` and pushed (`5777dc0..7609d09`). `main` is still 10 ahead
+of `origin/main` (`35fa2a1`) and unpushed.
 
-**This pass records `release-check`'s no-go of 2026-09-22 and one correction to
+**This pass records the push and nothing else.** `G5`'s *nothing is pushed*
+blocker keeps the reading `release-check` took at `0a605a3` and gains what the
+push discharged; its CI blocker now separates what was true then from what is
+true now — no run exists for the branch, and none can, because `ci.yml` fires on
+a push to `main`, a pull request or a manual dispatch. `G5` stays **2/7** and
+no-go: the pointer is still the untagged `09c708d`, nothing has been played, and
+`P2` and `P6` are untouched.
+
+**The previous pass records `release-check`'s no-go of 2026-09-22 and one correction to
 `CHANGELOG.md`.** The changelog said the bundled mod had *reached 1.0.0*; no such
 CodeBlock release exists — the pointer is `09c708d`, untagged, `git describe`
 gives `v0.7.3-155-g09c708d` and upstream's newest tag is `v0.7.3` — so it now
@@ -1028,10 +1053,10 @@ says the true weaker thing, that the mod is a development build ahead of `v0.7.3
 whose changes break saved programs. `G5` goes from 2/5 to **2/7** with the push
 and the CI run written as items, and its four blockers and the two gaps the run
 closed are on the milestone. `PLAYTEST.md` was not touched in this pass and
-nothing moved off `unchecked`. This file is **1184 lines** against its own "under
-roughly 150", up from 1129 at the previous pass.
+nothing moved off `unchecked`. That pass left this file at **1184 lines** against its own "under
+roughly 150", up from 1129; it is **1209** here.
 
-**The earlier pass at this same commit records three decisions of 2026-09-22 and wrote no code**: the
+**The pass before that, at `0a605a3` too, records three decisions of 2026-09-22 and wrote no code**: the
 release is `v2.0.0`, `G8` ships in it, and `dev_state` becomes
 `ACTIVELY_DEVELOPED`. `G8` also went from 0/3 to **3/3 written** — that was
 already true at `ba92d52` and this file had not caught up. Nothing moved off

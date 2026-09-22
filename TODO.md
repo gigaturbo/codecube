@@ -65,8 +65,9 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
       B49, B19)
 - [ ] `P2` and the changelog's download figure: `CHANGELOG.md` now states
       2.53 MB at `v1.0.2` down to 1.21 MB, measured 2026-09-22 with
-      `git archive --format=zip` at `0a605a3` and a dirty tree, so the figure
-      will shift once the 7 uncommitted files land. Re-measure at the tagged
+      `git archive --format=zip` at `0a605a3` and a dirty tree; those files
+      landed as `7609d09`, so the figure was never measured at a clean tree.
+      Re-measure at the tagged
       commit — that is the number a player's download actually is (audit C15)
 - [ ] `R4`'s re-run — the last of `B48`'s blast-radius controls, and it needs
       `A20`'s temporary hand override like `R1` did. A re-run of `R8` **with** the
@@ -97,10 +98,12 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
       *Changed* entry then. Until then `CHANGELOG.md` says what is true — a
       development build ahead of `v0.7.3` — corrected 2026-09-22 from a claim
       that the mod had reached 1.0.0
-- [ ] push both branches and get a CI run on the commit that will be tagged:
-      `g6-world-limits` is 11 ahead of its remote, `main` 10 ahead of
-      `origin/main` at `35fa2a1`, and no run exists for `0a605a3` or for any of
-      the 9 commits after `dd83b99` (roadmap G5, release-check 2026-09-22)
+- [ ] push `main` and get a CI run on the commit that will be tagged:
+      `g6-world-limits` was pushed 2026-09-22 (`5777dc0..7609d09`) and is in
+      sync, but `main` is still 10 ahead of `origin/main` at `35fa2a1`. No CI run
+      exists on any of the 9 commits after `dd83b99`, and the branch push could
+      not produce one — `ci.yml` fires on a push to `main`, a pull request or a
+      manual dispatch (roadmap G5, release-check 2026-09-22)
 - [ ] check the ContentDB upload webhook from a machine with `gh` installed.
       Until someone does, **treat the upload as manual** (roadmap G5)
 - [ ] `cc_security`: the rescue's `load_area` column grew from 5 mapblocks to 13

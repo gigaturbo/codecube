@@ -120,15 +120,16 @@ was corrected, and the two corrected one-line programs passed in the third.
 unrunnable with it** — each names a node only `default` registered — and are kept
 with their passes rather than deleted, because a deleted entry takes its evidence
 and its reasoning with it. **Every `W` result is owed a re-run at
-`50fd05f` or later** — the tip is `0a605a3` — because `50fd05f` rewrites both
+`50fd05f` or later** — the tip is `7609d09` — because `50fd05f` rewrites both
 files the group exercises; the group's preamble says so once rather than the table
 saying it eleven times.
 
-**The newest commit any result names is `dd83b99`, and HEAD is nine commits
-later, at `0a605a3`.** Counted from the `Result:` lines on 2026-09-22, not
-recalled. Those nine touch **all four** of the game's own mods, both submodule
+**The newest commit any result names is `dd83b99`, and HEAD is ten commits
+later, at `7609d09`.** Counted from the `Result:` lines on 2026-09-22, not
+recalled. The tenth, `7609d09`, changes record documents and the `.cdb.json`
+generator only; the nine before it touch **all four** of the game's own mods, both submodule
 pointers and `minetest.conf`, so every claim below about behaviour is evidence
-about a tree nine commits old. Nothing in this document has been run since
+about a tree ten commits old. Nothing in this document has been run since
 2026-09-09.
 
 **The world was widened to `mapgen_limit = 4096` on 2026-09-17** (`ROADMAP.md`
@@ -261,7 +262,7 @@ added.
   `W4`, `W8` and `W9` re-runs at the current depth. `P5` needs a release first.
   **No result names either current submodule pointer** — `vector3` `v2.0.2`
   (`fc8a5b8`) or `codeblock` `09c708d` — and none names any of the nine commits
-  from `67f1feb` to `0a605a3`.
+  from `67f1feb` to `0a605a3`, nor `7609d09` after them.
 
 **The boot gap is real and narrower than it was.** `W10` and `W12`–`W14` pass at
 `3479e25`, record-only over `48cc63e`, and none of those observations is possible
@@ -306,7 +307,7 @@ place it puts them (`W9`). `W4`–`W9` and `W14` are `B50`; `W15` and `W16` are
 `A13`.
 
 **`G3` rewrote both of those files at `50fd05f`, so every result in this group is
-owed a re-run at that commit or later — the tip is `0a605a3`.** That is the rule about a result not surviving a
+owed a re-run at that commit or later — the tip is `7609d09`.** That is the rule about a result not surviving a
 change to the code it exercised, applied to a whole group at once rather than per
 check: the surface material changed, the fill node changed, and the mapgen aliases
 the engine needs moved into `cc_mapgen`. The passes below stand as what was seen
