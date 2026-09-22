@@ -242,7 +242,7 @@ keeping a second copy.
 | `R4` | pass at `6f2409e`, **re-run owed** | same blast radius as `R1`, and both pointer moves are now committed — `vector3` `fc8a5b8` (`v2.0.2`) at `c2d2b5a`, `codeblock` `09c708d` at `34b3820`, both confirmed against the tree on 2026-09-22. Its newest result names `6f2409e`, older than every other live result here, so it is the stalest entry in the document. Run it with `R9` |
 | `R5` | **pass, composed, 2026-09-09** | nothing owed. Both halves are now on the same tree — `R3` re-run and `R2`'s drop half run under the hand override — which is exactly the composition the `partial` pre-authorised in writing. `A8`'s **`last_mod` half stays untested by choice**, as its own paragraph records: it needs a second mod assigning the same globals and none ships here |
 | `R8` | **pass 2026-09-09**, with a second explanation | nothing owed. It is the whole of `B48`'s in-world evidence, and the `dig_immediate` case stays unreproducible — `G3` deleted the last such node. **The pass no longer distinguishes its cause** (`A20`): empty hand groupcaps suppress the crack overlay and the dig sound on their own. Only a run with the hand override would separate them, and nobody has done that |
-| `P1` | **partial**, clone half **fetch-confirmed, boot half unrun** | the clone half passed at `8b27f2f` on `codeblock` `2647228`, and the pointer has moved twice since — to `fb75bc8` at `50fd05f`, then to `09c708d` at `34b3820`. **On 2026-09-22 a fresh recursive clone fetched both intended pointers by hash**: `git fetch origin 09c708d` and `git fetch origin fc8a5b8` each succeeded and `git cat-file -t` gave `commit`, so neither names an object nobody can fetch. That is **the reading half only, and less than the check asks for**: the clone's own submodules came up at `35fa2a1`, the previous release, because the candidate was unpushed, so no clone has yet *populated* at these pointers. **Since PR #1 merged as `49c7f75` a fresh recursive clone would reach the candidate's own pointers** — that changes what the check can reach, not its result, and nobody has re-run it. The boot half has never been run, and a working checkout booting does not discharge it |
+| `P1` | **partial**, clone half **passed at the tag 2026-09-22, boot half unrun** | run against `v2.0.0` (`1ca0d2a`) with `git clone --recurse-submodules --branch v2.0.0`: both submodules populated at the pointers this release ships — `codeblock` `f75766b` (`v1.0.0`) and `vector3` `fc8a5b8` (`v2.0.2`) — `check_game.sh` passed inside the clone, and `lib/config.lua:172` carries the `map_memory_mb` raise the changelog claims. **No `reference is not a tree`**, the single failure this entry exists for. Every earlier run was against a pointer the release did not ship, or was a fetch-by-hash that is strictly less than the check. **The boot half has still never been run** and a working checkout booting does not discharge it |
 | `P2` | **pass at `3f404ec`, 2026-09-22**, standing obligation | re-run by enumerating the archive: **41 entries, 1.21 MB zipped**, every clause checked. The count fell from 494 and the size from 1.95 MB, accounted for by `50fd05f` deleting `default`, `dye` and `wool`. It stays here permanently — the entry says to run it **whenever a tracked file is added**, and nothing in either CI reads `.gitattributes` (`C15`, `C22`). **One clause is now too narrow**: the *Pass* names only `mods/cc_mapgen/license.txt`, and `G8` added `cc_gui` as a second mod carrying media. Both ship; the wording should widen |
 | `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence — whose causes `G3` deletes, while adding three mapgen aliases whose absence shows up here |
 | `P4` | unrun | the main menu shows the game's name, artwork and icon |
@@ -2031,6 +2031,21 @@ world, enter it.
 
 **Pass** — both submodules populate from the HTTPS remotes in `.gitmodules`,
 `check_game.sh` passes inside the clone, and the game boots into a playable world.
+
+Result: partial — **`v2.0.0` (`1ca0d2a`)** · 2026-09-22 — the clone half, run
+against the **tag** for the first time and the strongest this entry has been.
+`git clone --recurse-submodules --branch v2.0.0` from the SSH remote: HEAD came
+up at `1ca0d2a`, **both submodules populated at the pointers this release
+ships** — `codeblock` `f75766b` (`v1.0.0`) and `vector3` `fc8a5b8` (`v2.0.2`) —
+`check_game.sh` passed inside the clone ending *all game integration checks
+passed*, and the adopted work is really there: `mods/codeblock/lib/` holds
+`api.lua`, `commands.lua`, `config.lua`, `shapes.lua` and the rest, and
+`config.lua:172` carries `map_memory_mb = {16, 64, 128, 512}`, the raise this
+release claims. **No `reference is not a tree`**, which is the single failure
+this entry exists to catch and the one the bump order was chosen to avoid.
+**Still not booted in Luanti** — the half that says the game is playable has
+never been run, and a clone that assembles is not a clone that plays. That is
+why this stays `partial` rather than becoming a pass.
 
 Result: partial — `8b27f2f` · 2026-09-01 — the clone half only. A fresh
 `git clone --recurse-submodules` populated both submodules from the HTTPS remotes

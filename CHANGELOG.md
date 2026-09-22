@@ -1,8 +1,7 @@
-# v2.0.0 (unreleased)
+# v2.0.0 — 2026-09-22
 
-`v1.0.0`, `v1.0.1` and `v1.0.2` are already tagged and pushed — the last of them,
-`9d83f11`, is what a player has. Everything below compares against `v1.0.2`, not
-against any unreleased state.
+Tagged on `1ca0d2a`. Everything below compares against **`v1.0.2`**
+(`9d83f11`, 2022-07-07), which is what a player had before this.
 
 **This release breaks saved player programs, and it breaks worlds you have
 already played in.** Programs break because the drone's limits were rewritten

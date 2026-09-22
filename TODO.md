@@ -37,49 +37,32 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
 
 ## To do
 
-- [x] `cc_gui`: committed at `ba92d52` and **ships in `v2.0.0`** (roadmap G8,
-      audit B57). Both of its checks ran on 2026-09-22 at `3f404ec` and pass —
-      `P6`, which closed `B57`, and `P2` for the four files it adds. `P6` is a
-      bare pass with no step detail, which is all `B57` will ever have
-- [ ] `P1`'s boot half and `P3` are unrun. Narrower than it was — `W10` and
-      `W12`–`W14` passing proves the author's own checkout boots — but `P1` is a **fresh
-      recursive clone**, whose submodule objects nobody has locally. **Its clone
-      half is stale too**: it passed at `8b27f2f` on `codeblock` `2647228`, and
-      the pointer has moved twice since — `fb75bc8` at `50fd05f`, `09c708d` on
-      2026-09-17. Narrower since 2026-09-22: `release-check` fetched both
-      pointers by hash into a clean clone and both succeeded, so what is left is
-      the rest of a recursive clone rather than the fetchability. **The merge
-      changed what it can reach, not its result**: with `49c7f75` on origin a
-      fresh recursive clone now populates at the candidate's own pointers instead
-      of at `35fa2a1`. Still unrun
-- [x] `W3`, `W5`, `W6` and `W7` — the four re-runs the widening to 4096 owed.
-      All four ran on 2026-09-22 at `3f404ec` and pass, which resolves `W6`'s
-      inversion: the drone names 4096 where its kept 2026-09-07 line names 1024.
-      Bare passes with no step detail (roadmap G6)
+- [ ] `P1`'s boot half and `P3` are unrun. **`P1`'s clone half passed at the
+      tag on 2026-09-22** — `git clone --recurse-submodules --branch v2.0.0`
+      populated `codeblock` `f75766b` (`v1.0.0`) and `vector3` `fc8a5b8`
+      (`v2.0.2`), `check_game.sh` passed inside the clone, and no
+      `reference is not a tree` appeared, so the pointers this release ships are
+      fetchable by anyone. **What is left is the boot half**: nobody has started
+      Luanti on a fresh clone, and a checkout that assembles is not one that
+      plays
 - [ ] `W4`, `W8` and `W9` are owed re-runs at the new depth: all three pass at
       `60259dd`, where `mgflat_ground_level` was 8, and all three exercise heights
       the rescue derives from that number. **`W14` discharges none of them** —
       `PLAYTEST.md`'s *what needs action* table says why per check (audit B50).
       **G3 widened this to the whole `W` group at `50fd05f`**, having rewritten
       both of the files that group exercises
-- [x] `W11` — the redrawn bedrock and barrier. Its pass was retired when the
-      textures were redrawn and `W15` was run without it; **re-run and passed on
-      2026-09-22 at `3f404ec`**, which takes `G7` to 5/5 checked. A bare pass
-      with no step detail (roadmap G7)
 - [ ] `code-expert`: with `default` gone nothing registers an ABM or an
       `on_timer`, so `cc_security`'s two neutralising loops walk empty sets, and
       `cc_mapgen`'s two `flowers:*` aliases have no schematics left to resolve.
       Keep as defence or delete as dead code — a decision, not a finding (audit
       B49, B19)
-- [ ] `P2` and the changelog's download figure: `CHANGELOG.md` now states
-      2.53 MB at `v1.0.2` down to 1.21 MB, measured 2026-09-22 with
-      `git archive --format=zip` at `0a605a3` and a dirty tree; those files
-      landed as `7609d09`. **`P2` was re-run at `3f404ec` on a clean tree and the
-      figure holds: 41 entries, 1.21 MB.** Re-measure once more at the tagged
-      commit — that is the number a player's download actually is (audit C15).
-      `P2`'s *Pass* also needs widening: it names only
-      `mods/cc_mapgen/license.txt`, and `cc_gui` is now a second mod shipping
-      media
+- [ ] `P2`'s *Pass* is too narrow: it names only `mods/cc_mapgen/license.txt`
+      as the mod licence that must ship, and `G8` added `cc_gui` as a second mod
+      carrying media. Both do ship — verified by enumerating the archive — so it
+      is the wording that is wrong, not the packaging (audit C15, C22). **The
+      download figure is settled**: `CHANGELOG.md` states 2.53 MB at `v1.0.2`
+      down to 1.21 MB, and `git archive --format=zip` at the `v2.0.0` tag gives
+      41 entries and 1.21 MB, so the published number is the tagged one
 - [ ] `R4`'s re-run — the last of `B48`'s blast-radius controls, and it needs
       `A20`'s temporary hand override like `R1` did. A re-run of `R8` **with** the
       override is worth it too: it is the only thing that would separate the group
@@ -103,19 +86,16 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
 - [ ] `check_game.sh`: the `max_minetest_version` guard reads `game.conf` only, so
       a bundled mod's `mod.conf` can carry a ceiling with nothing failing — it did
       for two days (audit C21 `Keep`). A wanted check, not a finding
-- [x] adopt a **tagged** CodeBlock release and update the game's documentation
-      with it (roadmap G5) — **done 2026-09-22**: the pointer is CodeBlock
-      `v1.0.0`, tag `d36092e` on commit `f75766b`, verified on the remote before
-      the checkout. The `CHANGELOG.md` *Changed* entry naming the release is
-      written in the same commit, with `CONTENTDB.md`'s *Recent changes* and a
-      regenerated `.cdb.json`
-- [ ] get a CI run on the commit that is **tagged**. The push half is done: PR #1
-      merged 2026-09-22 as `49c7f75`, `main` in sync with origin, and CI green on
-      `49c7f75` (`push`) and `99117bf` (`pull_request`), both jobs. No tag exists,
-      so no tagged commit has been built; this closes when `v2.0.0` is cut on
-      `49c7f75` with nothing pushed after it (roadmap G5)
-- [ ] check the ContentDB upload webhook from a machine with `gh` installed.
-      Until someone does, **treat the upload as manual** (roadmap G5)
+- [ ] **upload `v2.0.0` to ContentDB**, manually. The long description comes
+      from `.cdb.json`, which is current. Two fields on the live page are wrong
+      until it happens: `media_license` reads `AGPL-3.0-only` where the game's
+      media is CC-BY-SA-4.0 (`C22`), and `dev_state` reads `BETA` where this
+      release sets `ACTIVELY_DEVELOPED`. Then run `P5` — read the page from
+      **inside Luanti's content browser**, not a web browser (roadmap G5)
+- [ ] decide whether to add the release webhook at all, now that its absence is
+      known. `release-codecube` §6 has the setup: an API token as the secret,
+      payload `https://content.luanti.org/github/webhook/`, and **"Branch or tag
+      creation"** rather than push events (roadmap G5)
 - [ ] `cc_security`: the rescue's `load_area` column grew from 5 mapblocks to 13
       with the deeper world, and the scan reads ~128 more nodes before it finds
       the surface — bounded and deliberate; it could start at the surface and

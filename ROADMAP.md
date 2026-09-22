@@ -126,7 +126,7 @@ whatever is opened after it.
 | `G6` | Bound the world | **done on both counts** | 5/5 | 6/6 |
 | `G7` | Make the world something to be in | **done and checked**, the texture rework committed `dd83b99`; `W11` passed 2026-09-22 | 3/3 | 5/5 |
 | `G8` | Give the interface the game's own style | **done and checked**, `ba92d52`; ships in `v2.0.0` | 3/3 | 1/1 |
-| `G5` | Adopt a tagged CodeBlock release and ship `v2.0.0` | started; **CodeBlock `v1.0.0` adopted** 2026-09-22 and every blocker discharged. What is left is the tag, the upload and the checks that need them | 3/7 | — |
+| `G5` | Adopt a tagged CodeBlock release and ship `v2.0.0` | **`v2.0.0` tagged** on `1ca0d2a`, 2026-09-22, CodeBlock `v1.0.0` adopted, CI green on the tagged commit, fresh clone verified. **The ContentDB upload is owed and is manual** — no webhook fired | 5/7 | — |
 
 Findings by milestone: `G1` (`C1`, `C2`, `C3`, `C4`, `C5`, `C15`, `C20`); `G2`
 (`A14`, `B20`); `G3` (`B49`, `A13`); `G4` (`B47`, `B48`, `S8`, `A7`, `A8`,
@@ -611,7 +611,7 @@ changes*, `README.md` in its opening paragraph, and `CHANGELOG.md` under
 *Changed*. A style every player meets before they write a line of code was
 otherwise described nowhere a player reads.
 
-### G5. Adopt a tagged CodeBlock release and ship v2.0.0 — started (3/7), the pointer is on a tag
+### G5. Adopt a tagged CodeBlock release and ship v2.0.0 — tagged (5/7), the upload is owed
 
 The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
 `release-codecube` skill owns the procedure and `release-check` gates it. **The
@@ -653,21 +653,21 @@ and the release it adopts is CodeBlock `1.0.0`.
 - [ ] Update `README.md`, `CHANGELOG.md` and `CONTENTDB.md` in the same commit,
   and regenerate `.cdb.json` — `check_game.sh` diffs it.
 - [ ] Run `check_game.sh`, `P1`, **`P2` and `P6`**, tag `v2.0.0` on `main`,
-  upload, then read the page in-game (`P5`). **`P2` and `P6` were the blockers
-  and both passed on 2026-09-22 at `3f404ec`** — `P2` by enumerating the archive,
-  41 entries and 1.21 MB, and `P6` as the one thing that could close `B57`, which
-  it did. What is left on this line is **`P1`**, whose boot half has never been
-  run, and the tag, the upload and `P5` — and `P5` cannot run before the upload.
-- [ ] Push, and get a CI run on the commit that is tagged. **Its substance is
-  done and it stays open on its own wording**: `main` is pushed and **CI is green
-  on `49c7f75`**, event `push`, 2026-09-22T13:27:15Z, both jobs `success` read
-  individually. No tag exists, so no *tagged* commit has been built. It closes the
-  moment `v2.0.0` is cut on `49c7f75` with nothing pushed after it; any further
-  commit re-opens the gap it names.
-- [ ] Merge to `main` and tag there. **Merge half done**: PR #1
-  (`g6-world-limits` → `main`) merged on 2026-09-22 as `49c7f75`, local `main`
-  fast-forwarded `99117bf..49c7f75` and is in sync with `origin/main`. The tag
-  half is not done.
+  upload, then read the page in-game (`P5`). **`P2` and `P6` passed on
+  2026-09-22 at `3f404ec`**, and **`P1`'s clone half passed against the tag**
+  the same day. What is left is **the upload**, which is manual — see the webhook
+  finding below — then `P5`, and `P1`'s boot half, which has never been run.
+- [x] Push, and get a CI run on the commit that is tagged. **Done 2026-09-22**:
+  `v2.0.0` is cut on **`1ca0d2a`** and CI is green on exactly that commit, both
+  jobs — `game assembles` and `luacheck (game mods)` — read individually rather
+  than trusting the run conclusion, with nothing pushed after it. That is the
+  condition this item was worded to catch, and it is met. **It proves the game
+  assembles and nothing about how it behaves.**
+- [x] Merge to `main` and tag there. **Done 2026-09-22.** PR #1
+  (`g6-world-limits` → `main`) merged as `49c7f75`, and **`v2.0.0` is the
+  annotated tag `1c90ec5` on commit `1ca0d2a`**, pushed to origin. A fresh
+  `git clone --recurse-submodules --branch v2.0.0` populates both submodules at
+  the pointers this release ships and passes `check_game.sh` inside the clone.
 
 **`release-check` ran on 2026-09-22 against the working tree at `0a605a3` and
 answered no-go.** Its blockers, recorded here because they are facts about this
@@ -698,7 +698,17 @@ release and not about any one finding:
   every in-world result that day was a bare `pass` with no step detail.
 - **The ContentDB upload webhook could not be checked**, because `gh` is not
   installed on this machine. **Treat the upload as manual** until someone
-  confirms otherwise.
+  confirms otherwise. **Settled on 2026-09-22 by the release itself, and the
+  answer is that there is no working webhook.** `v2.0.0` was tagged and pushed,
+  and ContentDB's own API still listed `v1.0.2` of 2022-07-07 as the newest
+  release three minutes later. So either no webhook exists on this repository or
+  it is configured for push events rather than *Branch or tag creation* — a
+  webhook that has silently stopped looks exactly like one nobody configured,
+  which is why this was worth settling by observation rather than by reading
+  settings. **The upload is manual.** Two fields on the live page are wrong until
+  it happens and both are in the generated `.cdb.json` already: `media_license`
+  reads `AGPL-3.0-only` where the game's media is **CC-BY-SA-4.0** (`C22`), and
+  `dev_state` reads `BETA` where this release sets `ACTIVELY_DEVELOPED`.
 
 **Two gaps the same run closed, and both are worth keeping.** `luacheck`'s
 `mods/cc_*/` glob now picks up `cc_gui` — 5 files, 0 warnings, 0 errors — so the
