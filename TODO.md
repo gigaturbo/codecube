@@ -37,10 +37,10 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
 
 ## To do
 
-- [ ] `cc_gui`: committed at `ba92d52` and **ships in `v2.0.0`** (roadmap G8,
-      audit B57). What is left is checking, and both are **release blockers**:
-      `P6` is its own check and the only thing that closes `B57`, and `P2` is
-      owed for the four files it adds
+- [x] `cc_gui`: committed at `ba92d52` and **ships in `v2.0.0`** (roadmap G8,
+      audit B57). Both of its checks ran on 2026-09-22 at `3f404ec` and pass —
+      `P6`, which closed `B57`, and `P2` for the four files it adds. `P6` is a
+      bare pass with no step detail, which is all `B57` will ever have
 - [ ] `P1`'s boot half and `P3` are unrun. Narrower than it was — `W10` and
       `W12`–`W14` passing proves the author's own checkout boots — but `P1` is a **fresh
       recursive clone**, whose submodule objects nobody has locally. **Its clone
@@ -52,15 +52,20 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
       changed what it can reach, not its result**: with `49c7f75` on origin a
       fresh recursive clone now populates at the candidate's own pointers instead
       of at `35fa2a1`. Still unrun
+- [x] `W3`, `W5`, `W6` and `W7` — the four re-runs the widening to 4096 owed.
+      All four ran on 2026-09-22 at `3f404ec` and pass, which resolves `W6`'s
+      inversion: the drone names 4096 where its kept 2026-09-07 line names 1024.
+      Bare passes with no step detail (roadmap G6)
 - [ ] `W4`, `W8` and `W9` are owed re-runs at the new depth: all three pass at
       `60259dd`, where `mgflat_ground_level` was 8, and all three exercise heights
       the rescue derives from that number. **`W14` discharges none of them** —
       `PLAYTEST.md`'s *what needs action* table says why per check (audit B50).
       **G3 widened this to the whole `W` group at `50fd05f`**, having rewritten
       both of the files that group exercises
-- [ ] `W11` — the redrawn bedrock and barrier. Its pass was retired when the
-      textures were redrawn, `W15` was run without it, and it is the only unjudged
-      part of the texture rework and the cheapest evidence owed (roadmap G7)
+- [x] `W11` — the redrawn bedrock and barrier. Its pass was retired when the
+      textures were redrawn and `W15` was run without it; **re-run and passed on
+      2026-09-22 at `3f404ec`**, which takes `G7` to 5/5 checked. A bare pass
+      with no step detail (roadmap G7)
 - [ ] `code-expert`: with `default` gone nothing registers an ABM or an
       `on_timer`, so `cc_security`'s two neutralising loops walk empty sets, and
       `cc_mapgen`'s two `flowers:*` aliases have no schematics left to resolve.
@@ -69,9 +74,12 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
 - [ ] `P2` and the changelog's download figure: `CHANGELOG.md` now states
       2.53 MB at `v1.0.2` down to 1.21 MB, measured 2026-09-22 with
       `git archive --format=zip` at `0a605a3` and a dirty tree; those files
-      landed as `7609d09`, so the figure was never measured at a clean tree.
-      Re-measure at the tagged
-      commit — that is the number a player's download actually is (audit C15)
+      landed as `7609d09`. **`P2` was re-run at `3f404ec` on a clean tree and the
+      figure holds: 41 entries, 1.21 MB.** Re-measure once more at the tagged
+      commit — that is the number a player's download actually is (audit C15).
+      `P2`'s *Pass* also needs widening: it names only
+      `mods/cc_mapgen/license.txt`, and `cc_gui` is now a second mod shipping
+      media
 - [ ] `R4`'s re-run — the last of `B48`'s blast-radius controls, and it needs
       `A20`'s temporary hand override like `R1` did. A re-run of `R8` **with** the
       override is worth it too: it is the only thing that would separate the group

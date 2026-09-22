@@ -84,20 +84,23 @@ A `fail` is not a finding — report it and let `AUDIT.md` allocate or widen an 
 |---|---|
 | Entries | **36** — `P6` and `P7` added 2026-09-17, `L4` 2026-09-09 |
 | Live checks | 34 — `R6` and `R7` are unrunnable, not live |
-| Most recent result a `pass` | **29**, of which 2 are on entries that can never be re-run |
+| Most recent result a `pass` | **31**, of which 2 are on entries that can never be re-run |
 | `partial` | **1** — `P1` |
 | `fail` | 0 |
-| Unrun (`unchecked`) | **6** — `W11`, `P3`, `P4`, `P5`, `P6`, `P7` |
+| Unrun (`unchecked`) | **4** — `P3`, `P4`, `P5`, `P7` |
 | Results retired | 3 — `W8` and `W9` at `f5f2385` on 2026-09-07, `W11` at `3479e25` on 2026-09-08 |
 | Findings closed by a check | `B47`, `B48`, `B49`, `B50`, `S8` |
 | A pass that proves nothing | **0** — `R1`'s run of 2026-09-09 carries the hand override and could have failed. `R8`'s pass still cannot *distinguish* its cause, which is a weaker thing and is recorded in its entry |
 | Results that name no commit that carries the code | **0** — it was 3 on the morning of 2026-09-09, `L1`, `L2` and `L4` against `A19`'s then-uncommitted `set_sky` line. `dd83b99` committed that tree unchanged the same day and all three now name it |
 | Passes composed from other entries rather than reported | **2** — `L3` and `R5`. Each entry says so in its own result line |
 
-**Counted 2026-09-09 from the first `Result:` line of all 34 entries**, not
-adjusted by hand: 29 pass, 1 partial, 0 fail, 4 unchecked. `P6` and `P7` were added on
-2026-09-17 and are the 35th and 36th, both unchecked, which is the only change to
-the counts since. Six results moved in
+**Counted 2026-09-22 from the first `Result:` line of all 36 entries**, not
+adjusted by hand: **31 pass, 1 partial, 0 fail, 4 unchecked.** The sitting of
+2026-09-22 moved six — `W3`, `W5`, `W6`, `W7`, `W11` and `P6` — of which `W11`
+and `P6` left `unchecked` and the other four discharged re-runs the widening
+owed, and `P2` was re-run at the same commit without changing its outcome. The
+four unrun are `P3`, `P4`, `P5` and `P7`, and `P5` needs a published release
+before it can be run at all. Six results moved in
 the third sitting of the day — `R1`, `R2`, `R9`, `L1`, `L2` and `L4` — and two
 more were composed from them, `R5` and `L3`.
 
@@ -120,29 +123,37 @@ was corrected, and the two corrected one-line programs passed in the third.
 unrunnable with it** — each names a node only `default` registered — and are kept
 with their passes rather than deleted, because a deleted entry takes its evidence
 and its reasoning with it. **Every `W` result is owed a re-run at
-`50fd05f` or later** — the tip is `49c7f75` — because `50fd05f` rewrites both
+`50fd05f` or later** — the tip is `3f404ec` — because `50fd05f` rewrites both
 files the group exercises; the group's preamble says so once rather than the table
 saying it eleven times.
 
-**The newest commit any result names is `dd83b99`, and HEAD is twelve commits
-later, at `49c7f75`.** Counted from the `Result:` lines on 2026-09-22, not
-recalled. The last three — `7609d09`, `99117bf` and the merge `49c7f75` — change
-record documents and the `.cdb.json` generator only; the nine before them touch
-**all four** of the game's own mods, both submodule pointers and `minetest.conf`,
-so every claim below about behaviour is evidence about a tree twelve commits old.
-Nothing in this document has been run since 2026-09-09. **CI going green on
-`49c7f75` changes none of that** — it proves the game assembles, and no gate here
-reaches behaviour.
+**Six entries were run on 2026-09-22 at `3f404ec`, the first sitting since
+2026-09-09.** `W3`, `W5`, `W6`, `W7`, `W11` and `P6`, plus `P2` re-run by
+enumerating the archive. All seven pass. **Every one was reported as a bare
+`pass` with no step-by-step detail**, so each line records an outcome and not an
+observation; the entries say so individually rather than this paragraph claiming
+it once and being forgotten.
+
+**The newest commit a behavioural result now names is `3f404ec`, which is HEAD.**
+Counted from the `Result:` lines, not recalled. Everything since `0a605a3` —
+`7609d09`, `99117bf`, the merge `49c7f75` and `3f404ec` — changes record
+documents and the `.cdb.json` generator only, so `3f404ec` and `0a605a3` carry
+the same game code and the results are written naming both. **The entries that
+did not move still name `dd83b99` or older**, and `R4`'s names `6f2409e`, older
+than every other live result; those are the stale ones now, not the group as a
+whole. **CI going green changes none of this** — it proves the game assembles,
+and no gate here reaches behaviour.
 
 **The world was widened to `mapgen_limit = 4096` on 2026-09-17** (`ROADMAP.md`
-`G6` decision 9) and **committed at `0a605a3` on 2026-09-22**, so every `W` result
-was run in a world 2000 nodes on a side and
-the game now makes one **8080** on a side, with the ceiling as far up as the wall
-is out. It moves every edge: `W3`,
-`W5`, `W6` and `W7` are owed re-runs and all four have had their methods
-rewritten, because each named a coordinate or a distance. `W4`, `W8` and `W9` are
-about depth and are untouched by it — their re-runs are the older depth ones and
-are still owed.
+`G6` decision 9) and **committed at `0a605a3` on 2026-09-22**, so every `W`
+result older than that sitting was run in a world 2000 nodes on a side and the
+game now makes one **8080** on a side, with the ceiling as far up as the wall is
+out. It moves every edge, and the four entries that named a coordinate or a
+distance — `W3`, `W5`, `W6` and `W7` — had their methods rewritten for it and
+**were all re-run on 2026-09-22, discharging those re-runs.** `W6`'s inversion is
+resolved with them: the drone now names 4096 where its kept 2026-09-07 line names
+1024. `W4`, `W8` and `W9` are about depth and are untouched by the widening —
+their re-runs are the older depth ones and **are still owed.**
 
 **That set of four is complete for the code and incomplete for the wording.**
 `0a605a3` changes two files the group reaches: `minetest.conf`, the setting
@@ -161,12 +172,17 @@ Corrected 2026-09-22, found in the same pass.
 `mods/cc_day/init.lua` and `mods/cc_security/init.lua` both changed in the nine
 commits since `dd83b99` and **both changes are comment-only** — read from
 `git diff dd83b99..HEAD` — so neither owes anything. `mods/cc_gui/` is new at
-`ba92d52`, 50 lines of Lua with no result of any kind: **`P6` is its only possible
-evidence** and both gates together prove only that it assembles.
+`ba92d52`, 50 lines of Lua, and **`P6` is its only possible evidence** because
+both gates together prove only that it assembles. `P6` was run on 2026-09-22 and
+passes, so the mod is no longer wholly unevidenced — on one bare pass, which is
+all `B57` will ever have.
 
 **`W11`'s pass was retired on 2026-09-08** because `cc_mapgen`'s bedrock and
 barrier textures were redrawn after it, and because it had passed against wording
 the textures can no longer meet. Its entry carries the retired line and why.
+**It was re-run against the redrawn textures on 2026-09-22 and passes**, so the
+bedrock and barrier redraws are no longer the unjudged part of the texture
+rework.
 
 **Both pointers are now committed, and the re-runs below are genuinely owed.**
 Checked on 2026-09-22 with `git submodule status` and `git diff dd83b99..HEAD`:
@@ -202,11 +218,11 @@ keeping a second copy.
 
 | Check | State | Why it needs action |
 |---|---|---|
-| `W3` | pass, **method stale** | it passed by teleporting "several thousand nodes" out, a distance that was outside the world at 1024 and is inside it again since the widening to 4096, **committed at `0a605a3`**. The pass stands as what was seen at `7f649d8`; the instruction carries a command now |
-| `W5` | pass, **re-run owed** | the wall it saw stood at 1007. Since 2026-09-17 it stands at **4047**, in chunks nobody has emerged, and the method's *past 1000* reached nothing there. Rewritten with a command |
-| `W6` | pass, **inverted, re-run owed** | **its pass condition inverted**: the drone must now name **4096**, which used to be the fail, and the recorded pass at `60259dd` names **1024**, which is now the failure. Verified 2026-09-22 — `minetest.conf` reads `mapgen_limit = 4096` at `0a605a3`. Until it is re-run this entry's own result reads as a fail against its own criterion |
-| `W7` | pass, **method rewritten, re-run owed** | it compared a world at 4096 against a game at 1024, and 4096 is now the game's own value, so the old method proves nothing. Rewritten around a world at `2000` or `1024` |
-| `W11` | **retired, unrun** | the bedrock and barrier textures were redrawn on 2026-09-08 in a flat-base-plus-specks style, and the old pass named a *"black mottled rock"* and a *"wrapping blur"* that no longer exist. **`W15` was run on 2026-09-09 without it**, so the bedrock and barrier redraws are now the only unjudged part of the texture rework, and the cheapest thing left in this group |
+| `W3` | **pass, re-run discharged 2026-09-22** | re-run by the author at `3f404ec` in a world at 4096, which closes the staleness below. It had passed by teleporting "several thousand nodes" out, a distance that was outside the world at 1024 and is inside it again since the widening, **committed at `0a605a3`**; the instruction carries a command now. The 2026-09-01 pass stands as what was seen at `7f649d8` |
+| `W5` | **pass, re-run discharged 2026-09-22** | re-run by the author at `3f404ec` against the wall where it now stands. The wall the 2026-09-07 pass saw stood at 1007; since the widening it stands at **4047**, in chunks nobody had emerged, and the method's *past 1000* reached nothing there. Rewritten with a command, and now run against it |
+| `W6` | **pass, inversion resolved 2026-09-22** | its pass condition inverted with the widening — the drone must now name **4096**, and the 2026-09-07 pass names **1024**, which the entry's own *Pass* declares a failure. **Re-run by the author at `3f404ec` and it passes against 4096**, so the entry has live evidence for the current number again. The old line is kept, not retired: it is honest evidence of the mechanism under the setting it was taken at |
+| `W7` | **pass, re-run discharged 2026-09-22** | re-run by the author at `3f404ec` against the rewritten method. It had compared a world at 4096 against a game at 1024, and 4096 is now the game's own value, so the old method proved nothing; the method is built on an old world at `2000` or `1024` and this is the first run where the game's number is the larger of the two |
+| `W11` | **pass 2026-09-22**, first since the retirement | run by the author at `3f404ec` against the redrawn bedrock and barrier. Its 2026-09-08 pass was retired because the textures were redrawn in a flat-base-plus-specks style and the old wording named a *"black mottled rock"* and a *"wrapping blur"* that no longer exist. The redraws were the last unjudged part of the texture rework and no longer are. **No step detail was reported**, so which of the three clauses was looked at hardest is unknown |
 | `W12` | pass, **wording corrected 2026-09-22, nothing owed** | its subject is depth and nothing has moved it, so the pass at `3479e25` stands. Its *Pass* read *"**World half-extent** at 1024"* against a `settingtypes.txt:27` declaring **4096** since `0a605a3`, so a runner following it would have failed a correct world; the wording now names 4096. A defect in this entry rather than in the code, so no finding id |
 | `W15` | **pass at `dd83b99`, 2026-09-09** | the grass-over-dirt surface and its two textures are judged. Nothing owed here; `W11`, which it was to be run beside, was not run |
 | `W16` | **pass at `dd83b99`, 2026-09-09** | the three essential mapgen aliases resolve and nothing in the column is `unknown`. It does **not** discharge `P3`, which asks for a log with nothing in it at all rather than four strings absent |
@@ -227,11 +243,11 @@ keeping a second copy.
 | `R5` | **pass, composed, 2026-09-09** | nothing owed. Both halves are now on the same tree — `R3` re-run and `R2`'s drop half run under the hand override — which is exactly the composition the `partial` pre-authorised in writing. `A8`'s **`last_mod` half stays untested by choice**, as its own paragraph records: it needs a second mod assigning the same globals and none ships here |
 | `R8` | **pass 2026-09-09**, with a second explanation | nothing owed. It is the whole of `B48`'s in-world evidence, and the `dig_immediate` case stays unreproducible — `G3` deleted the last such node. **The pass no longer distinguishes its cause** (`A20`): empty hand groupcaps suppress the crack overlay and the dig sound on their own. Only a run with the hand override would separate them, and nobody has done that |
 | `P1` | **partial**, clone half **fetch-confirmed, boot half unrun** | the clone half passed at `8b27f2f` on `codeblock` `2647228`, and the pointer has moved twice since — to `fb75bc8` at `50fd05f`, then to `09c708d` at `34b3820`. **On 2026-09-22 a fresh recursive clone fetched both intended pointers by hash**: `git fetch origin 09c708d` and `git fetch origin fc8a5b8` each succeeded and `git cat-file -t` gave `commit`, so neither names an object nobody can fetch. That is **the reading half only, and less than the check asks for**: the clone's own submodules came up at `35fa2a1`, the previous release, because the candidate was unpushed, so no clone has yet *populated* at these pointers. **Since PR #1 merged as `49c7f75` a fresh recursive clone would reach the candidate's own pointers** — that changes what the check can reach, not its result, and nobody has re-run it. The boot half has never been run, and a working checkout booting does not discharge it |
-| `P2` | pass at `48cc63e`, **standing obligation** | re-run on 2026-09-08 and it stays here permanently: the entry says to run it **whenever a tracked file is added**, and nothing in either CI reads `.gitattributes` (`C15`, `C22`). Needed twice in two milestones — `G6`'s two files, then `G7`'s new directory, two textures and `menu/license.txt` |
+| `P2` | **pass at `3f404ec`, 2026-09-22**, standing obligation | re-run by enumerating the archive: **41 entries, 1.21 MB zipped**, every clause checked. The count fell from 494 and the size from 1.95 MB, accounted for by `50fd05f` deleting `default`, `dye` and `wool`. It stays here permanently — the entry says to run it **whenever a tracked file is added**, and nothing in either CI reads `.gitattributes` (`C15`, `C22`). **One clause is now too narrow**: the *Pass* names only `mods/cc_mapgen/license.txt`, and `G8` added `cc_gui` as a second mod carrying media. Both ship; the wording should widen |
 | `P3` | unrun | the boot log, and the whole of `B19` and `B24`'s evidence — whose causes `G3` deletes, while adding three mapgen aliases whose absence shows up here |
 | `P4` | unrun | the main menu shows the game's name, artwork and icon |
 | `P5` | unrun | needs a release first — it is the ContentDB page as published |
-| `P6` | **unrun, and now runnable** | the blocker is gone: `mods/cc_gui/` was committed at `ba92d52` — 50 lines of Lua, a `mod.conf`, a `license.txt` and three textures, confirmed against the tree on 2026-09-22. **No result of any kind exists for that mod**, and `P6` is `B57`'s only possible evidence; both gates together prove only that it assembles and lints. It is the only thing in this document that reaches a form at all, and nothing about a prepend is visible from the world, the menu or either gate. Run it before the release |
+| `P6` | **pass 2026-09-22**, and it is the whole of `B57`'s evidence | run by the author at `3f404ec`, record-only over `ba92d52`: the hotbar and both forms wear the game's own style, and the game's prepend reaches a mod it does not own. The first and only result this entry has. **Reported as a bare pass with no step detail**, so it does not separately confirm the two-background comparison — the clause that tells a styled panel from the engine's semi-transparent default — or that both forms were opened. Taken at face value, with that weakness named rather than hidden |
 
 **Three sittings on 2026-09-09, and `P2` is in none of them** — it touches no
 engine and needs no world, so it is run from a shell whenever a tracked file is
@@ -309,7 +325,7 @@ place it puts them (`W9`). `W4`–`W9` and `W14` are `B50`; `W15` and `W16` are
 `A13`.
 
 **`G3` rewrote both of those files at `50fd05f`, so every result in this group is
-owed a re-run at that commit or later — the tip is `49c7f75`.** That is the rule about a result not surviving a
+owed a re-run at that commit or later — the tip is `3f404ec`.** That is the rule about a result not surviving a
 change to the code it exercised, applied to a whole group at once rather than per
 check: the surface material changed, the fill node changed, and the mapgen aliases
 the engine needs moved into `cc_mapgen`. The passes below stand as what was seen
@@ -381,11 +397,18 @@ wall at 4047 and well outside anything a `W5` or `W7` run has emerged.
 
 **Pass** — the same flat clean ground, generated live.
 
+Result: pass — `3f404ec`, record-only over `0a605a3` · engine 5.17.0 ·
+2026-09-22 — re-run by the author at `mapgen_limit = 4096`, which is what the
+2026-09-17 widening owed this entry. Reported as a pass of the entry as written;
+**no step-by-step detail was reported**, so this line records the outcome and not
+the observation. It discharges the owed re-run and makes the entry's evidence
+current with the world the game now makes.
+
 Result: pass — `7f649d8` · engine 5.17.0 · 2026-09-01 — ground generated live
 several thousand nodes out is the same flat clean ground. The setting applies to
 every emerged chunk, not only to world creation. **Passed by flying**, before
 `fly` left `default_privs`; the finding it establishes is unaffected, but a
-re-run takes the route above.
+re-run takes the route above. Taken in a world 2000 nodes on a side.
 
 ### W4 · The floor is there and you cannot fall through it [B50]
 
@@ -444,9 +467,16 @@ is there at eye level and absent thirty nodes up: that is the wall being written
 only into the chunk containing the ground, and it is exactly the case a check done
 from standing height would pass.
 
+Result: pass — `3f404ec`, record-only over `0a605a3` · engine 5.17.0 ·
+2026-09-22 — re-run by the author against the wall at its new place, `x = 4047`
+rather than the 1000 the line below was taken at. Reported as a pass of the entry
+as written; **no step-by-step detail was reported**, so this line records the
+outcome and not the observation. It discharges the re-run the widening owed.
+
 Result: pass — `60259dd` · engine 5.17.0 · 2026-09-07 — an unbroken bedrock face
 from the floor up out of sight, at the same `x` all along `z`, with no gap at a
-mapchunk seam. **This is route one of `B50` and the check the finding was waiting
+mapchunk seam. Taken in a world 2000 nodes on a side, so the wall it walked to
+was not the one the game now builds. **This is route one of `B50` and the check the finding was waiting
 on**: walking off the generated edge is closed by something someone has walked to,
 rather than by reading `mapgen_env.lua`.
 
@@ -468,14 +498,21 @@ and the wall stop in the same place — the drone reads the raw setting, 4096, a
 the wall stands at 4047, so the drone may build in the 49 nodes between them
 (`TODO.md`, upstream).
 
-**The result below now reads as a fail against this entry's own criterion, and it
-is not one.** Recorded 2026-09-22 from the tree, not run: `minetest.conf` at
-`0a605a3` carries `mapgen_limit = 4096`, so the *"1024"* the pass names is the
-number the *Pass* above declares a failure. The line is kept rather than retired
-because it is honest evidence of the mechanism — the game's `minetest.conf`
-reaching `core.settings` — under the setting it was taken at. **Nothing here has
-been re-run, and until it is, this entry has no live evidence for the current
-number.**
+**The older result below reads as a fail against this entry's own criterion, and
+it is not one.** `minetest.conf` at `0a605a3` carries `mapgen_limit = 4096`, so
+the *"1024"* that pass names is the number the *Pass* above declares a failure.
+The line is kept rather than retired because it is honest evidence of the
+mechanism — the game's `minetest.conf` reaching `core.settings` — under the
+setting it was taken at. **The entry gained live evidence for the current number
+on 2026-09-22**, which is the result immediately below.
+
+Result: pass — `3f404ec`, record-only over `0a605a3` · engine 5.17.0 ·
+2026-09-22 — re-run by the author, and this is the run that resolves the
+inversion: the drone must now name **4096**, where the 2026-09-07 line named
+1024. Reported as a pass of the entry as written; **no step-by-step detail and no
+quotation of the refusal message were reported**, so this line records the
+outcome and not the observation. It restores the entry to live evidence and
+discharges the re-run the widening owed.
 
 Result: pass — `60259dd` · engine 5.17.0 · 2026-09-07 — the drone refuses and its
 message names **1024**. So the game's `minetest.conf` reached `core.settings`, and
@@ -505,10 +542,20 @@ wall; that is expected. What this does **not** cover is under
 wall, because the wall is written by the mapgen callback and nothing regenerates a
 visited chunk.
 
+Result: pass — `3f404ec`, record-only over `0a605a3` · engine 5.17.0 ·
+2026-09-22 — re-run by the author against the rewritten method, an old world at
+`2000` or `1024` re-bounded by a game at 4096, which is the direction the
+2026-09-17 widening inverted. Reported as a pass of the entry as written; **no
+step-by-step detail was reported**, so this line records the outcome and not the
+observation. It discharges the re-run the widening owed, and it is the first run
+of this entry in which the game's number is the larger of the two.
+
 Result: pass — `60259dd` · engine 5.17.0 · 2026-09-07 — a world carrying the old
 `mapgen_limit = 4096` in its `map_meta.txt` has its edge at 1024 when reopened.
 That is the whole of what `override_meta = true` on `cc_mapgen`'s
-`set_mapgen_setting` call buys, and it is the only route to seeing it fail.
+`set_mapgen_setting` call buys, and it is the only route to seeing it fail. Taken
+when the game's own number was 1024, so it compared a world at 4096 against a
+game at 1024 — the opposite of what the method now asks for.
 
 ### W8 · A player who falls through a program-made hole is put back [B50]
 
@@ -740,8 +787,14 @@ the two meet.
 A regular grid on the *wall* is `W10`'s pass; a regular grid on the *floor* is a
 fail here. The two are next to each other and easy to conflate.
 
-Result: unchecked — **owed a re-run, and run it with `W15`**, whose textures were
-redrawn in the same pass.
+Result: pass — `3f404ec`, record-only over `0a605a3` · engine 5.17.0 ·
+2026-09-22 — run by the author against the redrawn bedrock and barrier, the
+first result this entry has carried since its 2026-09-08 pass was retired.
+Reported as a pass of the entry as written, which is the floor reading as one
+calm surface with no tiling grid at a shallow angle, and the floor and wall
+reading as one material. **No step-by-step detail was reported**, so this line
+records the outcome and not the observation, and it does not say which of the
+three clauses was looked at hardest. It closes the gap the retirement opened.
 
 **A pass was retired here on 2026-09-08 rather than carried forward.** The author
 ran this check at `3479e25`, record-only over `48cc63e`, on 2026-09-08 and
@@ -2024,6 +2077,23 @@ to travel with what it licenses and nothing else in the archive states the media
 licence (`C22`); and `THIRD-PARTY-LICENSES.md`, for the same reason. A missing
 `menu/license.txt` most likely means the file was never committed.
 
+Result: pass — `3f404ec` · engine n/a, this check touches no engine ·
+2026-09-22 — **41 entries, 1.21 MB zipped, 1.28 MB uncompressed** by `git archive
+--format=zip`. Every clause checked by enumerating the archive, not inferred.
+Absent, zero entries each: `.claude/`, `.reports/`, `.github/`, `scripts/`,
+`*.svg`, `*.xcf`, `*.blend*`, every top-level dotfile, and all six record
+documents including `CLAUDE.md`. Present: the three `menu/*.png`;
+`menu/license.txt`; `mods/cc_mapgen/license.txt`; `THIRD-PARTY-LICENSES.md`; and
+**`mods/cc_gui/license.txt` with all three of its textures**, which this entry's
+*Pass* predates — `G8` added a second mod carrying media, and the clause naming
+only `cc_mapgen` should be widened. All seven `cc_*` textures ship. Root holds
+`CHANGELOG.md`, `LICENSE`, `README.md`, `THIRD-PARTY-LICENSES.md`, `game.conf`,
+`minetest.conf`, `settingtypes.txt`, `menu/` and `mods/`. **The entry count fell
+494 → 41 and the size 1.95 → 1.21 MB**, and unlike the last run the change is
+accounted for: `50fd05f` deleted `default`, `dye` and `wool` with their hundreds
+of textures. This settles `C15`'s archive half **for this commit only** — nothing
+in either CI reads `.gitattributes`.
+
 Result: pass — `48cc63e` · engine n/a, this check touches no engine ·
 2026-09-08 — 494 entries, **1.95 MB zipped** by `git archive --format=zip`. Every
 clause checked, not inferred. Absent, zero entries each: `.claude/`, `.reports/`,
@@ -2144,7 +2214,17 @@ default and is a **fail** — that is what the two backgrounds are for. And styl
 that appears on one of the two forms and not the other is a `no_prepend[]` inside
 that form, which is the mod's to change, not a failure of the prepend.
 
-Result: unchecked
+Result: pass — `3f404ec`, record-only over `ba92d52` · engine 5.17.0 ·
+2026-09-22 — the first run of this entry and **the whole of `B57`'s in-world
+evidence**. Reported by the author as a pass of the entry as written: the hotbar
+and both forms wear the game's style. **No step-by-step detail was reported**, so
+this line records the outcome and not the observation — in particular it does not
+say separately that the two-background comparison was made, which is the clause
+that distinguishes a styled panel from the engine's semi-transparent default, nor
+that both forms were opened rather than one. The pass is taken at face value and
+its weakness is named here rather than left for a reader to find. It also
+establishes that the game's prepend reaches a mod it does not own, which nothing
+outside a running world can show.
 
 ### P7 · A new player can get the drone tools at all
 
@@ -2177,6 +2257,29 @@ Result: unchecked
 ## Revisions
 
 Newest first.
+
+- **2026-09-22, at `3f404ec`: the first sitting since 2026-09-09, and the first
+  results this document has gained in thirteen days.** Seven entries moved and
+  **the counts changed for the first time since `P6` and `P7` were added**: 36
+  entries, **31 pass, 1 partial, 0 fail, 4 unchecked**, recounted from the first
+  `Result:` line of every entry rather than adjusted by hand. `W11` and `P6` left
+  `unchecked`; `W3`, `W5`, `W6` and `W7` discharged the re-runs the 2026-09-17
+  widening owed; `P2` was re-run and passes with new numbers. **`P6` is the whole
+  of `B57`'s in-world evidence** and the first result `cc_gui` has ever had.
+  **`W6`'s inversion is resolved** — the drone names 4096 where its kept
+  2026-09-07 line names 1024, and that line stays as honest evidence of the
+  mechanism under the setting it was taken at. **Every in-world result in this
+  sitting was reported as a bare `pass` with no step-by-step detail**, and each
+  line says so: they record outcomes, not observations. The weakest is `P6`,
+  which does not separately confirm the two-background comparison that
+  distinguishes a styled panel from the engine's default. `P2` is the exception —
+  it touches no engine and was run here by enumerating the archive, every clause
+  checked: 41 entries, 1.21 MB, down from 494 and 1.95 MB because `50fd05f`
+  deleted `default`, `dye` and `wool`. It also found **one clause too narrow**:
+  `P2`'s *Pass* names only `mods/cc_mapgen/license.txt`, and `G8` added `cc_gui`
+  as a second mod carrying media. Still unrun: `P3`, `P4`, `P5` and `P7`, and
+  `P5` needs a published release. Still owed: `R4` and `R9` for the two submodule
+  pointers, and `W4`, `W8` and `W9` for the depth.
 
 - **2026-09-22, at `49c7f75`: the merge to `main`, and what it does and does not
   change here.** PR #1 merged, `main` in sync with origin, CI green on `49c7f75`

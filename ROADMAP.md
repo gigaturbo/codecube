@@ -36,18 +36,25 @@ different number**: the game at 2.0.0 adopts CodeBlock 1.0.0.
 **The release is `v2.0.0` and `G8` is in it** — both decided 2026-09-22, and both
 recorded under `G5` and `G8`. `v1.0.2` (`9d83f11`, 2022-07-07) is what a player
 has installed today, so everything the changelog describes is measured against
-it. What the two decisions leave is **`P2` and `P6`, now release blockers**: `P2`
+it. What the two decisions left was **`P2` and `P6`, both release blockers** — `P2`
 because `cc_gui` added four tracked files to the archive, `P6` because nothing
-automated reaches a formspec prepend and it is the only check that does.
+automated reaches a formspec prepend and it is the only check that does. **Both
+passed on 2026-09-22 at `3f404ec`**, so neither blocks any more, and `P6` closes
+`B57` — the last open finding in any series.
 
 **`release-check` answered no-go on 2026-09-22, and it is still no-go** — but two
 of its four blockers are discharged, later the same day. **PR #1 was merged**,
 `main` fast-forwarded `99117bf..49c7f75` and is in sync with `origin/main`, so
 nothing exists only on this machine; and **CI is green on `49c7f75`** and on
-`99117bf` before it, both jobs read individually. What still blocks: the
-`codeblock` pointer is the untagged `09c708d`, `P2` and `P6` are unrun, and
-**nothing has been played in a world** — the newest playtest result names
-`dd83b99` and `cc_gui` has none. The ContentDB upload should still be treated as
+`99117bf` before it, both jobs read individually. **A third went later the same
+day**: seven checks were run at `3f404ec` and all pass — `P6` and `W11` off
+`unchecked`, `W3`, `W5`, `W6` and `W7` discharging the widening's re-runs, and
+`P2` re-run over the archive — so `PLAYTEST.md` stands at 31 pass, 1 partial, 4
+unrun, and `B57` closes. What still blocks: **the `codeblock` pointer is the
+untagged `09c708d`**, and that is now the only hard blocker. Behaviour is no
+longer wholly unobserved, but what evidence there is **is thin** — every in-world
+result that day was a bare `pass` with no step detail, and `P3`, `P4`, `P5` and
+`P7` are unrun. The ContentDB upload should still be treated as
 manual until the webhook is checked from a machine that has `gh`. The gate run
 also **corrected `CHANGELOG.md`**, which claimed the bundled mod had reached
 1.0.0; no such CodeBlock release exists.
@@ -61,8 +68,9 @@ walked to.
 **`G8` is written and committed** at `ba92d52`, opened 2026-09-17: nothing in the
 game styled a formspec or the hotbar, because `G3`'s deletion took Minetest
 Game's and nothing replaced it, so every form was the engine's semi-transparent
-default (`B57`). `cc_gui` is the fourth mod and ships in `v2.0.0`. `B57` **stays
-open** until `P6` runs — nothing automated reaches a prepend.
+default (`B57`). `cc_gui` is the fourth mod and ships in `v2.0.0`. **`B57` closed
+on 2026-09-22 when `P6` passed** — nothing automated reaches a prepend, so that
+one bare pass is the whole of its evidence.
 
 **Everything else that is left is checking.** `dd83b99`
 committed `A19`'s `plain` sky and the texture rework, and six checks passed
@@ -110,9 +118,9 @@ whatever is opened after it.
 | `G3` | Delete what the game vendors | **done on both counts** — committed `50fd05f`, `W15`, `W16` and `R9` all pass | 5/5 | 4/4 |
 | `G4` | Make the game's own mods behave | **done on both counts** — `A19` committed `dd83b99` and `L4` passes; `A7` closed 2026-09-17 with the `09c708d` adoption | 6/6 | 5/5 |
 | `G6` | Bound the world | **done on both counts** | 5/5 | 6/6 |
-| `G7` | Make the world something to be in | done, the texture rework committed `dd83b99`; `W11` still owed | 3/3 | 4/5 |
-| `G8` | Give the interface the game's own style | written, committed `ba92d52`; ships in `v2.0.0` | 3/3 | 0/1 |
-| `G5` | Adopt a tagged CodeBlock release and ship `v2.0.0` | started; **still no-go** 2026-09-22 — the push and CI blockers are discharged, the untagged pointer and the unrun checks are not | 2/7 | — |
+| `G7` | Make the world something to be in | **done and checked**, the texture rework committed `dd83b99`; `W11` passed 2026-09-22 | 3/3 | 5/5 |
+| `G8` | Give the interface the game's own style | **done and checked**, `ba92d52`; ships in `v2.0.0` | 3/3 | 1/1 |
+| `G5` | Adopt a tagged CodeBlock release and ship `v2.0.0` | started; **still no-go** 2026-09-22 — push, CI, `P2` and `P6` all discharged; **the untagged `09c708d` pointer is the last hard blocker** | 2/7 | — |
 
 Findings by milestone: `G1` (`C1`, `C2`, `C3`, `C4`, `C5`, `C15`, `C20`); `G2`
 (`A14`, `B20`); `G3` (`B49`, `A13`); `G4` (`B47`, `B48`, `S8`, `A7`, `A8`,
@@ -306,7 +314,7 @@ distance* line was expected to ride on the same `set_sky` call and does not:
 `fog_distance` is not a colour, it caps the client's viewing range, and that is
 the author's decision rather than this item's.
 
-### G6. Bound the world — done: 5/5 written at `60259dd`, 6/6 checked at 1024, four re-runs owed at 4096
+### G6. Bound the world — done: 5/5 written at `60259dd`, 6/6 checked, four re-runs at 4096 discharged 2026-09-22
 
 **The first milestone here to be both**, and keeping the two states apart is the
 point of this file. Shaped with the author on 2026-09-07 and built the same day.
@@ -427,7 +435,7 @@ playing it, the eighth about this record.**
    document, which says only *"a little short"*; `settingtypes.txt` carries the
    derivation. **No finding**: nothing in committed code was wrong.
 
-### G7. Make the world something to be in — done, `d6e4a12` and `dd83b99`, 4/5 checked
+### G7. Make the world something to be in — done and checked, `d6e4a12` and `dd83b99`, 5/5
 
 Opened 2026-09-07 after `G6` closed, and **no finding is allocated for it**: the
 wall `G6` built is a correct barrier and `W5` proves it stands. What the author
@@ -448,16 +456,19 @@ rework*.
   *"more black like in minecraft"*, and the borrowed obsidian is blue-tinted.
   Both were **redrawn on 2026-09-08**, so the six-grey mottle and the wrapping
   blur this line used to describe are gone; the construction that replaced them
-  is *The texture rework* below. `W11` is the check and its pass is retired.
+  is *The texture rework* below. `W11` is the check; its first pass was retired
+  with the redraw and **it passed again at `3f404ec` on 2026-09-22**.
 - [x] Raise `mgflat_ground_level` 8 → **128** and declare it as a setting,
   mirroring `mapgen_limit`. This is the fourth line of the brief. `W12`, `W13`,
   `W14`.
 
 **The texture rework — decided 2026-09-08, after the author played `50fd05f`,
 and committed at `dd83b99` on 2026-09-09** with `scripts/gen_textures.py` beside
-the four PNGs. `W15` passes on the grass and dirt; **`W11` is the bedrock and
-barrier and is the one thing in `G7` nobody has looked at**, its earlier pass
-retired with the textures it described.
+the four PNGs. `W15` passes on the grass and dirt, and **`W11` is the bedrock
+and barrier** — the one thing in `G7` nobody had looked at until **2026-09-22,
+when it passed at `3f404ec`** against the redrawn textures, its earlier pass
+having been retired with the textures it described. That closes `G7`'s checking
+at 5/5, on a bare `pass` with no step detail.
 The world worked and the **look** was rejected. Given a Soothing32 screenshot, the
 directive was verbatim: *"soothing has less features, less grain and reduces
 palette. Adapt grass, dirt and bedrock."* So all three were redrawn, and the
@@ -495,7 +506,8 @@ spent now three of four share one algorithm.
 **Nothing here is a finding.** No defect was found in committed code — the
 textures rendered, the world was correct, and what changed is an appearance the
 author wanted different, which is `G7`'s whole subject. What it costs the record
-is `W11`'s pass, retired, and a look criterion added to `W15`.
+is `W11`'s pass, retired, and a look criterion added to `W15`. `W11` was re-run
+against the redrawn textures on 2026-09-22 and passes.
 
 **Three things a later change would re-break.** The barrier's drawtype is plain
 `glasslike` and must stay so — `glasslike_framed` draws its faces from a second
@@ -538,7 +550,7 @@ long form is for prose only. **The root `LICENSE` stays bare** — see
 media file, so a texture or menu image added with no licence line fails no gate.
 That is `AUDIT.md` `C22`'s `Keep`, and the wanted check is a `TODO.md` line.
 
-### G8. Give the interface the game's own style — written, `ba92d52` (3/3), 0/1 checked
+### G8. Give the interface the game's own style — done, `ba92d52` (3/3), 1/1 checked
 
 **A new milestone rather than a reopened `G7`.** `G7`'s goal is the *world* — the
 ground, the wall, the depth — and it is done and 4/5 checked; this is the
@@ -582,9 +594,10 @@ both run before the tag. The author has settled the question and **not the two
 checks**: they are now **release blockers on `G5`** rather than a condition on
 inclusion. `P2` because `cc_gui` adds four tracked files to the archive and
 nothing in CI reads `.gitattributes` (`C15`); `P6` because a prepend is invisible
-to both gates and it is the only check that reaches one — and `B57` stays open
-until it runs. The argument that carried it: a visible regression every player
-meets at the first form they open.
+to both gates and it is the only check that reaches one. The argument that
+carried it: a visible regression every player meets at the first form they open.
+**Both ran on 2026-09-22 at `3f404ec` and both pass**, so neither blocks `G5` any
+more, and `B57` closed on `P6`.
 
 **It is billed as a player-facing change**, decided here 2026-09-22 rather than
 left as one clause: `CONTENTDB.md` carries it in *Features* and in *Recent
@@ -635,9 +648,11 @@ and the release it adopts is CodeBlock `1.0.0`.
 - [ ] Update `README.md`, `CHANGELOG.md` and `CONTENTDB.md` in the same commit,
   and regenerate `.cdb.json` — `check_game.sh` diffs it.
 - [ ] Run `check_game.sh`, `P1`, **`P2` and `P6`**, tag `v2.0.0` on `main`,
-  upload, then read the page in-game (`P5`). **`P2` and `P6` are blockers, not
-  nice-to-haves** — they are what `G8`'s inclusion costs, and `P6` is the only
-  thing that would close `B57`.
+  upload, then read the page in-game (`P5`). **`P2` and `P6` were the blockers
+  and both passed on 2026-09-22 at `3f404ec`** — `P2` by enumerating the archive,
+  41 entries and 1.21 MB, and `P6` as the one thing that could close `B57`, which
+  it did. What is left on this line is **`P1`**, whose boot half has never been
+  run, and the tag, the upload and `P5` — and `P5` cannot run before the upload.
 - [ ] Push, and get a CI run on the commit that is tagged. **Its substance is
   done and it stays open on its own wording**: `main` is pushed and **CI is green
   on `49c7f75`**, event `push`, 2026-09-22T13:27:15Z, both jobs `success` read
@@ -672,7 +687,10 @@ release and not about any one finding:
   proves the game assembles and nothing about how it behaves.**
 - **Behaviour is unobserved at the release commit.** The newest `PLAYTEST.md`
   result names `dd83b99`, and `cc_gui` has no result at all — which is `P6`, the
-  blocker above, seen from the evidence side.
+  blocker above, seen from the evidence side. **Discharged later the same day**:
+  seven checks ran at `3f404ec`, `PLAYTEST.md` stands at 31 pass, 1 partial and 4
+  unrun, and `cc_gui` has its first result. **The evidence is thin, not absent** —
+  every in-world result that day was a bare `pass` with no step detail.
 - **The ContentDB upload webhook could not be checked**, because `gh` is not
   installed on this machine. **Treat the upload as manual** until someone
   confirms otherwise.
@@ -1047,7 +1065,27 @@ All three were decided with `G8`, on 2026-09-17. (`B57`)
 with `origin/main`** — PR #1 (`g6-world-limits` → `main`) was merged as
 `49c7f75` and local `main` fast-forwarded `99117bf..49c7f75`.
 
-**This pass records the merge and the CI runs it produced, and nothing else.**
+**This pass records the sitting of 2026-09-22 at `3f404ec`, the first checks run
+since 2026-09-09.** Seven pass: `P6` and `W11` off `unchecked`, `W3`, `W5`, `W6`
+and `W7` discharging the re-runs the widening to 4096 owed, and `P2` re-run over
+the archive. `PLAYTEST.md` moves to **31 pass, 1 partial, 0 fail, 4 unrun** — its
+first count change since `P6` and `P7` were added. **`B57` closes on `P6`**, so
+`AUDIT.md` reads 23 findings, 21 resolved, **0 open**, 2 won't fix, and no series
+has an open finding. `G7` reaches 5/5 checked on `W11`, and `G8` 1/1 on `P6`.
+**`G5` loses two more blockers and stays no-go at 2/7**: the `codeblock` pointer
+is still the untagged `09c708d`, and that is now the only hard one. **The
+evidence is thin and the record says so** — every in-world result in this sitting
+was reported as a bare `pass` with no step detail, so each line records an
+outcome and not an observation; `P6`'s is the weakest, since it does not
+separately confirm the two-background comparison that tells a styled panel from
+the engine's default. `P2` is the exception, run here by enumerating the archive
+with every clause checked, and it found `P2`'s own *Pass* too narrow: it names
+only `mods/cc_mapgen/license.txt` where `G8` added `cc_gui` as a second mod
+carrying media. Still unrun: `P3`, `P4`, `P5` and `P7`, plus `P1`'s boot half;
+still owed: `R4` and `R9` for the two submodule pointers and `W4`, `W8` and `W9`
+for the depth.
+
+**The previous pass records the merge and the CI runs it produced, and nothing else.**
 `G5`'s *nothing is pushed* blocker is **fully discharged** and its *CI* blocker
 with it: green on `99117bf` (`pull_request`) and on `49c7f75` (`push`, `main`),
 both jobs read individually. `G5` stays **2/7** and **no-go** — the pointer is
@@ -1069,8 +1107,9 @@ roughly 150", up from 1129; it is **1218** here.
 release is `v2.0.0`, `G8` ships in it, and `dev_state` becomes
 `ACTIVELY_DEVELOPED`. `G8` also went from 0/3 to **3/3 written** — that was
 already true at `ba92d52` and this file had not caught up. Nothing moved off
-`unchecked` in `PLAYTEST.md` and `B57` stays open; the two checks the `G8`
-decision does not discharge, `P2` and `P6`, are now blockers on `G5`.
+`unchecked` in `PLAYTEST.md` at that pass and `B57` was still open; the two
+checks the `G8` decision did not discharge, `P2` and `P6`, became blockers on
+`G5` — and both passed on 2026-09-22.
 
 The paragraph below describes the state two passes ago.
 

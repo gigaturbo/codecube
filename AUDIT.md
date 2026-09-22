@@ -45,17 +45,18 @@ ever been renumbered and nothing dropped.
 
 | Series | Total | Resolved | Open | Won't fix |
 |---|---|---|---|---|
-| `B` bugs | 8 | 7 | 1 | 0 |
+| `B` bugs | 8 | 8 | 0 | 0 |
 | `S` sandbox and security | 1 | 1 | 0 | 0 |
 | `C` compliance and packaging | 8 | 8 | 0 | 0 |
 | `A` architecture and performance | 6 | 4 | 0 | 2 |
-| **Total** | **23** | **20** | **1** | **2** |
+| **Total** | **23** | **21** | **0** | **2** |
 
-**One finding is open as of 2026-09-17: `B57`**, filed the same day. `A7` had
-closed the last one hours earlier, with the `mods/codeblock` pointer moving to
-`09c708d`; `B57` is a presentation regression that shipped with `A13`'s deletion
-at `50fd05f` and that no gate here can see. It is scheduled as `ROADMAP.md` `G8`
-and is being written. Both **won't fix** entries are medium and are decisions
+**Nothing is open as of 2026-09-22.** `B57`, filed 2026-09-17 and the last one
+standing, closed that day when `PLAYTEST.md` `P6` passed — a presentation
+regression that shipped with `A13`'s deletion at `50fd05f`, that no gate here
+could see, and that `ROADMAP.md` `G8`'s fourth mod, `cc_gui`, fixed. **An empty
+open column is not a clean bill of health**: this project has no test suite, and
+four `PLAYTEST.md` entries are still unrun. Both **won't fix** entries are medium and are decisions
 rather than debt: `A20`, the first, and `A8`, decided 2026-09-09.
 
 **`A8` is won't fix as of 2026-09-09, and is waiting on nothing.** The author
@@ -91,12 +92,13 @@ restated here.
 
 ## Where it stands
 
-**`B57` was filed on 2026-09-17 and is the only open finding.** Nothing in the
-game styles a formspec or the hotbar: `A13`'s deletion of `mods/default` at
-`50fd05f` took Minetest Game's prepend and hotbar images with it and nothing
-replaced them, so every form is the engine's semi-transparent default. It is a
-defect in committed code that neither gate can see, and the fix — a fourth mod,
-`cc_gui` — is `ROADMAP.md` `G8`.
+**`B57` was filed on 2026-09-17 and closed on 2026-09-22; no finding is open.**
+Nothing in the game styled a formspec or the hotbar: `A13`'s deletion of
+`mods/default` at `50fd05f` took Minetest Game's prepend and hotbar images with
+it and nothing replaced them, so every form was the engine's semi-transparent
+default. Neither gate could see the defect and neither can see the fix — a fourth
+mod, `cc_gui`, `ROADMAP.md` `G8`, committed at `ba92d52`. **`P6`, run at
+`3f404ec`, is the whole of its evidence**, and it is one bare pass.
 
 **`A7` is resolved on 2026-09-17, hours before `B57` was filed.** The game adopted
 `codeblock` `09c708d`, where the mod's duplicate sky block, the
@@ -267,14 +269,14 @@ log nobody has read.
 
 ## Open and won't-fix findings
 
-**`B57` is the one open finding, filed 2026-09-17** and in full below. `A7` had
-been the last open one and is resolved, under the `A` series. `A8` and `A20` stay
+**No finding is open. `B57`, filed 2026-09-17, closed 2026-09-22** when `P6`
+passed, and is in full below. `A8` and `A20` stay
 here, both **won't fix**, because
 a decision taken against a real condition has to be as readable as an open item
 or it gets re-argued. Neither is counted as open anywhere, and neither is
 outstanding work.
 
-### B57 · low · open — nothing in the game styles a formspec or the hotbar, so every form falls back to the engine's semi-transparent default
+### B57 · low · resolved, `P6` passes — nothing in the game styles a formspec or the hotbar, so every form falls back to the engine's semi-transparent default
 
 `mods/default/init.lua` (deleted at `50fd05f`) · no replacement anywhere in the
 tree
@@ -328,8 +330,18 @@ in `G7`'s flat-with-flecks style by an extension to `scripts/gen_textures.py`.
 own mod, which overrides this one. The two rejected scopes and the rejected
 setting are in `ROADMAP.md` under *deliberately not doing*; what the change drags
 with it is on the `G8` entry. `cc_gui` landed at `ba92d52` with its three 64×64
-textures. **The finding stays open**: nothing automated reaches a prepend, so
-closing it needs `P6` run in a world, and `P6` is `unchecked`.
+textures.
+
+**Resolved on 2026-09-22 by `P6`**, run by the author at `3f404ec`, record-only
+over `ba92d52`, on engine 5.17.0: the hotbar and both forms wear the game's own
+style, and the game's prepend reaches a mod it does not own — the finding's own
+mechanism, seen working in the direction that fixes it. **The evidence is one
+bare `pass` with no step detail**, so it does not separately confirm the
+two-background comparison, the clause that tells a styled panel from the engine's
+semi-transparent default, nor that both forms were opened rather than one.
+Nothing automated reaches a prepend, so this is the only evidence this finding
+will ever have, and its thinness is recorded here rather than left to be
+discovered.
 
 **The wider defect: `cc_gui` was added and nine hardcoded lists went stale at
 once.** CI linting three mods out of four was one symptom, not the finding.
@@ -628,8 +640,8 @@ of the grounds on which it was declined.
 
 ## Resolved — B bugs
 
-**8 findings, 7 resolved and `B57` open** — `B57` is 2026-09-17's and is in full
-under *Open and won't-fix findings*, above.
+**8 findings, all 8 resolved** — `B57` was 2026-09-17's and the last open one in
+any series; it closed on 2026-09-22 when `P6` passed, and is in full below.
 `B50` closed on 2026-09-07 when `W4`–`W9` all passed at `60259dd` and both of its
 routes became observed. Two are resolved but **unverified in a world**: `B19`
 and `B24`, both waiting on `P3`. `B48` left that state on 2026-09-09, when `R8`
@@ -2106,6 +2118,28 @@ suggests and the next reader will re-derive it. **It was marked "likely and not
 demonstrated" when filed, and that marking is what made it cheap to correct.**
 
 ---
+
+Revised 2026-09-22 at `3f404ec`, tree clean and `main` in sync with origin.
+**`B57` is resolved and the counts move to 23 findings, 21 resolved, 0 open and
+2 won't fix** — the `B` series closes with it, and no series has an open
+finding. The evidence is `PLAYTEST.md` `P6`, run by the author that day at
+`3f404ec`, record-only over `ba92d52`, on engine 5.17.0: the hotbar and both
+forms wear the game's own style, and the prepend reaches a mod the game does not
+own. **Nothing in this repository could see the defect and nothing can see the
+fix** — `check_game.sh` verifies the game assembles and luacheck never runs a
+line, so `P6` is the only evidence this finding will ever have, and it is **one
+bare `pass` with no step detail**: it does not separately confirm the
+two-background comparison, which is the clause that tells a styled panel from the
+engine's semi-transparent default. That thinness is written into the finding
+rather than left for a reader to notice. **An empty open column is not a clean
+bill of health**: four `PLAYTEST.md` entries are unrun, `P5` needs a published
+release, and this project has no test suite. The same sitting moved five other
+checks — `W3`, `W5`, `W6`, `W7` and `W11` — but those discharge re-runs and a
+retirement rather than touching a finding. **One correction filed here rather
+than as a finding**: `P2`'s *Pass* names only `mods/cc_mapgen/license.txt` as the
+mod licence that must ship, and `G8` added `cc_gui` as a second mod carrying
+media. Both ship, verified by enumerating the archive at `3f404ec`; the wording
+is what is narrow, not the packaging, so it gets no id.
 
 Revised 2026-09-17, over `34b3820`, tree clean. **`B57` is filed and the counts
 move to 23 findings, 20 resolved, 1 open and 2 won't fix** — the document had
