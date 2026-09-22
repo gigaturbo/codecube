@@ -5,7 +5,7 @@ GNU Affero General Public License, version 3 only (AGPL-3.0-only)
 
 Copyright (C) 2022-2026 giga-turbo
 
-cc_mapgen -- Generate a simple flat world
+cc_gui -- Style the interface to match the world
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU Affero General Public License as published by the Free
@@ -26,12 +26,11 @@ Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 
 Copyright (C) 2026 giga-turbo
 
-textures/cc_mapgen_grass.png
-textures/cc_mapgen_dirt.png
-textures/cc_mapgen_bedrock.png
-textures/cc_mapgen_barrier.png
+textures/cc_gui_formbg.png
+textures/cc_gui_hotbar.png
+textures/cc_gui_hotbar_selected.png
 
-All four are original work for this game, made for it and taken from nowhere
+All three are original work for this game, made for it and taken from nowhere
 else. You may share and adapt them, including commercially, provided you give
 credit and license your adaptations under the same terms:
 https://creativecommons.org/licenses/by-sa/4.0/

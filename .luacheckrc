@@ -2,7 +2,8 @@
 --
 --   luacheck .
 --
--- Scope: the game's own mods only, which is cc_day, cc_mapgen and cc_security.
+-- Scope: the game's own mods only, which is cc_day, cc_gui, cc_mapgen and
+-- cc_security.
 --
 -- The codeblock mod is developed in its own repository, ships as its own
 -- ContentDB package, and carries its own .luacheckrc, test suite and CI. It is
@@ -11,8 +12,8 @@
 -- Duplicating codeblock's lint here would report the same findings twice and
 -- make this repository's build status depend on a submodule bump.
 --
--- default, dye, wool and vector3 are vendored or third-party and are not ours
--- to lint.
+-- vector3 is a submodule with its own upstream and is not ours to lint. The
+-- default, dye and wool excludes went with those mods under A13.
 
 std = "lua51"
 cache = true
@@ -32,16 +33,13 @@ read_globals = {
     "ValueNoise", "ValueNoiseMap", "SecureRandom", "Settings", "AreaStore",
     "Raycast", "ItemStackMetaRef", "DEFAULT_ALLOW_MOVE", "INIT",
     -- published by mods this game ships
-    "codeblock", "vector3", "default", "dye", "wool"
+    "codeblock", "vector3"
 }
 
 exclude_files = {
     -- has its own repository, config, tests and CI
     "mods/codeblock/**",
-    -- vendored or third-party
-    "mods/default/**",
-    "mods/dye/**",
-    "mods/wool/**",
+    -- submodule with its own upstream
     "mods/vector3/**",
     -- toolchain, not source: gh-actions-luarocks installs into the workspace
     ".luarocks/**",
@@ -50,12 +48,11 @@ exclude_files = {
 }
 
 files["mods/cc_security/**"] = {
-    -- 122: assigning to a field of the `minetest` global. This mod does
-    --   function minetest.handle_node_drops() end
-    --   function minetest.calculate_knockback() return 0 end
-    -- which clobbers any other mod's override and gets clobbered in turn.
-    -- luacheck is right, and this is recorded as audit finding A8; fixing it
-    -- means capturing and chaining the previous value, which is a behaviour
-    -- change and belongs with that work, not with lint setup.
+    -- 122: assigning to a field of the `minetest` global. Replacing
+    -- handle_node_drops and calculate_knockback is the whole point of those two
+    -- lines, so the code stays and the check is off for this file. What luacheck
+    -- was really pointing at -- that the replacement is discarded by whatever
+    -- loads next -- is fixed instead by `last_mod = cc_security` in game.conf,
+    -- and the drop handler now chains the value it captured. (A8)
     ignore = {"122"}
 }

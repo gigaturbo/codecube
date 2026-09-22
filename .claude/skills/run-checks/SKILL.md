@@ -1,6 +1,6 @@
 ---
 name: run-checks
-description: Run the Codecube game's gates and read them honestly — scripts/check_game.sh, luacheck on the game's own three mods, the .cdb.json freshness diff, and CI on the exact commit. The game has no test suite, so these prove that it assembles and never that it behaves; the only route to behaviour is PLAYTEST.md, run by the author in a world. Covers what each gate does and does not guarantee, how to read the output, and how to turn a playtest into a result line.
+description: Run the Codecube game's gates and read them honestly — scripts/check_game.sh, luacheck on the game's own mods, the .cdb.json freshness diff, and CI on the exact commit. The game has no test suite, so these prove that it assembles and never that it behaves; the only route to behaviour is PLAYTEST.md, run by the author in a world. Covers what each gate does and does not guarantee, how to read the output, and how to turn a playtest into a result line.
 when_to_use: After changing anything in this repository, before committing, before a release, when asked to run or verify the checks, when checking whether the record and the code still agree, or when a playtest has just been run and its results need recording.
 allowed-tools: Bash, PowerShell, Read, Glob, Grep, AskUserQuestion
 ---
@@ -27,14 +27,19 @@ bash scripts/check_game.sh
 ```
 
 ```bash
-wsl bash -lc 'cd /mnt/c/Users/lacba/PRogrammation/codecube && luacheck mods/cc_day mods/cc_mapgen mods/cc_security --formatter plain --codes'
+wsl bash -lc 'luacheck mods/cc_*/ --formatter plain --codes'
 ```
 
+Both are run **from the repository root**: WSL inherits the Windows working
+directory, so no `cd` is needed, and the glob is relative to it.
+
 Lua and luacheck live in WSL on this machine, not on Windows, and that is the
-same toolchain CI uses, so the results match. Pass the three paths explicitly
-rather than `.`: CI has to, because `gh-actions-luarocks` installs a toolchain
-into the workspace that `.` would lint, and matching it here keeps the two
-runs comparable.
+same toolchain CI uses, so the results match. Use the `mods/cc_*/` glob rather
+than `.`: CI has to, because `gh-actions-luarocks` installs a toolchain into the
+workspace that `.` would lint, and the two submodules carry no `cc_` prefix. The
+glob is what CI lints, so the documented command cannot drift from the gate when
+a mod is added — which is how `cc_gui` went unlinted (`B57`), back when both
+sides hardcoded three paths.
 
 **Read the output, not the exit code.** `$?` does not survive this machine's WSL
 layer. Green is:
@@ -84,7 +89,7 @@ matters at exactly one moment — when the game is adopting one of its releases.
 
 ## PLAYTEST.md is the only evidence about behaviour
 
-Everything the game does in a world rests on reading three short Lua files unless
+Everything the game does in a world rests on reading its short Lua files unless
 a `PLAYTEST.md` check has been run. **Nothing in it has ever been run.** That is
 the honest state and it is reported as such — never as passing, never as "should
 be fine".
@@ -124,6 +129,12 @@ for the calling session to put. Do not guess and record the guess as a check.
 Do not ask the author to run the two gates. Those are yours.
 
 ## What a good check looks like here
+
+**It is three parts and nothing else** — **Why** in one or two sentences, **How**
+with the actual commands or programs to paste, **Pass** with what a passing result
+looks like. `PLAYTEST.md`'s `## How a check is written` is the statement of it,
+and it is where a new check is added. No background section and no account of how
+the thing came to be; a near miss is one line under **Pass**.
 
 - **It reaches something reading cannot settle.** A check restating what a
   six-line file plainly says is a check that will always pass.

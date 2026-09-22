@@ -1,56 +1,52 @@
-A world made for writing code. You program a drone in Lua, from an editor inside
-the game, and watch it build what you wrote — a staircase, a spiral, a fractal,
-a plot of a function you just made up.
+Write a program in Lua and watch your drone build it! Codecube gives you a code editor
+inside Luanti and a flat empty world as a playground: learn to code or give your inner computer artist somewhere to play!
 
-The programming itself is the **CodeBlock** mod, which this game bundles: the
-drone, the in-game editor, the Lua sandbox and the API. What the game adds is
-somewhere worth building.
+## Features
 
-## What the game gives you
+- **A flat clean world.** No caves, no ores, no biomes, no decorations, only what you build.
+- **An editor in the game.** A per-player program list with create/edit/save functions. Helpers beside the code for when you forget a command or a block name.
+- **A large API with real Lua.** Shapes, maths and conveniences: cubes, spheres, domes and cylinders, a random colour, named checkpoints the drone can return to, loops, functions and recursion. Everything is in a sandbox
+  so the server cannot be hurt.
+- **Example programs to discover.** Spirals, fractals, 3D plots and other more artistic examples. Open one and change a number to see what happens.
+- **A control panel.** Every limit with what your program has spent beside it, and pause, resume and stop controls on the drone.
+- **Custom blocks.** Thirty-five named colours with solid, glass and lamp variants.
+- **World limits.** A see-through wall around the world and a bedrock floor with fall protection.
+- **Always day.** No day-night cycle and a clean uniform sky.
+- **Programming only.** Digging and inventory are disabled: every new block in the world was put there by a program.
+- **Per-player limits.** Tunable by administrators so the game is usable on a public server.
 
-- **A flat, clean world.** No caves, no dungeons, no ores, no biomes, no
-  decorations — nothing to clear before you start, and nothing to lose behind
-  what you build.
-- **Permanent daylight.** No sun, no moon, no stars, no clouds, no night. Your
-  structure is lit the same at every hour and there is nothing to look away for.
-- **Nothing to break.** No node is diggable, blocks never drop as items, the
-  inventory is empty and knockback is off. Every block that appears was placed
-  by a program, so the world always shows what your code did and nothing else.
-- **Set up to be played, not configured.** Creative mode, damage off, and the
-  server settings a drone wants, chosen so that a new world is ready the moment
-  it opens.
+## Quick start
 
-## Getting started
+1. Create a world and enter it. Run `/codeblock tools` to be given the **Drone placer** and the **Drone setter** items.
+2. **Right click a block with the Drone placer.** A list of programs appears, pick `stairs.lua`.
+3. **Left click with the Drone placer.** The drone builds the staircase in front of you.
 
-1. Create a new world and enter it. You are given two tools: the **Drone
-   placer** and the **Drone setter**.
-2. **Right click a block with the Drone placer.** A list of programs appears —
-   pick `stairs.lua`.
-3. **Left click with the Drone placer.** The drone builds the staircase in front
-   of you.
+To change what it builds:
 
-To change what it builds, **right click with the Drone setter** to open the
-editor, open `stairs.lua`, change the number of stairs and click *Load and
-close*. Then place a drone and left click again.
+4. **Right click with the Drone setter** to open the editor. Open `stairs.lua`, change the number of stairs, click *Load and close*.
+5. Place a drone and left click again.
 
-There are more examples than the staircase — spirals, fractals, 3D plots — and
-opening one and changing a number is the fastest way to learn what the API does.
-When you want your own, create a file in the editor and write it there.
+Experiment and discover with the other examples, or write your own!
 
-## Worth knowing
+## Important notes
 
-- **Every player has a `codelevel`**, and it bounds what one program may spend of
-  the server: how long it runs, how many blocks it writes, how much of the map it
-  holds at once. If a program stops early, the chat says which limit it hit.
-- **At codelevels 1 and 2 the drone builds slowly on purpose**, so a beginner can
-  watch a loop happen. Levels 3 and 4 do not wait.
-- A single player starts high enough not to wait. On a server, a new player
-  starts lower and an administrator raises it.
-- Every one of those limits is a setting, so the game runs on a public server and
-  not only in singleplayer.
+- **Every player has a `codelevel`**, and it bounds what one program may spend of the server. If a program stops early, that is usually why, and the chat says which limit it hit.
+- **At codelevels 1 and 2 the drone builds slowly on purpose**, so a beginner can watch a loop happen. Levels 3 and 4 do not wait. A single player starts at 3; on a server a new player starts at 2 and an administrator raises it.
+- **One setting sizes the world, and it bounds every axis.** By default the wall stands ~4000 nodes in every direction.
 
-The commands, the block lists and what each `codelevel` allows are documented
-with the CodeBlock mod, and the same reference is available in the editor beside
-your code.
+## Recent changes
+
+**This release needs Luanti 5.9 or newer**, and it breaks saved programs and
+changes worlds you have already played in.
+
+- The world is now bounded and much bigger. You cannot fall out of it any more.
+- The blocks a program places are the **CodeBlock** mod's own, so the game no longer bundles Minetest Game's `default`, `wool` and `dye`. A program naming an old block places nothing.
+- Every panel and the hotbar are drawn in the game's own style
+- Some API names are gone with no replacement, so a saved program using one stops on that line: the whole `table` namespace, `random.block`, `random.plant`, `random.wool`, `table.randomizer` and the per-category colour ramps.
+- The drone's limits were rewritten around what a program costs the server instead of counts of calls. Nothing bounds a shape's size or how far the drone may fly from home any more.
+- The two lowest codelevels now pace the drone so a beginner can watch a loop happen. A single player starts at codelevel 3 and a new player on a server at 2, where everyone used to start at 4.
+- Every drone limit and both of the world's numbers are settings.
+
+The drone, the editor, the sandbox and the API are the **CodeBlock** mod, which this game bundles. Install that on its own if you want them in a world of your own making.
 
 Inspired by Gnancraft, ComputerCraft, Visual Bots, TurtleMiner and basic_robot.

@@ -1,0 +1,28 @@
+License of media
+----------------
+
+Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+
+Copyright (C) 2026 giga-turbo
+
+background.png
+header.png
+icon.png
+
+The main menu artwork of the Codecube game, read by the engine at runtime. All
+original work for this game, made for it and taken from nowhere else. You may
+share and adapt it, including commercially, provided you give credit and license
+your adaptations under the same terms:
+https://creativecommons.org/licenses/by-sa/4.0/
+
+Any .svg source kept beside these images is the same work under the same
+license. Every one of them carries an export-ignore rule, so the release archive
+a player installs holds the .png files alone.
+
+License of source code
+----------------------
+
+This directory contains no source code. The game's code is licensed separately,
+under the GNU Affero General Public License, version 3 only (AGPL-3.0-only),
+whose full text is distributed with this game in the LICENSE file at its root
+directory.

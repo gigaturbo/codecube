@@ -1,0 +1,41 @@
+#    Settings for the Codecube game, shown in the advanced settings under
+#    Content: Games.
+#
+#    Editing THIS file changes nothing in a running game. The engine does not
+#    read defaults from settingtypes.txt - it only parses it to draw the
+#    settings menu. The real default is the one in the game's minetest.conf, and
+#    the two are kept in step by hand: change one, change the other.
+
+[Codecube]
+
+#    Half-extent of the world, in nodes, measured from the origin on every axis.
+#    4096 gives a field 8080 nodes on a side, with a bedrock floor at y = 0 and
+#    a see-through barrier wall around it. It bounds the drone as well as the
+#    player, so a program cannot build past the wall either.
+#
+#    The engine stores this per world, so changing it moves the edge of an
+#    existing world: raise it and the old wall stays where it was generated,
+#    lower it and ground already generated outside the new wall is stranded
+#    beyond it.
+#
+#    The wall does not stand exactly at this number. Only whole mapchunks that
+#    fall inside the limit are generated, so the last generated column falls
+#    short of it by up to one mapchunk - 80 nodes at the default chunksize, and
+#    that shortfall is the same however large the world is. At 4096 the wall
+#    stands at -4032 and 4047 on each of x and z, so the field is 8080 nodes on
+#    a side rather than 8192.
+mapgen_limit (World half-extent) int 4096 80 31007
+
+#    Y of the grass surface, and so the height a player stands at. The bedrock
+#    floor stays at y = 0 whatever this is, so the number is also how deep the
+#    dirt under the surface goes: 128 buries the floor well out of sight, and 8,
+#    the engine's own default, leaves it a few steps down.
+#
+#    The engine stores this per world too, so changing it moves the surface of an
+#    existing world - the ground already generated keeps the old height and only
+#    newly generated ground gets the new one.
+#
+#    It has to stay well inside the world half-extent above: the surface is no
+#    use above the top of the generated box, and nothing checks the two against
+#    each other.
+mgflat_ground_level (Surface height) int 128 1 512

@@ -1,0 +1,46 @@
+vector3 — the vector library bundled with Codecube
+Generated 2026-08-25 from mods/vector3/vector3.lua at v1.5, which is NOT what the
+game ships any more: mods/vector3 was re-pinned to v2.0.2 on 2026-09-09 (audit
+C21). The list below was not re-derived from v2.0.2's source. Annotated instead,
+on 2026-09-09, because the surface is unchanged and the semantics are not:
+
+  - The method and function names below, and their arity, are the same at v2.0.2.
+  - Writing to an exported constant raises `read only`. It used to succeed, and
+    before v2.0.2 the change was visible to every mod on the server.
+  - A bad argument raises `format error`. The from* constructors used to return
+    nil, so a wrong line failed somewhere else entirely.
+  - The circle/disk/sphere/ball samplers no longer loop for ever on the
+    exact-surface case (r1 == r2). At v1.5 that hung the server.
+
+Read from the release rather than from this file for anything about behaviour.
+Regenerating it means reading mods/vector3, which is code-expert's to do.
+
+In player programs the module is exposed as `vector`, so read `vector` for `vector3`.
+The module table is callable: vector(x, y, z) constructs.
+======================================================================
+
+Functions and methods defined in the source:
+
+  vector3.__add(a, b)
+  vector3.__concat(a, b)
+  vector3.__div(a, b)
+  vector3.__eq(a, b)
+  vector3.__mul(a, b)
+  vector3.__sub(a, b)
+  vector3:__tostring()
+  vector3:__unm()
+  vector3:apply(f)
+  vector3:clone()
+  vector3:cross(b)
+  vector3:dist(b)
+  vector3:dot(b)
+  vector3:floor()
+  vector3:length()
+  vector3:limit(max)
+  vector3:norm()
+  vector3:offset(a, b, c)
+  vector3:rotate_around(axis, angle)
+  vector3:round(dec)
+  vector3:scale(mag)
+  vector3:set(x, y, z)
+  vector3:unpack()
