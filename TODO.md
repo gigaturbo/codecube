@@ -103,12 +103,12 @@ CC BY-SA 4.0 (roadmap G7, audit C22).
 - [ ] `check_game.sh`: the `max_minetest_version` guard reads `game.conf` only, so
       a bundled mod's `mod.conf` can carry a ceiling with nothing failing — it did
       for two days (audit C21 `Keep`). A wanted check, not a finding
-- [ ] adopt a **tagged** CodeBlock release and update the game's documentation
-      with it (roadmap G5) — `09c708d` was adopted on 2026-09-17 and is a bare
-      commit; re-point at CodeBlock `v1.0.0` once it is tagged, and write the `CHANGELOG.md`
-      *Changed* entry then. Until then `CHANGELOG.md` says what is true — a
-      development build ahead of `v0.7.3` — corrected 2026-09-22 from a claim
-      that the mod had reached 1.0.0
+- [x] adopt a **tagged** CodeBlock release and update the game's documentation
+      with it (roadmap G5) — **done 2026-09-22**: the pointer is CodeBlock
+      `v1.0.0`, tag `d36092e` on commit `f75766b`, verified on the remote before
+      the checkout. The `CHANGELOG.md` *Changed* entry naming the release is
+      written in the same commit, with `CONTENTDB.md`'s *Recent changes* and a
+      regenerated `.cdb.json`
 - [ ] get a CI run on the commit that is **tagged**. The push half is done: PR #1
       merged 2026-09-22 as `49c7f75`, `main` in sync with origin, and CI green on
       `49c7f75` (`push`) and `99117bf` (`pull_request`), both jobs. No tag exists,
@@ -146,8 +146,9 @@ These are the mod's defects, read while working on the game. They get no
 Both were read, neither was run. **Both re-read at `fb75bc8` on 2026-09-08 and
 both still applied** — `check_inside_world` position-only and the bound the raw
 `mapgen_limit` setting, at `lib/commands.lua:53` and `:92`. **Neither has been
-re-read at `09c708d`, adopted 2026-09-17**, so the line numbers and both claims
-are unverified against the mod as it now stands.
+re-read at CodeBlock `v1.0.0` (`f75766b`), adopted 2026-09-22**, nor at the
+`09c708d` before it, so the line numbers and both claims are unverified against
+the mod as it now stands.
 
 - [ ] codeblock: `check_inside_world` is applied to the drone's position only,
       never to a shape's extent — `lib/commands.lua:82-87`, called at `:130`,

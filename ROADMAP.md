@@ -50,14 +50,20 @@ nothing exists only on this machine; and **CI is green on `49c7f75`** and on
 day**: seven checks were run at `3f404ec` and all pass — `P6` and `W11` off
 `unchecked`, `W3`, `W5`, `W6` and `W7` discharging the widening's re-runs, and
 `P2` re-run over the archive — so `PLAYTEST.md` stands at 31 pass, 1 partial, 4
-unrun, and `B57` closes. What still blocks: **the `codeblock` pointer is the
-untagged `09c708d`**, and that is now the only hard blocker. Behaviour is no
-longer wholly unobserved, but what evidence there is **is thin** — every in-world
-result that day was a bare `pass` with no step detail, and `P3`, `P4`, `P5` and
-`P7` are unrun. The ContentDB upload should still be treated as
-manual until the webhook is checked from a machine that has `gh`. The gate run
-also **corrected `CHANGELOG.md`**, which claimed the bundled mod had reached
-1.0.0; no such CodeBlock release exists.
+unrun, and `B57` closes. **And a fourth closed the last blocker: CodeBlock
+`v1.0.0` was tagged and the pointer moved to it**, tag `d36092e` on commit
+`f75766b`, with the `CHANGELOG.md` and `CONTENTDB.md` entries it owed written in
+the same commit. **Every `release-check` blocker is now discharged**, and what
+is left is the `v2.0.0` tag itself, the upload, and the three checks that cannot
+run before them — `P1`'s boot half against the tag, `P5` on the published page,
+and the archive figure re-measured. What is **not** a blocker but is the honest
+state of the evidence: it is **thin**. Every in-world result on 2026-09-22 was a
+bare `pass` with no step detail; `P3`, `P4`, `P5` and `P7` are unrun; and
+**nothing has ever been played against either CodeBlock pointer** — `R4` and
+`R9` are owed and are the largest gap this release carries. The ContentDB upload
+should still be treated as manual until the webhook is checked from a machine
+that has `gh`. The gate run also **corrected `CHANGELOG.md`**, which claimed the
+bundled mod had reached 1.0.0 five days before it did.
 
 **The world was widened to `mapgen_limit = 4096` on 2026-09-17** — decision 9
 under `G6`, reversing decision 5. The field is 8080 nodes on a side and the
@@ -120,7 +126,7 @@ whatever is opened after it.
 | `G6` | Bound the world | **done on both counts** | 5/5 | 6/6 |
 | `G7` | Make the world something to be in | **done and checked**, the texture rework committed `dd83b99`; `W11` passed 2026-09-22 | 3/3 | 5/5 |
 | `G8` | Give the interface the game's own style | **done and checked**, `ba92d52`; ships in `v2.0.0` | 3/3 | 1/1 |
-| `G5` | Adopt a tagged CodeBlock release and ship `v2.0.0` | started; **still no-go** 2026-09-22 — push, CI, `P2` and `P6` all discharged; **the untagged `09c708d` pointer is the last hard blocker** | 2/7 | — |
+| `G5` | Adopt a tagged CodeBlock release and ship `v2.0.0` | started; **CodeBlock `v1.0.0` adopted** 2026-09-22 and every blocker discharged. What is left is the tag, the upload and the checks that need them | 3/7 | — |
 
 Findings by milestone: `G1` (`C1`, `C2`, `C3`, `C4`, `C5`, `C15`, `C20`); `G2`
 (`A14`, `B20`); `G3` (`B49`, `A13`); `G4` (`B47`, `B48`, `S8`, `A7`, `A8`,
@@ -605,7 +611,7 @@ changes*, `README.md` in its opening paragraph, and `CHANGELOG.md` under
 *Changed*. A style every player meets before they write a line of code was
 otherwise described nowhere a player reads.
 
-### G5. Adopt a tagged CodeBlock release and ship v2.0.0 — started (2/7), no-go
+### G5. Adopt a tagged CodeBlock release and ship v2.0.0 — started (3/7), the pointer is on a tag
 
 The game's own last step, and it comes after the mod has a 1.0.0 to adopt. The
 `release-codecube` skill owns the procedure and `release-check` gates it. **The
@@ -625,19 +631,18 @@ and the release it adopts is CodeBlock `1.0.0`.
     through the generated `.cdb.json`; the live page keeps `BETA` until the next
     upload.
 
-- [ ] Move `mods/codeblock` to a **tagged** release. **Still open after the
-  2026-09-17 move to `09c708d`**, which is a bare commit: no CodeBlock `v1.0.0`
-  exists yet,
-  locally or on the remote. See *which release is adopted* below for why that
-  move was taken anyway. **In the same piece of work, write the `CHANGELOG.md`
-  *Changed* entry naming the release adopted**: it said the mod was adopted as a
-  tagged release rather than followed commit by commit, and it was deleted on
-  2026-09-09 because the pointer was a commit off `master`. It is true only once
-  this line is done, so it is written then and not before — it was **not** written
-  for `09c708d`. What `CHANGELOG.md` carries meanwhile, corrected 2026-09-22, is
-  the true weaker statement: the bundled mod is a **development build** ahead of
-  its newest release `v0.7.3`, and its changes break saved programs. Replace that
-  sentence when the pointer names a tag.
+- [x] Move `mods/codeblock` to a **tagged** release. **Done 2026-09-22**: the
+  pointer is CodeBlock **`v1.0.0`**, the annotated tag `d36092e` on commit
+  `f75766b`, confirmed on the remote with `git ls-remote --tags origin` before
+  the checkout — the push-before-you-bump hazard, met in the order that avoids
+  it. Upstream's CI is green on `f75766b`. It was `09c708d` from 2026-09-17, a
+  bare commit off `master`, and three commits separate the two: two record-only
+  and one real, `5fb9b68`, raising `map_memory_mb` at every codelevel. **The
+  `CHANGELOG.md` *Changed* entry naming the release adopted is written in the
+  same commit**, which is the whole point of the obligation: it was deleted on
+  2026-09-09 because the pointer was a commit off `master`, and it is true only
+  now. The weaker placeholder it replaces — the mod as a development build ahead
+  of `v0.7.3` — is gone from `CHANGELOG.md` with it.
 - [x] State the licence for the game's media, in `menu/license.txt`,
   `mods/cc_mapgen/license.txt`, `THIRD-PARTY-LICENSES.md` and
   `scripts/gen_cdb_json.sh`. Decided 2026-09-08 — see *The media licence* under
@@ -713,31 +718,39 @@ recursive clone reaches the candidate and its two submodule pointers directly.
 
 ## Which CodeBlock release is adopted
 
-**`09c708d` since 2026-09-17, and it is a commit off `master`, not a tag.** The
-policy is that the pointer names the release this game has *adopted*, so lagging
-upstream is correct; this is a different thing — the pointer is **off the release
-track**, not merely behind it. Upstream's newest tag is **`v0.7.3`**, on the
-remote as well as locally, and **no CodeBlock `v1.0.0` exists yet**. Nothing is broken by
-it: `09c708d` is on `origin/master` and fetchable, and both gates are green on it.
-`G5`'s first line is where it goes back on the track. Read both numbers from
-`git ls-tree HEAD mods/codeblock` and the submodule's own tags —
+**CodeBlock `v1.0.0` since 2026-09-22 — a tag, and the pointer is back on the
+release track.** The annotated tag is `d36092e` on commit **`f75766b`**, and it
+was confirmed present on the remote *before* the checkout, which is the order
+that avoids recording a hash nobody can fetch. Upstream's CI is green on
+`f75766b`. The policy is that the pointer names the release this game has
+*adopted*, so lagging upstream is correct and expected; being **off** the release
+track, as it was from 2026-09-17, is the different and temporary thing. Read both
+numbers from `git ls-tree HEAD mods/codeblock` and the submodule's own tags —
 `git ls-remote --tags origin` inside it — **never from upstream's `HEAD`**.
 
-**The two-step is the author's decision, taken 2026-09-17.** CodeBlock is at
-`09c708d` and will be tagged CodeBlock `v1.0.0` and released soon, and the author wants the
-two released together; adopting the bare commit now and re-pointing at the tag
-when it exists was chosen over waiting. So the pointer is deliberately off the
-release track for a shorter time, and `G5`'s first line and the `CHANGELOG.md`
-entry it owes both stay open — that entry is true only once the pointer names a
-tag.
+**The two-step was the author's decision, taken 2026-09-17, and it closed on
+2026-09-22.** CodeBlock was at `09c708d` and would be tagged `v1.0.0` soon, and
+the author wanted the two released together; adopting the bare commit then and
+re-pointing at the tag when it existed was chosen over waiting. It cost five
+days off the release track and nothing else. **Three commits separate `09c708d`
+from `f75766b`**, two record-only and one real: `5fb9b68` raises
+`map_memory_mb` from `{8, 32, 64, 128}` to `{16, 64, 128, 512}`, so a program
+holds more of the world at once and a large build spends less time waiting for
+the ceiling to drain. **The game pins no `codeblock_*` setting**, so that default
+reaches a Codecube player directly; it is in `CHANGELOG.md` and in
+`CONTENTDB.md`'s *Recent changes* as *programs build faster*, written without the
+numbers because the game documents its limits qualitatively and the mod may
+retune them again.
 
 **What the move bought, and what it did not.** `A7` is resolved by it: upstream
 removed the duplicate sky block, its `codeblock_flat_sky` setting and that
 setting's `settingtypes.txt` entry, so `cc_day` is the only thing in the package
 setting the sky. Nothing else in this repository changed. **Nothing has been
-played against `09c708d`** — `R4` and `R9` are the game's share and both name
-`dd83b99` — and **CodeBlock's CI on `09c708d` is unchecked** from here; the two
-repositories go red independently.
+played against either pointer** — `R4` and `R9` are the game's share, and `R9`
+names `dd83b99` while `R4` names `6f2409e`, both older than the two moves. That
+is the largest gap this release carries. CodeBlock's CI is green on `f75766b`,
+read from its Actions API on 2026-09-22; the two repositories still go red
+independently, and a green run there says nothing about this game.
 
 **Corrected 2026-09-09: this section named `2647228` for two passes and that
 stopped being true at `50fd05f`**, which committed `fb75bc8` with the `G3`

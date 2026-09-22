@@ -13,10 +13,10 @@ because the world is now bounded — a wall around it and a bedrock floor beneat
 it — and because it is about twice as wide and sixteen times as deep under your
 feet. It also needs a newer engine: **Luanti 5.9 or newer**, up from 5.4.
 
-The bundled `codeblock` mod is a development build rather than one of its
-releases — its newest release is `v0.7.3` — and its changes break existing player
-programs. See [its changelog](https://github.com/gigaturbo/codeblock/blob/master/CHANGELOG.md)
-for the full list, and read the unreleased section at the top of it.
+The bundled `codeblock` mod is adopted at its **1.0.0** release, up from the
+0.7 series, and its changes are most of what breaks a saved program. See
+[its changelog](https://github.com/gigaturbo/codeblock/blob/master/CHANGELOG.md)
+for the full list.
 
 ## Breaking
 
@@ -47,6 +47,8 @@ for the full list, and read the unreleased section at the top of it.
 
 ## Changed
 
+- [x] **The game adopts `codeblock` 1.0.0**, the mod's first stable release, where it followed the 0.7 series before. That is where the drone, the editor, the sandbox, the API and the 105 blocks come from, so most of what this release breaks for a saved program is the mod's and is listed in its own changelog rather than repeated here. The game now tracks the mod's *releases* rather than its development: it adopts a tagged version deliberately, so the two projects ship on their own schedules
+- [x] **Programs build faster, with no change to how you write them.** The ceiling on how much of the world one program may hold at once was raised at every codelevel — roughly four times at the top one — and that ceiling is what paces a large build, because a program over it is slowed down rather than stopped. A build that spent its time waiting for the ceiling to drain now spends it building. Nothing about the limit is new and no program needs editing; it was simply set lower than it needed to be
 - [x] **Every panel and the hotbar are drawn in the game's own style.** A dark nine-slice panel with a lit edge behind every form the game shows you — the code editor included — with the inventory slots and the tooltips to match, and a hotbar in the same tones with a green frame on the slot you have selected. It is drawn from the same three colours as the bedrock and the grass, so the interface and the world read as one thing. Until now that styling came from the bundled `default` mod and looked like Minetest Game's; nothing in the game replaced it when that mod was removed
 - [x] Every surface in the world is drawn with the game's own artwork: grass, dirt, the bedrock floor and the barrier wall. The floor and the wall used to borrow two textures from the bundled `default` mod, and the ground came from it entirely; nothing about how the world is drawn depends on a mod any more. All four are flat colours with a few flecks in them rather than fine-grained noise, so a large area reads as one calm surface instead of static
 - [x] **The sky is now a single flat colour** rather than a gradient from a pale horizon up to a deeper blue. That is what makes permanent noon reach the sky at all - the gradient is what the engine was tinting - and it is a trade: there is no depth to the sky any more, and the sky and the haze no longer turn grey when you stand inside something you have built

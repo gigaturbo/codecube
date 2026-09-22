@@ -46,6 +46,8 @@ changes worlds you have already played in.
 - The drone's limits were rewritten around what a program costs the server instead of counts of calls. Nothing bounds a shape's size or how far the drone may fly from home any more.
 - The two lowest codelevels now pace the drone so a beginner can watch a loop happen. A single player starts at codelevel 3 and a new player on a server at 2, where everyone used to start at 4.
 - Every drone limit and both of the world's numbers are settings.
+- Programs build faster. The ceiling on how much of the world one program may hold at once was raised at every codelevel, and that is what paces a large build; nothing about how you write a program changes.
+- The bundled **CodeBlock** mod is adopted at its 1.0.0 release, up from the 0.7 series.
 
 The drone, the editor, the sandbox and the API are the **CodeBlock** mod, which this game bundles. Install that on its own if you want them in a world of your own making.
 
