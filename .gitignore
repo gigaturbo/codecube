@@ -1,54 +1,31 @@
-# Compiled Lua sources
 luac.out
-
-# luarocks build files
 *.src.rock
 *.zip
 *.tar.gz
-
-# Object files
 *.o
 *.os
 *.ko
 *.obj
 *.elf
-
-# Precompiled Headers
 *.gch
 *.pch
-
-# Libraries
 *.lib
 *.a
 *.la
 *.lo
 *.def
 *.exp
-
-# Shared objects (inc. Windows DLLs)
 *.dll
 *.so
 *.so.*
 *.dylib
-
-# Executables
 *.exe
 *.out
 *.app
 *.i*86
 *.x86_64
 *.hex
-
-# Browsable HTML renderings of ROADMAP.md, AUDIT.md and PLAYTEST.md, for reading
-# in a browser rather than in a diff. Presentation only: every fact in them is in
-# the tracked Markdown, so a deleted .reports/ costs nothing, and
-# scripts/gen_reports.py rebuilds all three.
-.reports/
-
-# Bytecode from importing scripts/gen_reports.py, which is the only Python here.
 __pycache__/
-
-# Screen captures and video of the game, kept locally and deliberately not
-# versioned. The video alone is 113 MB, over GitHub's 100 MB hard limit for a
-# single file, so a commit would be rejected and the blob would stay in history.
+.reports/
+.claude/
 screenshots/
