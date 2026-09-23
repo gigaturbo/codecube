@@ -6,10 +6,9 @@ belongs to **CodeBlock**, an upstream ContentDB package embedded as a submodule,
 and this game is a consumer of its releases. What is left is the world, the
 light, the restrictions, the interface's look and the packaging.
 
-**`v2.0.0` is tagged** on `1ca0d2a`, 2026-09-22, with CodeBlock `v1.0.0`
-adopted, CI green on the tagged commit and a fresh clone verified. **The
-ContentDB upload is owed and is manual**, no webhook having fired, and three
-checks cannot run before it.
+**`v2.0.0` is published on ContentDB**, tagged on `1ca0d2a` on 2026-09-22 with
+CodeBlock `v1.0.0` adopted. A release webhook now fires on each new tag. What is
+left is in-world checks: nothing has been played against the release.
 
 **Every id here predates the `B-X-N` scheme and keeps its old form for ever**,
 because commit messages cite them: `B` bugs, `S` sandbox and security, `C`
@@ -37,17 +36,7 @@ Nothing open.
 
 ## Features
 
-### G5 · adopt a tagged CodeBlock release and ship v2.0.0
-
-`wip` `large` `target: v2.0.0`
-
-Five of seven done. `v2.0.0` is tagged on `1ca0d2a`, CodeBlock `v1.0.0` is
-adopted, CI is green on the tagged commit and a fresh recursive clone is
-verified.
-
-**Do:** the ContentDB upload, which is manual because no webhook fired, and then
-the three checks that cannot run before it: `P1`'s boot half against the tag,
-`P5` on the published page, and the archive figure re-measured.
+Nothing open.
 
 ## Tests
 
@@ -68,11 +57,11 @@ a world: the name, the description, the cover and the menu artwork.
 
 ### P5 · the ContentDB page reads as a page
 
-`todo` `playtest` `blocks: C20` `needs: the upload`
+`todo` `playtest` `blocks: C20`
 
-Never run, and it cannot be until the package is published: nothing in this
-repository can see the rendered result, so ContentDB's own rules are the only
-test and the published page is the only reading.
+Never run, and runnable since the 2026-09-23 upload. Nothing in this repository
+can see the rendered result, so ContentDB's own rules are the only test and the
+published page is the only reading.
 
 ### P7 · a new player can get the drone tools at all
 
@@ -129,6 +118,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### Milestones
 
+- `G5` done `large` `1ca0d2a` · CodeBlock `v1.0.0` adopted and `v2.0.0` published on ContentDB on 2026-09-23. The published zip is 94 files and 2.92 MB, with both submodules bundled at the tagged pointers, `menu/` and every `cc_*` texture present, and no dotfile or record document
 - `G8` done `medium` `ba92d52` · the interface got the game's own style: one formspec prepend and two hotbar images in a fourth mod, `cc_gui`, after `A13`'s deletion took Minetest Game's with it
 - `G7` done `medium` `dd83b99` · the world became something to be in: the texture rework, all seven tiles generated from `scripts/gen_textures.py`
 - `G6` done `large` `60259dd` · the world was bounded: a bedrock floor at `y = 0`, a full-height barrier wall at the generated edge, and a rescue into the player's own column

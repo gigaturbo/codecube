@@ -134,6 +134,7 @@ tar -tf $env:TEMP\archive-check.tar | ForEach-Object { ($_ -split '/')[0] } | So
 ```
 
 `menu/` and every `mods/cc_*/textures/*.png` must be present, or the floor, the
-wall and the game's own panels render untextured. **`git archive` does not
-include submodule contents**, so what a ContentDB user gets for `mods/codeblock`
-comes from ContentDB's own dependency resolution.
+wall and the game's own panels render untextured. **A local `git archive` leaves
+the submodules empty, but ContentDB's release does not**: it bundles both at the
+tagged pointers, so the published zip is the only complete reading of what
+ships.
