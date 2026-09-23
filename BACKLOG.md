@@ -29,6 +29,7 @@ in-world check recipes are in its `references/playtests.md`.
 | `I` | The sky, the light and the interface |
 | `P` | Packaging, licensing and what ships |
 | `M` | The adopted CodeBlock release and the submodules |
+| `N` | Commands that move a player around the world |
 
 ## Bugs
 
@@ -36,7 +37,51 @@ Nothing open.
 
 ## Features
 
-Nothing open.
+### F-N-4 · settle the command namespace and where the commands live
+
+`todo` `medium` `filed 2026-09-23` `target: v2.2.0` `blocks: F-N-1` `blocks: F-N-2` `blocks: F-N-3`
+
+The three commands below need one namespace, bare `/saveme` or a prefix such as
+`/cc`, and one home. A separate, self-contained mod another game could copy
+would fit the thin-game design better than more code in `cc_security`, as long
+as the column rescue it would share with `B50` is not duplicated.
+
+### F-N-3 · a player buried in a program's build can get out
+
+`todo` `medium` `filed 2026-09-23` `target: v2.2.0`
+
+A `saveme` command for a player walled in by generated nodes, who cannot dig
+out because nothing is diggable. Still to decide: where the player lands (the
+first free space above, the nearest free space, or the surface of the column),
+and whether it reuses the `cc_security` rescue that already finds a standable
+spot in a column.
+
+### F-N-1 · a player can move to a fresh area to build in
+
+`todo` `medium` `filed 2026-09-23` `target: v2.2.0`
+
+A `newplace` command teleports the player to an area that is probably empty.
+Still to decide: how "empty" is judged (never generated, far from other players,
+far from placed nodes), whether it needs a privilege, and whether it is a chat
+command, a function or both.
+
+### F-N-2 · an admin can spread players far apart
+
+`todo` `large` `filed 2026-09-23` `target: v2.2.0`
+
+A `spreadplayers` command gives each player in a group an empty area far from
+the others, so builds are less likely to be fought over. Still to decide: the
+privilege that grants it, how players are chosen (all online, a list, a
+filter), and the layout (a large circle, a grid, a jittered grid, or maximised
+spacing), all within the world box from `get_mapgen_edges()`.
+
+### F-I-1 · a panel lists the player's commands
+
+`todo` `medium` `filed 2026-09-23` `target: v2.2.0` `needs: F-N-4`
+
+A panel exposing at least `saveme` and `newplace`, so a player does not have to
+know the chat syntax. Still to decide: how it opens (a chat command, a tool, or a
+key through the inventory form), and whether it wears `cc_gui`'s style.
 
 ## Tests
 
