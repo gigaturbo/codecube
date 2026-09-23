@@ -36,6 +36,7 @@ printf \
     "type": "GAME",
     "title": "Codecube",
     "name": "codecube",
+    "ai_disclosure": "GENERATED",
     "short_description": "A game where the player can construct by programming",
     "long_description": "%s",
     "dev_state": "ACTIVELY_DEVELOPED",
