@@ -26,6 +26,12 @@ TODO.md		export-ignore
 # only be a second README they have no use for. (C20)
 CONTENTDB.md	export-ignore
 
+# A shell script must be checked out LF whatever the platform. core.autocrlf is
+# true here, which gave gen_cdb_json.sh CRLF endings, and a `printf \` continuation
+# then escapes the CR instead of the newline: bash runs the JSON template as a
+# command and prints "File name too long" on every run. (codeblock C26)
+*.sh		text eol=lf
+
 # README and ContentDB material, pulled from GitHub by absolute URL. The images
 # the main menu actually reads are in menu/.
 screenshot.png	export-ignore
