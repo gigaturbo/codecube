@@ -38,40 +38,22 @@ Nothing open.
 
 ## Features
 
-### F-V-1 · the player walks and runs at the game's own speed
-
-`todo` `small` `filed 2026-09-24` `target: v2.1.0`
-
-Change the default walking and running speed, so crossing a large build does not
-take long. Still to decide: the values, whether through the `movement_speed_*`
-settings forced onto the world or a per-player `set_physics_override` on join
-(which also scales the drone's owner in flight and climbing), and whether a
-server owner can change them.
-
-### F-N-4 · settle the command namespace and where the commands live
-
-`todo` `medium` `filed 2026-09-23` `target: v2.1.0` `blocks: F-N-1` `blocks: F-N-2` `blocks: F-N-3`
-
-The three commands below need one namespace, bare `/saveme` or a prefix such as
-`/cc`, and one home. A separate, self-contained mod another game could copy
-would fit the thin-game design better than more code in `cc_security`, as long
-as the column rescue it would share with `B50` is not duplicated.
-
 ### F-N-3 · a player buried in a program's build can get out
 
 `todo` `medium` `filed 2026-09-23` `target: v2.1.0`
 
-A `saveme` command for a player walled in by generated nodes, who cannot dig
-out because nothing is diggable. Still to decide: where the player lands (the
-first free space above, the nearest free space, or the surface of the column),
-and whether it reuses the `cc_security` rescue that already finds a standable
-spot in a column.
+A `/codecube saveme` subcommand in `cc_commands` for a player walled in by
+generated nodes, who cannot dig out because nothing is diggable. Still to
+decide: where the player lands (the first free space above, the nearest free
+space, or the surface of the column), and how it shares the `cc_security`
+rescue that already finds a standable spot in a column without duplicating it
+or making one mod reach into the other.
 
 ### F-N-1 · a player can move to a fresh area to build in
 
 `todo` `medium` `filed 2026-09-23` `target: v2.1.0`
 
-A `newplace` command teleports the player to an area that is probably empty.
+A `/codecube newplace` subcommand teleports the player to an area that is probably empty.
 Still to decide: how "empty" is judged (never generated, far from other players,
 far from placed nodes), whether it needs a privilege, and whether it is a chat
 command, a function or both.
@@ -80,7 +62,7 @@ command, a function or both.
 
 `todo` `large` `filed 2026-09-23` `target: v2.1.0`
 
-A `spreadplayers` command gives each player in a group an empty area far from
+A `/codecube spreadplayers` subcommand gives each player in a group an empty area far from
 the others, so builds are less likely to be fought over. Still to decide: the
 privilege that grants it, how players are chosen (all online, a list, a
 filter), and the layout (a large circle, a grid, a jittered grid, or maximised
@@ -88,11 +70,13 @@ spacing), all within the world box from `get_mapgen_edges()`.
 
 ### F-I-1 · a panel lists the player's commands
 
-`todo` `medium` `filed 2026-09-23` `target: v2.1.0` `needs: F-N-4`
+`todo` `medium` `filed 2026-09-23` `target: v2.1.0`
 
 A panel exposing at least `saveme` and `newplace`, so a player does not have to
-know the chat syntax. Still to decide: how it opens (a chat command, a tool, or a
-key through the inventory form), and whether it wears `cc_gui`'s style.
+know the chat syntax. Still to decide: whether it lives in `cc_commands` and
+calls the same subcommand handlers, which is what that mod's one table is built
+for, how it opens (`/codecube` with no argument, a tool, or a key through the
+inventory form), and whether it wears `cc_gui`'s style.
 
 ## Tests
 
@@ -172,6 +156,11 @@ whoever re-runs it knows what they are re-reading against.
 - `A13` closed `medium` · `mods/default`, `mods/dye` and `mods/wool` were 9,744 lines vendored to supply 106 node definitions. **Fixed by** all three deleted at `50fd05f`, once CodeBlock registered its own 105 nodes; `cc_mapgen` took the three essential mapgen aliases and the world's surface material
 - `A19` closed `medium` · permanent noon reached the light level and the sky objects but not the sky's own colour, so the horizon and the fog still moved with the time of day — and with the player's yaw. **Fixed by** one `set_sky{type = "plain", base_color = "#90d3f6"}` in `cc_day`, `plain` being the one sky type the engine excludes from the directional tint
 
+### Features
+
+- `F-V-1` done `small` · a player holding `server` sets anyone's speed with `/codecube speed <slow|normal|fast|fastest> [<player>]`, one `speed` physics multiplier of 2, 2.5, 3 or 3.5 over walking, fast mode and flight, kept in the player's metadata. A player never given one moves at `normal`, and even `slow` is twice the engine's speed and the old default
+- `F-N-4` done `medium` · the game's commands got one home and one namespace: a self-contained mod, `cc_commands`, with every command a subcommand of `/codecube` checking its own privileges, as codeblock does under `/codeblock`
+
 ### Milestones
 
 - `G5` done `large` `1ca0d2a` · CodeBlock `v1.0.0` adopted and `v2.0.0` published on ContentDB on 2026-09-23. The published zip is 94 files and 2.92 MB, with both submodules bundled at the tagged pointers, `menu/` and every `cc_*` texture present, and no dotfile or record document
@@ -185,6 +174,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### In-world checks
 
+- `T-V-1` done `playtest` 2026-10-01 · a fresh player moves at `normal`, each of the four speed levels changes walking, fast mode and flight, a player without `server` is refused, and a level survives a rejoin
 - `W1` done `playtest` 2026-09-01 · a new world is flat and clean at spawn
 - `W2` done `playtest` 2026-09-01 · the mapgen flags survive a world that was created with others
 - `W3` done `playtest` 2026-09-01 · the world is flat far from spawn, and far from where anyone has been

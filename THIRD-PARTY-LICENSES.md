@@ -10,7 +10,7 @@ Each carries its licence text in its own directory.
 |-----|---------|-----------|------|
 | `codeblock` | AGPL-3.0-only | giga-turbo | `mods/codeblock/LICENSE` (submodule, carries its own) |
 | `vector3` | see file | ISs25u / giga-turbo | `mods/vector3/LICENSE` (submodule, carries its own) |
-| `cc_day`, `cc_gui`, `cc_mapgen`, `cc_security` | AGPL-3.0-only (code; the textures `cc_gui` and `cc_mapgen` ship are CC-BY-SA-4.0) | giga-turbo | each mod's `license.txt` |
+| `cc_day`, `cc_gui`, `cc_commands`, `cc_mapgen`, `cc_security` | AGPL-3.0-only (code; the textures `cc_gui` and `cc_mapgen` ship are CC-BY-SA-4.0) | giga-turbo | each mod's `license.txt` |
 
 ## Media
 
@@ -71,7 +71,7 @@ rather than being trimmed. Listed here so the history stays legible — nothing 
 the game bundles them any more, and no LGPL-2.1+ or CC BY-SA 3.0 material
 remains in it.
 
-What is left is **no vendored copy of anything**: the game bundles its own three
+What is left is **no vendored copy of anything**: the game bundles its own five
 `cc_*` mods, and two submodules that carry their own licence files and are
 updated from their own upstreams rather than copied in here. So the second route
 in `scripts/check_game.sh`'s licence check — a mod covered by this document

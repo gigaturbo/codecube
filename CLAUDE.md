@@ -14,7 +14,7 @@ game is a *consumer of its releases*. What the game contributes is the setting
 and the fit: a flat world, permanent day, build restrictions, the settings a
 server owner wants, and a presentation that makes the programming pleasant.
 
-**The game's own code is 218 lines of Lua in five files.** Re-derive that rather
+**The game's own code is 261 lines of Lua in six files.** Re-derive that rather
 than trusting it: `grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l`.
 
 ## Layout
@@ -28,6 +28,8 @@ than trusting it: `grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l`.
   `mapgen_env.lua` writes three of those nodes on the emerge threads.
 - [mods/cc_security/](mods/cc_security/) what a player may break, place or drop,
   and the rescue that puts one back inside the world box.
+- [mods/cc_commands/](mods/cc_commands/) the game's own chat commands, all
+  under `/codecube <subcommand>`: so far `speed`, how fast a player moves.
 - `mods/codeblock`, `mods/vector3` **submodules: pinned dependencies, not
   working copies.** Do not edit, commit to, or lint them from this tree.
 - [scripts/](scripts/) the game's own check, the `.cdb.json` generator and the
@@ -43,8 +45,8 @@ than trusting it: `grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l`.
 - [BACKLOG.md](BACKLOG.md) all open work, with what has closed compressed below
   it. Not shipped.
 
-**`mods/` holds exactly six directories.** `check_game.sh` prints
-`6 mods declared`; anything higher means a mod has come back. `default`, `dye`
+**`mods/` holds exactly seven directories.** `check_game.sh` prints
+`7 mods declared`; anything higher means a mod has come back. `default`, `dye`
 and `wool` were deleted outright once CodeBlock started registering its own 105
 nodes, and putting one back is a whole-game decision about licensing and about
 9,744 lines nobody here maintains.
@@ -63,6 +65,10 @@ inside the world box is the only place this game writes to the map.
 
 **`cc_day` and `cc_gui` are the look**: a plain sky immune to the time of day,
 one formspec prepend and two hotbar images.
+
+**`cc_commands` is the one home for commands.** Every command the game adds is
+a subcommand of `/codecube` in its one dispatch table, checking its own
+privileges, so a panel can offer the same handlers without copying them.
 
 **The submodule pointer follows releases, not commits.** `mods/codeblock` pins
 the release this game has **adopted**, not the tip of upstream, so a pointer
