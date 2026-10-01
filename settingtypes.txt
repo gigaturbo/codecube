@@ -39,3 +39,9 @@ mapgen_limit (World half-extent) int 4096 80 31007
 #    use above the top of the generated box, and nothing checks the two against
 #    each other.
 mgflat_ground_level (Surface height) int 128 1 512
+
+#    Seconds a player waits between two uses of /codecube newplace, which moves
+#    them to a random fresh place to build. It stops one player generating new
+#    ground faster than the server can keep up. A player holding the server
+#    privilege never waits, and 0 lets everyone move as often as they like.
+codecube_newplace_cooldown (Newplace cooldown) int 60 0 3600

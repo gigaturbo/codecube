@@ -49,15 +49,6 @@ space, or the surface of the column), and how it shares the `cc_security`
 rescue that already finds a standable spot in a column without duplicating it
 or making one mod reach into the other.
 
-### F-N-1 · a player can move to a fresh area to build in
-
-`todo` `medium` `filed 2026-09-23` `target: v2.1.0`
-
-A `/codecube newplace` subcommand teleports the player to an area that is probably empty.
-Still to decide: how "empty" is judged (never generated, far from other players,
-far from placed nodes), whether it needs a privilege, and whether it is a chat
-command, a function or both.
-
 ### F-N-2 · an admin can spread players far apart
 
 `todo` `large` `filed 2026-09-23` `target: v2.1.0`
@@ -76,7 +67,18 @@ A panel exposing at least `saveme` and `newplace`, so a player does not have to
 know the chat syntax. Still to decide: whether it lives in `cc_commands` and
 calls the same subcommand handlers, which is what that mod's one table is built
 for, how it opens (`/codecube` with no argument, a tool, or a key through the
-inventory form), and whether it wears `cc_gui`'s style.
+inventory form), and whether it wears `cc_gui`'s style. It shows only the
+subcommands the player holds the privileges for, as `/codecube`'s usage already
+does.
+
+### F-I-2 · a hotbar tool runs the most useful commands
+
+`todo` `medium` `filed 2026-10-01`
+
+A tool in the hotbar beside the drone's two, so a player reaches `newplace` and
+the commands like it without typing. Still to decide: which commands, how one is
+chosen (a click, a punch and a place, or a small menu), and whether the tool is
+handed out on join or taken from the creative inventory like codeblock's.
 
 ## Tests
 
@@ -158,6 +160,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### Features
 
+- `F-N-1` done `medium` · a player holding `newplace`, granted to each player once on their first join and revocable for good after that, moves to a random column of the surface with `/codecube newplace`, at least 500 nodes from the wall or a tenth of the world's width when that is less, once per `codecube_newplace_cooldown` seconds unless they hold `server`
 - `F-V-1` done `small` · a player holding `server` sets anyone's speed with `/codecube speed <slow|normal|fast|fastest> [<player>]`, one `speed` physics multiplier of 2, 2.5, 3 or 3.5 over walking, fast mode and flight, kept in the player's metadata. A player never given one moves at `normal`, and even `slow` is twice the engine's speed and the old default
 - `F-N-4` done `medium` · the game's commands got one home and one namespace: a self-contained mod, `cc_commands`, with every command a subcommand of `/codecube` checking its own privileges, as codeblock does under `/codeblock`
 
@@ -174,7 +177,8 @@ whoever re-runs it knows what they are re-reading against.
 
 ### In-world checks
 
-- `T-V-1` done `playtest` 2026-10-01 · a fresh player moves at `normal`, each of the four speed levels changes walking, fast mode and flight, a player without `server` is refused, and a level survives a rejoin
+- `T-N-1` done `playtest` 2026-10-01 Luanti 5.17.0 · newplace lands a player on fresh grass well inside the wall, refuses a second use inside the cooldown with the seconds left except to `server`, stays revoked from a non-admin across a rejoin, and `/codecube` lists only what the caller may run
+- `T-V-1` done `playtest` 2026-10-01 `df84ec8` Luanti 5.17.0 · a fresh player moves at `normal`, each of the four speed levels changes walking, fast mode and flight, a player without `server` is refused, and a level survives a rejoin
 - `W1` done `playtest` 2026-09-01 · a new world is flat and clean at spawn
 - `W2` done `playtest` 2026-09-01 · the mapgen flags survive a world that was created with others
 - `W3` done `playtest` 2026-09-01 · the world is flat far from spawn, and far from where anyone has been
