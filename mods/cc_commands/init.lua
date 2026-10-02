@@ -42,9 +42,27 @@ subcommands.speed = {
     end
 }
 
--- A fresh place to build: a random column of the world's surface, kept clear
--- of the wall by 500 nodes, or by a tenth of the world's width when that is
--- less, so a small world still has room to choose from. Nothing checks that the
+-- Where a player may be sent: the world's surface, kept clear of the wall by
+-- 500 nodes, or by a tenth of the world's width when that is less, so a small
+-- world still has room to choose from. `y` is the first node above the ground.
+--
+-- The edges and the surface are read when a command runs, not at load time,
+-- because cc_mapgen forces both and this mod does not depend on it loading
+-- first.
+local function surface()
+    local min, max = minetest.get_mapgen_edges()
+    local margin = math.min(500, math.floor((max.x - min.x) / 10))
+    local ground = tonumber(minetest.get_mapgen_setting("mgflat_ground_level"))
+    return {
+        x0 = min.x + margin,
+        x1 = max.x - margin,
+        z0 = min.z + margin,
+        z1 = max.z - margin,
+        y = (ground or 128) + 1
+    }
+end
+
+-- A fresh place to build: a random column of the surface. Nothing checks that the
 -- column is empty. In a world this wide a random column is almost always ground
 -- nobody has built on, and a player who lands in a build can ask again.
 --
@@ -57,10 +75,6 @@ subcommands.speed = {
 -- It works once per `codecube_newplace_cooldown` seconds, so it cannot be used
 -- to flood the server with new mapblocks. A player holding `server` is never
 -- made to wait. The cooldown is held in memory: a restart forgets it.
---
--- The edges and the surface are read when the command runs, not at load time,
--- because cc_mapgen forces both and this mod does not depend on it loading
--- first.
 minetest.register_privilege("newplace", {
     description = "Can move to a fresh place to build with /codecube newplace"
 })
@@ -95,18 +109,171 @@ subcommands.newplace = {
         local player = minetest.get_player_by_name(caller)
         if not player then return false, "You are not in the world." end
 
-        local min, max = minetest.get_mapgen_edges()
-        local margin = math.min(500, math.floor((max.x - min.x) / 10))
-        local ground = tonumber(
-                           minetest.get_mapgen_setting("mgflat_ground_level")) or
-                           128
+        local box = surface()
         player:set_pos({
-            x = math.random(min.x + margin, max.x - margin),
-            y = ground + 1,
-            z = math.random(min.z + margin, max.z - margin)
+            x = math.random(box.x0, box.x1),
+            y = box.y,
+            z = math.random(box.z0, box.z1)
         })
         last_newplace[caller] = now
         return true, "Moved to a fresh place."
+    end
+}
+
+-- Spreading a class: each chosen player gets a plot of their own, never one
+-- that was built on before, so a teacher can send everyone to fresh ground as
+-- often as they like.
+--
+-- The surface is cut into square plots of `codecube_plot_size` nodes, and a
+-- player lands in the middle of one. The 100 by 100 nodes at a plot's centre are
+-- its core, and the world keeps a record of the cores already used: one around
+-- every player online at each spread, where they have been building, and one
+-- around each landing. A plot is free when its core overlaps no recorded one.
+-- The record is kept as points, not plots, so it stays right when a server owner
+-- changes the plot size. Nothing ever clears it: once every plot is used, the
+-- command says so.
+--
+-- A free plot can still hold a build nobody recorded, from a player who walked
+-- there. So its core is generated and read before anyone lands: anything but air
+-- in the 16 layers above the ground marks it used, and the player gets another.
+--
+-- `random` takes any free plot. `spaced` takes the free plot farthest from
+-- everyone placed so far: players who are not moving, then each landing in turn.
+-- With no player arguments every online player but the caller moves. A name
+-- adds that player, `*` in one matches any run of characters, and a leading `-`
+-- leaves out the players it matches.
+minetest.register_privilege("spreadplayers", {
+    description = "Can move players to fresh plots with /codecube spreadplayers"
+})
+
+local storage = minetest.get_mod_storage()
+local used = minetest.deserialize(storage:get_string("used_cores")) or {}
+local core_size, core_depth = 100, 16
+
+local function record(pos)
+    used[#used + 1] = {x = math.floor(pos.x + 0.5), z = math.floor(pos.z + 0.5)}
+    storage:set_string("used_cores", minetest.serialize(used))
+end
+
+-- The free plot that best suits `layout`, or nil once none is left.
+local function pick(layout, placed, box)
+    local size = tonumber(minetest.settings:get("codecube_plot_size")) or 300
+    local spaced = layout == "spaced" and #placed > 0
+    local best, best_score
+    for x = box.x0 + math.floor(size / 2), box.x1 - size / 2, size do
+        for z = box.z0 + math.floor(size / 2), box.z1 - size / 2, size do
+            local free = true
+            for _, c in ipairs(used) do
+                free = free and (math.abs(c.x - x) >= core_size or
+                           math.abs(c.z - z) >= core_size)
+            end
+            local score = spaced and math.huge or math.random()
+            for _, p in ipairs(spaced and placed or {}) do
+                score = math.min(score, (p.x - x) ^ 2 + (p.z - z) ^ 2)
+            end
+            if free and (not best or score > best_score) then
+                best, best_score = {x = x, y = box.y, z = z}, score
+            end
+        end
+    end
+    return best
+end
+
+-- Sends one player of a spread to a free plot, retrying on a plot found built,
+-- and tells the caller once the last player of the spread has landed or failed.
+local function land(job, name)
+    local function done(moved)
+        local list = moved and job.moved or job.stuck
+        list[#list + 1] = name
+        if #job.moved + #job.stuck < job.count then return end
+        local text = ("Spread %d players."):format(#job.moved)
+        if #job.stuck > 0 then
+            text = text .. " No free plot was left for " ..
+                       table.concat(job.stuck, ", ") .. "."
+        end
+        minetest.chat_send_player(job.caller, text)
+    end
+
+    local spot = pick(job.layout, job.placed, job.box)
+    if not spot then return done(false) end
+    record(spot)
+    job.placed[#job.placed + 1] = spot
+    local half = core_size / 2
+    local minp = {x = spot.x - half, y = spot.y, z = spot.z - half}
+    local maxp = {
+        x = spot.x + half,
+        y = spot.y + core_depth - 1,
+        z = spot.z + half
+    }
+    minetest.emerge_area(minp, maxp, function(_, _, remaining)
+        if remaining > 0 then return end
+        local vm = minetest.get_voxel_manip()
+        local emin, emax = vm:read_from_map(minp, maxp)
+        local area = VoxelArea:new({MinEdge = emin, MaxEdge = emax})
+        local data = vm:get_data()
+        local air = minetest.get_content_id("air")
+        for i in area:iterp(minp, maxp) do
+            if data[i] ~= air then return land(job, name) end
+        end
+        local player = minetest.get_player_by_name(name)
+        if not player then return done(false) end
+        player:set_pos(spot)
+        minetest.chat_send_player(name, "You were moved to a fresh plot.")
+        done(true)
+    end)
+end
+
+-- A player-name glob as an anchored Lua pattern: every character literal but
+-- `*`, which matches any run.
+local function glob(text)
+    return "^" .. text:gsub("%W", "%%%0"):gsub("%%%*", ".*") .. "$"
+end
+
+subcommands.spreadplayers = {
+    params = "<random|spaced> [<player>|-<player> ...]",
+    privs = {spreadplayers = true},
+    run = function(caller, param)
+        local layout, rest = param:match("^(%S+)%s*(.*)$")
+        if layout ~= "random" and layout ~= "spaced" then return false end
+        local include, exclude = {}, {}
+        for token in rest:gmatch("%S+") do
+            if token:sub(1, 1) == "-" then
+                exclude[#exclude + 1] = glob(token:sub(2))
+            else
+                include[#include + 1] = glob(token)
+            end
+        end
+
+        local job = {
+            caller = caller,
+            layout = layout,
+            box = surface(),
+            placed = {},
+            moved = {},
+            stuck = {}
+        }
+        local chosen, online = {}, minetest.get_connected_players()
+        for _, player in ipairs(online) do
+            local name = player:get_player_name()
+            local wanted = #include == 0 and name ~= caller
+            for _, p in ipairs(include) do
+                wanted = wanted or name:find(p) ~= nil
+            end
+            for _, p in ipairs(exclude) do
+                wanted = wanted and not name:find(p)
+            end
+            if wanted then
+                chosen[#chosen + 1] = name
+            else
+                job.placed[#job.placed + 1] = player:get_pos()
+            end
+        end
+        if #chosen == 0 then return false, "No online player matches." end
+        for _, player in ipairs(online) do record(player:get_pos()) end
+
+        job.count = #chosen
+        for _, name in ipairs(chosen) do land(job, name) end
+        return true, ("Spreading %d players with %s."):format(#chosen, layout)
     end
 }
 

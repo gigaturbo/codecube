@@ -45,3 +45,9 @@ mgflat_ground_level (Surface height) int 128 1 512
 #    ground faster than the server can keep up. A player holding the server
 #    privilege never waits, and 0 lets everyone move as often as they like.
 codecube_newplace_cooldown (Newplace cooldown) int 60 0 3600
+
+#    The side, in nodes, of the square plots /codecube spreadplayers hands out.
+#    Each player lands in the middle of a plot, and the 100 by 100 nodes there
+#    are never handed out again. A larger plot keeps players farther apart but
+#    leaves fewer plots in the world.
+codecube_plot_size (Spread plot size) int 300 150 2000

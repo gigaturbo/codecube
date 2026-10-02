@@ -14,7 +14,7 @@ game is a *consumer of its releases*. What the game contributes is the setting
 and the fit: a flat world, permanent day, build restrictions, the settings a
 server owner wants, and a presentation that makes the programming pleasant.
 
-**The game's own code is 316 lines of Lua in six files.** Re-derive that rather
+**The game's own code is 444 lines of Lua in six files.** Re-derive that rather
 than trusting it: `grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l`.
 
 ## Layout
@@ -29,8 +29,9 @@ than trusting it: `grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l`.
 - [mods/cc_security/](mods/cc_security/) what a player may break, place or drop,
   and the rescue that puts one back inside the world box.
 - [mods/cc_commands/](mods/cc_commands/) the game's own chat commands, all
-  under `/codecube <subcommand>`: `speed`, how fast a player moves, and
-  `newplace`, a move to a fresh place to build.
+  under `/codecube <subcommand>`: `speed`, how fast a player moves,
+  `newplace`, a move to a fresh place to build, and `spreadplayers`, which
+  sends a class to plots never built on before.
 - `mods/codeblock`, `mods/vector3` **submodules: pinned dependencies, not
   working copies.** Do not edit, commit to, or lint them from this tree.
 - [scripts/](scripts/) the game's own check, the `.cdb.json` generator and the

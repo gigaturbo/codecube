@@ -49,16 +49,6 @@ space, or the surface of the column), and how it shares the `cc_security`
 rescue that already finds a standable spot in a column without duplicating it
 or making one mod reach into the other.
 
-### F-N-2 · an admin can spread players far apart
-
-`todo` `large` `filed 2026-09-23` `target: v2.1.0`
-
-A `/codecube spreadplayers` subcommand gives each player in a group an empty area far from
-the others, so builds are less likely to be fought over. Still to decide: the
-privilege that grants it, how players are chosen (all online, a list, a
-filter), and the layout (a large circle, a grid, a jittered grid, or maximised
-spacing), all within the world box from `get_mapgen_edges()`.
-
 ### F-I-1 · a panel lists the player's commands
 
 `todo` `medium` `filed 2026-09-23` `target: v2.1.0`
@@ -81,6 +71,16 @@ chosen (a click, a punch and a place, or a small menu), and whether the tool is
 handed out on join or taken from the creative inventory like codeblock's.
 
 ## Tests
+
+### T-N-2 · spreadplayers sends a class to fresh plots
+
+`todo` `playtest`
+
+Never run. With three or more players online: `random` and `spaced` each move
+everyone but the caller onto bare grass, `spaced` puts them far apart, a name,
+a `student_*` glob and a `-name` exclusion each choose the right players, a
+second spread never lands anyone on a plot used by the first, a plot built on
+by hand is skipped, and a player without `spreadplayers` is refused.
 
 ### P3 · the boot log is clean
 
@@ -160,6 +160,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### Features
 
+- `F-N-2` done `large` · a player holding `spreadplayers` sends players to plots of `codecube_plot_size` nodes with `/codecube spreadplayers <random|spaced>`, everyone online but the caller or the players named, `*` globs and `-` exclusions. The 100 by 100 core of every plot used, and of every spot a player stood on at a spread, is recorded in mod storage and never handed out again, and a core found built is recorded and swapped for another
 - `F-N-1` done `medium` · a player holding `newplace`, granted to each player once on their first join and revocable for good after that, moves to a random column of the surface with `/codecube newplace`, at least 500 nodes from the wall or a tenth of the world's width when that is less, once per `codecube_newplace_cooldown` seconds unless they hold `server`
 - `F-V-1` done `small` · a player holding `server` sets anyone's speed with `/codecube speed <slow|normal|fast|fastest> [<player>]`, one `speed` physics multiplier of 2, 2.5, 3 or 3.5 over walking, fast mode and flight, kept in the player's metadata. A player never given one moves at `normal`, and even `slow` is twice the engine's speed and the old default
 - `F-N-4` done `medium` · the game's commands got one home and one namespace: a self-contained mod, `cc_commands`, with every command a subcommand of `/codecube` checking its own privileges, as codeblock does under `/codeblock`
@@ -177,7 +178,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### In-world checks
 
-- `T-N-1` done `playtest` 2026-10-01 Luanti 5.17.0 · newplace lands a player on fresh grass well inside the wall, refuses a second use inside the cooldown with the seconds left except to `server`, stays revoked from a non-admin across a rejoin, and `/codecube` lists only what the caller may run
+- `T-N-1` done `playtest` 2026-10-01 `2c5342e` Luanti 5.17.0 · newplace lands a player on fresh grass well inside the wall, refuses a second use inside the cooldown with the seconds left except to `server`, stays revoked from a non-admin across a rejoin, and `/codecube` lists only what the caller may run
 - `T-V-1` done `playtest` 2026-10-01 `df84ec8` Luanti 5.17.0 · a fresh player moves at `normal`, each of the four speed levels changes walking, fast mode and flight, a player without `server` is refused, and a level survives a rejoin
 - `W1` done `playtest` 2026-09-01 · a new world is flat and clean at spawn
 - `W2` done `playtest` 2026-09-01 · the mapgen flags survive a world that was created with others
