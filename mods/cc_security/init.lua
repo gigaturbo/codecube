@@ -3,6 +3,9 @@
 -- nothing drops, no inventory accepts anything, there is no knockback, and
 -- nothing grows, spreads or decays by itself.
 
+-- What other mods may call: `unbury`, for /codecube saveme.
+cc_security = {}
+
 local function deny() return 0 end
 
 -- A node timer must be stopped with `false`, not with `deny` above: **`0` is
@@ -68,8 +71,15 @@ local dig_groups = {
 -- default a definition's `on_dig` falls back to -- but a node bringing its own
 -- `on_dig` never reaches it, and it says nothing to the client, so the group
 -- strip above would still need the per-node walk. (A8)
+-- The content ids of every node a player stands on, for the rescue below.
+-- `walkable` defaults to true and definitions leave it out, so the test is
+-- against `false`: a truthiness test would read every ordinary node as
+-- walk-through. (B50)
+local solid = {}
+
 minetest.register_on_mods_loaded(function()
     for name, def in pairs(minetest.registered_nodes) do
+        solid[minetest.get_content_id(name)] = def.walkable ~= false or nil
         local groups = {}
         for group, value in pairs(def.groups or {}) do
             if not dig_groups[group] then groups[group] = value end
@@ -111,9 +121,13 @@ function minetest.calculate_knockback() return 0 end
 -- unloaded space, which the engine collides with -- an invisible dark ledge.
 -- So the world box is kept on the player too, whatever a program does. (B50)
 --
--- The rescue keeps the player where they were: their own column, its floor made
--- whole under them, and the lowest room in it they fit. It falls back to the
--- spawn point only when that column has no room at all. See standing_pos below.
+-- A player found outside the world box, or buried in a build and asking with
+-- /codecube saveme, is moved onto the top of a build nearby: the highest solid
+-- node of a mapblock column that leaves room for them under the top of the
+-- world. Columns are drawn at random, `tries` at a time, up to `reach` nodes
+-- away, then up to twice that, then up to four times. When every one fails, a
+-- fallen player gets a bedrock platform where they are, and a buried one has
+-- the mapblock around them carved out. Nothing else here writes to the map.
 --
 -- The edges come from the engine, not from mapgen_limit: only mapchunks falling
 -- wholly inside the limit are generated, so the last generated column is short of
@@ -122,142 +136,158 @@ function minetest.calculate_knockback() return 0 end
 -- freezing them, so asking at load time is safe.
 local world_min, world_max = minetest.get_mapgen_edges()
 
--- `minetest.settings:get_pos` is 5.10 and later; this spelling is the one the
--- game's 5.9 floor has.
---
--- Without a static spawn point, the first air node over the mapgen's ground. The
--- bedrock plane at y = 0 is *not* the surface: mgflat fills solid ground up to
--- and including mgflat_ground_level, which this game sets to 128, so the plane
--- sits that far under it and a rescue to y = 1 would land the player inside it.
--- The setting is read rather than assumed because a server owner may change it
--- -- game.conf does not disallow it -- and it comes back as a string.
---
--- The 128 guards a nil the engine should never return, cc_mapgen having forced
--- the setting before this mod loads. It is the game's own default, from
--- minetest.conf; the engine's own default of 8 would be a fallback into a
--- hundred and twenty nodes of solid ground.
---
--- `minetest.get_spawn_level` answers a similar question, but not here: it needs
--- the emerge manager, which is initialised after every mod has run, and until
--- then it returns 1 and writes an error to the log. (B50)
+-- Read rather than assumed, because a server owner may change it, and it comes
+-- back as a string. The 128 guards a nil the engine should never return; it is
+-- the game's own default, not the engine's 8.
 local ground = tonumber(minetest.get_mapgen_setting("mgflat_ground_level")) or
                    128
 
-local spawn = minetest.setting_get_pos("static_spawnpoint") or
-                  {x = 0, y = ground + 1, z = 0}
+local tries, reach = 8, 32
 
--- The three nodes the spawn fallback lands in: the one the player stands on, and
--- the two their body occupies. Rounded because a server owner's
--- static_spawnpoint need not sit on node centres, while a node position is an
--- integer.
-local feet = vector.round(spawn)
-local head = {x = feet.x, y = feet.y + 1, z = feet.z}
-local below = {x = feet.x, y = feet.y - 1, z = feet.z}
-local body = {feet, head}
-
--- Whether the node at `pos` would hold a player up: true, false, or nil when the
--- map cannot answer -- an unloaded block, an `ignore` left inside a loaded one,
--- or a node nothing registers. `minetest.get_node` is no use here, because it
--- reports `ignore` for an unloaded block and that reads as an ordinary solid
--- node, so a repair would be skipped on exactly the tick that needs it. (B50)
---
--- Every caller tests against `true` or `false` and never for truthiness, for two
--- reasons. `walkable` defaults to true and node definitions leave it out, so the
--- field is `nil` on an ordinary solid node such as cc_mapgen:dirt. And an
--- unanswerable node has to count as unusable in *both* directions: it cannot be
--- relied on to hold the player, and it cannot be assumed to be clear.
-local function walkable(pos)
-    local node = minetest.get_node_or_nil(pos)
-    if not node or node.name == "ignore" then return nil end
-    local def = minetest.registered_nodes[node.name]
-    if not def then return nil end
-    return def.walkable ~= false
+-- `pos` rounded to a node and moved inside the wall, which stands on the
+-- outermost columns, so one node in from each.
+local function inside(pos)
+    local at = vector.round(pos)
+    at.x = math.min(math.max(at.x, world_min.x + 1), world_max.x - 1)
+    at.z = math.min(math.max(at.z, world_min.z + 1), world_max.z - 1)
+    return at
 end
 
--- The fallback destination, made standable. The rescue is the one rule in this
--- mod that writes to the map -- every other one denies -- and it has to be,
--- because a destination is only a rescue if the player can stand in it, and a
--- program is free to have made the spawn column anything at all. Carve the floor
--- away under spawn and an unrepaired rescue drops the player straight back
--- through it four times a second, airborne throughout so they can never walk
--- out; build a solid node there instead and they are moved inside it, which with
--- damage off has no way out at all. So the ground is restored one node under
--- spawn and the two nodes the player occupies are cleared. Because the node
--- written is bedrock, this terminates whatever the program carved. (B50)
---
--- Clearing is right here and wrong in standing_pos below: this destination is
--- fixed, so there is nothing to do but make room for the player, while a column
--- always has somewhere higher to look.
-local function repair_spawn()
-    -- The ground has to arrive before the player does, and both reads and every
-    -- write need the blocks resident: `minetest.set_node` into a mapblock that
-    -- is not in memory silently does nothing. `load_area` is synchronous and
-    -- does not run mapgen, which is enough here -- the spawn column has been
-    -- generated since the world's first join.
-    minetest.load_area(below, head)
+-- Whether the node at `pos` is solid. An unloaded or never generated one is
+-- not: nothing can have been built there. `minetest.get_node` would report
+-- `ignore` for it, so `get_node_or_nil`. (B50)
+local function solid_at(pos)
+    local node = minetest.get_node_or_nil(pos)
+    return node ~= nil and solid[minetest.get_content_id(node.name)] == true
+end
 
-    if walkable(below) ~= true then
-        minetest.set_node(below, {name = "cc_mapgen:bedrock"})
-    end
-
-    for _, pos in ipairs(body) do
-        if walkable(pos) ~= false then
-            minetest.set_node(pos, {name = "air"})
+-- The node above the highest solid one in the mapblock whose lowest corner is
+-- `minp`, or nil when it holds none.
+local function block_top(minp)
+    local maxp = vector.add(minp, 15)
+    local vm = minetest.get_voxel_manip(minp, maxp)
+    local emin, emax = vm:get_emerged_area()
+    local area = VoxelArea:new({MinEdge = emin, MaxEdge = emax})
+    local data = vm:get_data()
+    for y = maxp.y, minp.y, -1 do
+        for z = minp.z, maxp.z do
+            local i = area:index(minp.x, y, z)
+            for x = minp.x, maxp.x do
+                if solid[data[i]] then return {x = x, y = y + 1, z = z} end
+                i = i + 1
+            end
         end
     end
 end
 
--- How far up a column a rescue looks for room to stand: the mapgen surface,
--- which is dirt under one layer of grass to mgflat_ground_level, plus 64 nodes
--- of whatever a program has built on top of it, and never past the top of the
--- world. It is also the height of the column load_area pulls into memory --
--- thirteen mapblocks, a little over 200 kB, with the surface at 128. A player
--- whose own column is solid the whole way up goes to spawn instead: that is
--- what the bound trades away, and the spawn path is the one that cannot fail.
-local scan_top = math.min(ground + 64, world_max.y - 1)
-
--- Where to put a player who has left the world box: their own column, made
--- standable. nil when nothing in it fits them. (B50)
---
--- This restores the floor plane, which the rescue deliberately did not do
--- before, and so accepts leaving a player at the bottom of a shaft a program
--- dug. That is acceptable in this game and would not be in another: a player
--- standing in a shaft can point the drone at its wall and program their way out,
--- which a player falling out of the bottom of the world cannot. Nothing is
--- cleared to make room either -- the scan moves the player up instead, so the
--- rescue destroys nothing a program placed.
-local function standing_pos(p)
-    -- The wall stands *on* world_min.x and world_max.x, so the innermost
-    -- standable column is one node in from each. A player who only fell through
-    -- the floor is already inside, and the clamp leaves their column alone.
-    local at = vector.round(p)
-    local x = math.min(math.max(at.x, world_min.x + 1), world_max.x - 1)
-    local z = math.min(math.max(at.z, world_min.z + 1), world_max.z - 1)
-
-    -- Everything read below, and the one node written, have to be resident:
-    -- minetest.set_node into a mapblock that is not in memory silently does
-    -- nothing, and get_node_or_nil answers nil for one. load_area is
-    -- synchronous, where emerge_area would let the player arrive before the
-    -- ground; it does not run mapgen, which is enough, since a column a player
-    -- reached has been generated.
-    local floor = {x = x, y = 0, z = z}
-    minetest.load_area(floor, {x = x, y = scan_top + 1, z = z})
-
-    if walkable(floor) ~= true then
-        minetest.set_node(floor, {name = "cc_mapgen:bedrock"})
+-- Where a player lands in the mapblock column at block coordinates `bx, bz`:
+-- on its highest solid node, or nil when that leaves no room under the top of
+-- the world. The column is read from the top down, and a mapblock that was
+-- never saved costs a lookup and no read. A column never generated at all has
+-- nothing built in it, so the player lands where its ground will be.
+local function column_top(bx, bz)
+    local x, z = bx * 16, bz * 16
+    minetest.load_area({x = x, y = 0, z = z},
+                       {x = x + 15, y = world_max.y, z = z + 15})
+    for by = math.floor(world_max.y / 16), 0, -1 do
+        local minp = {x = x, y = by * 16, z = z}
+        local top = minetest.get_node_or_nil(minp) and block_top(minp)
+        if top then return top.y + 1 <= world_max.y and top or nil end
     end
+    return {x = x + 8, y = ground + 1, z = z + 8}
+end
 
-    -- The first height at which both nodes a player occupies are clear. What
-    -- they land on needs no test of its own: y - 1 is either the floor just made
-    -- whole, or a node that failed this same test one pass earlier, and nothing
-    -- that fails it is something a player falls through. `clear` carries that
-    -- answer forward so each node is read once.
-    local clear = walkable({x = x, y = 1, z = z}) == false
-    for y = 1, scan_top do
-        local above = walkable({x = x, y = y + 1, z = z}) == false
-        if clear and above then return {x = x, y = y, z = z} end
-        clear = above
+-- The top of a build near `at`, or nil when none of the columns drawn has
+-- room. Each band is twice as far out as the one before.
+local function nearby_top(at)
+    local tried, near, far = {}, 0, reach
+    for _ = 1, 3 do
+        for _ = 1, tries do
+            local r = near + math.random() * (far - near)
+            local a = math.random() * 2 * math.pi
+            local p = inside({
+                x = at.x + r * math.cos(a),
+                y = at.y,
+                z = at.z + r * math.sin(a)
+            })
+            local bx, bz = math.floor(p.x / 16), math.floor(p.z / 16)
+            local key = bx .. " " .. bz
+            local top = not tried[key] and column_top(bx, bz)
+            tried[key] = true
+            if top then return top end
+        end
+        near, far = far, far * 2
     end
+end
+
+-- The last resort for a fallen player: a 3 by 3 bedrock platform under where
+-- they are, inside the world box, and the two nodes their body takes cleared.
+-- `set_node` into a mapblock not in memory silently does nothing, so the area
+-- is loaded first; `load_area` is synchronous, where `emerge_area` would let the
+-- player arrive before the ground. (B50)
+local function platform(pos)
+    local at = inside(pos)
+    at.y = math.min(math.max(at.y, 1), world_max.y - 2)
+    minetest.load_area(vector.subtract(at, 1), vector.add(at, 1))
+    for x = at.x - 1, at.x + 1 do
+        for z = at.z - 1, at.z + 1 do
+            local p = {x = x, y = at.y - 1, z = z}
+            if not solid_at(p) then
+                minetest.set_node(p, {name = "cc_mapgen:bedrock"})
+            end
+        end
+    end
+    for y = at.y, at.y + 1 do
+        local p = {x = at.x, y = y, z = at.z}
+        if solid_at(p) then minetest.remove_node(p) end
+    end
+    return at
+end
+
+-- The last resort for a buried player: every node of the mapblocks around their
+-- feet and head turned to air, except the floor and the wall.
+local function carve(at)
+    local minp = vector.multiply(vector.floor(vector.divide(at, 16)), 16)
+    local maxp = {
+        x = minp.x + 15,
+        y = math.floor((at.y + 1) / 16) * 16 + 15,
+        z = minp.z + 15
+    }
+    local vm = minetest.get_voxel_manip(minp, maxp)
+    local data = vm:get_data()
+    local air = minetest.get_content_id("air")
+    local kept = {
+        [minetest.get_content_id("cc_mapgen:bedrock")] = true,
+        [minetest.get_content_id("cc_mapgen:barrier")] = true
+    }
+    for i = 1, #data do
+        if not kept[data[i]] then data[i] = air end
+    end
+    vm:set_data(data)
+    vm:write_to_map(true)
+end
+
+-- Gets a player out of a build, for /codecube saveme. Answers nil when nothing
+-- solid is where they stand or anywhere above them, "moved" when they were put
+-- on a build nearby, and "carved" when there was none to put them on.
+function cc_security.unbury(player)
+    local at = vector.round(player:get_pos())
+    minetest.load_area(at, {x = at.x, y = world_max.y, z = at.z})
+    local y = at.y
+    while y <= world_max.y and not solid_at({x = at.x, y = y, z = at.z}) do
+        -- A mapblock not in memory was never saved: skip the rest of it.
+        local loaded = minetest.get_node_or_nil({x = at.x, y = y, z = at.z})
+        y = loaded and y + 1 or (math.floor(y / 16) + 1) * 16
+    end
+    if y > world_max.y then return nil end
+
+    local dest = nearby_top(at)
+    if dest then
+        player:set_pos(dest)
+        return "moved"
+    end
+    carve(at)
+    return "carved"
 end
 
 -- Four times a second, not every server step for every player: a fall crosses
@@ -277,14 +307,7 @@ minetest.register_globalstep(function(dtime)
         local outside = p.y < 0 or p.x < world_min.x or p.x > world_max.x or
                             p.z < world_min.z or p.z > world_max.z
         if outside then
-            -- In place first; spawn is the fallback, and the only destination
-            -- guaranteed to be standable, because repair_spawn makes it so.
-            local dest = standing_pos(p)
-            if not dest then
-                repair_spawn()
-                dest = spawn
-            end
-            player:set_pos(dest)
+            player:set_pos(nearby_top(inside(p)) or platform(p))
         end
     end
 end)

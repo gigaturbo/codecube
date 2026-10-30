@@ -33,7 +33,7 @@ read_globals = {
     "ValueNoise", "ValueNoiseMap", "SecureRandom", "Settings", "AreaStore",
     "Raycast", "ItemStackMetaRef", "DEFAULT_ALLOW_MOVE", "INIT",
     -- published by mods this game ships
-    "codeblock", "vector3"
+    "codeblock", "vector3", "cc_security"
 }
 
 exclude_files = {
@@ -54,5 +54,7 @@ files["mods/cc_security/**"] = {
     -- was really pointing at -- that the replacement is discarded by whatever
     -- loads next -- is fixed instead by `last_mod = cc_security` in game.conf,
     -- and the drop handler now chains the value it captured. (A8)
-    ignore = {"122"}
+    ignore = {"122"},
+    -- the one table this mod publishes, for cc_commands
+    globals = {"cc_security"}
 }

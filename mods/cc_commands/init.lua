@@ -79,16 +79,22 @@ minetest.register_privilege("newplace", {
     description = "Can move to a fresh place to build with /codecube newplace"
 })
 
-local granted_key = "cc_commands:newplace_granted"
+-- The privileges every player is given once, each remembered on its own so one
+-- added later still reaches players who joined before it.
+local granted_once = {"newplace", "saveme"}
 
 minetest.register_on_joinplayer(function(player)
     local meta = player:get_meta()
-    if meta:get_int(granted_key) == 1 then return end
     local name = player:get_player_name()
     local privs = minetest.get_player_privs(name)
-    privs.newplace = true
+    for _, priv in ipairs(granted_once) do
+        local key = "cc_commands:" .. priv .. "_granted"
+        if meta:get_int(key) ~= 1 then
+            privs[priv] = true
+            meta:set_int(key, 1)
+        end
+    end
     minetest.set_player_privs(name, privs)
-    meta:set_int(granted_key, 1)
 end)
 
 local last_newplace = {}
@@ -117,6 +123,43 @@ subcommands.newplace = {
         })
         last_newplace[caller] = now
         return true, "Moved to a fresh place."
+    end
+}
+
+-- A way out for a player walled in by a program's build, who cannot dig. Where
+-- they land is cc_security's, which owns the rescue from the void too: on top
+-- of a build nearby, or, when there is none, the mapblock around them carved
+-- out.
+--
+-- It needs the `saveme` privilege, given once like `newplace`, and works once a
+-- second per player.
+minetest.register_privilege("saveme", {
+    description = "Can climb out of a build with /codecube saveme"
+})
+
+local last_saveme = {}
+local unburied = {
+    moved = "Moved on top of a build nearby.",
+    carved = "No build nearby to stand on, so the blocks around you were cleared."
+}
+
+subcommands.saveme = {
+    params = "",
+    privs = {saveme = true},
+    run = function(caller)
+        local now = minetest.get_us_time() / 1e6
+        if now - (last_saveme[caller] or -math.huge) < 1 then
+            return false, "Wait a moment before asking again."
+        end
+        local player = minetest.get_player_by_name(caller)
+        if not player then return false, "You are not in the world." end
+        local outcome = cc_security.unbury(player)
+        if not outcome then
+            return false, "Nothing is built above you. " ..
+                       "/codecube newplace moves you somewhere fresh."
+        end
+        last_saveme[caller] = now
+        return true, unburied[outcome]
     end
 }
 

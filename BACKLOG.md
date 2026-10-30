@@ -38,17 +38,6 @@ Nothing open.
 
 ## Features
 
-### F-N-3 · a player buried in a program's build can get out
-
-`todo` `medium` `filed 2026-09-23` `target: v2.1.0`
-
-A `/codecube saveme` subcommand in `cc_commands` for a player walled in by
-generated nodes, who cannot dig out because nothing is diggable. Still to
-decide: where the player lands (the first free space above, the nearest free
-space, or the surface of the column), and how it shares the `cc_security`
-rescue that already finds a standable spot in a column without duplicating it
-or making one mod reach into the other.
-
 ### F-I-1 · a panel lists the player's commands
 
 `todo` `medium` `filed 2026-09-23` `target: v2.1.0`
@@ -70,17 +59,47 @@ the commands like it without typing. Still to decide: which commands, how one is
 chosen (a click, a punch and a place, or a small menu), and whether the tool is
 handed out on join or taken from the creative inventory like codeblock's.
 
+### F-M-1 · the game adopts the latest CodeBlock release
+
+`todo` `medium` `filed 2026-10-02` `target: v2.1.0`
+
+Move `mods/codeblock` from `v1.0.0` to CodeBlock's next release, `v2.0.0`,
+dated in its changelog but not tagged yet, following `codecube-kb`'s
+`references/release.md`. Its changelog leads with breaking changes to colour
+names, and the release gate makes a game release adopting a breaking one major,
+so the `v2.1.0` target is still to settle. It also adds
+`codeblock_wait_for_mapgen`, which this game's world, generated on demand,
+leaves on.
+
 ## Tests
 
-### T-N-2 · spreadplayers sends a class to fresh plots
+### T-N-3 · saveme gets a player out of a build
 
 `todo` `playtest`
 
-Never run. With three or more players online: `random` and `spaced` each move
-everyone but the caller onto bare grass, `spaced` puts them far apart, a name,
-a `student_*` glob and a `-name` exclusion each choose the right players, a
-second spread never lands anyone on a plot used by the first, a plot built on
-by hand is skipped, and a player without `spreadplayers` is refused.
+Never run. Run `/codecube saveme` sealed in a box the drone built around you
+and land on top of a build within 128 nodes, your own box's roof included,
+never inside one; run it three times and land in different places; with
+nothing above you and get the `newplace` hint without moving; twice inside a
+second and be told to wait. A player who joined before this commit holds
+`saveme` after a rejoin, keeps `newplace`, and stays without `saveme` across a
+rejoin once revoked.
+
+### W8 · a player who falls through a program-made hole is put back
+
+`todo` `playtest`
+
+Last passed 2026-09-07 at `60259dd`, when the rescue kept the player in their
+own column. It now lands them on a build nearby, and the recipe is rewritten
+for that.
+
+### W9 · the place the rescue puts you is a place you can stand
+
+`todo` `playtest`
+
+Last passed 2026-09-07 at `60259dd` against the own-column scan and the spawn
+fallback, both gone. Rewritten as three cases: out through the wall, beside a
+build, and far from anything generated.
 
 ### P3 · the boot log is clean
 
@@ -160,6 +179,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### Features
 
+- `F-N-3` done `medium` · a player holding `saveme`, granted to each player once on their first join and revocable for good after that, climbs out of a build with `/codecube saveme`, once a second. They land on top of a build nearby, the highest node of a mapblock column drawn at random within 32, 64 then 128 nodes, and the mapblocks around them are carved to air only when no column drawn has room. The rescue from the void uses the same search, with a bedrock platform under the player as its last resort, and no longer keeps them in their own column or falls back to spawn
 - `F-N-2` done `large` · a player holding `spreadplayers` sends players to plots of `codecube_plot_size` nodes with `/codecube spreadplayers <random|spaced>`, everyone online but the caller or the players named, `*` globs and `-` exclusions. The 100 by 100 core of every plot used, and of every spot a player stood on at a spread, is recorded in mod storage and never handed out again, and a core found built is recorded and swapped for another
 - `F-N-1` done `medium` · a player holding `newplace`, granted to each player once on their first join and revocable for good after that, moves to a random column of the surface with `/codecube newplace`, at least 500 nodes from the wall or a tenth of the world's width when that is less, once per `codecube_newplace_cooldown` seconds unless they hold `server`
 - `F-V-1` done `small` · a player holding `server` sets anyone's speed with `/codecube speed <slow|normal|fast|fastest> [<player>]`, one `speed` physics multiplier of 2, 2.5, 3 or 3.5 over walking, fast mode and flight, kept in the player's metadata. A player never given one moves at `normal`, and even `slow` is twice the engine's speed and the old default
@@ -178,8 +198,9 @@ whoever re-runs it knows what they are re-reading against.
 
 ### In-world checks
 
-- `T-N-1` done `playtest` 2026-10-01 `2c5342e` Luanti 5.17.0 · newplace lands a player on fresh grass well inside the wall, refuses a second use inside the cooldown with the seconds left except to `server`, stays revoked from a non-admin across a rejoin, and `/codecube` lists only what the caller may run
-- `T-V-1` done `playtest` 2026-10-01 `df84ec8` Luanti 5.17.0 · a fresh player moves at `normal`, each of the four speed levels changes walking, fast mode and flight, a player without `server` is refused, and a level survives a rejoin
+- `T-N-2` done `playtest` 2026-10-02 `871aa60` Luanti 5.17.0 · `random` and `spaced` each move everyone but the caller onto bare grass, `spaced` puts them far apart, a name, a `student_*` glob and a `-name` exclusion each choose the right players, a second spread never lands anyone on a plot used by the first, a plot built on by hand is skipped, and a player without `spreadplayers` is refused
+- `T-N-1` done `playtest` 2026-10-02 `871aa60` Luanti 5.17.0 · newplace lands a player on fresh grass well inside the wall, refuses a second use inside the cooldown with the seconds left except to `server`, stays revoked from a non-admin across a rejoin, and `/codecube` lists only what the caller may run
+- `T-V-1` done `playtest` 2026-10-02 `871aa60` Luanti 5.17.0 · a fresh player moves at `normal`, each of the four speed levels changes walking, fast mode and flight, a player without `server` is refused, and a level survives a rejoin
 - `W1` done `playtest` 2026-09-01 · a new world is flat and clean at spawn
 - `W2` done `playtest` 2026-09-01 · the mapgen flags survive a world that was created with others
 - `W3` done `playtest` 2026-09-01 · the world is flat far from spawn, and far from where anyone has been
@@ -187,13 +208,11 @@ whoever re-runs it knows what they are re-reading against.
 - `W5` done `playtest` 2026-09-07 · the wall stands, full height, all the way along
 - `W6` done `playtest` 2026-09-07 · the drone's bound followed the number
 - `W7` done `playtest` 2026-09-07 · an existing world is re-bounded
-- `W8` done `playtest` 2026-09-07 · a player who falls through a program-made hole is put back
-- `W9` done `playtest` 2026-09-07 · the place the rescue puts you is a place you can stand
 - `W10` done `playtest` 2026-09-08 · the wall is a barrier you can see through, and still a wall
 - `W11` done `playtest` 2026-09-22 · the floor and the wall are the game's own artwork, and the floor does not tile
 - `W12` done `playtest` 2026-09-08 · a new world puts you 128 nodes above the floor
 - `W13` done `playtest` 2026-09-08 · an existing world's surface moves to 128 when you open it
-- `W14` done `playtest` 2026-09-08 · the rescue still knows where the surface is
+- `W14` done `playtest` 2026-09-08 · the rescue still knows where the surface is · retired 2026-10-02 with the spawn fallback it checked
 - `W15` done `playtest` 2026-09-09 · the surface is one layer of grass over dirt, at the right height
 - `W16` done `playtest` 2026-09-09 · no node in the world is unknown, anywhere in the column
 - `L1` done `playtest` 2026-09-01 · permanent noon, no sky objects

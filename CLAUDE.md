@@ -14,8 +14,8 @@ game is a *consumer of its releases*. What the game contributes is the setting
 and the fit: a flat world, permanent day, build restrictions, the settings a
 server owner wants, and a presentation that makes the programming pleasant.
 
-**The game's own code is 444 lines of Lua in six files.** Re-derive that rather
-than trusting it: `grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l`.
+**The game's own code is a few hundred lines of Lua in six files.** Count it
+with `grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l`.
 
 ## Layout
 
@@ -30,8 +30,9 @@ than trusting it: `grep -hvE '^[[:space:]]*(--.*)?$' mods/cc_*/*.lua | wc -l`.
   and the rescue that puts one back inside the world box.
 - [mods/cc_commands/](mods/cc_commands/) the game's own chat commands, all
   under `/codecube <subcommand>`: `speed`, how fast a player moves,
-  `newplace`, a move to a fresh place to build, and `spreadplayers`, which
-  sends a class to plots never built on before.
+  `newplace`, a move to a fresh place to build, `saveme`, a way out of a
+  build, and `spreadplayers`, which sends a class to plots never built on
+  before.
 - `mods/codeblock`, `mods/vector3` **submodules: pinned dependencies, not
   working copies.** Do not edit, commit to, or lint them from this tree.
 - [scripts/](scripts/) the game's own check, the `.cdb.json` generator and the
@@ -62,8 +63,10 @@ and `cc_mapgen:barrier` is a translucent wall at the outermost generated column.
 The world's size is `mapgen_limit` and its depth is `mgflat_ground_level`, both
 forced onto the world because the engine stores every mapgen setting per world.
 
-**`cc_security` denies, with one exception.** The rescue that puts a player back
-inside the world box is the only place this game writes to the map.
+**`cc_security` denies, with one exception.** Once a map block is generated,
+the rescue is the only thing in this game that changes it: it puts a player
+who left the world box, or who asks with `/codecube saveme`, on a build
+nearby, and writes only when there is none.
 
 **`cc_day` and `cc_gui` are the look**: a plain sky immune to the time of day,
 one formspec prepend and two hotbar images.
@@ -94,8 +97,7 @@ wsl bash -lc 'luacheck mods/cc_*/ --formatter plain --codes'
 ```
 
 **Use the glob, never a list of mod names.** It is what CI lints, so the two
-cannot disagree about which mods exist; a hardcoded list is how `cc_gui` shipped
-unlinted.
+cannot disagree about which mods exist.
 
 ```powershell
 bash scripts/gen_cdb_json.sh     # after a CONTENTDB.md edit; check_game.sh diffs it
