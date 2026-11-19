@@ -75,11 +75,15 @@ local dig_groups = {
 -- `walkable` defaults to true and definitions leave it out, so the test is
 -- against `false`: a truthiness test would read every ordinary node as
 -- walk-through. (B50)
+-- The barrier is left out: every mapblock column at the edge holds a wall
+-- column, whose top is wherever generation has reached, so counting it would
+-- land a player on the wall and then inside it. (B-W-1)
 local solid = {}
 
 minetest.register_on_mods_loaded(function()
     for name, def in pairs(minetest.registered_nodes) do
-        solid[minetest.get_content_id(name)] = def.walkable ~= false or nil
+        solid[minetest.get_content_id(name)] =
+            def.walkable ~= false and name ~= "cc_mapgen:barrier" or nil
         local groups = {}
         for group, value in pairs(def.groups or {}) do
             if not dig_groups[group] then groups[group] = value end

@@ -36,17 +36,7 @@ in-world check recipes are in its `references/playtests.md`.
 
 ## Bugs
 
-### B-W-1 · the rescue near the wall puts a player on top of the wall
-
-`todo` `medium` `filed 2026-11-19`
-
-A player who leaves through a gap in the wall is put on top of the barrier,
-at `(4047, 288, -16)` from `(4050, 129, 0)` in a scripted run, and then stands
-inside the wall once the mapchunk above generates. `cc_security`'s `solid`
-table counts `cc_mapgen:barrier` as something to stand on, and every mapblock
-column at the edge holds a wall column, whose top is wherever generation has
-reached so far. `saveme` near the wall would draw the same columns. Fails
-`W9` case 1.
+Nothing open.
 
 ## Features
 
@@ -98,16 +88,6 @@ player; a second call inside a second is told to wait. **Not run**: a player who
 joined before `F-N-3` holds `saveme` after a rejoin, and a revoked one stays
 revoked.
 
-### W9 · the place the rescue puts you is a place you can stand
-
-`todo` `playtest` `blocks: B-W-1`
-
-Fail at `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted, 2026-11-19. Case 1, out through the wall, lands the
-player on top of the wall (`B-W-1`). Case 2 passed: three falls beside a
-20 by 30 cube, two on its roof at `y = 158.5` and one on the grass, never inside.
-Case 3 passed: from below the floor far from anything generated, on the grass at
-`128.5`.
-
 ### P4 · the main menu presents the game
 
 `todo` `playtest`
@@ -133,6 +113,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### Bugs and findings
 
+- `B-W-1` closed `medium` · the rescue near the wall put a player on top of the barrier, then inside it once the mapchunk above generated. **Fixed by** leaving `cc_mapgen:barrier` out of `cc_security`'s `solid` table
 - `A20` wontfix `medium` · `A13`'s deletion took the hand's groupcaps with it, so nothing is hand-diggable and the digging restriction is unfalsifiable without a setup. Decided 2026-09-09: the condition is real and permanent, the author declined the only fix on the merits, and the obligation is discharged because `R1` ran falsifiably under a temporary hand override and passed. **Not outstanding work**
 - `A8` wontfix `medium` · the every-node `on_mods_loaded` walk stays, and `last_mod` is untested by choice. Decided 2026-09-09: *the case of another mod in this game is not actual*. Its drop-chain half is confirmed by `R2` at `dd83b99`, and no source changed for the decision
 
@@ -180,6 +161,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### In-world checks
 
+- `W9` done `playtest` 2026-11-19 with the `B-W-1` fix in the working tree over `0fdd732`, Luanti 5.17.0, scripted · out through a gap in the wall lands on the grass at `128.5` inside it; three falls beside a cube land twice on its roof and once on the grass, never inside; from below the floor far from anything generated, on the grass at `128.5`
 - `R9` done `playtest` 2026-11-19 `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted · twenty blocks in five colours and four materials, five distinct solid colours, every lamp lighting its neighbour to 13 at night, the `air` run removing all twenty; `colors.vermilion` and `'vermilion'` each stop the program and place nothing; `'red'` is the same node as `colors.red`; a `v1.0.0` solid block becomes a palette colour once a player is near it. Not seen by eye: the colours, the tint
 - `R4` done `playtest` 2026-11-19 `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted · `stairs.lua` completes and builds its ten bricks, and the `R9` programs place and remove normally
 - `W8` done `playtest` 2026-11-19 `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted · a fall through a removed floor tile is rescued once, onto the grass at `128.5`, with no platform built; standing on the exposed floor at `0.5` and beside the wall moves no one
