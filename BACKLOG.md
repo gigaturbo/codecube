@@ -36,7 +36,17 @@ in-world check recipes are in its `references/playtests.md`.
 
 ## Bugs
 
-Nothing open.
+### B-W-1 · the rescue near the wall puts a player on top of the wall
+
+`todo` `medium` `filed 2026-11-19`
+
+A player who leaves through a gap in the wall is put on top of the barrier,
+at `(4047, 288, -16)` from `(4050, 129, 0)` in a scripted run, and then stands
+inside the wall once the mapchunk above generates. `cc_security`'s `solid`
+table counts `cc_mapgen:barrier` as something to stand on, and every mapblock
+column at the edge holds a wall column, whose top is wherever generation has
+reached so far. `saveme` near the wall would draw the same columns. Fails
+`W9` case 1.
 
 ## Features
 
@@ -68,8 +78,8 @@ handed out on join or taken from the creative inventory like codeblock's.
 ContentDB's Git update detection is disabled for every package (seen
 2026-11-19 on CodeBlock's v2.0.0), so a tag publishes nothing and the release
 webhook may not either. Before tagging: `CONTENTDB.md`'s *Recent changes* for
-v3.0.0, and `CHANGELOG.md`'s entry completed with `F-N-1` to `F-N-3` and
-whatever else ships. After tagging, if the tag did not publish: upload a zip
+v3.0.0, `CHANGELOG.md`'s entry checked against whatever else ships, and `P1`
+re-run at the tag. After tagging, if the tag did not publish: upload a zip
 built with both submodules filled in, as `codecube-kb`'s `references/release.md`
 describes, paste `CONTENTDB.md` into *Edit details*, and compare the live long
 description with `.cdb.json`.
@@ -78,39 +88,25 @@ description with `.cdb.json`.
 
 ### T-N-3 · saveme gets a player out of a build
 
-`todo` `playtest`
+`todo` `playtest` `partial`
 
-Never run. Run `/codecube saveme` sealed in a box the drone built around you
-and land on top of a build within 128 nodes, your own box's roof included,
-never inside one; run it three times and land in different places; with
-nothing above you and get the `newplace` hint without moving; twice inside a
-second and be told to wait. A player who joined before this commit holds
-`saveme` after a rejoin, keeps `newplace`, and stays without `saveme` across a
-rejoin once revoked.
-
-### W8 · a player who falls through a program-made hole is put back
-
-`todo` `playtest`
-
-Last passed 2026-09-07 at `60259dd`, when the rescue kept the player in their
-own column. It now lands them on a build nearby, and the recipe is rewritten
-for that.
+Partial at `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted, 2026-11-19. Passed: sealed in a box, three runs
+land on top of a build or the grass, never inside, at two different places out of
+three (the box's own roof twice, since one mapblock column always answers the same
+node); on open ground it answers with the `newplace` hint and does not move the
+player; a second call inside a second is told to wait. **Not run**: a player who
+joined before `F-N-3` holds `saveme` after a rejoin, and a revoked one stays
+revoked.
 
 ### W9 · the place the rescue puts you is a place you can stand
 
-`todo` `playtest`
+`todo` `playtest` `blocks: B-W-1`
 
-Last passed 2026-09-07 at `60259dd` against the own-column scan and the spawn
-fallback, both gone. Rewritten as three cases: out through the wall, beside a
-build, and far from anything generated.
-
-### P3 · the boot log is clean
-
-`todo` `playtest` `blocks: B19` `blocks: B24`
-
-Never run. **One sitting closes both `B19` and `B24`**, which are resolved in
-code at `e51f969` and unverified in a world, and this is the only thing that can
-close them. The game has no test suite, so nothing else reaches it.
+Fail at `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted, 2026-11-19. Case 1, out through the wall, lands the
+player on top of the wall (`B-W-1`). Case 2 passed: three falls beside a
+20 by 30 cube, two on its roof at `y = 158.5` and one on the grass, never inside.
+Case 3 passed: from below the floor far from anything generated, on the grass at
+`128.5`.
 
 ### P4 · the main menu presents the game
 
@@ -126,40 +122,6 @@ a world: the name, the description, the cover and the menu artwork.
 Never run, and runnable since the 2026-09-23 upload. Nothing in this repository
 can see the rendered result, so ContentDB's own rules are the only test and the
 published page is the only reading.
-
-### P7 · a new player can get the drone tools at all
-
-`todo` `playtest`
-
-Never run. The mod stopped handing its two tools out on join at its `F10`, so a
-player now takes them from the creative inventory or runs `/codeblock tools`.
-**This is the game's check, not the mod's**: what it reads is whether a player
-who installs *this package* and starts a world can reach the drone at all.
-
-### R4 · the drone can still build
-
-`todo` `playtest` `target: v3.0.0`
-
-Last passed 2026-09-01 against CodeBlock before `v1.0.0`. Owed again at CodeBlock
-`v2.0.0`, which waits for the mapgen before a write and changed how a carve
-meets the game's grass and dirt.
-
-### R9 · the drone places and removes CodeBlock's own blocks, and nothing else exists
-
-`todo` `playtest` `target: v3.0.0`
-
-Last passed 2026-09-09 at `dd83b99`. Owed again at CodeBlock `v2.0.0`, whose
-3930-colour palette replaces the 35 solid blocks and converts old ones as their
-area loads.
-
-### P1 · a fresh recursive clone boots
-
-`todo` `playtest` `partial` `target: v2.0.0`
-
-Carries a partial from `7f649d8` on 2026-09-01: the clone half ran, the boot
-half did not.
-
-**Do:** re-run the boot half against the release tag.
 
 ## Closed
 
@@ -218,6 +180,12 @@ whoever re-runs it knows what they are re-reading against.
 
 ### In-world checks
 
+- `R9` done `playtest` 2026-11-19 `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted · twenty blocks in five colours and four materials, five distinct solid colours, every lamp lighting its neighbour to 13 at night, the `air` run removing all twenty; `colors.vermilion` and `'vermilion'` each stop the program and place nothing; `'red'` is the same node as `colors.red`; a `v1.0.0` solid block becomes a palette colour once a player is near it. Not seen by eye: the colours, the tint
+- `R4` done `playtest` 2026-11-19 `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted · `stairs.lua` completes and builds its ten bricks, and the `R9` programs place and remove normally
+- `W8` done `playtest` 2026-11-19 `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted · a fall through a removed floor tile is rescued once, onto the grass at `128.5`, with no platform built; standing on the exposed floor at `0.5` and beside the wall moves no one
+- `P7` done `playtest` 2026-11-19 `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted · a new player gets the drone placer and setter from `/codeblock tools`. The creative inventory route not read
+- `P3` done `playtest` 2026-11-19 `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted · no warning or error from the game in the server's or the client's log, from a cold start. The engine's own *No SHA256 known for builtin file* notes appear in every game on this install and are not the game's
+- `P1` done `playtest` 2026-11-19 `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted · a recursive clone fetched both submodules from GitHub at `39e579b` and `fc8a5b8`, `check_game.sh` passed inside it, the server booted from it and a client entered the world. Owed again at the `v3.0.0` tag
 - `T-N-2` done `playtest` 2026-10-02 `871aa60` Luanti 5.17.0 · `random` and `spaced` each move everyone but the caller onto bare grass, `spaced` puts them far apart, a name, a `student_*` glob and a `-name` exclusion each choose the right players, a second spread never lands anyone on a plot used by the first, a plot built on by hand is skipped, and a player without `spreadplayers` is refused
 - `T-N-1` done `playtest` 2026-10-02 `871aa60` Luanti 5.17.0 · newplace lands a player on fresh grass well inside the wall, refuses a second use inside the cooldown with the seconds left except to `server`, stays revoked from a non-admin across a rejoin, and `/codecube` lists only what the caller may run
 - `T-V-1` done `playtest` 2026-10-02 `871aa60` Luanti 5.17.0 · a fresh player moves at `normal`, each of the four speed levels changes walking, fast mode and flight, a player without `server` is refused, and a level survives a rejoin
