@@ -14,11 +14,18 @@ for the full list.
 
 ## Added
 
+- [x] **`/codecube newplace`** moves you to a random place on the surface, well away from the wall, to start a fresh build. It has a cooldown, `codecube_newplace_cooldown`, 60 seconds by default, which a player holding `server` skips
+- [x] **`/codecube saveme`** gets you out when a build has walled you in. You land on top of a build nearby, and only when none has room does the game carve the space around you. It works once a second
+- [x] **`/codecube spreadplayers <random|spaced>`** sends a class to plots of their own, everyone online but the caller or only the players named, with `*` patterns and `-name` exclusions. A plot is never handed out twice, and one found built on is skipped. Its size is `codecube_plot_size`, 300 nodes by default. It needs the `spreadplayers` privilege
+- [x] **`/codecube speed <slow|normal|fast|fastest> [<player>]`** sets how fast a player walks, runs and flies, from twice the engine's speed up to three and a half times. It needs `server`, and the level is kept across a rejoin
+- [x] Every player gets `newplace` and `saveme` on their first join. An admin can revoke either for good. `/codecube` on its own lists only the subcommands you may run
 - [x] 3930 colours, chosen by name, hex, RGB or a perceptual colour space, and the 35 named colours as bricks beside glass and lamps
 - [x] A codelevel limit on how much new map one program may make the server generate
 
 ## Changed
 
+- [x] **A player who falls out of the world lands on a build nearby** instead of at the bottom of the hole they fell through. Only when no build nearby has room does the game put a bedrock platform under them where they are
+- [x] Everyone walks, runs and flies two and a half times faster by default, so crossing a large build takes less time
 - [x] Drones build several times faster, on a share of each server step rather than a fixed time, and a large shape no longer stalls the server
 
 ## Fixed
