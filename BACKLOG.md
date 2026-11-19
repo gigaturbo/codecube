@@ -6,11 +6,11 @@ belongs to **CodeBlock**, an upstream ContentDB package embedded as a submodule,
 and this game is a consumer of its releases. What is left is the world, the
 light, the restrictions, the interface's look and the packaging.
 
-**`v2.0.0` is published on ContentDB**, tagged on `1ca0d2a` on 2026-09-22 with
-CodeBlock `v1.0.0` adopted. **`v3.0.0` is next**: CodeBlock `v2.0.0` is
-adopted and breaks saved programs, so the game's next release is major.
-ContentDB's Git import is disabled for now, so that release goes up by hand
-(`F-P-1`).
+**`v3.0.0` is published on ContentDB**, tagged on `88c08b6` on 2026-11-19 with
+CodeBlock `v2.0.0` adopted. ContentDB's Git import is disabled for now, so a
+release goes up by hand as a zip with both submodules filled in, and
+`CONTENTDB.md` is pasted into the page. `v3.1.0` is next: the command panel and
+the hotbar tool.
 
 **Every id here predates the `B-X-N` scheme and keeps its old form for ever**,
 because commit messages cite them: `B` bugs, `S` sandbox and security, `C`
@@ -60,19 +60,6 @@ A tool in the hotbar beside the drone's two, so a player reaches `newplace` and
 the commands like it without typing. Still to decide: which commands, how one is
 chosen (a click, a punch and a place, or a small menu), and whether the tool is
 handed out on join or taken from the creative inventory like codeblock's.
-
-### F-P-1 · v3.0.0 is published on ContentDB
-
-`todo` `medium` `filed 2026-11-19` `target: v3.0.0`
-
-ContentDB's Git update detection is disabled for every package (seen
-2026-11-19 on CodeBlock's v2.0.0), so a tag publishes nothing and the release
-webhook may not either. Before tagging: `CONTENTDB.md`'s *Recent changes* for
-v3.0.0, `CHANGELOG.md`'s entry checked against whatever else ships, and `P1`
-re-run at the tag. After tagging, if the tag did not publish: upload a zip
-built with both submodules filled in, as `codecube-kb`'s `references/release.md`
-describes, paste `CONTENTDB.md` into *Edit details*, and compare the live long
-description with `.cdb.json`.
 
 ## Tests
 
@@ -131,6 +118,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### Milestones
 
+- `F-P-1` done `medium` `88c08b6` · `v3.0.0` published on ContentDB on 2026-11-19 by hand, with Git import disabled. The zip is 118 files and 2.99 MB, built from a GitHub clone of the tag with both submodules at their pinned releases. The long description was pasted and matches `.cdb.json`
 - `G5` done `large` `1ca0d2a` · CodeBlock `v1.0.0` adopted and `v2.0.0` published on ContentDB on 2026-09-23. The published zip is 94 files and 2.92 MB, with both submodules bundled at the tagged pointers, `menu/` and every `cc_*` texture present, and no dotfile or record document
 - `G8` done `medium` `ba92d52` · the interface got the game's own style: one formspec prepend and two hotbar images in a fourth mod, `cc_gui`, after `A13`'s deletion took Minetest Game's with it
 - `G7` done `medium` `dd83b99` · the world became something to be in: the texture rework, all seven tiles generated from `scripts/gen_textures.py`
