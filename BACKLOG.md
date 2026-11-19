@@ -76,18 +76,6 @@ description with `.cdb.json`.
 
 ## Tests
 
-### T-N-3 · saveme gets a player out of a build
-
-`todo` `playtest` `partial`
-
-Partial at `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted, 2026-11-19. Passed: sealed in a box, three runs
-land on top of a build or the grass, never inside, at two different places out of
-three (the box's own roof twice, since one mapblock column always answers the same
-node); on open ground it answers with the `newplace` hint and does not move the
-player; a second call inside a second is told to wait. **Not run**: a player who
-joined before `F-N-3` holds `saveme` after a rejoin, and a revoked one stays
-revoked.
-
 ### P4 · the main menu presents the game
 
 `todo` `playtest`
@@ -161,6 +149,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### In-world checks
 
+- `T-N-3` done `playtest` 2026-11-19 `29f20e4` Luanti 5.17.0, scripted · sealed in a box, three runs land on top of a build or the grass, never inside, at two different places out of three (one mapblock column always answers the same node); on open ground it gives the `newplace` hint and moves no one; a second call inside a second is told to wait. A player who joined `871aa60`, before `saveme` existed, gets it on rejoining `29f20e4` and keeps `newplace`; once revoked, it stays revoked across a rejoin
 - `W9` done `playtest` 2026-11-19 with the `B-W-1` fix in the working tree over `0fdd732`, Luanti 5.17.0, scripted · out through a gap in the wall lands on the grass at `128.5` inside it; three falls beside a cube land twice on its roof and once on the grass, never inside; from below the floor far from anything generated, on the grass at `128.5`
 - `R9` done `playtest` 2026-11-19 `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted · twenty blocks in five colours and four materials, five distinct solid colours, every lamp lighting its neighbour to 13 at night, the `air` run removing all twenty; `colors.vermilion` and `'vermilion'` each stop the program and place nothing; `'red'` is the same node as `colors.red`; a `v1.0.0` solid block becomes a palette colour once a player is near it. Not seen by eye: the colours, the tint
 - `R4` done `playtest` 2026-11-19 `f5d34a7`, record-only over `d2d629c`, Luanti 5.17.0, scripted · `stairs.lua` completes and builds its ten bricks, and the `R9` programs place and remove normally
