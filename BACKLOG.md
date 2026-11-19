@@ -63,13 +63,7 @@ handed out on join or taken from the creative inventory like codeblock's.
 
 ## Tests
 
-### P5 · the ContentDB page reads as a page
-
-`todo` `playtest` `blocks: C20`
-
-Never run, and runnable since the 2026-09-23 upload. Nothing in this repository
-can see the rendered result, so ContentDB's own rules are the only test and the
-published page is the only reading.
+Nothing open.
 
 ## Closed
 
@@ -130,6 +124,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### In-world checks
 
+- `P5` done `playtest` 2026-11-19 `88c08b6` Luanti 5.17.0 · the published v3.0.0 page reads as a page in a browser and in Luanti's content browser
 - `P4` done `playtest` 2026-11-19 `90d02d1` Luanti 5.17.0 · installed from `git archive` of the commit, the main menu shows the game's icon, header and background
 - `T-N-3` done `playtest` 2026-11-19 `29f20e4` Luanti 5.17.0, scripted · sealed in a box, three runs land on top of a build or the grass, never inside, at two different places out of three (one mapblock column always answers the same node); on open ground it gives the `newplace` hint and moves no one; a second call inside a second is told to wait. A player who joined `871aa60`, before `saveme` existed, gets it on rejoining `29f20e4` and keeps `newplace`; once revoked, it stays revoked across a rejoin
 - `W9` done `playtest` 2026-11-19 with the `B-W-1` fix in the working tree over `0fdd732`, Luanti 5.17.0, scripted · out through a gap in the wall lands on the grass at `128.5` inside it; three falls beside a cube land twice on its roof and once on the grass, never inside; from below the floor far from anything generated, on the grass at `128.5`
