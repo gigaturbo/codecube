@@ -9,7 +9,7 @@ inside Luanti and a flat empty world as a playground: learn to code or give your
   so the server cannot be hurt.
 - **Example programs to discover.** Spirals, fractals, 3D plots and other more artistic examples. Open one and change a number to see what happens.
 - **A control panel.** Every limit with what your program has spent beside it, and pause, resume and stop controls on the drone.
-- **Custom blocks.** Thirty-five named colours with solid, glass and lamp variants.
+- **Custom blocks.** Thousands of colours, chosen by name, hex or RGB, and thirty-five named colours as bricks, glass and lamps.
 - **World limits.** A see-through wall around the world and a bedrock floor with fall protection.
 - **Always day.** No day-night cycle and a clean uniform sky.
 - **Programming only.** Digging and inventory are disabled: every new block in the world was put there by a program.

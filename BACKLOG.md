@@ -7,8 +7,10 @@ and this game is a consumer of its releases. What is left is the world, the
 light, the restrictions, the interface's look and the packaging.
 
 **`v2.0.0` is published on ContentDB**, tagged on `1ca0d2a` on 2026-09-22 with
-CodeBlock `v1.0.0` adopted. A release webhook now fires on each new tag. What is
-left is in-world checks: nothing has been played against the release.
+CodeBlock `v1.0.0` adopted. **`v3.0.0` is next**: CodeBlock `v2.0.0` is
+adopted and breaks saved programs, so the game's next release is major.
+ContentDB's Git import is disabled for now, so that release goes up by hand
+(`F-P-1`).
 
 **Every id here predates the `B-X-N` scheme and keeps its old form for ever**,
 because commit messages cite them: `B` bugs, `S` sandbox and security, `C`
@@ -40,7 +42,7 @@ Nothing open.
 
 ### F-I-1 · a panel lists the player's commands
 
-`todo` `medium` `filed 2026-09-23` `target: v2.1.0`
+`todo` `medium` `filed 2026-09-23` `target: v3.0.0`
 
 A panel exposing at least `saveme` and `newplace`, so a player does not have to
 know the chat syntax. Still to decide: whether it lives in `cc_commands` and
@@ -52,24 +54,25 @@ does.
 
 ### F-I-2 · a hotbar tool runs the most useful commands
 
-`todo` `medium` `filed 2026-10-01`
+`todo` `medium` `filed 2026-10-01` `target: v3.0.0`
 
 A tool in the hotbar beside the drone's two, so a player reaches `newplace` and
 the commands like it without typing. Still to decide: which commands, how one is
 chosen (a click, a punch and a place, or a small menu), and whether the tool is
 handed out on join or taken from the creative inventory like codeblock's.
 
-### F-M-1 · the game adopts the latest CodeBlock release
+### F-P-1 · v3.0.0 is published on ContentDB
 
-`todo` `medium` `filed 2026-10-02` `target: v2.1.0`
+`todo` `medium` `filed 2026-11-19` `target: v3.0.0`
 
-Move `mods/codeblock` from `v1.0.0` to CodeBlock's next release, `v2.0.0`,
-dated in its changelog but not tagged yet, following `codecube-kb`'s
-`references/release.md`. Its changelog leads with breaking changes to colour
-names, and the release gate makes a game release adopting a breaking one major,
-so the `v2.1.0` target is still to settle. It also adds
-`codeblock_wait_for_mapgen`, which this game's world, generated on demand,
-leaves on.
+ContentDB's Git update detection is disabled for every package (seen
+2026-11-19 on CodeBlock's v2.0.0), so a tag publishes nothing and the release
+webhook may not either. Before tagging: `CONTENTDB.md`'s *Recent changes* for
+v3.0.0, and `CHANGELOG.md`'s entry completed with `F-N-1` to `F-N-3` and
+whatever else ships. After tagging, if the tag did not publish: upload a zip
+built with both submodules filled in, as `codecube-kb`'s `references/release.md`
+describes, paste `CONTENTDB.md` into *Edit details*, and compare the live long
+description with `.cdb.json`.
 
 ## Tests
 
@@ -133,6 +136,22 @@ player now takes them from the creative inventory or runs `/codeblock tools`.
 **This is the game's check, not the mod's**: what it reads is whether a player
 who installs *this package* and starts a world can reach the drone at all.
 
+### R4 · the drone can still build
+
+`todo` `playtest` `target: v3.0.0`
+
+Last passed 2026-09-01 against CodeBlock before `v1.0.0`. Owed again at CodeBlock
+`v2.0.0`, which waits for the mapgen before a write and changed how a carve
+meets the game's grass and dirt.
+
+### R9 · the drone places and removes CodeBlock's own blocks, and nothing else exists
+
+`todo` `playtest` `target: v3.0.0`
+
+Last passed 2026-09-09 at `dd83b99`. Owed again at CodeBlock `v2.0.0`, whose
+3930-colour palette replaces the 35 solid blocks and converts old ones as their
+area loads.
+
 ### P1 · a fresh recursive clone boots
 
 `todo` `playtest` `partial` `target: v2.0.0`
@@ -179,6 +198,7 @@ whoever re-runs it knows what they are re-reading against.
 
 ### Features
 
+- `F-M-1` done `medium` · CodeBlock `v2.0.0` adopted, up from `v1.0.0`: 3930 colours, the 35 named ones as bricks, and faster drones. It breaks saved programs, so the game's next release is `v3.0.0`
 - `F-N-3` done `medium` · a player holding `saveme`, granted to each player once on their first join and revocable for good after that, climbs out of a build with `/codecube saveme`, once a second. They land on top of a build nearby, the highest node of a mapblock column drawn at random within 32, 64 then 128 nodes, and the mapblocks around them are carved to air only when no column drawn has room. The rescue from the void uses the same search, with a bedrock platform under the player as its last resort, and no longer keeps them in their own column or falls back to spawn
 - `F-N-2` done `large` · a player holding `spreadplayers` sends players to plots of `codecube_plot_size` nodes with `/codecube spreadplayers <random|spaced>`, everyone online but the caller or the players named, `*` globs and `-` exclusions. The 100 by 100 core of every plot used, and of every spot a player stood on at a spread, is recorded in mod storage and never handed out again, and a core found built is recorded and swapped for another
 - `F-N-1` done `medium` · a player holding `newplace`, granted to each player once on their first join and revocable for good after that, moves to a random column of the surface with `/codecube newplace`, at least 500 nodes from the wall or a tenth of the world's width when that is less, once per `codecube_newplace_cooldown` seconds unless they hold `server`
@@ -222,11 +242,9 @@ whoever re-runs it knows what they are re-reading against.
 - `R1` done `playtest` 2026-09-09 · nothing is diggable
 - `R2` done `playtest` 2026-09-09 · the inventory is empty and no item ever drops
 - `R3` done `playtest` 2026-09-09 · no knockback
-- `R4` done `playtest` 2026-09-01 · the drone can still build
 - `R5` done `playtest` 2026-09-09 · the chained drop handler still hands out nothing
 - `R6` done `playtest` 2026-09-01 · a bookshelf opens nothing you can use
 - `R7` done `playtest` 2026-09-02 · the world does not change on its own
 - `R8` done `playtest` 2026-09-09 · no node ever plays a dig animation
-- `R9` done `playtest` 2026-09-09 · the drone places and removes CodeBlock's own blocks, and nothing else exists
 - `P2` done `playtest` 2026-09-01 · the release archive holds only what a player needs
 - `P6` done `playtest` 2026-09-22 · every form and the hotbar wear the game's own style

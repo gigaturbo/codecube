@@ -1,3 +1,30 @@
+# v3.0.0 (unreleased)
+
+**This release breaks some saved player programs.** The bundled `codeblock`
+mod is adopted at its **2.0.0** release, up from 1.0.0. See
+[its changelog](https://github.com/gigaturbo/codeblock/blob/v2.0.0/CHANGELOG.md)
+for the full list.
+
+## Breaking
+
+- [x] **BREAKING** `colors.red` and the other 34 colour names now build the nearest of 3930 new colours, a close shade of the old one. The old solid blocks already in a world turn into that colour as their area loads
+- [x] **BREAKING** a block name that does not exist, such as `colors.gren`, stops the program on its line, where it used to build a default block
+- [x] **BREAKING** `colors` can no longer be walked as a list of 35 blocks, so `random.of(colors)` and `pairs(colors)` stop working. Use `bricks` or `colors.list`
+- [x] **BREAKING** `get_block` answers a solid colour by its palette name, such as `color_#f9a7ef`, never `'red'`
+
+## Added
+
+- [x] 3930 colours, chosen by name, hex, RGB or a perceptual colour space, and the 35 named colours as bricks beside glass and lamps
+- [x] A codelevel limit on how much new map one program may make the server generate
+
+## Changed
+
+- [x] Drones build several times faster, on a share of each server step rather than a fixed time, and a large shape no longer stalls the server
+
+## Fixed
+
+- [x] A build beside freshly explored ground no longer comes out with holes, and a carve into unexplored ground no longer grows grass and dirt on its floor
+
 # v2.0.0 — 2026-09-22
 
 Tagged on `1ca0d2a`. Everything below compares against **`v1.0.2`**
