@@ -1,4 +1,4 @@
-# v3.0.0 (unreleased)
+# v3.0.0 (2026-11-19)
 
 **This release breaks some saved player programs.** The bundled `codeblock`
 mod is adopted at its **2.0.0** release, up from 1.0.0. See

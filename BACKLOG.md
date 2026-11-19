@@ -42,7 +42,7 @@ Nothing open.
 
 ### F-I-1 · a panel lists the player's commands
 
-`todo` `medium` `filed 2026-09-23` `target: v3.0.0`
+`todo` `medium` `filed 2026-09-23` `target: v3.1.0`
 
 A panel exposing at least `saveme` and `newplace`, so a player does not have to
 know the chat syntax. Still to decide: whether it lives in `cc_commands` and
@@ -54,7 +54,7 @@ does.
 
 ### F-I-2 · a hotbar tool runs the most useful commands
 
-`todo` `medium` `filed 2026-10-01` `target: v3.0.0`
+`todo` `medium` `filed 2026-10-01` `target: v3.1.0`
 
 A tool in the hotbar beside the drone's two, so a player reaches `newplace` and
 the commands like it without typing. Still to decide: which commands, how one is

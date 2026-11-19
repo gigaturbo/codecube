@@ -36,18 +36,16 @@ Experiment and discover with the other examples, or write your own!
 
 ## Recent changes
 
-**This release needs Luanti 5.9 or newer**, and it breaks saved programs and
-changes worlds you have already played in.
+**This release breaks some saved programs.** A colour name now builds the nearest of 3930 colours, and a block name that does not exist stops the program on its line.
 
-- The world is now bounded and much bigger. You cannot fall out of it any more.
-- The blocks a program places are the **CodeBlock** mod's own, so the game no longer bundles Minetest Game's `default`, `wool` and `dye`. A program naming an old block places nothing.
-- Every panel and the hotbar are drawn in the game's own style
-- Some API names are gone with no replacement, so a saved program using one stops on that line: the whole `table` namespace, `random.block`, `random.plant`, `random.wool`, `table.randomizer` and the per-category colour ramps.
-- The drone's limits were rewritten around what a program costs the server instead of counts of calls. Nothing bounds a shape's size or how far the drone may fly from home any more.
-- The two lowest codelevels now pace the drone so a beginner can watch a loop happen. A single player starts at codelevel 3 and a new player on a server at 2, where everyone used to start at 4.
-- Every drone limit and both of the world's numbers are settings.
-- Programs build faster. The ceiling on how much of the world one program may hold at once was raised at every codelevel, and that is what paces a large build; nothing about how you write a program changes.
-- The bundled **CodeBlock** mod is adopted at its 1.0.0 release, up from the 0.7 series.
+- 3930 colours, chosen by name, hex or RGB, and the 35 named colours as bricks beside glass and lamps. Old solid blocks in a world turn into the nearest colour as their area loads.
+- `/codecube newplace` moves you to a fresh place to build.
+- `/codecube saveme` gets you out when a build has walled you in.
+- `/codecube spreadplayers` sends a class to plots of their own, never handed out twice.
+- `/codecube speed` lets an admin set how fast a player moves. Everyone moves faster by default.
+- A player who falls out of the world lands on a build nearby.
+- Drones build several times faster and no longer stall the server.
+- The bundled **CodeBlock** mod is adopted at its 2.0.0 release.
 
 The drone, the editor, the sandbox and the API are the **CodeBlock** mod, which this game bundles. Install that on its own if you want them in a world of your own making.
 
